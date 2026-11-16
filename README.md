@@ -105,7 +105,7 @@ Use `puremac clean dev --dry-run` for a preview or `--json` for scripts. See
 
 A Mac cleaner asks for the deepest permission macOS grants - Full Disk Access - and then deletes your files. That demands a level of trust the category has spent twenty years burning. Here's the contract PureMac holds itself to, and you can verify every line of it in the source:
 
-- **Deletion behavior is explicit.** App uninstalls, orphan removal, and exact-duplicate removal use the Trash at user level. Dashboard/category cleanup, scheduled auto-clean, Trash emptying, Docker/Xcode runtime cleanup, administrator-authorized removal, local snapshot deletion, and CLI cleanup can permanently delete data. Review selections carefully and use CLI dry runs.
+- **Deletion behavior is explicit.** App uninstalls, orphan removal, and exact-duplicate removal use the Trash at user level. PureMac never empties the Trash: empty it yourself in Finder. Dashboard/category cleanup, scheduled auto-clean, Docker/Xcode runtime cleanup, administrator-authorized removal, local snapshot deletion, and CLI cleanup can permanently delete data. Review selections carefully and use CLI dry runs.
 - **No telemetry, ever.** No analytics, no crash reporting, no "anonymous usage stats," no network calls to us. The app doesn't know you exist.
 - **No fake urgency.** No dramatized "47 GB of junk detected!" badge, no red alarm counters, no "your Mac is at risk." We show you neutral facts and let you decide.
 - **No overpromising.** We don't claim to "reclaim purgeable space," "boost RAM," or "speed up your Mac" - things no app can reliably do. See the purgeable-space note below.
@@ -141,7 +141,6 @@ Smart Scan checks each category in sequence and reports progress as files are fo
 - **User Cache** - dynamically discovered, no hardcoded app list
 - **AI Apps** - Ollama and LM Studio logs, caches, opt-in history cleanup
 - **Mail Files** - downloaded mail attachments
-- **Trash Bins** - empties all bins, including external volumes
 - **Large & Old Files** - >100 MB or older than 1 year (never auto-selected)
 - **Xcode Junk** - DerivedData, Archives, simulator caches, downloaded simulator runtimes (deleted via `simctl runtime delete`; never auto-selected), and XcodeBuildMCP or MobileBuildMCP DerivedData (never auto-selected, so scheduled cleanup leaves it alone; manual cleanup moves it to the Trash while holding the tool's storage lock, which does not detect a running build)
 - **Brew Cache** - Homebrew download caches within approved cache locations

@@ -228,7 +228,6 @@
 "User Cache" = "ذاكرة التخزين المؤقت للمستخدم";
 "AI Apps" = "تطبيقات الذكاء الاصطناعي";
 "Mail Files" = "ملفات البريد";
-"Trash Bins" = "سلات المهملات";
 "Large & Old Files" = "الملفات الكبيرة والقديمة";
 "Purgeable Space" = "المساحة القابلة للتحرير";
 "Xcode Junk" = "نفايات Xcode";
@@ -244,7 +243,6 @@
 "Application caches and browser data" = "ذاكرات التطبيقات المؤقتة وبيانات المتصفح";
 "Local AI app logs, caches, and optional history" = "سجلات تطبيقات الذكاء الاصطناعي المحلية وذاكراتها المؤقتة والمحفوظات الاختيارية";
 "Downloaded mail attachments" = "مرفقات البريد التي تم تنزيلها";
-"Files in your Trash" = "الملفات الموجودة في سلة المهملات";
 "Files over 100 MB or older than 1 year" = "الملفات التي يتجاوز حجمها 100 ميغابايت أو أقدم من سنة";
 "APFS purgeable disk space" = "مساحة القرص القابلة للتحرير في APFS";
 "Derived data, archives, and simulator runtimes" = "البيانات المشتقة والأرشيفات والمحاكيات";

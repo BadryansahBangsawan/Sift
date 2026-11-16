@@ -19,7 +19,7 @@ final class DeviceBackupCoordinationTests: XCTestCase {
         let state = AppState(performStartupTasks: false)
         XCTAssertTrue(state.canRemoveDeviceBackups)
 
-        state.scanState = .scanning(progress: 0.5, currentCategory: "Trash Bins")
+        state.scanState = .scanning(progress: 0.5, currentCategory: "Mail Files")
         XCTAssertFalse(state.canRemoveDeviceBackups)
         state.scanState = .cleaning(progress: 0.5)
         XCTAssertFalse(state.canRemoveDeviceBackups)
@@ -34,15 +34,15 @@ final class DeviceBackupCoordinationTests: XCTestCase {
         state.deviceBackupRemovalInProgress = true
         state.startSmartScan()
         XCTAssertEqual(state.scanState, .idle)
-        state.scanSingleCategory(.trashBins)
+        state.scanSingleCategory(.userCache)
         XCTAssertEqual(state.scanState, .idle)
     }
 
     func testManualAndScheduledCleanupWaitForBackupRemoval() {
         let state = AppState(performStartupTasks: false)
         let item = CleanableItem(name: "Fixture", path: "/fixtures/backup", size: 4096,
-                                 category: .trashBins, isSelected: true, lastModified: nil)
-        state.categoryResults[.trashBins] = CategoryResult(category: .trashBins, items: [item], totalSize: item.size)
+                                 category: .userCache, isSelected: true, lastModified: nil)
+        state.categoryResults[.userCache] = CategoryResult(category: .userCache, items: [item], totalSize: item.size)
         state.scanState = .completed
         state.deviceBackupRemovalInProgress = true
 
@@ -50,8 +50,8 @@ final class DeviceBackupCoordinationTests: XCTestCase {
         XCTAssertEqual(state.scanState, .completed)
         state.cleanAll(scheduled: true)
         XCTAssertEqual(state.scanState, .completed)
-        state.cleanCategory(.trashBins)
+        state.cleanCategory(.userCache)
         XCTAssertEqual(state.scanState, .completed)
-        XCTAssertEqual(state.categoryResults[.trashBins]?.items.map(\.id), [item.id])
+        XCTAssertEqual(state.categoryResults[.userCache]?.items.map(\.id), [item.id])
     }
 }

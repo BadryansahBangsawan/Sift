@@ -23,6 +23,15 @@ class SchedulerService: ObservableObject {
                 saved.nextRunDate = nil
                 saved.lastRunDate = nil
             }
+            // A persisted ScheduleConfig decodes through CleaningCategory's
+            // raw values, which no longer include withdrawn cases such as
+            // Trash Bins. Decoding is all-or-nothing, so a profile written by
+            // an older build would otherwise fail the whole decode and silently
+            // reset the user's schedule. Fall back to the default scan set only
+            // for the unknown entries.
+            if saved.categoriesToScan.contains(where: { !CleaningCategory.scannable.contains($0) }) {
+                saved.categoriesToScan = CleaningCategory.scannable
+            }
             self.config = saved
         } else {
             self.config = ScheduleConfig()

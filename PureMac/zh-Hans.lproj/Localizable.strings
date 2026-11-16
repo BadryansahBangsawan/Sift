@@ -228,7 +228,6 @@
 "User Cache" = "用户缓存";
 "AI Apps" = "AI 应用";
 "Mail Files" = "邮件文件";
-"Trash Bins" = "废纸篓";
 "Large & Old Files" = "大文件和旧文件";
 "Purgeable Space" = "可清除空间";
 "Xcode Junk" = "Xcode 垃圾";
@@ -244,7 +243,6 @@
 "Application caches and browser data" = "应用程序缓存和浏览器数据";
 "Local AI app logs, caches, and optional history" = "本地 AI 应用的日志、缓存和可选历史";
 "Downloaded mail attachments" = "已下载的邮件附件";
-"Files in your Trash" = "废纸篓中的文件";
 "Files over 100 MB or older than 1 year" = "大于 100 MB 或超过 1 年的文件";
 "APFS purgeable disk space" = "APFS 可清理磁盘空间";
 "Derived data, archives, and simulator runtimes" = "构建数据、归档和模拟器运行时";

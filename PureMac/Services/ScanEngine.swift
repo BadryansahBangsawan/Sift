@@ -63,8 +63,6 @@ actor ScanEngine {
             return scanAIApps()
         case .mailAttachments:
             return scanMailAttachments()
-        case .trashBins:
-            return scanTrash()
         case .largeFiles:
             return scanLargeFiles()
         case .purgeableSpace:
@@ -303,17 +301,6 @@ actor ScanEngine {
 
         let totalSize = items.reduce(0) { $0 + $1.size }
         return CategoryResult(category: .mailAttachments, items: items, totalSize: totalSize)
-    }
-
-    private func scanTrash() -> CategoryResult {
-        var items: [CleanableItem] = []
-
-        let trashPath = "\(home)/.Trash"
-        let scanned = scanDirectory(path: trashPath, category: .trashBins, recursive: false, maxDepth: 1)
-        items.append(contentsOf: scanned)
-
-        let totalSize = items.reduce(0) { $0 + $1.size }
-        return CategoryResult(category: .trashBins, items: items, totalSize: totalSize)
     }
 
     private func scanLargeFiles() -> CategoryResult {
@@ -1135,10 +1122,17 @@ actor ScanEngine {
 
         // errorHandler returns true so unreadable entries are skipped
         // instead of aborting the walk partway through the tree.
+        //
+        // Hidden entries are counted. This size is what the cleaner reports
+        // as freed after removing the whole subtree — hidden files included —
+        // so skipping them under-reported every directory item. The Settings
+        // "Skip hidden files during scan" toggle only governs which files
+        // scanLargeFiles surfaces, where each row is a single undeletable-by-
+        // subtree file.
         guard let enumerator = fileManager.enumerator(
             at: URL(fileURLWithPath: path),
             includingPropertiesForKeys: [.totalFileAllocatedSizeKey, .fileSizeKey, .isRegularFileKey],
-            options: [.skipsHiddenFiles],
+            options: [],
             errorHandler: { _, _ in true }
         ) else { return 0 }
 
@@ -1265,54 +1259,16 @@ actor ScanEngine {
 
     /// Calculate total local snapshot size from disk usage difference
     private func getLocalSnapshotSize() -> Int64 {
-        // The difference between "Volume Used Space" visible to the filesystem
-        // and actual container usage can indicate snapshot overhead.
-        // However, without root access, we can only check if tmutil reports snapshots.
-
-        let task = Process()
-        task.executableURL = URL(fileURLWithPath: "/usr/bin/tmutil")
-        task.arguments = ["listlocalsnapshots", "/"]
-        let pipe = Pipe()
-        task.standardOutput = pipe
-        task.standardError = Pipe()
-
-        do {
-            try task.run()
-            task.waitUntilExit()
-            let data = pipe.fileHandleForReading.readDataToEndOfFile()
-            guard let output = String(data: data, encoding: .utf8) else { return 0 }
-
-            let snapshotCount = output.components(separatedBy: "\n")
-                .filter { $0.contains("TimeMachine") || $0.contains("com.apple") }
-                .count
-
-            if snapshotCount == 0 { return 0 }
-
-            // Check if system reports purgeable via newer diskutil
-            // On systems that support it, "Purgeable Space" appears in diskutil info
-            let diskTask = Process()
-            diskTask.executableURL = URL(fileURLWithPath: "/usr/sbin/diskutil")
-            diskTask.arguments = ["info", "-plist", "/"]
-            let diskPipe = Pipe()
-            diskTask.standardOutput = diskPipe
-            diskTask.standardError = Pipe()
-            try diskTask.run()
-            diskTask.waitUntilExit()
-
-            let diskData = diskPipe.fileHandleForReading.readDataToEndOfFile()
-            if let plist = try? PropertyListSerialization.propertyList(from: diskData, format: nil) as? [String: Any],
-               let purgeable = plist["APFSContainerFree"] as? Int64,
-               let volumeFree = plist["FreeSpace"] as? Int64 {
-                // Purgeable is roughly the difference (snapshots that can be freed)
-                let purgeableEstimate = max(0, volumeFree - purgeable)
-                if purgeableEstimate > 10 * 1024 * 1024 { // Only report if > 10 MB
-                    return purgeableEstimate
-                }
-            }
-        } catch {
-            Logger.shared.log("Purgeable space detection failed: \(error.localizedDescription)", level: .warning)
-        }
-
+        // A per-snapshot size needs the APFS accounting that only an
+        // administrator command returns, and no snapshot UUIDs are available
+        // here to attribute space to. The previous implementation subtracted
+        // the container-wide free figure from the volume free figure, which
+        // measured nothing and produced numbers unrelated to the snapshots.
+        // Return 0 so no invented size reaches the UI.
+        Logger.shared.log(
+            "Local snapshot sizes need administrator APFS accounting; reporting none",
+            level: .info
+        )
         return 0
     }
 }

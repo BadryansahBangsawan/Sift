@@ -228,7 +228,6 @@
 "User Cache" = "Caché de usuario";
 "AI Apps" = "Apps de IA";
 "Mail Files" = "Archivos de Mail";
-"Trash Bins" = "Papeleras";
 "Large & Old Files" = "Archivos grandes y antiguos";
 "Purgeable Space" = "Espacio liberable";
 "Xcode Junk" = "Basura de Xcode";
@@ -244,7 +243,6 @@
 "Application caches and browser data" = "Cachés de aplicaciones y datos del navegador";
 "Local AI app logs, caches, and optional history" = "Registros, cachés e historial opcional de apps de IA locales";
 "Downloaded mail attachments" = "Adjuntos de correo descargados";
-"Files in your Trash" = "Archivos en la Papelera";
 "Files over 100 MB or older than 1 year" = "Archivos de más de 100 MB o con más de 1 año";
 "APFS purgeable disk space" = "Espacio liberable de disco APFS";
 "Derived data, archives, and simulator runtimes" = "Datos derivados, archivos y simuladores";

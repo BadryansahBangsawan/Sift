@@ -547,29 +547,6 @@ actor CleaningEngine {
         }
     }
 
-    // MARK: - Trash
-
-    func emptyTrash() async -> Int64 {
-        let home = fileManager.homeDirectoryForCurrentUser.path
-        let trashPath = "\(home)/.Trash"
-        var totalFreed: Int64 = 0
-
-        do {
-            let contents = try fileManager.contentsOfDirectory(atPath: trashPath)
-            for item in contents {
-                let fullPath = (trashPath as NSString).appendingPathComponent(item)
-                if let attrs = try? fileManager.attributesOfItem(atPath: fullPath) {
-                    totalFreed += (attrs[.size] as? Int64) ?? 0
-                }
-                try fileManager.removeItem(atPath: fullPath)
-            }
-        } catch {
-            Logger.shared.log("Trash cleanup incomplete: \(error.localizedDescription)", level: .warning)
-        }
-
-        return totalFreed
-    }
-
     // MARK: - Helpers
 
     private func isSafeToDelete(

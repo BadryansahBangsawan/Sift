@@ -269,7 +269,6 @@
 "User Cache" = "Pamięć podręczna użytkownika";
 "AI Apps" = "Aplikacje AI";
 "Mail Files" = "Pliki poczty";
-"Trash Bins" = "Kosze";
 "Large & Old Files" = "Duże i stare pliki";
 "Purgeable Space" = "Miejsce do zwolnienia";
 "Xcode Junk" = "Śmieci Xcode";
@@ -285,7 +284,6 @@
 "Application caches and browser data" = "Pamięci podręczne aplikacji i dane przeglądarek";
 "Local AI app logs, caches, and optional history" = "Logi aplikacji AI, pamięci podręczne i historia";
 "Downloaded mail attachments" = "Pobrane załączniki poczty";
-"Files in your Trash" = "Pliki w koszu";
 "Files over 100 MB or older than 1 year" = "Pliki powyżej 100 MB lub starsze niż 1 rok";
 "APFS purgeable disk space" = "Miejsce na dysku do zwolnienia (APFS)";
 "Derived data, archives, and simulator runtimes" = "Dane pochodne, archiwa i symulatory";

@@ -42,10 +42,13 @@ enum FileSizeCalculator {
     }
 
     private static func directorySize(of url: URL) -> Int64 {
+        // No .skipsHiddenFiles: every caller deletes or trashes the whole
+        // subtree, hidden entries included. Skipping them here under-reported
+        // the freed size of every directory item.
         guard let enumerator = fileManager.enumerator(
             at: url,
             includingPropertiesForKeys: [.totalFileAllocatedSizeKey, .fileAllocatedSizeKey, .isRegularFileKey, .isSymbolicLinkKey],
-            options: [.skipsHiddenFiles]
+            options: []
         ) else { return 0 }
 
         var total: Int64 = 0

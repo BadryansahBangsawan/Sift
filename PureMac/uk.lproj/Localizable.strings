@@ -269,7 +269,6 @@
 "User Cache" = "Кеш користувача";
 "AI Apps" = "Програми ШІ";
 "Mail Files" = "Файли Пошти";
-"Trash Bins" = "Смітники";
 "Large & Old Files" = "Великі й старі файли";
 "Purgeable Space" = "Місце, яке можна звільнити";
 "Xcode Junk" = "Сміття Xcode";
@@ -285,7 +284,6 @@
 "Application caches and browser data" = "Кеші програм і дані браузерів";
 "Local AI app logs, caches, and optional history" = "Журнали, кеші та, за бажанням, історія локальних програм ШІ";
 "Downloaded mail attachments" = "Викачані вкладення Пошти";
-"Files in your Trash" = "Файли у Смітнику";
 "Files over 100 MB or older than 1 year" = "Файли розміром понад 100 МБ або старші за 1 рік";
 "APFS purgeable disk space" = "Місце APFS, яке можна звільнити";
 "Derived data, archives, and simulator runtimes" = "Похідні дані, архіви та середовища виконання симуляторів";

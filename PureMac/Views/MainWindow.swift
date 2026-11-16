@@ -15,7 +15,6 @@ struct MainWindow: View {
         .systemJunk,
         .userCache,
         .mailAttachments,
-        .trashBins,
         .largeFiles
     ]
 
