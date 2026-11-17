@@ -129,7 +129,7 @@ struct Doctor: ParsableCommand {
     }
 
     private func trashSize() -> Int64 {
-        guard let ignore = try? IgnoreStore(fileURL: AppPaths.ignoreFile) else { return 0 }
+        guard let ignore = try? IgnoreStore(fileURL: AppPaths.ignoreFile, legacyFileURL: AppPaths.legacyIgnoreFile) else { return 0 }
         let scan = CategoryScanner.scan(categoryID: "trash", title: "Trash", ignore: ignore)
         return scan.allBytes
     }

@@ -1,6 +1,6 @@
 //
 //  AppPathFinder.swift
-//  PureMac
+//  Sift
 //
 //  Heuristic file discovery engine that locates all filesystem artifacts
 //  belonging to a given macOS application. Uses multi-level matching

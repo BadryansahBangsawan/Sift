@@ -1,6 +1,6 @@
 import Foundation
 import XCTest
-@testable import puremac
+@testable import sift
 
 final class OptimizeConfigTests: XCTestCase {
     func testSnapshotParserAcceptsOnlyExactTimeMachineSnapshots() {
@@ -97,6 +97,42 @@ final class OptimizeConfigTests: XCTestCase {
         XCTAssertTrue(blocked.roots.isEmpty)
     }
 
+    func testStoresFallBackToLegacyPureMacFilesAndSaveToNewPath() throws {
+        let directory = try temporaryDirectory()
+        defer { try? FileManager.default.removeItem(at: directory) }
+        let legacyIgnore = directory.appendingPathComponent("puremac/ignore")
+        let legacyConfig = directory.appendingPathComponent("puremac/config.json")
+        let newIgnore = directory.appendingPathComponent("sift/ignore")
+        let newConfig = directory.appendingPathComponent("sift/config.json")
+        let protected = directory.appendingPathComponent("protected").path
+        try FileManager.default.createDirectory(
+            at: legacyIgnore.deletingLastPathComponent(),
+            withIntermediateDirectories: true
+        )
+        try Data((protected + "\n").utf8).write(to: legacyIgnore)
+        try Data(#"{"purge.older_than_days":"21"}"#.utf8).write(to: legacyConfig)
+
+        // Only the legacy files exist: they are read.
+        var ignore = try IgnoreStore(fileURL: newIgnore, legacyFileURL: legacyIgnore)
+        XCTAssertEqual(ignore.roots, [protected])
+        var config = try ConfigStore(fileURL: newConfig, legacyFileURL: legacyConfig)
+        XCTAssertEqual(config.values["purge.older_than_days"], "21")
+
+        // Saving writes the merged data to the new path and leaves the legacy file alone.
+        let extra = directory.appendingPathComponent("extra").path
+        XCTAssertTrue(try ignore.add(extra))
+        try config.set("purge.older_than_days", "30")
+        XCTAssertEqual(try IgnoreStore(fileURL: newIgnore).roots, [extra, protected].sorted())
+        XCTAssertEqual(try ConfigStore(fileURL: newConfig).values["purge.older_than_days"], "30")
+        XCTAssertEqual(try IgnoreStore(fileURL: legacyIgnore).roots, [protected])
+
+        // Once the new file exists it wins over the legacy one.
+        XCTAssertEqual(
+            try ConfigStore(fileURL: newConfig, legacyFileURL: legacyConfig).values["purge.older_than_days"],
+            "30"
+        )
+    }
+
     func testRelativeIgnorePathBecomesAbsoluteAndProtectsCandidate() throws {
         let directory = try temporaryDirectory()
         defer { try? FileManager.default.removeItem(at: directory) }
@@ -131,9 +167,9 @@ final class OptimizeConfigTests: XCTestCase {
             XCTAssertThrowsError(try rootStore.remove(path))
         }
         XCTAssertTrue(rootStore.roots.isEmpty)
-        XCTAssertTrue(try rootStore.add("/tmp/./puremac-ignore-fixture"))
-        XCTAssertEqual(rootStore.roots, ["/tmp/puremac-ignore-fixture"])
-        XCTAssertTrue(try rootStore.remove("/tmp/puremac-ignore-fixture"))
+        XCTAssertTrue(try rootStore.add("/tmp/./sift-ignore-fixture"))
+        XCTAssertEqual(rootStore.roots, ["/tmp/sift-ignore-fixture"])
+        XCTAssertTrue(try rootStore.remove("/tmp/sift-ignore-fixture"))
 
         for contents in ["relative/path\n", "/.\n", "/tmp/..\n"] {
             try Data(contents.utf8).write(to: file)
@@ -143,7 +179,7 @@ final class OptimizeConfigTests: XCTestCase {
 
     private func temporaryDirectory() throws -> URL {
         let directory = FileManager.default.temporaryDirectory
-            .appendingPathComponent("puremac-cli-tests-\(UUID().uuidString)", isDirectory: true)
+            .appendingPathComponent("sift-cli-tests-\(UUID().uuidString)", isDirectory: true)
         try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
         return directory
     }

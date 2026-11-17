@@ -1,6 +1,6 @@
 import Foundation
 import XCTest
-@testable import puremac
+@testable import sift
 
 final class DupesTests: XCTestCase {
     func testIdenticalContentsFormOneGroup() throws {
@@ -104,7 +104,7 @@ final class DupesTests: XCTestCase {
 
     private func temporaryDirectory() throws -> URL {
         let url = FileManager.default.temporaryDirectory
-            .appendingPathComponent("puremac-dupes-\(UUID().uuidString)", isDirectory: true)
+            .appendingPathComponent("sift-dupes-\(UUID().uuidString)", isDirectory: true)
         try FileManager.default.createDirectory(at: url, withIntermediateDirectories: true)
         return url
     }

@@ -5,10 +5,10 @@ struct Config: ParsableCommand {
     static let configuration = CommandConfiguration(
         abstract: "Show or change CLI preferences.",
         discussion: """
-          puremac config                       Show settings and storage locations
-          puremac config set purge.older_than_days 14
-        The age setting controls which project artifacts `puremac purge` preselects.
-        PureMac CLI has no telemetry setting because it sends no telemetry.
+          sift-cli config                       Show settings and storage locations
+          sift-cli config set purge.older_than_days 14
+        The age setting controls which project artifacts `sift-cli purge` preselects.
+        Sift CLI has no telemetry setting because it sends no telemetry.
         """
     )
 
@@ -27,7 +27,7 @@ struct Config: ParsableCommand {
             throw ValidationError("Unknown action '\(action ?? "")'. Use 'set' or omit all arguments.")
         }
         guard let key, let value else {
-            throw ValidationError("Usage: puremac config set <key> <value>")
+            throw ValidationError("Usage: sift-cli config set <key> <value>")
         }
         do {
             _ = try ConfigStore.normalizedValue(value, for: key)
@@ -37,10 +37,10 @@ struct Config: ParsableCommand {
     }
 
     func run() throws {
-        var store = try ConfigStore(fileURL: AppPaths.configFile)
+        var store = try ConfigStore(fileURL: AppPaths.configFile, legacyFileURL: AppPaths.legacyConfigFile)
         if action == "set" {
             guard let key, let value else {
-                throw ValidationError("Usage: puremac config set <key> <value>")
+                throw ValidationError("Usage: sift-cli config set <key> <value>")
             }
             try store.set(key, value)
             let saved = store.values[key] ?? value
@@ -49,7 +49,7 @@ struct Config: ParsableCommand {
             return
         }
 
-        print(Term.bold("PureMac CLI settings"))
+        print(Term.bold("Sift CLI settings"))
         print(Term.dim("Values used when a command-line option is omitted"))
         print("")
         for key in ConfigStore.knownKeys {

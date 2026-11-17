@@ -6,9 +6,9 @@ struct Analyze: ParsableCommand {
         abstract: "Show what is taking up disk space, largest first.",
         discussion: """
         Sizes the immediate children of a folder and ranks them, like `du -d1 | sort`.
-          puremac analyze              Explore your home folder
-          puremac analyze ~/Library    Explore a specific folder
-          puremac analyze --plain      Print a report without fullscreen browsing
+          sift-cli analyze              Explore your home folder
+          sift-cli analyze ~/Library    Explore a specific folder
+          sift-cli analyze --plain      Print a report without fullscreen browsing
         Browsing never modifies files.
         """
     )
@@ -33,7 +33,7 @@ struct Analyze: ParsableCommand {
 
     func run() throws {
         let target = ((path ?? Safety.home) as NSString).expandingTildeInPath
-        let ignore = try IgnoreStore(fileURL: AppPaths.ignoreFile)
+        let ignore = try IgnoreStore(fileURL: AppPaths.ignoreFile, legacyFileURL: AppPaths.legacyIgnoreFile)
         try validateRoot(target, ignore: ignore)
 
         if json {
@@ -293,7 +293,7 @@ struct Analyze: ParsableCommand {
     private func measuringLines(_ path: String, width: Int) -> [String] {
         let safeWidth = max(1, width)
         return [
-            Term.bold(Term.cyan(Term.truncate("PureMac Space Explorer", to: safeWidth))),
+            Term.bold(Term.cyan(Term.truncate("Sift Space Explorer", to: safeWidth))),
             "",
             Term.dim(Term.truncate("Measuring allocated space...", to: safeWidth)),
             Term.truncate(path, to: safeWidth, middle: true),
@@ -307,7 +307,7 @@ struct Analyze: ParsableCommand {
         let safeHeight = max(1, height)
         if safeWidth < 40 || safeHeight < 12 {
             let compact = [
-                Term.bold(Term.cyan(Term.truncate("PureMac Space Explorer", to: safeWidth))),
+                Term.bold(Term.cyan(Term.truncate("Sift Space Explorer", to: safeWidth))),
                 Term.truncate("Terminal too small", to: safeWidth),
                 Term.dim(Term.truncate("Resize to at least 40 x 12", to: safeWidth)),
                 "",
@@ -326,7 +326,7 @@ struct Analyze: ParsableCommand {
             : []
 
         var lines = [
-            Term.bold(Term.cyan("PureMac Space Explorer")),
+            Term.bold(Term.cyan("Sift Space Explorer")),
             Term.truncate(snapshot.path, to: safeWidth, middle: true),
             statusLine(snapshot, width: safeWidth),
             String(repeating: "─", count: safeWidth)

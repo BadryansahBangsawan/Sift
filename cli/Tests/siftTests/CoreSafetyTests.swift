@@ -1,5 +1,5 @@
 import XCTest
-@testable import puremac
+@testable import sift
 
 final class CoreSafetyTests: XCTestCase {
     private var root: URL!
@@ -8,7 +8,7 @@ final class CoreSafetyTests: XCTestCase {
     override func setUpWithError() throws {
         try super.setUpWithError()
         let provisionalRoot = fileManager.temporaryDirectory
-            .appendingPathComponent("puremac-core-tests-\(UUID().uuidString)", isDirectory: true)
+            .appendingPathComponent("sift-core-tests-\(UUID().uuidString)", isDirectory: true)
         try fileManager.createDirectory(at: provisionalRoot, withIntermediateDirectories: true)
         root = provisionalRoot.resolvingSymlinksInPath()
     }
@@ -120,8 +120,8 @@ final class CoreSafetyTests: XCTestCase {
     }
 
     func testTemporaryAliasesRemainUsableButCustomSymlinksDoNot() throws {
-        XCTAssertFalse(Safety.hasSymlinkComponent("/tmp/puremac-fixture"))
-        XCTAssertFalse(Safety.hasSymlinkComponent("/var/folders/puremac-fixture"))
+        XCTAssertFalse(Safety.hasSymlinkComponent("/tmp/sift-fixture"))
+        XCTAssertFalse(Safety.hasSymlinkComponent("/var/folders/sift-fixture"))
         let target = root.appendingPathComponent("target", isDirectory: true)
         let link = root.appendingPathComponent("custom-link", isDirectory: true)
         try fileManager.createDirectory(at: target, withIntermediateDirectories: true)

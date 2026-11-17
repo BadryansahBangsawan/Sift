@@ -6,11 +6,11 @@ struct Clean: ParsableCommand {
         abstract: "Scan and remove developer caches, system junk, AI-tool junk, and Trash.",
         discussion: """
         With no category, scans all of: dev, junk, ai, trash.
-          puremac clean            Scan everything, review, confirm
-          puremac clean dev        Package-manager & build-tool caches only
-          puremac clean junk        User logs & Xcode-generated junk only
-          puremac clean ai          AI-tool caches & logs only
-          puremac clean trash       Empty user + mounted-volume Trash
+          sift-cli clean            Scan everything, review, confirm
+          sift-cli clean dev        Package-manager & build-tool caches only
+          sift-cli clean junk        User logs & Xcode-generated junk only
+          sift-cli clean ai          AI-tool caches & logs only
+          sift-cli clean trash       Empty user + mounted-volume Trash
 
         Interactive review starts with every item unselected. Finishing the selector only opens an exact deletion review; a separate confirmation defaults to No. --plain uses a numbered selector with ranges, all, and none. --force removes the scanner's standard preselection without either prompt. --dry-run and --json never delete or open a selector.
         """
@@ -51,7 +51,7 @@ struct Clean: ParsableCommand {
         }
 
         let ids = category.map { [$0] } ?? Clean.validIDs
-        let ignore = try IgnoreStore(fileURL: AppPaths.ignoreFile)
+        let ignore = try IgnoreStore(fileURL: AppPaths.ignoreFile, legacyFileURL: AppPaths.legacyIgnoreFile)
         if !json {
             Term.err(Term.dim("Scanning " + ids.map(Clean.title).joined(separator: ", ") + " …"))
         }

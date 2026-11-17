@@ -1,6 +1,6 @@
 //
 //  AppConstants.swift
-//  PureMac
+//  Sift
 //
 //  Created by Theo Sementa on 12/04/2026.
 //

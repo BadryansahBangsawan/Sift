@@ -307,7 +307,7 @@ enum InteractiveReview {
         let selection = "\(model.selectedCount) selected · \(ByteCount.human(model.selectedBytes))"
         let found = "\(model.matchingAddresses.count) shown · \(ByteCount.human(model.allBytes))"
         var lines = [
-            Term.dim("PUREMAC  /  \(model.isReviewing ? "FINAL REVIEW" : "SELECT ITEMS")"),
+            Term.dim("SIFT  /  \(model.isReviewing ? "FINAL REVIEW" : "SELECT ITEMS")"),
             Term.bold(Term.cyan(titleText)),
             statusLine(left: found, right: selection, width: safeWidth)
         ]
@@ -379,7 +379,7 @@ enum InteractiveReview {
 
     private static func compactScreen(width: Int, height: Int) -> [String] {
         let lines = [
-            Term.bold(Term.cyan(Term.truncate("PureMac", to: width))),
+            Term.bold(Term.cyan(Term.truncate("Sift", to: width))),
             Term.truncate("Terminal too small", to: width),
             Term.dim(Term.truncate("Resize to at least 40 x 12", to: width)),
             "",

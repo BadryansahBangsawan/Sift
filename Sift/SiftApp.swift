@@ -6,9 +6,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     /// Owns the optional menu-bar status item. Nil until the monitor is enabled.
     private var menuBarController: MenuBarController?
 
-    /// Normally PureMac quits when its window closes. When the menu-bar system
+    /// Normally Sift quits when its window closes. When the menu-bar system
     /// monitor is enabled the app stays resident so the meters keep updating in
-    /// the menu bar; "Open PureMac" in that menu reopens the window.
+    /// the menu bar; "Open Sift" in that menu reopens the window.
     func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool {
         !UserDefaults.standard.bool(forKey: "settings.general.menuBarMonitor")
     }
@@ -25,10 +25,10 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                 name: .pureMacMenuBarMonitorChanged, object: nil
             )
         }
-        // Touch TCC-protected paths so macOS registers PureMac in the
+        // Touch TCC-protected paths so macOS registers Sift in the
         // Full Disk Access pane on first launch (fixes issue #75).
         FullDiskAccessManager.shared.triggerRegistration()
-        // Register the Finder Services provider so "Uninstall with PureMac"
+        // Register the Finder Services provider so "Uninstall with Sift"
         // appears when an .app bundle is right-clicked (issue #109).
         NSApp.servicesProvider = self
         NSUpdateDynamicServices()
@@ -36,7 +36,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
     /// Finder Services entry point. Declared in Info.plist as NSMessage
     /// `uninstallApp`; receives the right-clicked .app via the pasteboard and
-    /// hands it to AppState through a notification. Brings PureMac forward so
+    /// hands it to AppState through a notification. Brings Sift forward so
     /// the user lands on the uninstall scan.
     @objc func uninstallApp(_ pboard: NSPasteboard,
                             userData: String?,

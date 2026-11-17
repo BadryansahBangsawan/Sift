@@ -1,6 +1,6 @@
 //
 //  Conditions.swift
-//  PureMac
+//  Sift
 //
 //  Per-app matching rules and system-level skip conditions for the heuristic scan engine.
 //  These define edge cases where bundle ID and app name matching alone is insufficient.

@@ -79,7 +79,7 @@ Device backup removal is a separate user-level Trash workflow. It requires local
 ## Manual validation before claiming a change
 
 1. Record macOS version and architecture; check feature availability in System Settings. Intel Macs and older macOS versions must not present unavailable Apple Intelligence controls as enabled.
-2. Open each PureMac settings action and confirm the intended pane opens. If a deep link fails, show the manual route. Opening Settings must not mark the feature disabled.
+2. Open each Sift settings action and confirm the intended pane opens. If a deep link fails, show the manual route. Opening Settings must not mark the feature disabled.
 3. On a disposable test account, change one supported setting, reopen the corresponding Apple UI, and check the affected behavior. Test Siri separately from Apple Intelligence, image creation, Writing Tools, extensions, and summaries. Restore the previous choice after testing.
 4. For storage inventory, test an absent directory, unreadable directory, symlink, empty directory, and cancelled scan. Unknown/partial results must remain distinguishable from zero usage. Do not add review-only content to cleanup selections or scheduled cleaning.
 5. Confirm system apps and OS-owned models cannot enter removal, ordinary Apple app removal uses an explicit review, and no SIP change or profile installation occurs as a side effect.

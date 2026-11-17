@@ -20,11 +20,11 @@ VERSION="${1:?Usage: $0 <version> [notary_profile]}"
 NOTARY_PROFILE="${2:-AC_NOTARY}"
 TEAM_ID="H3WXHVTP97"
 SIGN_ID="Developer ID Application: Moamen Basel (${TEAM_ID})"
-SCHEME="PureMac"
-PROJECT="PureMac.xcodeproj"
-APP="build/export/PureMac.app"
-DMG="build/PureMac-${VERSION}.dmg"
-ZIP="build/PureMac-${VERSION}.zip"
+SCHEME="Sift"
+PROJECT="Sift.xcodeproj"
+APP="build/export/Sift.app"
+DMG="build/Sift-${VERSION}.dmg"
+ZIP="build/Sift-${VERSION}.zip"
 
 cd "$(dirname "$0")/.."
 
@@ -40,7 +40,7 @@ if ! git diff --quiet || ! git diff --cached --quiet; then
   echo "ERROR: tracked release inputs must be committed before building artifacts" >&2
   exit 1
 fi
-UNTRACKED_INPUTS=$(git ls-files --others --exclude-standard -- PureMac project.yml PureMac.xcodeproj)
+UNTRACKED_INPUTS=$(git ls-files --others --exclude-standard -- Sift project.yml Sift.xcodeproj)
 if [[ -n "${UNTRACKED_INPUTS}" ]]; then
   echo "ERROR: untracked release inputs must be committed before building artifacts:" >&2
   printf '%s\n' "${UNTRACKED_INPUTS}" >&2
@@ -86,7 +86,7 @@ xcodebuild \
   -scheme "${SCHEME}" \
   -configuration Release \
   -destination 'generic/platform=macOS' \
-  -archivePath build/PureMac.xcarchive \
+  -archivePath build/Sift.xcarchive \
   ARCHS="arm64 x86_64" \
   ONLY_ACTIVE_ARCH=NO \
   CODE_SIGN_STYLE=Manual \
@@ -110,7 +110,7 @@ cat > build/ExportOptions.plist <<PLIST
 PLIST
 
 xcodebuild -exportArchive \
-  -archivePath build/PureMac.xcarchive \
+  -archivePath build/Sift.xcarchive \
   -exportPath build/export \
   -exportOptionsPlist build/ExportOptions.plist
 
@@ -118,13 +118,13 @@ echo "==> verify codesign"
 codesign --verify --deep --strict --verbose=2 "${APP}"
 codesign -dvv "${APP}" 2>&1 | grep -E "Identifier|TeamIdentifier|flags|Authority"
 codesign -dvv "${APP}" 2>&1 | grep -q "flags=0x10000(runtime)" || { echo "Hardened runtime missing"; exit 1; }
-APP_ARCHS=$(lipo -archs "${APP}/Contents/MacOS/PureMac")
+APP_ARCHS=$(lipo -archs "${APP}/Contents/MacOS/Sift")
 grep -qw arm64 <<< "${APP_ARCHS}" || { echo "arm64 slice missing" >&2; exit 1; }
 grep -qw x86_64 <<< "${APP_ARCHS}" || { echo "x86_64 slice missing" >&2; exit 1; }
 echo "Architectures: ${APP_ARCHS}"
 
 echo "==> notarize app zip (profile: ${NOTARY_PROFILE})"
-NOTARY_ZIP="build/PureMac-app-notary.zip"
+NOTARY_ZIP="build/Sift-app-notary.zip"
 ditto -c -k --keepParent --sequesterRsrc "${APP}" "${NOTARY_ZIP}"
 xcrun notarytool submit "${NOTARY_ZIP}" \
   --keychain-profile "${NOTARY_PROFILE}" \
@@ -137,15 +137,15 @@ rm -f "${NOTARY_ZIP}"
 
 echo "==> dmg from stapled app"
 create-dmg \
-  --volname "PureMac ${VERSION}" \
+  --volname "Sift ${VERSION}" \
   --window-size 540 360 \
   --icon-size 100 \
-  --icon "PureMac.app" 140 180 \
-  --hide-extension "PureMac.app" \
+  --icon "Sift.app" 140 180 \
+  --hide-extension "Sift.app" \
   --app-drop-link 400 180 \
   --no-internet-enable \
   "${DMG}" \
-  build/export/PureMac.app
+  build/export/Sift.app
 codesign --sign "${SIGN_ID}" --timestamp "${DMG}"
 codesign --verify --verbose=2 "${DMG}"
 
@@ -165,7 +165,7 @@ ZIP_SHA=$(shasum -a 256 "${ZIP}" | awk '{print $1}')
 
 echo ""
 echo "===================="
-echo "PureMac ${VERSION} signed + notarized"
+echo "Sift ${VERSION} signed + notarized"
 echo "===================="
 echo "DMG: ${DMG}"
 echo "  sha256: ${DMG_SHA}"

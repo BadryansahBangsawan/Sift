@@ -7,8 +7,8 @@ struct Purge: ParsableCommand {
         discussion: """
         With no path, scans ~/Projects, ~/Code, ~/dev, ~/GitHub, ~/Workspace.
         Interactive review starts empty so recent and older artifacts are both selectable.
-          puremac purge                 Scan the default project folders
-          puremac purge ~/Work/app      Scan a specific folder
+          sift-cli purge                 Scan the default project folders
+          sift-cli purge ~/Work/app      Scan a specific folder
 
         Finishing the selector only opens an exact deletion review; a separate confirmation defaults to No. --plain uses a numbered selector with ranges, all, and none. --force removes only artifacts older than the configured threshold without either prompt. --dry-run and --json never delete or open a selector.
         """
@@ -53,7 +53,7 @@ struct Purge: ParsableCommand {
             throw ValidationError("Interactive review requires a terminal. Re-run with --force to remove the age-selected artifacts, or use --dry-run or --json for a read-only report.")
         }
 
-        let ignore = try IgnoreStore(fileURL: AppPaths.ignoreFile)
+        let ignore = try IgnoreStore(fileURL: AppPaths.ignoreFile, legacyFileURL: AppPaths.legacyIgnoreFile)
         let days = try resolvedDays()
         let roots = paths.isEmpty
             ? Purger.defaultRoots
@@ -116,7 +116,7 @@ struct Purge: ParsableCommand {
 
     private func resolvedDays() throws -> Int {
         if olderThanDays >= 0 { return olderThanDays }
-        let config = try ConfigStore(fileURL: AppPaths.configFile)
+        let config = try ConfigStore(fileURL: AppPaths.configFile, legacyFileURL: AppPaths.legacyConfigFile)
         if let v = config.values["purge.older_than_days"], let n = Int(v), (0...3650).contains(n) { return n }
         return 7
     }

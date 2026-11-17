@@ -138,7 +138,7 @@ enum Safety {
         return !name.isEmpty && name != ".app" && !name.contains("/")
     }
 
-    /// `allowingAppBundles` is set only by `puremac uninstall`. It relaxes the
+    /// `allowingAppBundles` is set only by `sift-cli uninstall`. It relaxes the
     /// `/Applications` tree denial for one top-level bundle the user named on
     /// the command line; every other guard still applies.
     static func canRemove(

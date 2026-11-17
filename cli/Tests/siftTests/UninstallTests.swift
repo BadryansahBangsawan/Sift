@@ -1,6 +1,6 @@
 import Foundation
 import XCTest
-@testable import puremac
+@testable import sift
 
 final class UninstallTests: XCTestCase {
     func testOnlyExactBundleIdentifierNamesMatch() {
@@ -95,7 +95,7 @@ final class UninstallTests: XCTestCase {
 
     private func temporaryDirectory() throws -> URL {
         let url = FileManager.default.temporaryDirectory
-            .appendingPathComponent("puremac-uninstall-\(UUID().uuidString)", isDirectory: true)
+            .appendingPathComponent("sift-uninstall-\(UUID().uuidString)", isDirectory: true)
         try FileManager.default.createDirectory(at: url, withIntermediateDirectories: true)
         return url
     }
