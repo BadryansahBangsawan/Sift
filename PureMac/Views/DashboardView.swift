@@ -1,740 +1,390 @@
 import SwiftUI
 
+/// Overview: the Sift dashboard. A hero with the disk meter, where the junk
+/// sits, the biggest single items, and the battery, startup and history cards.
 struct DashboardView: View {
     @EnvironmentObject var appState: AppState
+    @ObservedObject private var permission = PermissionCoordinator.shared
     var onNavigate: (AppSection) -> Void = { _ in }
 
-    @State private var showConfirmation = false
-    @State private var hoveredSegment: String?
-    @State private var pendingCleanItems: [CleanableItem] = []
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @State private var reviewItems: [CleanableItem]?
+    @State private var battery: BatteryStatus?
+    @State private var startupItems: [PerformanceStartupItem]?
+    @State private var startupFailed = false
 
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 20) {
-                pageHeader
-                stateContent
-            }
-            .padding(.horizontal, 28)
-            .padding(.vertical, 24)
-            .frame(maxWidth: 1180, alignment: .leading)
-            .frame(maxWidth: .infinity, alignment: .top)
+        ViewThatFits(in: .vertical) {
+            content
+            ScrollView(.vertical, showsIndicators: false) { content }
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .confirmationDialog(
-            cleanConfirmationTitle,
-            isPresented: $showConfirmation,
-            titleVisibility: .visible
-        ) {
-            Button("Clean selected items", role: .destructive) {
-                appState.cleanAll(itemIDs: Set(pendingCleanItems.map(\.id)))
-                pendingCleanItems = []
-            }
-            Button("Cancel", role: .cancel) {
-                pendingCleanItems = []
-            }
-        } message: {
-            Text(cleanConfirmationMessage)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+        .task { await loadSystemCards() }
+        .sheet(isPresented: Binding(
+            get: { reviewItems != nil },
+            set: { if !$0 { reviewItems = nil } }
+        )) {
+            SiftRemovalReview(
+                items: reviewItems ?? [],
+                disabled: appState.scanState.isActive,
+                cancel: { reviewItems = nil },
+                remove: {
+                    let ids = Set((reviewItems ?? []).map(\.id))
+                    reviewItems = nil
+                    appState.cleanAll(itemIDs: ids)
+                }
+            )
         }
     }
 
-    private var pageHeader: some View {
-        HStack(alignment: .top, spacing: 16) {
-            VStack(alignment: .leading, spacing: 5) {
-                Text("Overview")
-                    .font(.system(size: 24, weight: .semibold))
-                    .tracking(-0.45)
-                    .accessibilityAddTraits(.isHeader)
-                Text(headerSubtitle)
-                    .font(.system(size: 13))
-                    .foregroundStyle(.secondary)
+    private var content: some View {
+        VStack(spacing: SiftSpacing.gutter) {
+            DashboardHero(
+                onNavigate: onNavigate,
+                review: { reviewItems = selectedItems },
+                requestAccess: requestAccess
+            )
+            HStack(alignment: .top, spacing: SiftSpacing.gutter) {
+                VStack(spacing: SiftSpacing.gutter) {
+                    WhereItSitsCard(onNavigate: onNavigate)
+                    BiggestWinsCard(onNavigate: onNavigate)
+                        .frame(maxHeight: .infinity, alignment: .top)
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+
+                VStack(spacing: SiftSpacing.gutter) {
+                    if let battery, battery.isInstalled {
+                        BatteryCard(status: battery)
+                    }
+                    StartupItemsCard(items: startupItems, failed: startupFailed)
+                    ReclaimedCard()
+                        .frame(maxHeight: .infinity, alignment: .top)
+                }
+                .frame(width: 392)
+                .frame(maxHeight: .infinity, alignment: .top)
             }
+        }
+    }
 
-            Spacer(minLength: 20)
+    private var selectedItems: [CleanableItem] {
+        appState.allResults.flatMap(\.items).filter(appState.isItemSelected)
+    }
 
-            VStack(alignment: .trailing, spacing: 7) {
-                let status = headerStatus
-                StatusChip(label: status.label, systemImage: status.icon, tint: status.tint)
-                TimelineView(.periodic(from: .now, by: 60)) { timeline in
-                    Text(lastCareText(relativeTo: timeline.date))
-                        .font(.system(size: 10.5))
-                        .foregroundStyle(.tertiary)
+    private func requestAccess() {
+        permission.requestAccess(context: .general) {
+            appState.checkFullDiskAccess()
+        }
+    }
+
+    /// Battery and launchd reads shell out, so they run off the main actor.
+    private func loadSystemCards() async {
+        async let batteryStatus = BatteryInspector().inspect()
+        async let inspection = Task.detached(priority: .utility) {
+            try await PerformanceInspector().inspect()
+        }.result
+        let (status, startup) = await (batteryStatus, inspection)
+        guard !Task.isCancelled else { return }
+        battery = status
+        switch startup {
+        case .success(let value):
+            startupItems = value.startupItems
+        case .failure:
+            startupFailed = true
+        }
+    }
+}
+
+// MARK: - Hero
+
+private struct DashboardHero: View {
+    @EnvironmentObject var appState: AppState
+    let onNavigate: (AppSection) -> Void
+    let review: () -> Void
+    let requestAccess: () -> Void
+
+    private var hasResults: Bool { !appState.categoryResults.isEmpty }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 20) {
+            HStack(alignment: .bottom, spacing: 16) {
+                VStack(alignment: .leading, spacing: 6) {
+                    Text(verbatim: eyebrow)
+                        .siftStyle(.label)
+                        .lineLimit(1)
+                    headline
+                        .siftStyle(.hero)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.6)
+                        .accessibilityAddTraits(.isHeader)
+                }
+                Spacer(minLength: 16)
+                VStack(alignment: .trailing, spacing: 10) {
+                    statusLine
+                    HStack(spacing: 8) { actions }
                 }
             }
+            DiskMeter(
+                info: appState.diskInfo,
+                reclaimable: hasResults ? appState.totalJunkSize : nil
+            )
+            footer
+        }
+        .siftSurface(.hero)
+    }
+
+    // MARK: Copy
+
+    private var eyebrow: String {
+        let total = appState.diskInfo.totalSpace > 0
+            ? String(format: String(localized: "%@ total"), SiftFormat.bytes(appState.diskInfo.totalSpace))
+            : nil
+        return [SystemInfo.modelName, SystemInfo.macOSVersion, total].compactMap { $0 }.joined(separator: ", ")
+    }
+
+    private var headline: Text {
+        switch appState.scanState {
+        case .scanning:
+            return Text("Scanning your Mac")
+        case .cleaning:
+            return Text("Cleaning selected items")
+        case .cleaned:
+            if appState.lastCleanupHadFailures { return Text("Some items need attention") }
+            return Text("\(SiftFormat.bytes(appState.totalFreedSpace)) removed")
+        case .idle, .completed:
+            guard hasResults else {
+                return Text("\(SiftFormat.bytes(appState.diskInfo.freeSpace)) free")
+            }
+            guard appState.totalJunkSize > 0 else { return Text("Nothing to clean") }
+            return Text("\(SiftFormat.bytes(appState.totalJunkSize)) is junk")
         }
     }
 
     @ViewBuilder
-    private var stateContent: some View {
-        switch appState.scanState {
-        case .idle:
-            idleContent
-                .transition(stateTransition)
-        case .scanning:
-            scanningContent
-                .transition(stateTransition)
-        case .completed:
-            resultsContent
-                .transition(stateTransition)
-        case .cleaning:
-            cleaningContent
-                .transition(stateTransition)
-        case .cleaned:
-            cleanedContent
-                .transition(stateTransition)
-        }
-    }
-
-    private var stateTransition: AnyTransition {
-        reduceMotion ? .opacity : .opacity.combined(with: .offset(y: 5))
-    }
-
-    private var headerSubtitle: String {
-        switch appState.scanState {
-        case .idle:
-            return String(localized: "Storage, cleanup, and system tools.")
-        case .scanning:
-            return String(localized: "Checking your Mac. Nothing is removed during a scan.")
-        case .completed:
-            return appState.scanWasCancelled
-                ? String(localized: "The scan stopped. Available results are ready to review.")
-                : String(localized: "Review the results and choose exactly what to remove.")
-        case .cleaning:
-            return String(localized: "Removing the items you selected.")
-        case .cleaned:
-            return String(localized: "Cleanup finished and disk information is refreshing.")
-        }
-    }
-
-    private var headerStatus: (label: String, icon: String, tint: Color) {
-        switch appState.scanState {
-        case .idle:
-            return appState.hasFullDiskAccess
-                ? (String(localized: "Ready"), "checkmark.circle.fill", Tint.green)
-                : (String(localized: "Limited access"), "lock.fill", Tint.orange)
-        case .scanning:
-            return (String(localized: "Scanning"), "magnifyingglass", Tint.accent)
-        case .completed:
-            if appState.scanWasCancelled {
-                return (String(localized: "Stopped"), "stop.circle.fill", Tint.orange)
+    private var statusLine: some View {
+        HStack(spacing: 10) {
+            if !appState.hasFullDiskAccess {
+                Button(action: requestAccess) {
+                    SiftStatusPill(Text("Limited access"), tone: .warning)
+                }
+                .buttonStyle(.plain)
+                .help("Full Disk Access is off. Protected caches and app containers will be skipped.")
             }
-            return (String(localized: "Review ready"), "checklist", Tint.accent)
-        case .cleaning:
-            return (String(localized: "Cleaning"), "trash.fill", Tint.orange)
-        case .cleaned:
-            return appState.lastCleanupHadFailures
-                ? (String(localized: "Needs attention"), "exclamationmark.circle.fill", Tint.orange)
-                : (String(localized: "Complete"), "checkmark.circle.fill", Tint.green)
-        }
-    }
-
-    private func lastCareText(relativeTo now: Date) -> String {
-        let date = appState.lastCleanedDate ?? appState.lastScanDate
-        guard let date else {
-            return String(localized: "No scan run yet")
-        }
-        let formatter = RelativeDateTimeFormatter()
-        formatter.unitsStyle = .full
-        let relative = formatter.localizedString(for: date, relativeTo: now)
-        return String(format: String(localized: "Last activity: %@"), relative)
-    }
-
-    private var idleContent: some View {
-        VStack(alignment: .leading, spacing: 20) {
-            diskOverview
-            scanIntroduction
-
-            HStack(alignment: .top, spacing: 16) {
-                VStack(alignment: .leading, spacing: 10) {
-                    dashboardSection("Storage")
-                    CardSurface(padding: 0, elevation: .flat) {
-                        VStack(spacing: 0) {
-                            DashboardToolCard(
-                                title: "Space Explorer",
-                                detail: "Browse folders by size",
-                                icon: "square.3.layers.3d.down.right",
-                                tint: Tint.accent
-                            ) { onNavigate(.spaceExplorer) }
-                            Divider().padding(.leading, 46)
-                            DashboardToolCard(
-                                title: "Duplicate Finder",
-                                detail: "Review files with identical contents",
-                                icon: "doc.on.doc",
-                                tint: Tint.accent
-                            ) { onNavigate(.duplicates) }
-                            Divider().padding(.leading, 46)
-                            DashboardToolCard(
-                                title: "Similar Photos",
-                                detail: "Compare possible matches",
-                                icon: "photo.stack",
-                                tint: Tint.accent
-                            ) { onNavigate(.similarPhotos) }
-                        }
-                    }
-                }
-                .frame(maxWidth: .infinity, alignment: .topLeading)
-
-                VStack(alignment: .leading, spacing: 10) {
-                    dashboardSection("Applications & system")
-                    CardSurface(padding: 0, elevation: .flat) {
-                        VStack(spacing: 0) {
-                            DashboardToolCard(
-                                title: "Apple Features",
-                                detail: "Review Siri, image creation, and extras",
-                                icon: "switch.2",
-                                tint: Tint.accent
-                            ) { onNavigate(.appleFeatures) }
-                            Divider().padding(.leading, 46)
-                            DashboardToolCard(
-                                title: "Uninstaller",
-                                detail: "Remove apps and related files",
-                                icon: "app.dashed",
-                                tint: Tint.accent
-                            ) { onNavigate(.apps) }
-                            Divider().padding(.leading, 46)
-                            DashboardToolCard(
-                                title: "App Updates",
-                                detail: "Check Homebrew-managed apps",
-                                icon: "arrow.triangle.2.circlepath",
-                                tint: Tint.accent
-                            ) { onNavigate(.appUpdates) }
-                            Divider().padding(.leading, 46)
-                            DashboardToolCard(
-                                title: "Protection",
-                                detail: "Check macOS security settings",
-                                icon: "shield.checkered",
-                                tint: Tint.accent
-                            ) { onNavigate(.protection) }
-                            Divider().padding(.leading, 46)
-                            DashboardToolCard(
-                                title: "Performance",
-                                detail: "View processes and startup items",
-                                icon: "gauge.with.dots.needle.67percent",
-                                tint: Tint.accent
-                            ) { onNavigate(.performance) }
-                        }
-                    }
-                }
-                .frame(maxWidth: .infinity, alignment: .topLeading)
-            }
-
-            if !appState.cleanupHistory.isEmpty {
-                dashboardSection("History")
-                CleanupHistoryCard(records: appState.cleanupHistory)
-            }
-        }
-    }
-
-    private var scanIntroduction: some View {
-        CardSurface(padding: 18, elevation: .flat) {
-            HStack(alignment: .center, spacing: 20) {
-                VStack(alignment: .leading, spacing: 6) {
-                    Text("Review cleanup")
-                        .font(.system(size: 16, weight: .semibold))
-                    Text("Check \(CleaningCategory.scannable.count) categories for caches, logs, and other removable files. Review the results before deleting anything.")
-                        .font(.system(size: 12))
-                        .foregroundStyle(.secondary)
-                        .fixedSize(horizontal: false, vertical: true)
-                }
-                .frame(maxWidth: .infinity, alignment: .leading)
-
-                Button {
-                    appState.startSmartScan()
-                } label: {
-                    Label("Scan this Mac", systemImage: "magnifyingglass")
-                }
-                .buttonStyle(.borderedProminent)
-                .controlSize(.large)
-                .tint(Tint.accent)
-                .accessibilityIdentifier("dashboard.scan")
-            }
-        }
-    }
-
-    private var diskOverview: some View {
-        CardSurface(padding: 20, elevation: .flat) {
-            VStack(alignment: .leading, spacing: 14) {
-                HStack(alignment: .firstTextBaseline) {
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text("Mac storage")
-                            .font(.system(size: 13, weight: .semibold))
-                        HStack(alignment: .firstTextBaseline, spacing: 6) {
-                            Text(appState.diskInfo.formattedFree)
-                                .font(.system(size: 26, weight: .semibold))
-                                .monospacedDigit()
-                            Text("available")
-                                .font(.system(size: 12))
-                                .foregroundStyle(.secondary)
-                        }
-                    }
-                    Spacer()
-                    Text("\(usedPercent)% used")
-                        .font(.system(size: 12))
-                        .monospacedDigit()
-                        .foregroundStyle(.secondary)
-                    Button {
-                        appState.loadDiskInfo()
-                    } label: {
-                        Image(systemName: "arrow.clockwise")
-                    }
-                    .buttonStyle(.borderless)
-                    .help("Refresh disk information")
-                    .accessibilityLabel("Refresh disk information")
-                }
-
-                StackedMeter(
-                    segments: diskSegments.map {
-                        StackedMeter.Segment(id: $0.id, value: $0.value, color: $0.color)
-                    },
-                    height: 10,
-                    highlightedID: hoveredSegment
+            switch appState.scanState {
+            case .scanning:
+                statusText(Text(appState.scanProgress, format: .percent.precision(.fractionLength(0))), tone: .accent)
+            case .cleaning:
+                statusText(Text(appState.cleanProgress, format: .percent.precision(.fractionLength(0))), tone: .accent)
+            case .cleaned:
+                statusText(
+                    appState.lastCleanupHadFailures ? Text("needs attention") : Text("cleanup complete"),
+                    tone: appState.lastCleanupHadFailures ? .warning : .success
                 )
-                .accessibilityHidden(true)
-
-                HStack(spacing: 24) {
-                    diskLegendRow(
-                        id: "used",
-                        color: Color.primary.opacity(0.56),
-                        label: "Used",
-                        value: ByteCountFormatter.string(
-                            fromByteCount: max(0, appState.diskInfo.usedSpace - appState.diskInfo.purgeableSpace),
-                            countStyle: .file
-                        )
-                    )
-                    if appState.diskInfo.purgeableSpace > 0 {
-                        diskLegendRow(
-                            id: "purgeable",
-                            color: Tint.cyan,
-                            label: "Purgeable",
-                            value: appState.diskInfo.formattedPurgeable
+            case .idle, .completed:
+                if let date = appState.lastScanDate, hasResults {
+                    TimelineView(.periodic(from: .now, by: 60)) { timeline in
+                        statusText(
+                            appState.scanWasCancelled
+                                ? Text("scan stopped \(SiftFormat.relativeShort(date, to: timeline.date))")
+                                : Text("scanned \(SiftFormat.relativeShort(date, to: timeline.date))"),
+                            tone: appState.scanWasCancelled ? .warning : .success
                         )
                     }
-                    diskLegendRow(
-                        id: "free",
-                        color: Tint.accent,
-                        label: "Available",
-                        value: appState.diskInfo.formattedFree
-                    )
-                }
-
-                if appState.diskInfo.purgeableSpace > 0 {
-                    Text("Purgeable space is managed by macOS and is not included in cleanup.")
-                        .font(.system(size: 11))
-                        .foregroundStyle(.secondary)
+                } else {
+                    statusText(Text("not scanned yet"), tone: .neutral)
                 }
             }
         }
     }
 
-    private func diskLegendRow(id: String, color: Color, label: LocalizedStringKey, value: String) -> some View {
-        HStack(spacing: 8) {
+    private func statusText(_ text: Text, tone: SiftTone) -> some View {
+        HStack(spacing: 6) {
             Circle()
-                .fill(color)
-                .frame(width: 7, height: 7)
-            Text(label)
-                .font(.system(size: 11))
-                .foregroundStyle(.secondary)
-                .lineLimit(1)
-                .fixedSize(horizontal: true, vertical: false)
-            Spacer()
-            Text(value)
-                .font(.system(size: 11, weight: .semibold))
-                .monospacedDigit()
-                .lineLimit(1)
-                .fixedSize(horizontal: true, vertical: false)
-        }
-        .opacity(hoveredSegment == nil || hoveredSegment == id ? 1 : 0.38)
-        .contentShape(Rectangle())
-        .onHover { hovering in
-            withAnimation(reduceMotion ? nil : .easeOut(duration: 0.15)) {
-                hoveredSegment = hovering ? id : nil
-            }
+                .fill(tone == .neutral ? SiftColor.faint : tone.foreground)
+                .frame(width: 6, height: 6)
+            text.siftStyle(.mono)
         }
     }
 
-    private var diskSegments: [StorageDonut.Segment] {
-        let info = appState.diskInfo
-        let used = max(0, info.usedSpace - info.purgeableSpace)
-        var segments = [
-            StorageDonut.Segment(
-                id: "used",
-                value: Double(used),
-                color: Color.primary.opacity(0.56),
-                label: "Used",
-                display: ByteCountFormatter.string(fromByteCount: used, countStyle: .file)
-            )
-        ]
-        if info.purgeableSpace > 0 {
-            segments.append(
-                StorageDonut.Segment(
-                    id: "purgeable",
-                    value: Double(info.purgeableSpace),
-                    color: Tint.cyan,
-                    label: "Purgeable",
-                    display: info.formattedPurgeable
-                )
-            )
-        }
-        segments.append(
-            StorageDonut.Segment(
-                id: "free",
-                value: Double(max(0, info.freeSpace)),
-                color: Tint.accent,
-                label: "Available",
-                display: info.formattedFree
-            )
-        )
-        return segments
-    }
-
-    private var usedPercent: Int {
-        guard appState.diskInfo.totalSpace > 0 else { return 0 }
-        let used = appState.diskInfo.totalSpace - appState.diskInfo.freeSpace
-        return Int((Double(max(0, used)) / Double(appState.diskInfo.totalSpace) * 100).rounded())
-    }
-
-    private var scanningContent: some View {
-        VStack(alignment: .leading, spacing: 20) {
-            CardSurface(padding: 20, elevation: .flat) {
-                VStack(alignment: .leading, spacing: 14) {
-                    HStack {
-                        VStack(alignment: .leading, spacing: 5) {
-                            Text("Scanning your Mac")
-                                .font(.system(size: 18, weight: .semibold))
-                            Text(LocalizedStringKey(appState.currentScanCategory))
-                                .font(.system(size: 12))
-                                .foregroundStyle(.secondary)
-                        }
-                        Spacer()
-                        Text(appState.scanProgress, format: .percent.precision(.fractionLength(0)))
-                            .font(.system(size: 18, weight: .medium))
-                            .monospacedDigit()
-                    }
-                    ProgressView(value: appState.scanProgress)
-                        .progressViewStyle(.linear)
-                        .tint(Tint.accent)
-                    ScanPathTicker(ticker: appState.scanTicker)
-                    HStack(spacing: 10) {
-                        Button("Stop scan", role: .cancel) {
-                            appState.cancelScan()
-                        }
-                        .buttonStyle(.bordered)
-                        Text("Stopping keeps the results found so far.")
-                            .font(.system(size: 11))
-                            .foregroundStyle(.secondary)
-                    }
+    @ViewBuilder
+    private var actions: some View {
+        switch appState.scanState {
+        case .scanning:
+            Button("Stop scan") { appState.cancelScan() }
+                .buttonStyle(.siftSecondary)
+        case .cleaning:
+            EmptyView()
+        case .cleaned:
+            Button("Done") { appState.scanState = .idle }
+                .buttonStyle(.siftSecondary)
+            scanButton(Text("Scan again"))
+        case .idle, .completed:
+            Button {
+                if hasResults, appState.totalSelectedSize > 0 {
+                    review()
+                } else {
+                    onNavigate(.spaceExplorer)
                 }
+            } label: {
+                Label { Text("See what's inside") } icon: { SiftIcon.scanSearch.image(15) }
             }
-
-            if !appState.allResults.isEmpty {
-                dashboardSection("Found so far", detail: "\(appState.totalItemCount) items")
-                resultRows(results: Array(appState.allResults.sorted { $0.totalSize > $1.totalSize }.prefix(6)))
-            }
+            .buttonStyle(.siftSecondary)
+            .help(hasResults && appState.totalSelectedSize > 0
+                  ? Text("Review the selected items before removing them")
+                  : Text("Browse folders by size"))
+            .accessibilityIdentifier("dashboard.review")
+            scanButton(hasResults ? Text("Scan again") : Text("Scan this Mac"))
         }
     }
 
-    private var resultsContent: some View {
-        VStack(alignment: .leading, spacing: 20) {
-            CardSurface(padding: 20, elevation: .flat) {
-                HStack(alignment: .center, spacing: 24) {
-                    IconTile(
-                        systemName: appState.scanWasCancelled ? "stop.circle" : "checklist",
-                        tint: appState.scanWasCancelled ? Tint.orange : Tint.accent,
-                        size: 32,
-                        corner: 8
-                    )
-
-                    VStack(alignment: .leading, spacing: 5) {
-                        Text(appState.scanWasCancelled ? "Scan stopped" : "Scan complete")
-                            .font(.system(size: 18, weight: .semibold))
-                            .tracking(-0.3)
-                        Text(resultSummary)
-                            .font(.system(size: 12.5))
-                            .foregroundStyle(.secondary)
-                    }
-
-                    Spacer()
-
-                    VStack(alignment: .trailing, spacing: 2) {
-                        Text("Selected")
-                            .font(.system(size: 10.5))
-                            .foregroundStyle(.secondary)
-                        CountUpBytes(bytes: appState.totalSelectedSize)
-                            .font(.system(size: 26, weight: .semibold, design: .rounded))
-                    }
-
-                    VStack(spacing: 8) {
-                        if appState.totalSelectedSize > 0 {
-                            Button {
-                                prepareCleanupConfirmation()
-                            } label: {
-                                Label(cleanSelectedLabel, systemImage: "trash")
-                            }
-                            .buttonStyle(.borderedProminent)
-                            .controlSize(.large)
-                            .tint(Tint.accent)
-                        }
-                        Button("Scan again") {
-                            appState.startSmartScan()
-                        }
-                        .buttonStyle(.borderless)
-                    }
-                }
-            }
-
-            if appState.allResults.isEmpty {
-                emptyResults
-            } else {
-                dashboardSection(
-                    appState.scanWasCancelled ? "Partial results" : "Cleanup plan",
-                    detail: "Open a category to review individual items"
-                )
-                resultRows(results: appState.allResults.sorted { $0.totalSize > $1.totalSize })
+    private func scanButton(_ title: Text) -> some View {
+        Button {
+            appState.startSmartScan()
+        } label: {
+            HStack(spacing: 8) {
+                SiftIcon.rotateCw.image(15)
+                title
+                SiftKeyHint("⌘R", onAccent: true)
             }
         }
+        .buttonStyle(.siftPrimary)
+        .keyboardShortcut("r", modifiers: .command)
+        .disabled(appState.scanState.isActive)
+        .accessibilityIdentifier("dashboard.scan")
     }
 
-    private var resultSummary: String {
-        if appState.allResults.isEmpty {
-            return appState.scanWasCancelled
-                ? String(localized: "No reclaimable items were found before the scan stopped.")
-                : String(localized: "No reclaimable items were found in the areas checked.")
+    // MARK: Footer
+
+    @ViewBuilder
+    private var footer: some View {
+        switch appState.scanState {
+        case .scanning:
+            progressFooter(
+                progress: appState.scanProgress,
+                label: Text(LocalizedStringKey(appState.currentScanCategory)),
+                note: Text("Stopping keeps the results found so far.")
+            ) {
+                ScanPathTicker(ticker: appState.scanTicker)
+            }
+        case .cleaning:
+            progressFooter(
+                progress: appState.cleanProgress,
+                label: Text("Removing the items you selected."),
+                note: Text("Keep Sift open until cleanup finishes.")
+            ) { EmptyView() }
+        case .cleaned where appState.cleanError != nil:
+            Text(appState.cleanError ?? "")
+                .siftStyle(.body)
+                .lineLimit(3)
+                .frame(height: 28, alignment: .leading)
+        default:
+            chips
         }
-        let size = ByteCountFormatter.string(fromByteCount: appState.totalJunkSize, countStyle: .file)
-        if appState.scanWasCancelled {
-            return String(format: String(localized: "%@ found before the scan stopped. Results may be incomplete."), size)
-        }
-        return String(format: String(localized: "%@ found across %lld categories."), size, Int64(appState.allResults.count))
     }
 
-    private var emptyResults: some View {
-        CardSurface(padding: 28, elevation: .flat) {
-            HStack(spacing: 18) {
-                Image(systemName: "checkmark.circle")
-                    .font(.system(size: 28))
-                    .foregroundStyle(.secondary)
-                VStack(alignment: .leading, spacing: 5) {
-                    Text(appState.scanWasCancelled ? "No results yet" : "Nothing to clean")
-                        .font(.system(size: 18, weight: .semibold))
-                    Text(
-                        appState.scanWasCancelled
-                            ? "Run the scan again when you are ready to check every area."
-                            : "PureMac did not find removable items in the selected scan areas."
-                    )
-                    .font(.system(size: 12.5))
-                    .foregroundStyle(.secondary)
-                }
-                Spacer()
+    private func progressFooter<Detail: View>(
+        progress: Double,
+        label: Text,
+        note: Text,
+        @ViewBuilder detail: () -> Detail
+    ) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            SiftMeterBar(fraction: progress)
+            HStack(spacing: 12) {
+                label.siftStyle(.label).lineLimit(1).fixedSize()
+                detail()
+                Spacer(minLength: 8)
+                note.siftStyle(.caption).lineLimit(1)
             }
         }
+        .frame(minHeight: 28)
     }
 
-    private func resultRows(results: [CategoryResult]) -> some View {
-        CardSurface(padding: 0, elevation: .flat) {
-            VStack(spacing: 0) {
-                ForEach(Array(results.enumerated()), id: \.element.id) { index, result in
-                    CategoryResultRow(
-                        result: result,
-                        selectedCount: appState.selectedCountInCategory(result.category),
-                        selection: appState.categoryBinding(for: result.category)
-                    ) {
-                        onNavigate(.cleaning(result.category))
-                    }
-                    if index < results.count - 1 {
-                        Divider()
-                            .padding(.leading, 58)
-                    }
-                }
+    private var chips: some View {
+        HStack(spacing: 8) {
+            if appState.diskInfo.purgeableSpace > 0 {
+                SiftChip(Text("Purgeable by macOS"), value: SiftFormat.bytes(appState.diskInfo.purgeableSpace))
             }
-        }
-    }
-
-    private var cleaningContent: some View {
-        CardSurface(padding: 20, elevation: .flat) {
-            VStack(alignment: .leading, spacing: 16) {
-                HStack {
-                    Text("Cleaning selected items")
-                        .font(.system(size: 18, weight: .semibold))
-                    Spacer()
-                    Text(appState.cleanProgress, format: .percent.precision(.fractionLength(0)))
-                        .font(.system(size: 18, weight: .medium))
-                        .monospacedDigit()
-                }
-                ProgressView(value: appState.cleanProgress)
-                    .tint(Tint.accent)
-                Text("Keep PureMac open until cleanup finishes.")
-                    .font(.system(size: 12))
-                    .foregroundStyle(.secondary)
+            if let containers = appState.containersSize {
+                SiftChip(Text("Containers"), value: SiftFormat.bytes(containers))
             }
-            .frame(maxWidth: .infinity, alignment: .leading)
-        }
-    }
-
-    private var cleanedContent: some View {
-        VStack(alignment: .leading, spacing: 20) {
-            cleanupSummaryCard
-            if !appState.cleanupHistory.isEmpty {
-                CleanupHistoryCard(records: appState.cleanupHistory)
+            if let caches = appState.cachesSize {
+                SiftChip(Text("Caches"), value: SiftFormat.bytes(caches))
             }
-        }
-    }
-
-    private var cleanupSummaryCard: some View {
-        CardSurface(padding: 24, elevation: .flat) {
-            HStack(alignment: .top, spacing: 16) {
-                Image(systemName: appState.lastCleanupHadFailures ? "exclamationmark.circle" : "checkmark.circle")
-                    .font(.system(size: 28))
-                    .foregroundStyle(appState.lastCleanupHadFailures ? Tint.orange : Tint.accent)
-                VStack(alignment: .leading, spacing: 9) {
-                    Text(appState.lastCleanupHadFailures ? "Some items need attention" : "Cleanup complete")
-                        .font(.system(size: 20, weight: .semibold))
-                    if appState.totalFreedSpace > 0 {
-                        Text("\(ByteCountFormatter.string(fromByteCount: appState.totalFreedSpace, countStyle: .file)) removed")
-                            .font(.system(size: 16, weight: .medium))
-                            .monospacedDigit()
-                    }
-                    if let cleanError = appState.cleanError {
-                        Text(cleanError)
-                            .font(.system(size: 12))
-                            .foregroundStyle(.secondary)
-                            .lineLimit(3)
-                    }
-                    Button("Done") {
-                        appState.scanState = .idle
-                    }
-                    .buttonStyle(.borderedProminent)
-                    .tint(Tint.accent)
-                    .padding(.top, 5)
-                }
-                Spacer()
+            if let trash = appState.categoryResults[.trash]?.totalSize {
+                SiftChip(Text("Trash"), value: SiftFormat.bytes(trash))
+            } else if hasResults {
+                SiftChip(Text("Trash"), value: SiftFormat.bytes(0))
             }
-            .frame(maxWidth: .infinity, alignment: .leading)
+            Spacer(minLength: 0)
         }
-    }
-
-    private var cleanConfirmationTitle: String {
-        let size = pendingCleanItems.reduce(Int64(0)) { $0 + $1.size }
-        return String(
-            format: String(localized: "Permanently delete %@?"),
-            ByteCountFormatter.string(fromByteCount: size, countStyle: .file)
-        )
-    }
-
-    private var cleanConfirmationMessage: String {
-        String(
-            format: String(localized: "%lld selected items will be permanently deleted. Review the list before continuing."),
-            Int64(pendingCleanItems.count)
-        )
-    }
-
-    private func prepareCleanupConfirmation() {
-        pendingCleanItems = appState.allResults
-            .flatMap(\.items)
-            .filter(appState.isItemSelected)
-        showConfirmation = !pendingCleanItems.isEmpty
-    }
-
-    private var cleanSelectedLabel: String {
-        String(
-            format: String(localized: "Clean %@"),
-            ByteCountFormatter.string(fromByteCount: appState.totalSelectedSize, countStyle: .file)
-        )
-    }
-
-    private func dashboardSection(_ title: LocalizedStringKey, detail: LocalizedStringKey? = nil) -> some View {
-        HStack(alignment: .firstTextBaseline) {
-            Text(title)
-                .font(.system(size: 16, weight: .semibold))
-                .accessibilityAddTraits(.isHeader)
-            Spacer()
-            if let detail {
-                Text(detail)
-                    .font(.system(size: 10.5))
-                    .foregroundStyle(.tertiary)
-            }
-        }
+        .frame(height: 28)
     }
 }
 
-private struct DashboardToolCard: View {
-    let title: LocalizedStringKey
-    let detail: LocalizedStringKey
-    let icon: String
-    let tint: Color
-    let action: () -> Void
-
-    @State private var hovering = false
+/// Reclaimable, in use and free as three proportional capsules.
+private struct DiskMeter: View {
+    let info: DiskInfo
+    /// nil before a scan: the meter then shows only in use and free.
+    let reclaimable: Int64?
 
     var body: some View {
-        Button(action: action) {
-            HStack(spacing: 12) {
-                Image(systemName: icon)
-                    .font(.system(size: 17))
-                    .foregroundStyle(hovering ? tint : .secondary)
-                    .frame(width: 20)
-                VStack(alignment: .leading, spacing: 3) {
-                    Text(title)
-                        .font(.system(size: 12.5, weight: .medium))
-                        .foregroundStyle(.primary)
-                    Text(detail)
-                        .font(.system(size: 11))
-                        .foregroundStyle(.secondary)
-                        .fixedSize(horizontal: false, vertical: true)
+        GeometryReader { proxy in
+            let widths = segmentWidths(total: proxy.size.width - 8)
+            HStack(spacing: 4) {
+                if let reclaimable, let width = widths.reclaimable {
+                    HStack {
+                        Text("Reclaimable")
+                            .font(.sift(11, weight: 500))
+                            .foregroundStyle(SiftColor.onAccentMuted)
+                            .lineLimit(1)
+                        Spacer(minLength: 6)
+                        Text(verbatim: SiftFormat.bytes(reclaimable))
+                            .font(.siftDisplay(16))
+                            .foregroundStyle(SiftColor.onAccent)
+                            .lineLimit(1)
+                    }
+                    .padding(.horizontal, 16)
+                    .frame(width: width)
+                    .frame(maxHeight: .infinity)
+                    .background(Capsule(style: .continuous).fill(SiftColor.accent))
                 }
-                Spacer(minLength: 5)
-                Image(systemName: "chevron.right")
-                    .font(.system(size: 9, weight: .semibold))
-                    .foregroundStyle(.tertiary)
+                Text("\(SiftFormat.bytes(inUse)) in use")
+                    .font(.siftDisplay(16, weight: 500))
+                    .foregroundStyle(SiftColor.textPrimary)
+                    .lineLimit(1)
+                    .padding(.horizontal, 16)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
+                    .background(Capsule(style: .continuous).fill(SiftColor.meterUsed))
+                Text("\(SiftFormat.bytes(info.freeSpace)) free")
+                    .font(.siftDisplay(16, weight: 500))
+                    .foregroundStyle(SiftColor.textSecondary)
+                    .lineLimit(1)
+                    .padding(.horizontal, 16)
+                    .frame(width: widths.free, alignment: .leading)
+                    .frame(maxHeight: .infinity)
+                    .background(Capsule(style: .continuous).fill(SiftColor.meterFree))
+                    .overlay(
+                        Capsule(style: .continuous)
+                            .strokeBorder(SiftColor.controlStroke, style: StrokeStyle(lineWidth: 1, dash: [4, 4]))
+                    )
             }
-            .frame(maxWidth: .infinity, minHeight: 35, alignment: .leading)
-            .padding(.horizontal, 14)
-            .padding(.vertical, 11)
-            .background(hovering ? Color.primary.opacity(0.035) : .clear)
-            .contentShape(Rectangle())
+            .padding(4)
         }
-        .buttonStyle(.plain)
-        .onHover { hovering = $0 }
+        .frame(height: 56)
+        .background(Capsule(style: .continuous).fill(SiftColor.window))
         .accessibilityElement(children: .combine)
     }
-}
 
-private struct CategoryResultRow: View {
-    let result: CategoryResult
-    let selectedCount: Int
-    @Binding var selection: Bool
-    let open: () -> Void
+    private var used: Int64 { max(0, info.totalSpace - info.freeSpace) }
+    private var inUse: Int64 { max(0, used - (reclaimable ?? 0)) }
 
-    var body: some View {
-        HStack(spacing: 12) {
-            Toggle("", isOn: $selection)
-                .labelsHidden()
-                .toggleStyle(AnimatedCheckboxStyle(tint: Tint.accent))
-            IconTile(systemName: result.category.icon, tint: result.category.color, size: 30, corner: 8)
-            Button(action: open) {
-                HStack {
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text(LocalizedStringKey(result.category.rawValue))
-                            .font(.system(size: 13, weight: .semibold))
-                            .foregroundStyle(.primary)
-                        Text("\(selectedCount) of \(result.itemCount) selected")
-                            .font(.system(size: 10.5))
-                            .foregroundStyle(.secondary)
-                    }
-                    Spacer()
-                    Text(result.formattedSize)
-                        .font(.system(size: 12.5, weight: .semibold))
-                        .monospacedDigit()
-                        .foregroundStyle(.primary)
-                    Image(systemName: "chevron.right")
-                        .font(.system(size: 9, weight: .semibold))
-                        .foregroundStyle(.tertiary)
-                }
-                .contentShape(Rectangle())
-            }
-            .buttonStyle(.plain)
-        }
-        .padding(.horizontal, 16)
-        .padding(.vertical, 11)
+    /// Proportional widths with a floor so each label stays readable.
+    private func segmentWidths(total: CGFloat) -> (reclaimable: CGFloat?, free: CGFloat) {
+        let disk = Double(max(info.totalSpace, 1))
+        let available = max(total - (reclaimable == nil ? 4 : 8), 0)
+        let free = min(max(available * CGFloat(Double(info.freeSpace) / disk), 140), available * 0.4)
+        guard let reclaimable else { return (nil, free) }
+        let junk = min(max(available * CGFloat(Double(reclaimable) / disk), 170), available * 0.4)
+        return (junk, free)
     }
 }
 
@@ -742,16 +392,465 @@ private struct ScanPathTicker: View {
     @ObservedObject var ticker: ScanProgressTicker
 
     var body: some View {
-        HStack(spacing: 6) {
-            Image(systemName: "folder")
-                .font(.system(size: 10))
-            Text(ticker.path.isEmpty ? String(localized: "Preparing the next area…") : ticker.path)
-                .lineLimit(1)
-                .truncationMode(.middle)
+        Text(ticker.path.isEmpty ? String(localized: "Preparing the next area…") : ticker.path)
+            .font(.siftMono(10.5))
+            .foregroundStyle(SiftColor.textTertiary)
+            .lineLimit(1)
+            .truncationMode(.middle)
+            .accessibilityLabel("Current scan path")
+            .accessibilityValue(ticker.path)
+    }
+}
+
+// MARK: - Where it sits
+
+private struct WhereItSitsCard: View {
+    @EnvironmentObject var appState: AppState
+    let onNavigate: (AppSection) -> Void
+
+    struct Row: Identifiable {
+        let item: SiftRail.Item
+        let size: Int64
+        let count: Int
+        let measured: Bool
+        var id: AppSection { item.section }
+    }
+
+    private var rows: [Row] {
+        SiftRail.cleanupItems.map { item in
+            let results = item.categories.compactMap { appState.categoryResults[$0] }
+            return Row(
+                item: item,
+                size: results.reduce(0) { $0 + $1.totalSize },
+                count: results.reduce(0) { $0 + $1.itemCount },
+                measured: !results.isEmpty
+            )
         }
-        .font(.system(size: 10.5, design: .monospaced))
-        .foregroundStyle(.secondary)
-        .accessibilityLabel("Current scan path")
-        .accessibilityValue(ticker.path)
+    }
+
+    var body: some View {
+        let rows = self.rows
+        let largest = rows.max { $0.size < $1.size }
+        let maxSize = max(largest?.size ?? 0, 1)
+        let leadRow = (largest?.size ?? 0) > 0 ? largest : nil
+        VStack(alignment: .leading, spacing: 14) {
+            SiftCardHeader(Text("Where it sits")) {
+                if rows.contains(where: \.measured) {
+                    Text("\(SiftFormat.count(rows.reduce(0) { $0 + $1.count })) items")
+                        .siftStyle(.mono)
+                }
+            }
+            VStack(spacing: 2) {
+                ForEach(rows) { row in
+                    WhereRow(
+                        row: row,
+                        fraction: Double(row.size) / Double(maxSize),
+                        isLargest: row.id == leadRow?.id
+                    ) { onNavigate(row.item.section) }
+                }
+            }
+            HStack(spacing: 8) {
+                SiftFootnote(Text("Nothing is deleted without review"), icon: .shieldCheck)
+                Spacer(minLength: 8)
+                let target = leadRow ?? rows[0]
+                Button(Self.openLabel(for: target.item.section)) { onNavigate(target.item.section) }
+                    .buttonStyle(.siftSecondary)
+            }
+            .padding(.top, 2)
+        }
+        .siftSurface(.card)
+    }
+
+    static func openLabel(for section: AppSection) -> LocalizedStringKey {
+        switch section {
+        case .cleaning(.xcodeJunk): return "Open developer caches"
+        case .cleaning(.installers): return "Open installers"
+        case .cleaning(.largeFiles): return "Open large & old files"
+        case .cleaning(.mailAttachments): return "Open mail files"
+        case .cleaning(.trash): return "Open Trash"
+        default: return "Open system junk"
+        }
+    }
+}
+
+private struct WhereRow: View {
+    let row: WhereItSitsCard.Row
+    let fraction: Double
+    let isLargest: Bool
+    let open: () -> Void
+
+    var body: some View {
+        Button(action: open) {
+            HStack(spacing: 14) {
+                SiftIconTile(icon: row.item.icon, tone: isLargest ? .accent : .neutral, size: 32)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(row.item.label)
+                        .font(.sift(13, weight: 500))
+                        .foregroundStyle(SiftColor.textPrimary)
+                        .lineLimit(1)
+                    Group {
+                        if row.measured {
+                            Text("\(SiftFormat.count(row.count)) items")
+                        } else {
+                            Text("not scanned")
+                        }
+                    }
+                    .siftStyle(.monoSmall)
+                }
+                .frame(width: 170, alignment: .leading)
+                SiftMeterBar(fraction: row.measured ? fraction : 0, fill: isLargest ? SiftColor.accent : SiftColor.accentDim)
+                Text(verbatim: row.measured ? SiftFormat.bytes(row.size) : "–")
+                    .font(.siftDisplay(16, weight: 500))
+                    .foregroundStyle(isLargest ? SiftColor.accent : SiftColor.textPrimary)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.8)
+                    .frame(width: 72, alignment: .trailing)
+                SiftIcon.chevronRight.image(16)
+                    .foregroundStyle(isLargest ? SiftColor.accent : SiftColor.faint)
+            }
+            .padding(.horizontal, 10)
+            .frame(height: 48)
+            .siftRowBackground(selected: isLargest)
+        }
+        .buttonStyle(.plain)
+        .accessibilityElement(children: .combine)
+        .accessibilityIdentifier(SiftRail.accessibilityIdentifier(for: row.item.section).replacingOccurrences(of: "sidebar.", with: "dashboard.where."))
+    }
+}
+
+// MARK: - Biggest single wins
+
+private struct BiggestWinsCard: View {
+    @EnvironmentObject var appState: AppState
+    let onNavigate: (AppSection) -> Void
+
+    var body: some View {
+        let items = appState.biggestItems(limit: 3)
+        VStack(alignment: .leading, spacing: 14) {
+            SiftCardHeader(Text("Biggest single wins")) {
+                if !items.isEmpty {
+                    Text("largest first").siftStyle(.mono)
+                }
+            }
+            if items.isEmpty {
+                (appState.categoryResults.isEmpty
+                    ? Text("Scan this Mac to list the largest items you can remove.")
+                    : Text("No large items to remove."))
+                    .siftStyle(.label)
+                    .padding(.horizontal, 10)
+            } else {
+                VStack(spacing: 2) {
+                    ForEach(items) { item in
+                        WinRow(item: item) { onNavigate(.cleaning(item.category.cleanupLead)) }
+                    }
+                }
+            }
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+        .siftSurface(.card)
+    }
+}
+
+private struct WinRow: View {
+    let item: CleanableItem
+    let review: () -> Void
+    @State private var hovering = false
+
+    private var isDirectory: Bool {
+        var directory: ObjCBool = false
+        return FileManager.default.fileExists(atPath: item.path, isDirectory: &directory) && directory.boolValue
+    }
+
+    var body: some View {
+        Button(action: review) {
+            HStack(spacing: 12) {
+                (isDirectory ? SiftIcon.folder : SiftIcon.file).image(15)
+                    .foregroundStyle(SiftColor.textSecondary)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(item.name)
+                        .font(.sift(12.5))
+                        .foregroundStyle(SiftColor.textPrimary)
+                        .lineLimit(1)
+                        .truncationMode(.middle)
+                    Text(verbatim: ((item.path as NSString).deletingLastPathComponent as NSString).abbreviatingWithTildeInPath)
+                        .siftStyle(.monoSmall)
+                        .lineLimit(1)
+                        .truncationMode(.middle)
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                if hovering {
+                    Text("Review")
+                        .font(.sift(11.5, weight: 500))
+                        .foregroundStyle(SiftColor.accent)
+                        .padding(.horizontal, 12)
+                        .frame(height: 26)
+                        .background(Capsule(style: .continuous).fill(SiftColor.accentTint))
+                }
+                Text(verbatim: item.formattedSize)
+                    .siftStyle(.monoValue)
+                    .lineLimit(1)
+                    .frame(width: 64, alignment: .trailing)
+            }
+            .padding(.horizontal, 10)
+            .frame(height: 44)
+            .siftRowBackground()
+        }
+        .buttonStyle(.plain)
+        .onHover { hovering = $0 }
+        .help(item.path)
+        .accessibilityElement(children: .combine)
+        .accessibilityHint(Text("Opens the category to review this item"))
+    }
+}
+
+// MARK: - Battery
+
+private struct BatteryCard: View {
+    let status: BatteryStatus
+
+    var body: some View {
+        HStack(spacing: 18) {
+            SiftRing(fraction: Double(status.healthPercent ?? 0) / 100) {
+                Text(verbatim: status.healthPercent.map { "\($0)%" } ?? "–")
+                    .font(.siftDisplay(24))
+                    .foregroundStyle(SiftColor.textPrimary)
+            }
+            VStack(alignment: .leading, spacing: 6) {
+                HStack {
+                    Text("Battery health").siftStyle(.cardTitle)
+                    Spacer(minLength: 8)
+                    if let pill = statePill { pill }
+                }
+                if let charge = status.chargePercent {
+                    Text("\(charge)% charge")
+                        .font(.sift(12.5))
+                        .foregroundStyle(SiftColor.textSecondary)
+                }
+                if let detail {
+                    Text(verbatim: detail).siftStyle(.monoSmall).lineLimit(1)
+                }
+            }
+        }
+        .siftSurface(.card)
+        .accessibilityElement(children: .combine)
+    }
+
+    private var statePill: SiftStatusPill? {
+        guard let charging = status.isCharging else { return nil }
+        if charging, let charge = status.chargePercent, charge >= 100 {
+            return SiftStatusPill(Text("Fully charged"), tone: .success)
+        }
+        return charging
+            ? SiftStatusPill(Text("Charging"), tone: .success)
+            : SiftStatusPill(Text("On battery"), tone: .neutral)
+    }
+
+    /// "215 cycles, 4082 / 4629 mAh"; parts that could not be read are left out.
+    private var detail: String? {
+        var parts: [String] = []
+        if let cycles = status.cycleCount {
+            parts.append(String(format: String(localized: "%lld cycles"), Int64(cycles)))
+        }
+        if let current = status.maxCapacityMAh, let design = status.designCapacityMAh {
+            parts.append("\(current) / \(design) mAh")
+        }
+        return parts.isEmpty ? nil : parts.joined(separator: ", ")
+    }
+}
+
+// MARK: - Startup items
+
+private struct StartupItemsCard: View {
+    let items: [PerformanceStartupItem]?
+    let failed: Bool
+
+    private var notLoading: Int { (items ?? []).filter { $0.status == .notLoaded }.count }
+
+    /// Items launchd refuses to load come first: they are the ones to look at.
+    private var shown: [PerformanceStartupItem] {
+        let rank: (PerformanceStartupItem) -> Int = { item in
+            switch item.status {
+            case .notLoaded: return 0
+            case .loaded: return 1
+            case nil: return 2
+            case .disabled: return 3
+            }
+        }
+        return Array((items ?? []).sorted {
+            rank($0) != rank($1) ? rank($0) < rank($1) : $0.label.localizedStandardCompare($1.label) == .orderedAscending
+        }.prefix(3))
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 14) {
+            SiftCardHeader(Text("Startup items")) {
+                if notLoading > 0 {
+                    SiftStatusPill(Text("\(notLoading) not loading"), tone: .warning)
+                }
+            }
+            HStack(alignment: .firstTextBaseline, spacing: 8) {
+                Text(verbatim: items.map { "\($0.count)" } ?? "–")
+                    .siftStyle(.metricSmall)
+                (failed ? Text("couldn't read launch items") : Text("registered with launchd"))
+                    .font(.sift(12.5))
+                    .foregroundStyle(SiftColor.textSecondary)
+            }
+            if !shown.isEmpty {
+                VStack(spacing: 4) {
+                    ForEach(shown) { item in
+                        HStack(spacing: 10) {
+                            Circle().fill(dotColor(item.status)).frame(width: 7, height: 7)
+                            Text(verbatim: item.label)
+                                .font(.siftMono(11))
+                                .foregroundStyle(SiftColor.textPrimary)
+                                .lineLimit(1)
+                                .truncationMode(.middle)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                            statusLabel(item.status)
+                                .font(.sift(11))
+                                .foregroundStyle(item.status == .notLoaded ? SiftColor.warning : SiftColor.textTertiary)
+                        }
+                        .padding(.horizontal, 10)
+                        .frame(height: 32)
+                        .background(RoundedRectangle(cornerRadius: SiftRadius.tile, style: .continuous).fill(SiftColor.control))
+                        .help(item.sourceURL.path)
+                    }
+                }
+            }
+        }
+        .siftSurface(.card)
+    }
+
+    private func dotColor(_ status: PerformanceStartupStatus?) -> Color {
+        switch status {
+        case .loaded: return SiftColor.success
+        case .notLoaded: return SiftColor.warning
+        case .disabled, nil: return SiftColor.faint
+        }
+    }
+
+    private func statusLabel(_ status: PerformanceStartupStatus?) -> Text {
+        switch status {
+        case .loaded: return Text("loaded")
+        case .notLoaded: return Text("not loading")
+        case .disabled: return Text("disabled")
+        case nil: return Text("unknown")
+        }
+    }
+}
+
+// MARK: - Reclaimed this month
+
+private struct ReclaimedCard: View {
+    @EnvironmentObject var appState: AppState
+    private static let slots = 12
+
+    var body: some View {
+        let runs = appState.cleanupsThisMonth
+        VStack(alignment: .leading, spacing: 14) {
+            SiftCardHeader(Text("Reclaimed this month")) {
+                if !runs.isEmpty {
+                    SiftStatusPill(Text("\(runs.count) runs"), tone: .success)
+                }
+            }
+            HStack(alignment: .bottom, spacing: 16) {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(verbatim: SiftFormat.bytes(appState.freedThisMonth))
+                        .siftStyle(.metricSmall)
+                        .lineLimit(1)
+                    TimelineView(.periodic(from: .now, by: 60)) { timeline in
+                        Group {
+                            if let last = appState.cleanupHistory.first {
+                                Text("last run \(SiftFormat.relative(last.date, to: timeline.date))")
+                            } else {
+                                Text("no cleanups yet")
+                            }
+                        }
+                        .siftStyle(.monoSmall)
+                        .lineLimit(1)
+                    }
+                }
+                .fixedSize()
+                runChart(runs)
+            }
+            Rectangle().fill(SiftColor.stroke).frame(height: 1)
+            if appState.cleanupHistory.isEmpty {
+                Text("Each cleanup and the space it freed shows up here.")
+                    .siftStyle(.label)
+            } else {
+                VStack(spacing: 2) {
+                    ForEach(appState.cleanupHistory.prefix(3)) { record in
+                        HistoryRow(record: record)
+                    }
+                }
+            }
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+        .siftSurface(.card)
+    }
+
+    /// One bar per run this month, oldest to newest; the newest is accented.
+    /// Empty slots keep the chart's rhythm before twelve runs exist.
+    private func runChart(_ runs: [CleanupRecord]) -> some View {
+        let recent = Array(runs.prefix(Self.slots).reversed())
+        let largest = max(recent.map(\.freedBytes).max() ?? 0, 1)
+        let empty = Self.slots - recent.count
+        return HStack(alignment: .bottom, spacing: 4) {
+            ForEach(0..<empty, id: \.self) { _ in
+                RoundedRectangle(cornerRadius: 5, style: .continuous)
+                    .fill(SiftColor.track)
+                    .frame(height: 6)
+                    .frame(maxWidth: .infinity)
+            }
+            ForEach(Array(recent.enumerated()), id: \.offset) { index, run in
+                RoundedRectangle(cornerRadius: 5, style: .continuous)
+                    .fill(index == recent.count - 1 ? SiftColor.accent : SiftColor.faint.opacity(0.7))
+                    .frame(height: max(10, 58 * CGFloat(Double(run.freedBytes) / Double(largest))))
+                    .frame(maxWidth: .infinity)
+            }
+        }
+        .frame(height: 58, alignment: .bottom)
+        .frame(maxWidth: .infinity)
+        .accessibilityElement()
+        .accessibilityLabel(Text("Space freed by each cleanup this month"))
+    }
+}
+
+private struct HistoryRow: View {
+    let record: CleanupRecord
+
+    var body: some View {
+        HStack(spacing: 10) {
+            SiftIcon.check.image(12)
+                .foregroundStyle(SiftColor.success)
+                .frame(width: 24, height: 24)
+                .background(RoundedRectangle(cornerRadius: 8, style: .continuous).fill(SiftColor.control))
+            VStack(alignment: .leading, spacing: 1) {
+                Text(verbatim: record.title ?? String(localized: "Cleanup"))
+                    .font(.sift(12))
+                    .foregroundStyle(SiftColor.textPrimary)
+                    .lineLimit(1)
+                TimelineView(.periodic(from: .now, by: 60)) { timeline in
+                    subtitle(now: timeline.date)
+                        .font(.sift(10.5))
+                        .foregroundStyle(SiftColor.textTertiary)
+                        .lineLimit(1)
+                }
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            Text(verbatim: SiftFormat.bytes(record.freedBytes))
+                .font(.siftMono(11.5))
+                .foregroundStyle(SiftColor.accent)
+        }
+        .frame(height: 38)
+        .accessibilityElement(children: .combine)
+    }
+
+    /// "Developer caches · 3 hours ago"; the group name when the record has a
+    /// category, else just the time.
+    private func subtitle(now: Date) -> Text {
+        let when = SiftFormat.relative(record.date, to: now)
+        guard let category = record.category, record.title != nil else { return Text(verbatim: when) }
+        return Text("\(Text(category.cleanupTitle)) · \(when)")
     }
 }
