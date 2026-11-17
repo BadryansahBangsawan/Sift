@@ -334,7 +334,7 @@ struct SiftRail: View {
                     .foregroundStyle(SiftColor.textTertiary)
                     .lineLimit(1)
                     .minimumScaleFactor(0.85)
-                Text(scheduler.config.isEnabled ? LocalizedStringKey(scheduler.config.interval.rawValue) : "Off")
+                scheduleSummary
                     .font(.sift(12.5, weight: 500))
                     .foregroundStyle(SiftColor.textPrimary)
                     .lineLimit(1)
@@ -351,6 +351,15 @@ struct SiftRail: View {
         .padding(12)
         .background(RoundedRectangle(cornerRadius: 18, style: .continuous).fill(SiftColor.card))
         .overlay(RoundedRectangle(cornerRadius: 18, style: .continuous).strokeBorder(SiftColor.stroke, lineWidth: 1))
+    }
+
+    private var scheduleSummary: Text {
+        let config = scheduler.config
+        guard config.isEnabled else { return Text("Off") }
+        if config.interval == .weekly {
+            return Text("Every \(config.weekdaySymbol())")
+        }
+        return Text(LocalizedStringKey(config.interval.rawValue))
     }
 
     static func accessibilityIdentifier(for section: AppSection) -> String {
