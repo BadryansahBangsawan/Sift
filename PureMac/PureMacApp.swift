@@ -101,7 +101,7 @@ struct PureMacApp: App {
                 if onboardingComplete {
                     MainWindow()
                         .environmentObject(appState)
-                        .frame(minWidth: 960, minHeight: 640)
+                        .frame(minWidth: 1080, minHeight: 700)
                 } else {
                     OnboardingView(isComplete: $onboardingComplete)
                 }
@@ -112,10 +112,9 @@ struct PureMacApp: App {
             // scene graph and can't use openWindow itself).
             .background(WindowOpenerCapture())
         }
-        .windowStyle(.automatic)
-        .windowToolbarStyle(.unified)
+        .windowStyle(.hiddenTitleBar)
         .windowResizability(.contentMinSize)
-        .defaultSize(width: 1120, height: 740)
+        .defaultSize(width: 1360, height: 880)
         .commands {
             CommandGroup(replacing: .newItem) {}
             CommandMenu("Updates") {
