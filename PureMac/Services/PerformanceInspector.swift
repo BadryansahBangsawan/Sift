@@ -15,6 +15,16 @@ enum PerformanceStartupDomain: String, CaseIterable, Hashable, Sendable {
     }
 }
 
+/// Where a launch item stands with launchd.
+enum PerformanceStartupStatus: String, Hashable, Sendable {
+    /// launchd has the job loaded (running or waiting for its trigger).
+    case loaded
+    /// Disabled by the plist or by launchd's override database.
+    case disabled
+    /// The plist is installed but launchd has not loaded it.
+    case notLoaded
+}
+
 struct PerformanceStartupItem: Identifiable, Hashable, Sendable {
     let label: String
     let program: String?
@@ -23,8 +33,19 @@ struct PerformanceStartupItem: Identifiable, Hashable, Sendable {
     let domain: PerformanceStartupDomain
     var isDisabled: Bool
     let triggers: [String]
+    /// Whether launchd has this label loaded in the item's domain; nil when
+    /// launchd could not be asked.
+    var isLoaded: Bool? = nil
 
     var id: String { sourceURL.path }
+
+    /// Disabled wins over the loaded state. Nil only when the item is enabled
+    /// and launchd could not be asked whether it is loaded.
+    var status: PerformanceStartupStatus? {
+        if isDisabled { return .disabled }
+        guard let isLoaded else { return nil }
+        return isLoaded ? .loaded : .notLoaded
+    }
 }
 
 struct PerformanceSnapshot: Identifiable, Hashable, Sendable {
@@ -286,6 +307,10 @@ final class PerformanceInspector {
             // that says `Disabled: true`, and a `disable` overrides one that
             // does not mention it at all.
             let disabledStates = await Self.readDisabledStates()
+            // Agents (per-user and system-wide) load into the GUI session;
+            // daemons load into the system domain.
+            let guiLabels = await Self.readLoadedLabels(domain: "gui/\(Darwin.getuid())")
+            let systemLabels = await Self.readLoadedLabels(domain: "system")
 
             for (directory, domain) in startupDirectories {
                 try Task.checkCancellation()
@@ -335,6 +360,17 @@ final class PerformanceInspector {
                     updated.isDisabled = disabled
                     return updated
                 }
+            }
+
+            items = items.map { item in
+                var updated = item
+                updated.isLoaded = isLoaded(
+                    item.label,
+                    domain: item.domain,
+                    guiLabels: guiLabels,
+                    systemLabels: systemLabels
+                )
+                return updated
             }
 
             return StartupScanResult(
@@ -391,6 +427,57 @@ final class PerformanceInspector {
             }
         }
         return states
+    }
+
+    /// Lowercased labels loaded in one launchd domain (`gui/<uid>` or
+    /// `system`), or nil when `launchctl print` fails.
+    static func readLoadedLabels(domain: String) async -> Set<String>? {
+        do {
+            let result = try await runCommand(
+                executable: URL(fileURLWithPath: "/bin/launchctl"),
+                arguments: ["print", domain],
+                timeout: 10
+            )
+            guard result.status == 0 else { return nil }
+            return parseLoadedLabels(result.standardOutput)
+        } catch {
+            return nil
+        }
+    }
+
+    /// Parses the `services = { ... }` block of `launchctl print <domain>`,
+    /// whose lines are "<pid> <status> <label>", into lowercased labels. Nil
+    /// when the output has no such block.
+    static func parseLoadedLabels(_ output: String) -> Set<String>? {
+        var labels: Set<String>?
+        for line in output.split(whereSeparator: \Character.isNewline) {
+            let trimmed = line.trimmingCharacters(in: .whitespaces)
+            if labels == nil {
+                if trimmed == "services = {" { labels = [] }
+                continue
+            }
+            if trimmed == "}" { break }
+            if let label = trimmed.split(whereSeparator: \Character.isWhitespace).last {
+                labels?.insert(label.lowercased())
+            }
+        }
+        return labels
+    }
+
+    /// Looks the label up in the domain launchd loads it into. Nil when that
+    /// domain could not be read.
+    static func isLoaded(
+        _ label: String,
+        domain: PerformanceStartupDomain,
+        guiLabels: Set<String>?,
+        systemLabels: Set<String>?
+    ) -> Bool? {
+        let labels: Set<String>?
+        switch domain {
+        case .userAgent, .systemAgent: labels = guiLabels
+        case .systemDaemon: labels = systemLabels
+        }
+        return labels?.contains(label.lowercased())
     }
 
     /// Labels launchd reports as disabled. Lowercased, because launchd

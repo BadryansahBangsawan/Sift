@@ -1,5 +1,6 @@
 import Foundation
 import IOKit
+import IOKit.ps
 
 /// Battery state as the Performance page shows it.
 ///
@@ -17,6 +18,11 @@ struct BatteryStatus: Sendable {
     /// `maxCapacity / designCapacity`, nil when either capacity is unknown or
     /// the design capacity is zero (a divide-by-zero, not a 0% battery).
     var healthPercent: Int?
+    /// True when drawing from an adapter, false on battery, nil when unknown.
+    var isOnACPower: Bool?
+    /// Minutes until fully charged. Nil while macOS is still estimating, when
+    /// not charging, or when the power source does not report it.
+    var minutesToFull: Int?
 
     static let notInstalled = BatteryStatus(isInstalled: false)
 }
@@ -65,6 +71,10 @@ final class BatteryInspector {
                 status.isCharging = charging
             }
 
+            let powerSource = Self.powerSourceReading(from: Self.readInternalBatteryDescription())
+            status.isOnACPower = powerSource.isOnACPower ?? registry["ExternalConnected"] as? Bool
+            status.minutesToFull = powerSource.minutesToFull
+
             if let currentPercentCapacity, let maxPercentCapacity, maxPercentCapacity > 0 {
                 status.chargePercent = Int(
                     (Double(currentPercentCapacity) / Double(maxPercentCapacity) * 100).rounded()
@@ -91,6 +101,45 @@ final class BatteryInspector {
             }
             return status
         }.value
+    }
+
+    /// What the power-sources API says about the internal battery.
+    struct PowerSourceReading: Equatable, Sendable {
+        var isOnACPower: Bool?
+        var minutesToFull: Int?
+    }
+
+    /// Reads one `IOPSGetPowerSourceDescription` dictionary. The time to full
+    /// is reported in minutes, -1 while macOS is still estimating, and is only
+    /// meaningful while charging.
+    static func powerSourceReading(from description: [String: Any]) -> PowerSourceReading {
+        var reading = PowerSourceReading()
+        switch description[kIOPSPowerSourceStateKey] as? String {
+        case kIOPSACPowerValue: reading.isOnACPower = true
+        case kIOPSBatteryPowerValue: reading.isOnACPower = false
+        default: break
+        }
+        if description[kIOPSIsChargingKey] as? Bool == true,
+           let minutes = integer(description[kIOPSTimeToFullChargeKey]),
+           minutes >= 0 {
+            reading.minutesToFull = minutes
+        }
+        return reading
+    }
+
+    private static func readInternalBatteryDescription() -> [String: Any] {
+        guard let info = IOPSCopyPowerSourcesInfo()?.takeRetainedValue(),
+              let sources = IOPSCopyPowerSourcesList(info)?.takeRetainedValue() as? [CFTypeRef]
+        else { return [:] }
+        for source in sources {
+            guard let description = IOPSGetPowerSourceDescription(info, source)?
+                .takeUnretainedValue() as? [String: Any]
+            else { continue }
+            if description[kIOPSTypeKey] as? String == kIOPSInternalBatteryType {
+                return description
+            }
+        }
+        return [:]
     }
 
     private static func integer(_ value: Any?) -> Int? {
