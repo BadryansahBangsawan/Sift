@@ -48,43 +48,28 @@ struct AppUpdatesView: View {
     }
 
     var body: some View {
-        ZStack {
-            Color(nsColor: .windowBackgroundColor)
-                .ignoresSafeArea()
+        VStack(alignment: .leading, spacing: SiftSpacing.gutter) {
+            header
 
             ScrollView {
-                VStack(alignment: .leading, spacing: 14) {
-                    header
-                    sourceCard
-
+                VStack(alignment: .leading, spacing: SiftSpacing.gutter) {
                     if let status = updater.statusMessage {
-                        statusCard(status)
+                        statusBanner(status)
                     }
 
                     content
+                    sourceCard
                     unmanagedAppsCard
                 }
-                .padding(24)
-                .frame(maxWidth: 920, alignment: .leading)
-                .frame(maxWidth: .infinity)
+                .frame(maxWidth: .infinity, alignment: .leading)
             }
-        }
-        .navigationTitle("App Updates")
-        .toolbar {
-            ToolbarItem {
-                Button {
-                    Task { await updater.checkForUpdates() }
-                } label: {
-                    Label(updater.hasChecked ? "Check Again" : "Check for Updates", systemImage: "arrow.clockwise")
-                }
-                .disabled(updater.isBusy || !updater.isHomebrewAvailable)
-            }
-        }
-        .safeAreaInset(edge: .bottom) {
+
             if !updater.updates.isEmpty {
                 upgradeBar
             }
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+        .navigationTitle("App Updates")
         .alert("Upgrade selected apps?", isPresented: $showingUpgradeConfirmation) {
             Button("Cancel", role: .cancel) {}
             Button(upgradeConfirmationLabel(count: confirmationSelection.count)) {
@@ -95,51 +80,61 @@ struct AppUpdatesView: View {
             Text(upgradeConfirmationMessage)
         }
         .onAppear {
-            updater.refreshAvailability()
-        }
+            updater.refreshAvailability()        }
     }
+
+    // MARK: Header
 
     private var header: some View {
-        HStack(alignment: .center, spacing: 16) {
-            IconTile(systemName: "arrow.down.app.fill", tint: Tint.accent, size: 48, corner: 13, vivid: true)
-
-            VStack(alignment: .leading, spacing: 4) {
-                Text("App Updates")
-                    .font(.system(size: 25, weight: .bold))
-                Text("Review and update apps installed as Homebrew casks.")
-                    .font(.callout)
-                    .foregroundStyle(.secondary)
-            }
-
-            Spacer()
-
-            if let date = updater.lastCheckedAt {
-                VStack(alignment: .trailing, spacing: 2) {
-                    Text("Last checked")
-                        .font(.caption)
-                        .foregroundStyle(.tertiary)
-                    Text(date, style: .relative)
-                        .font(.caption.weight(.medium))
-                        .foregroundStyle(.secondary)
+        SiftScreenHeader(
+            Text("App Updates"),
+            eyebrow: eyebrow,
+            subtitle: Text("Review and update apps installed as Homebrew casks.")
+        ) {
+            // The first-run card carries its own Check button.
+            if !isFirstRun {
+                Button {
+                    Task { await updater.checkForUpdates() }
+                } label: {
+                    Label {
+                        Text(LocalizedStringKey(updater.hasChecked ? "Check Again" : "Check for Updates"))
+                    } icon: {
+                        SiftIcon.rotateCw.image(15).foregroundStyle(SiftColor.textSecondary)
+                    }
                 }
+                .buttonStyle(.siftSecondary)
+                .disabled(updater.isBusy || !updater.isHomebrewAvailable)
             }
         }
     }
 
-    private var sourceCard: some View {
-        CardSurface(padding: 16, elevation: .flat, tint: Tint.accent) {
-            HStack(alignment: .top, spacing: 12) {
-                IconTile(systemName: "shippingbox.fill", tint: Tint.accent, size: 32, corner: 9)
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("Updates from Homebrew")
-                        .font(.system(size: 14, weight: .semibold))
-                    Text("Checking asks Homebrew to refresh its package data as needed and contacts Homebrew's configured sources. PureMac only lists cask apps managed by this Homebrew installation.")
-                        .font(.callout)
-                        .foregroundStyle(.secondary)
-                        .fixedSize(horizontal: false, vertical: true)
-                }
-            }
+    private var eyebrow: Text {
+        if let date = updater.lastCheckedAt {
+            return Text("Last checked") + Text(verbatim: " ") + Text(date, style: .relative)
         }
+        return Text("Updates from Homebrew")
+    }
+
+    private var isFirstRun: Bool {
+        updater.isHomebrewAvailable && !updater.isChecking && updater.errorMessage == nil
+            && !updater.hasChecked && updater.updates.isEmpty
+    }
+
+    // MARK: Cards
+
+    private var sourceCard: some View {
+        HStack(alignment: .top, spacing: 12) {
+            SiftIconTile(icon: .package, size: 32)
+            VStack(alignment: .leading, spacing: 4) {
+                Text("Updates from Homebrew")
+                    .siftStyle(.cardTitle)
+                Text("Checking asks Homebrew to refresh its package data as needed and contacts Homebrew's configured sources. Sift only lists cask apps managed by this Homebrew installation.")
+                    .siftStyle(.label)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            Spacer(minLength: 0)
+        }
+        .siftSurface(.card)
     }
 
     @ViewBuilder
@@ -148,103 +143,110 @@ struct AppUpdatesView: View {
             stateCard(
                 title: "Homebrew not found",
                 message: "Install Homebrew to check cask apps here. Apps from the App Store and direct downloads use their own update channels.",
-                systemImage: "shippingbox",
-                tint: Tint.orange
+                icon: .package,
+                tone: .warning
             )
         } else if updater.isChecking {
-            CardSurface(padding: 28, elevation: .standard) {
-                HStack(spacing: 14) {
-                    ProgressView()
-                        .controlSize(.small)
-                    VStack(alignment: .leading, spacing: 3) {
-                        Text("Checking Homebrew casks")
-                            .font(.headline)
-                        Text("Refreshing package data and comparing installed versions.")
-                            .font(.callout)
-                            .foregroundStyle(.secondary)
-                    }
-                    Spacer()
+            HStack(spacing: 14) {
+                ProgressView()
+                    .controlSize(.small)
+                    .tint(SiftColor.accent)
+                VStack(alignment: .leading, spacing: 3) {
+                    Text("Checking Homebrew casks")
+                        .siftStyle(.cardTitle)
+                    Text("Refreshing package data and comparing installed versions.")
+                        .siftStyle(.label)
                 }
+                Spacer()
             }
+            .siftSurface(.card)
         } else if let error = updater.errorMessage {
-            CardSurface(padding: 22, elevation: .standard, tint: Tint.red) {
-                HStack(alignment: .top, spacing: 14) {
-                    IconTile(systemName: "exclamationmark.triangle.fill", tint: Tint.red, size: 36, corner: 10)
-                    VStack(alignment: .leading, spacing: 7) {
-                        Text("Couldn't check for updates")
-                            .font(.headline)
-                        Text(error)
-                            .font(.callout)
-                            .foregroundStyle(.secondary)
-                            .textSelection(.enabled)
-                        Button("Try Again") {
-                            Task { await updater.checkForUpdates() }
-                        }
-                        .buttonStyle(.bordered)
-                        .disabled(updater.isBusy)
+            HStack(alignment: .top, spacing: 14) {
+                SiftIconTile(icon: .triangleAlert, tone: .warning, size: 36)
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("Couldn't check for updates")
+                        .siftStyle(.cardTitle)
+                    Text(error)
+                        .font(.siftMono(11))
+                        .foregroundStyle(SiftColor.textSecondary)
+                        .textSelection(.enabled)
+                        .fixedSize(horizontal: false, vertical: true)
+                    Button("Try Again") {
+                        Task { await updater.checkForUpdates() }
                     }
-                    Spacer()
+                    .buttonStyle(.sift(.secondary, compact: true))
+                    .disabled(updater.isBusy)
+                    .padding(.top, 2)
                 }
+                Spacer()
             }
+            .siftSurface(.card)
         } else if updater.hasChecked && updater.updates.isEmpty {
             stateCard(
                 title: "Homebrew apps are up to date",
                 message: "No updates are currently available for the cask apps Homebrew manages.",
-                systemImage: "checkmark.circle.fill",
-                tint: Tint.green
+                icon: .check,
+                tone: .success
             )
         } else if updater.updates.isEmpty {
-            CardSurface(padding: 28, elevation: .standard) {
-                VStack(spacing: 14) {
-                    IconTile(systemName: "arrow.triangle.2.circlepath", tint: Tint.accent, size: 48, corner: 13)
-                    Text("Check installed cask apps")
-                        .font(.title3.weight(.semibold))
-                    Text("PureMac will ask Homebrew for available versions when you start the check.")
-                        .font(.callout)
-                        .foregroundStyle(.secondary)
-                        .multilineTextAlignment(.center)
-                    Button("Check for Updates") {
-                        Task { await updater.checkForUpdates() }
+            VStack(spacing: 14) {
+                SiftIconTile(icon: .refresh, tone: .accent, size: 48)
+                Text("Check installed cask apps")
+                    .font(.siftDisplay(26))
+                    .tracking(-0.4)
+                    .foregroundStyle(SiftColor.textPrimary)
+                Text("Sift will ask Homebrew for available versions when you start the check.")
+                    .siftStyle(.body)
+                    .multilineTextAlignment(.center)
+                    .frame(maxWidth: 420)
+                Button {
+                    Task { await updater.checkForUpdates() }
+                } label: {
+                    Label {
+                        Text("Check for Updates")
+                    } icon: {
+                        SiftIcon.rotateCw.image(15)
                     }
-                    .buttonStyle(.borderedProminent)
-                    .tint(Tint.accent)
                 }
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 12)
+                .buttonStyle(.siftPrimary)
+                .padding(.top, 4)
             }
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 28)
+            .siftSurface(.card)
         } else {
             updatesCard
         }
     }
 
+    /// The Installers table: a column header, then 58 pt checkbox rows.
     private var updatesCard: some View {
-        CardSurface(padding: 0, elevation: .standard) {
-            VStack(spacing: 0) {
-                HStack {
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text(updateCountTitle)
-                            .font(.headline)
-                        Text("Select the apps Homebrew should upgrade.")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                    }
-                    Spacer()
-                }
-                .padding(16)
+        VStack(alignment: .leading, spacing: 2) {
+            HStack(alignment: .firstTextBaseline) {
+                Text(updateCountTitle)
+                    .siftStyle(.cardTitle)
+                Spacer(minLength: 8)
+                Text("Select the apps Homebrew should upgrade.")
+                    .siftStyle(.label)
+            }
+            .padding(.horizontal, 14)
+            .padding(.top, 10)
+            .padding(.bottom, 4)
 
-                Divider()
+            SiftTableHeader {
+                Color.clear.frame(width: 20, height: 1)
+                Color.clear.frame(width: 36, height: 1)
+                Text("Name").frame(maxWidth: .infinity, alignment: .leading)
+                Text("Available").frame(width: 120, alignment: .trailing)
+            }
 
-                LazyVStack(spacing: 0) {
-                    ForEach(Array(updater.updates.enumerated()), id: \.element.id) { index, update in
-                        updateRow(update)
-                        if index < updater.updates.count - 1 {
-                            Divider()
-                                .padding(.leading, 56)
-                        }
-                    }
+            LazyVStack(spacing: 2) {
+                ForEach(updater.updates) { update in
+                    updateRow(update)
                 }
             }
         }
+        .siftSurface(.card, padding: 10)
     }
 
     private func updateRow(_ update: ManagedAppUpdate) -> some View {
@@ -253,65 +255,68 @@ struct AppUpdatesView: View {
         let displayName = app?.appName
             ?? presentation?.displayName
             ?? AppUpdateIdentityMatcher.fallbackDisplayName(for: update.token)
+        let isSelected = updater.selectedTokens.contains(update.token)
 
-        return HStack(spacing: 12) {
-            Toggle("", isOn: Binding(
+        return HStack(spacing: 14) {
+            Toggle(isOn: Binding(
                 get: { updater.selectedTokens.contains(update.token) },
                 set: { updater.setSelected($0, token: update.token) }
-            ))
-            .labelsHidden()
-            .toggleStyle(AnimatedCheckboxStyle(tint: Tint.accent))
+            )) { EmptyView() }
+            .toggleStyle(.siftCheckbox)
             .disabled(update.isPinned || updater.isBusy)
+            .opacity(update.isPinned ? 0.45 : 1)
             .accessibilityLabel("Select \(displayName)")
 
-            appIcon(app?.icon ?? presentation?.icon, isPinned: update.isPinned)
+            appIcon(app?.icon ?? presentation?.icon, isPinned: update.isPinned, isSelected: isSelected)
 
             VStack(alignment: .leading, spacing: 3) {
-                HStack(spacing: 7) {
+                HStack(spacing: 8) {
                     Text(displayName)
-                        .font(.system(size: 14, weight: .semibold))
+                        .font(.sift(13.5, weight: 500))
+                        .foregroundStyle(SiftColor.textPrimary)
                         .lineLimit(1)
                     if update.isPinned {
-                        StatusChip(label: String(localized: "Pinned"), systemImage: "pin.fill", tint: Tint.orange)
+                        SiftStatusPill(Text("Pinned"), tone: .warning)
+                    }
+                    if presentation?.isBundleMissing == true {
+                        SiftStatusPill(Text("App bundle missing"), tone: .warning, showsDot: false)
                     }
                 }
                 Text(updateDetail(update))
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
+                    .siftStyle(.monoSmall)
                     .lineLimit(1)
-                if presentation?.isBundleMissing == true {
-                    Text("App bundle missing")
-                        .font(.caption2.weight(.medium))
-                        .foregroundStyle(Tint.orange)
-                }
+                    .truncationMode(.middle)
             }
+            .frame(maxWidth: .infinity, alignment: .leading)
 
-            Spacer(minLength: 18)
-
-            VStack(alignment: .trailing, spacing: 3) {
-                Text("Available")
-                    .font(.caption2)
-                    .foregroundStyle(.tertiary)
-                Text(update.currentVersion)
-                    .font(.system(.callout, design: .monospaced, weight: .medium))
-                    .lineLimit(1)
-            }
+            Text(update.currentVersion)
+                .font(.siftMono(12.5))
+                .foregroundStyle(isSelected ? SiftColor.accent : SiftColor.textPrimary)
+                .lineLimit(1)
+                .frame(width: 120, alignment: .trailing)
+                .accessibilityLabel(Text("Available") + Text(verbatim: " ") + Text(update.currentVersion))
         }
-        .padding(.horizontal, 16)
-        .padding(.vertical, 12)
-        .contentShape(Rectangle())
+        .padding(.horizontal, 14)
+        .frame(minHeight: 58)
+        .siftRowBackground(accented: isSelected, radius: 16)
     }
 
     @ViewBuilder
-    private func appIcon(_ icon: NSImage?, isPinned: Bool) -> some View {
+    private func appIcon(_ icon: NSImage?, isPinned: Bool, isSelected: Bool) -> some View {
         if let icon {
             Image(nsImage: icon)
                 .resizable()
                 .scaledToFit()
-                .frame(width: 32, height: 32)
+                .frame(width: 28, height: 28)
+                .frame(width: 36, height: 36)
+                .background(
+                    RoundedRectangle(cornerRadius: 11, style: .continuous)
+                        .fill(isSelected ? SiftColor.accentTint : SiftColor.control)
+                )
                 .accessibilityHidden(true)
         } else {
-            IconTile(systemName: "app.fill", tint: isPinned ? Tint.orange : Tint.accent, size: 32, corner: 8)
+            SiftIconTile(icon: .appWindow, tone: isPinned ? .warning : (isSelected ? .accent : .neutral), size: 36)
+                .accessibilityHidden(true)
         }
     }
 
@@ -334,60 +339,60 @@ struct AppUpdatesView: View {
     }
 
     private var unmanagedAppsCard: some View {
-        CardSurface(padding: 16, elevation: .flat) {
-            HStack(spacing: 12) {
-                IconTile(systemName: "storefront.fill", tint: Tint.blue, size: 32, corner: 9)
-                VStack(alignment: .leading, spacing: 3) {
-                    Text("Apps outside Homebrew")
-                        .font(.system(size: 14, weight: .semibold))
-                    Text("Open the App Store updates page. Direct-download apps may provide their own updater.")
-                        .font(.callout)
-                        .foregroundStyle(.secondary)
-                }
-                Spacer()
-                Button("Open App Store Updates") {
-                    updater.openAppStoreUpdates()
-                }
-                .buttonStyle(.bordered)
+        HStack(spacing: 12) {
+            SiftIconTile(icon: .apple, size: 32)
+            VStack(alignment: .leading, spacing: 3) {
+                Text("Apps outside Homebrew")
+                    .siftStyle(.cardTitle)
+                Text("Open the App Store updates page. Direct-download apps may provide their own updater.")
+                    .siftStyle(.label)
+                    .fixedSize(horizontal: false, vertical: true)
             }
+            Spacer(minLength: 12)
+            Button {
+                updater.openAppStoreUpdates()
+            } label: {
+                Label {
+                    Text("Open App Store Updates")
+                } icon: {
+                    SiftIcon.externalLink.image(14).foregroundStyle(SiftColor.textSecondary)
+                }
+            }
+            .buttonStyle(.siftSecondary)
         }
+        .siftSurface(.card)
     }
 
-    private func stateCard(title: LocalizedStringKey, message: LocalizedStringKey, systemImage: String, tint: Color) -> some View {
-        CardSurface(padding: 28, elevation: .standard, tint: tint) {
-            VStack(spacing: 12) {
-                IconTile(systemName: systemImage, tint: tint, size: 48, corner: 13)
-                Text(title)
-                    .font(.title3.weight(.semibold))
-                Text(message)
-                    .font(.callout)
-                    .foregroundStyle(.secondary)
-                    .multilineTextAlignment(.center)
-                    .frame(maxWidth: 520)
-            }
-            .frame(maxWidth: .infinity)
-            .padding(.vertical, 12)
+    private func stateCard(title: LocalizedStringKey, message: LocalizedStringKey, icon: SiftIcon, tone: SiftTone) -> some View {
+        VStack(spacing: 12) {
+            SiftIconTile(icon: icon, tone: tone, size: 48)
+            Text(title)
+                .font(.siftDisplay(26))
+                .tracking(-0.4)
+                .foregroundStyle(SiftColor.textPrimary)
+            Text(message)
+                .siftStyle(.body)
+                .multilineTextAlignment(.center)
+                .frame(maxWidth: 520)
         }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 28)
+        .siftSurface(.card)
     }
 
-    private func statusCard(_ status: String) -> some View {
-        CardSurface(padding: 14, elevation: .flat, tint: Tint.green) {
-            HStack(spacing: 10) {
-                Image(systemName: "checkmark.circle.fill")
-                    .foregroundStyle(Tint.green)
-                Text(status)
-                    .font(.callout.weight(.medium))
-                Spacer()
-            }
-        }
+    private func statusBanner(_ status: String) -> some View {
+        SiftNoticeBanner(Text(status), icon: .check, tone: .success)
     }
+
+    // MARK: Upgrade bar
 
     private var upgradeBar: some View {
-        HStack {
+        SiftSelectionBar(count: updater.selectedCount) {
             Text(updater.selectedCount == 0 ? String(localized: "Select apps to update") : selectedCountTitle)
-                .font(.callout.weight(.medium))
-                .foregroundStyle(updater.selectedCount == 0 ? Color.secondary : Color.primary)
-            Spacer()
+                .font(.sift(13.5, weight: 500))
+                .foregroundStyle(updater.selectedCount == 0 ? SiftColor.textTertiary : SiftColor.textPrimary)
+                .lineLimit(1)
+        } actions: {
             Button {
                 confirmationSelection = updater.updates.filter {
                     updater.selectedTokens.contains($0.token) && !$0.isPinned
@@ -398,21 +403,19 @@ struct AppUpdatesView: View {
                     HStack(spacing: 8) {
                         ProgressView()
                             .controlSize(.small)
+                            .tint(SiftColor.onAccent)
                         Text("Updating…")
                     }
                 } else {
-                    Text(upgradeConfirmationLabel(count: updater.selectedCount))
+                    Label {
+                        Text(upgradeConfirmationLabel(count: updater.selectedCount))
+                    } icon: {
+                        SiftIcon.download.image(15)
+                    }
                 }
             }
-            .buttonStyle(.borderedProminent)
-            .tint(Tint.accent)
+            .buttonStyle(.siftPrimary)
             .disabled(updater.selectedCount == 0 || updater.isBusy)
-        }
-        .padding(.horizontal, 24)
-        .padding(.vertical, 12)
-        .background(.regularMaterial)
-        .overlay(alignment: .top) {
-            Divider()
         }
     }
 

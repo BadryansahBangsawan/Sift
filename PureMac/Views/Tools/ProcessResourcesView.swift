@@ -2,7 +2,7 @@ import AppKit
 import SwiftUI
 
 /// Mounted only while the resource disclosure is open. Sampling also pauses
-/// when PureMac is not the foreground application.
+/// when Sift is not the foreground application.
 struct ProcessResourcesView: View {
     let isActive: Bool
     @StateObject private var monitor = ProcessResourceMonitor()
@@ -10,86 +10,72 @@ struct ProcessResourcesView: View {
     @State private var search = ""
     @State private var showAll = false
     @State private var isVisible = false
+    @State private var showsReadingNotes = false
+    @FocusState private var searchFocused: Bool
 
     var body: some View {
         let matchingConsumers = ProcessResourceMath.sorted(monitor.consumers, by: sort, search: search)
         let visibleConsumers = showAll || !search.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
             ? matchingConsumers : Array(matchingConsumers.prefix(8))
         return VStack(alignment: .leading, spacing: 12) {
-            Divider()
+            Rectangle()
+                .fill(SiftColor.stroke)
+                .frame(height: 1)
+                .accessibilityHidden(true)
+
             HStack(spacing: 12) {
                 Text("Apps and processes")
-                    .font(.system(size: 13, weight: .semibold))
-                Spacer()
-                Picker("Sort by", selection: $sort) {
-                    Text("CPU").tag(ProcessResourceSort.cpu)
-                    Text("Memory").tag(ProcessResourceSort.memory)
+                    .siftStyle(.cardTitle)
+                if !isActive {
+                    // Pausing keeps the last sample on screen under the notice.
+                    SiftStatusPill(Text("Live updates paused"), tone: .neutral)
                 }
-                .pickerStyle(.segmented)
-                .labelsHidden()
-                .frame(width: 170)
+                Spacer()
+                SiftSegmented(selection: $sort, options: [
+                    (value: ProcessResourceSort.cpu, label: Text("CPU")),
+                    (value: ProcessResourceSort.memory, label: Text("Memory"))
+                ])
+                .accessibilityElement(children: .contain)
+                .accessibilityLabel(Text("Sort by"))
                 .accessibilityIdentifier("performance.processSort")
             }
 
-            HStack(spacing: 8) {
-                Image(systemName: "magnifyingglass")
-                    .foregroundStyle(.secondary)
-                TextField("Search apps and processes", text: $search)
-                    .textFieldStyle(.plain)
-                    .accessibilityIdentifier("performance.processSearch")
-                if !search.isEmpty {
-                    Button { search = "" } label: {
-                        Image(systemName: "xmark.circle.fill")
-                    }
-                    .buttonStyle(.plain)
-                    .foregroundStyle(.secondary)
-                    .accessibilityLabel("Clear search")
-                }
-            }
-            .padding(9)
-            .background(Color.primary.opacity(0.035), in: RoundedRectangle(cornerRadius: 8))
-
-            // Pausing keeps the last sample on screen under the notice.
-            if !isActive {
-                Label("Live updates paused", systemImage: "pause.circle")
-                    .font(.system(size: 12))
-                    .foregroundStyle(.secondary)
-            }
+            searchField
 
             if isActive && monitor.samplingFailed {
-                Label("Process information is unavailable. Try Activity Monitor for more detail.", systemImage: "exclamationmark.triangle")
-                    .font(.system(size: 12))
-                    .foregroundStyle(.secondary)
+                SiftNoticeBanner(
+                    Text("Process information is unavailable. Try Activity Monitor for more detail."),
+                    tone: .warning
+                )
             } else if isActive && monitor.consumers.isEmpty && monitor.isWarmingUp {
-                HStack(spacing: 9) {
-                    ProgressView().controlSize(.small)
+                HStack(spacing: 10) {
+                    ProgressView().controlSize(.small).tint(SiftColor.accent)
                     Text("Measuring apps and processes…")
-                        .font(.system(size: 12))
-                        .foregroundStyle(.secondary)
+                        .siftStyle(.label)
                 }
                 .padding(.vertical, 10)
             } else if visibleConsumers.isEmpty {
                 if isActive || !monitor.consumers.isEmpty {
                     Text("No matching apps or processes")
-                        .font(.system(size: 12))
-                        .foregroundStyle(.secondary)
+                        .siftStyle(.label)
                         .padding(.vertical, 10)
                 }
             } else {
-                HStack {
-                    Text("Name")
-                    Spacer()
-                    Text("CPU").frame(width: 92, alignment: .trailing)
-                    Text("Memory").frame(width: 122, alignment: .trailing)
-                }
-                .font(.system(size: 10.5, weight: .medium))
-                .foregroundStyle(.secondary)
+                VStack(spacing: 2) {
+                    SiftTableHeader {
+                        Text("Name").frame(maxWidth: .infinity, alignment: .leading)
+                        Text("CPU")
+                            .foregroundStyle(sort == .cpu ? SiftColor.textSecondary : SiftColor.textTertiary)
+                            .frame(width: 92, alignment: .trailing)
+                        Text("Memory")
+                            .foregroundStyle(sort == .memory ? SiftColor.textSecondary : SiftColor.textTertiary)
+                            .frame(width: 122, alignment: .trailing)
+                    }
+                    .padding(.horizontal, -2)
 
-                LazyVStack(spacing: 0) {
-                    ForEach(visibleConsumers) { consumer in
-                        ProcessResourceRow(consumer: consumer, icon: monitor.icon(for: consumer))
-                        if consumer.id != visibleConsumers.last?.id {
-                            Divider().padding(.leading, 40)
+                    LazyVStack(spacing: 2) {
+                        ForEach(visibleConsumers) { consumer in
+                            ProcessResourceRow(consumer: consumer, icon: monitor.icon(for: consumer))
                         }
                     }
                 }
@@ -98,8 +84,7 @@ struct ProcessResourcesView: View {
                     Button(showAll ? String(localized: "Show top 8") : String(localized: "Show all apps and processes")) {
                         showAll.toggle()
                     }
-                    .buttonStyle(.borderless)
-                    .font(.system(size: 12, weight: .medium))
+                    .buttonStyle(.siftQuiet)
                     .accessibilityIdentifier("performance.showAllProcesses")
                 }
             }
@@ -115,19 +100,10 @@ struct ProcessResourcesView: View {
                     Text("System processes are not listed. Use Activity Monitor for those.")
                 }
             }
-            .font(.system(size: 10.5))
-            .foregroundStyle(.secondary)
+            .font(.sift(11))
+            .foregroundStyle(SiftColor.textTertiary)
 
-            DisclosureGroup("About these readings") {
-                VStack(alignment: .leading, spacing: 5) {
-                    Text("CPU uses the Mac’s total capacity. App helpers are grouped with their app.")
-                    Text("App memory shows resident memory, including shared pages. App totals can differ from the summary.")
-                    Text("Memory estimate includes active, wired and compressed memory.")
-                }
-                .padding(.top, 6)
-            }
-            .font(.system(size: 10.5))
-            .foregroundStyle(.secondary)
+            readingNotes
         }
         .onAppear {
             isVisible = true
@@ -141,28 +117,96 @@ struct ProcessResourcesView: View {
             monitor.setActive(isVisible && active)
         }
     }
+
+    /// A SiftSearchField look-alike that keeps the identifier on the text field
+    /// and stays off ⌘F, which belongs to the page.
+    private var searchField: some View {
+        HStack(spacing: 10) {
+            SiftIcon.search.image(15).foregroundStyle(SiftColor.textTertiary)
+            TextField(text: $search, prompt: Text("Search apps and processes").foregroundColor(SiftColor.textTertiary)) {
+                Text("Search apps and processes")
+            }
+            .textFieldStyle(.plain)
+            .font(.sift(13))
+            .foregroundStyle(SiftColor.textPrimary)
+            .focused($searchFocused)
+            .accessibilityIdentifier("performance.processSearch")
+            if !search.isEmpty {
+                Button { search = "" } label: {
+                    SiftIcon.x.image(13).foregroundStyle(SiftColor.textTertiary)
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel("Clear search")
+            }
+        }
+        .padding(.horizontal, 16)
+        .frame(height: 40)
+        .background(Capsule(style: .continuous).fill(SiftColor.control))
+        .overlay(
+            Capsule(style: .continuous)
+                .strokeBorder(searchFocused ? SiftColor.accent : SiftColor.controlStroke, lineWidth: 1)
+        )
+    }
+
+    private var readingNotes: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Button {
+                withAnimation(SiftMotion.quick) { showsReadingNotes.toggle() }
+            } label: {
+                HStack(spacing: 6) {
+                    SiftIcon.chevronRight.image(11)
+                        .rotationEffect(.degrees(showsReadingNotes ? 90 : 0))
+                    Text("About these readings")
+                }
+                .font(.sift(11.5, weight: 500))
+                .foregroundStyle(SiftColor.textSecondary)
+                .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            .accessibilityValue(Text(LocalizedStringKey(showsReadingNotes ? "Expanded" : "Collapsed")))
+
+            if showsReadingNotes {
+                VStack(alignment: .leading, spacing: 5) {
+                    Text("CPU uses the Mac’s total capacity. App helpers are grouped with their app.")
+                    Text("App memory shows resident memory, including shared pages. App totals can differ from the summary.")
+                    Text("Memory estimate includes active, wired and compressed memory.")
+                }
+                .font(.sift(11))
+                .foregroundStyle(SiftColor.textTertiary)
+                .fixedSize(horizontal: false, vertical: true)
+                .padding(.leading, 17)
+            }
+        }
+    }
 }
 
+/// The Performance startup-item row grammar: 52 pt, 14 pt corners, name over
+/// a mono sub-line, with mono values and thin meters on the right.
 private struct ProcessResourceRow: View {
     let consumer: ProcessResourceConsumer
     let icon: NSImage?
     private let memoryTotal = ProcessInfo.processInfo.physicalMemory
 
     var body: some View {
-        HStack(spacing: 10) {
-            if let icon {
-                Image(nsImage: icon)
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 30, height: 30)
-                    .accessibilityHidden(true)
-            } else {
-                IconTile(systemName: "gearshape.2", tint: .secondary, size: 30, corner: 8)
-                    .accessibilityHidden(true)
+        HStack(spacing: 12) {
+            Group {
+                if let icon {
+                    Image(nsImage: icon)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 24, height: 24)
+                        .frame(width: 32, height: 32)
+                        .background(RoundedRectangle(cornerRadius: SiftRadius.tile, style: .continuous).fill(SiftColor.control))
+                } else {
+                    SiftIconTile(icon: .cpu, size: 32)
+                }
             }
-            VStack(alignment: .leading, spacing: 3) {
+            .accessibilityHidden(true)
+
+            VStack(alignment: .leading, spacing: 2) {
                 Text(consumer.name)
-                    .font(.system(size: 12.5, weight: .medium))
+                    .font(.sift(12.5, weight: 500))
+                    .foregroundStyle(SiftColor.textPrimary)
                     .lineLimit(1)
                     .truncationMode(.middle)
                 Group {
@@ -172,32 +216,38 @@ private struct ProcessResourceRow: View {
                         Text("\(consumer.processCount) processes")
                     }
                 }
-                .font(.system(size: 10))
-                .foregroundStyle(.secondary)
+                .siftStyle(.monoSmall)
             }
             .help(consumer.applicationPath ?? consumer.name)
-            Spacer(minLength: 8)
+            .frame(maxWidth: .infinity, alignment: .leading)
+
             VStack(alignment: .trailing, spacing: 5) {
                 Text(cpuText)
-                    .monospacedDigit()
+                    .font(.siftMono(12))
+                    .foregroundStyle(SiftColor.textPrimary)
                     .help(consumer.cpuIsPartial && consumer.cpuFraction != nil
                           ? String(localized: "Some of this app's processes have no CPU reading yet, so this total is partial.") : "")
-                ProgressView(value: consumer.cpuFraction ?? 0)
-                    .tint(Tint.accent)
+                SiftMeterBar(fraction: consumer.cpuFraction ?? 0, height: 4)
                     .accessibilityHidden(true)
             }
             .frame(width: 92)
+
             VStack(alignment: .trailing, spacing: 5) {
                 Text(ByteCountFormatter.string(fromByteCount: Int64(clamping: consumer.residentBytes), countStyle: .memory))
-                    .monospacedDigit()
-                ProgressView(value: memoryTotal > 0 ? min(1, Double(consumer.residentBytes) / Double(memoryTotal)) : 0)
-                    .tint(Tint.purple)
-                    .accessibilityHidden(true)
+                    .font(.siftMono(12))
+                    .foregroundStyle(SiftColor.textPrimary)
+                SiftMeterBar(
+                    fraction: memoryTotal > 0 ? min(1, Double(consumer.residentBytes) / Double(memoryTotal)) : 0,
+                    fill: SiftColor.accentDim,
+                    height: 4
+                )
+                .accessibilityHidden(true)
             }
             .frame(width: 122)
         }
-        .font(.system(size: 11.5, weight: .medium, design: .rounded))
-        .padding(.vertical, 10)
+        .padding(.horizontal, 12)
+        .frame(height: 52)
+        .siftRowBackground()
         .accessibilityElement(children: .combine)
     }
 

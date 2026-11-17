@@ -16,22 +16,116 @@ struct OrphanListView: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
-        Group {
-            if appState.isSearchingOrphans {
-                VStack(spacing: 16) {
-                    ProgressView(LocalizedStringKey("Scanning for orphaned files..."))
-                        .progressViewStyle(.linear)
-                        .frame(maxWidth: 300)
+        VStack(alignment: .leading, spacing: SiftSpacing.gutter) {
+            header
+
+            Group {
+                if appState.isSearchingOrphans {
+                    VStack(spacing: 14) {
+                        SiftIconTile(icon: .scanSearch, tone: .accent, size: 48)
+                        ProgressView(LocalizedStringKey("Scanning for orphaned files..."))
+                            .progressViewStyle(.linear)
+                            .tint(SiftColor.accent)
+                            .font(.sift(13))
+                            .foregroundStyle(SiftColor.textSecondary)
+                            .frame(maxWidth: 300)
+                    }
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .siftSurface(.card)
+                } else if appState.orphanedFiles.isEmpty {
+                    EmptyStateView("No Orphaned Files", systemImage: "checkmark.circle", description: "No leftover files from uninstalled apps were found.", action: { appState.findOrphans() }, actionLabel: "Scan for Orphans", tint: SiftColor.success)
+                        .siftSurface(.card)
+                } else {
+                    table
                 }
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-            } else if appState.orphanedFiles.isEmpty {
-                EmptyStateView("No Orphaned Files", systemImage: "checkmark.circle", description: "No leftover files from uninstalled apps were found.", action: { appState.findOrphans() }, actionLabel: "Scan for Orphans", tint: Tint.green)
-            } else {
-                List {
-                    // No .staggered(): List is lazy, so a delayed-reveal would
-                    // blank each row as it scrolls in. The removal transition
-                    // below still gives the sweep-out on delete.
-                    ForEach(Array(appState.orphanedFiles.enumerated()), id: \.element) { _, fileURL in
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+
+            if !appState.orphanedFiles.isEmpty && !appState.isSearchingOrphans {
+                selectionBar
+            }
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+        .navigationTitle(orphanedFilesTitle)
+        .task(id: appState.orphanedFiles) {
+            // Recompute off the main thread whenever the orphan set changes
+            // (new scan, removals). FileSizeCalculator is a plain static helper
+            // with no main-actor isolation, so it runs safely on a detached
+            // background task; the result is applied back on the main actor.
+            let urls = appState.orphanedFiles
+            let sizes = await Task.detached(priority: .utility) { () -> [URL: Int64] in
+                var out: [URL: Int64] = [:]
+                for url in urls {
+                    out[url] = FileSizeCalculator.size(of: url) ?? 0
+                }
+                return out
+            }.value
+            sizeCache = sizes        }
+        .confirmationDialog("Remove selected leftovers?", isPresented: $showRemovalConfirmation, titleVisibility: .visible) {
+            Button("Remove \(pendingRemoval.count) items", role: .destructive) {
+                let batch = pendingRemoval
+                pendingRemoval = []
+                Task { await removeSelectedOrphans(batch) }
+            }
+            Button("Cancel", role: .cancel) { pendingRemoval = [] }
+        } message: {
+            Text("Files will be moved to the Trash. Items requiring administrator authorization may be permanently deleted. App matching is a best-effort estimate; review files you recognize before removing them.")
+        }
+        .alert("Some files could not be removed", isPresented: Binding(
+            get: { removalErrorMessage != nil },
+            set: { if !$0 { removalErrorMessage = nil } }
+        )) {
+            Button("OK", role: .cancel) {}
+        } message: {
+            Text(removalErrorMessage ?? "")
+        }
+    }
+
+    // MARK: Header
+
+    private var header: some View {
+        SiftScreenHeader(
+            Text("Leftovers"),
+            eyebrow: Text(orphanedFilesTitle)
+        ) {
+            // The empty state carries its own Scan button.
+            if !appState.orphanedFiles.isEmpty || appState.isSearchingOrphans {
+                Button {
+                    appState.findOrphans()
+                } label: {
+                    Label {
+                        Text("Scan for Orphans")
+                    } icon: {
+                        SiftIcon.rotateCw.image(15).foregroundStyle(SiftColor.textSecondary)
+                    }
+                }
+                .buttonStyle(.siftSecondary)
+                .disabled(appState.isSearchingOrphans)
+            }
+        }    }
+
+    // MARK: Table
+
+    private var table: some View {
+        VStack(spacing: 2) {
+            SiftTableHeader {
+                Color.clear.frame(width: 20, height: 1)
+                Color.clear.frame(width: 36, height: 1)
+                Text("Name").frame(maxWidth: .infinity, alignment: .leading)
+                HStack(spacing: 4) {
+                    Text("Size")
+                    SiftIcon.arrowDown.image(12)
+                }
+                .foregroundStyle(SiftColor.textSecondary)
+                .frame(width: 90, alignment: .trailing)
+            }
+
+            ScrollView {
+                // No .staggered(): rows are lazy, so a delayed reveal would
+                // blank each row as it scrolls in. The removal transition
+                // below still gives the sweep-out on delete.
+                LazyVStack(spacing: 2) {
+                    ForEach(appState.orphanedFiles, id: \.self) { fileURL in
                         OrphanRowView(
                             fileURL: fileURL,
                             isSelected: orphanBinding(for: fileURL),
@@ -59,71 +153,57 @@ struct OrphanListView: View {
                 }
             }
         }
-        .navigationTitle(orphanedFilesTitle)
-        .task(id: appState.orphanedFiles) {
-            // Recompute off the main thread whenever the orphan set changes
-            // (new scan, removals). FileSizeCalculator is a plain static helper
-            // with no main-actor isolation, so it runs safely on a detached
-            // background task; the result is applied back on the main actor.
-            let urls = appState.orphanedFiles
-            let sizes = await Task.detached(priority: .utility) { () -> [URL: Int64] in
-                var out: [URL: Int64] = [:]
-                for url in urls {
-                    out[url] = FileSizeCalculator.size(of: url) ?? 0
-                }
-                return out
-            }.value
-            sizeCache = sizes
-        }
-        .toolbar {
-            ToolbarItemGroup {
-                if !appState.orphanedFiles.isEmpty {
-                    Button(LocalizedStringKey(selectedOrphans.count == appState.orphanedFiles.count ? "Deselect All" : "Select All")) {
-                        if selectedOrphans.count == appState.orphanedFiles.count {
-                            selectedOrphans.removeAll()
-                        } else {
-                            selectedOrphans = Set(appState.orphanedFiles)
-                        }
-                    }
-                }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+        .siftSurface(.card, padding: 10)
+    }
 
-                Button("Scan for Orphans") {
-                    appState.findOrphans()
-                }
+    // MARK: Selection bar
 
+    private var selectionBar: some View {
+        let allSelected = selectedOrphans.count == appState.orphanedFiles.count
+        let selectedSize = selectedOrphans.reduce(Int64(0)) { $0 + (sizeCache[$1] ?? 0) }
+        return SiftSelectionBar(count: selectedOrphans.count) {
+            HStack(spacing: 10) {
+                Text("selected")
+                    .font(.sift(13.5, weight: 500))
+                    .foregroundStyle(SiftColor.textPrimary)
                 if !selectedOrphans.isEmpty {
-                    Button(ignoreSelectedLabel) {
-                        ignoreOrphans(Array(selectedOrphans))
-                    }
-                    .disabled(isRemoving)
-
-                    Button(removeSelectedLabel, role: .destructive) {
-                        pendingRemoval = selectedOrphans
-                        showRemovalConfirmation = true
-                    }
-                    .buttonStyle(.borderedProminent)
-                    .tint(.red)
-                    .disabled(isRemoving)
+                    Text(verbatim: ByteCountFormatter.string(fromByteCount: selectedSize, countStyle: .file))
+                        .font(.siftMono(12.5))
+                        .foregroundStyle(SiftColor.accent)
                 }
             }
-        }
-        .confirmationDialog("Remove selected leftovers?", isPresented: $showRemovalConfirmation, titleVisibility: .visible) {
-            Button("Remove \(pendingRemoval.count) items", role: .destructive) {
-                let batch = pendingRemoval
-                pendingRemoval = []
-                Task { await removeSelectedOrphans(batch) }
+            .lineLimit(1)
+        } actions: {
+            Button(LocalizedStringKey(allSelected ? "Deselect All" : "Select All")) {
+                if allSelected {
+                    selectedOrphans.removeAll()
+                } else {
+                    selectedOrphans = Set(appState.orphanedFiles)
+                }
             }
-            Button("Cancel", role: .cancel) { pendingRemoval = [] }
-        } message: {
-            Text("Files will be moved to the Trash. Items requiring administrator authorization may be permanently deleted. App matching is a best-effort estimate; review files you recognize before removing them.")
-        }
-        .alert("Some files could not be removed", isPresented: Binding(
-            get: { removalErrorMessage != nil },
-            set: { if !$0 { removalErrorMessage = nil } }
-        )) {
-            Button("OK", role: .cancel) {}
-        } message: {
-            Text(removalErrorMessage ?? "")
+            .buttonStyle(.sift(.quiet))
+
+            if !selectedOrphans.isEmpty {
+                Button(ignoreSelectedLabel) {
+                    ignoreOrphans(Array(selectedOrphans))
+                }
+                .buttonStyle(.siftSecondary)
+                .disabled(isRemoving)
+            }
+
+            Button(role: .destructive) {
+                pendingRemoval = selectedOrphans
+                showRemovalConfirmation = true
+            } label: {
+                Label {
+                    Text(removeSelectedLabel)
+                } icon: {
+                    SiftIcon.trash2.image(15)
+                }
+            }
+            .buttonStyle(.siftPrimary)
+            .disabled(selectedOrphans.isEmpty || isRemoving)
         }
     }
 
@@ -304,8 +384,9 @@ struct OrphanListView: View {
 
 // MARK: - Row
 
-/// Orphan row extracted to its own struct so hover highlight and the springy
-/// checkbox are per-row state.
+/// Orphan row extracted to its own struct so hover state is per-row. Follows
+/// the Installers table row: checkbox, 36 pt tile, name over a mono path, and
+/// a hover-revealed Finder chip before the mono size.
 private struct OrphanRowView: View {
     let fileURL: URL
     @Binding var isSelected: Bool
@@ -319,54 +400,72 @@ private struct OrphanRowView: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
-        Toggle(isOn: $isSelected) {
-            HStack {
-                Image(nsImage: NSWorkspace.shared.icon(forFile: fileURL.path))
-                    .resizable()
-                    .frame(width: 16, height: 16)
+        HStack(spacing: 14) {
+            // The Sift checkbox draws its label, so the name goes to accessibility only.
+            Toggle(isOn: $isSelected) { EmptyView() }
+                .toggleStyle(.siftCheckbox)
+                .accessibilityLabel(Text(fileURL.lastPathComponent))
 
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(fileURL.lastPathComponent)
-                        .lineLimit(1)
-                    Text(fileURL.path)
-                        .font(.caption)
-                        .foregroundStyle(.tertiary)
-                        .lineLimit(1)
-                        .truncationMode(.middle)
+            Image(nsImage: NSWorkspace.shared.icon(forFile: fileURL.path))
+                .resizable()
+                .frame(width: 20, height: 20)
+                .frame(width: 36, height: 36)
+                .background(
+                    RoundedRectangle(cornerRadius: 11, style: .continuous)
+                        .fill(isSelected ? SiftColor.accentTint : SiftColor.control)
+                )
+                .accessibilityHidden(true)
+
+            VStack(alignment: .leading, spacing: 3) {
+                Text(fileURL.lastPathComponent)
+                    .font(.sift(13.5, weight: 500))
+                    .foregroundStyle(SiftColor.textPrimary)
+                    .lineLimit(1)
+                Text(fileURL.path)
+                    .siftStyle(.monoSmall)
+                    .lineLimit(1)
+                    .truncationMode(.middle)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+
+            // Hover-revealed Finder shortcut; stays in the layout so the
+            // trailing size never shifts sideways.
+            Button {
+                onReveal()
+            } label: {
+                HStack(spacing: 6) {
+                    SiftIcon.folderOpen.image(13)
+                    Text("Reveal in Finder")
+                        .font(.sift(11.5))
                 }
+                .foregroundStyle(SiftColor.textSecondary)
+                .padding(.horizontal, 12)
+                .frame(height: 28)
+                .background(Capsule(style: .continuous).fill(SiftColor.track))
+                .contentShape(Capsule(style: .continuous))
+            }
+            .buttonStyle(.plain)
+            .help("Reveal in Finder")
+            .opacity(hovering ? 1 : 0)
+            .allowsHitTesting(hovering)
 
-                Spacer()
-
-                // Hover-revealed Finder shortcut; stays in the layout so the
-                // trailing size never shifts sideways.
-                Button {
-                    onReveal()
-                } label: {
-                    Image(systemName: "folder")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                }
-                .buttonStyle(.plain)
-                .help("Reveal in Finder")
-                .opacity(hovering ? 1 : 0)
-                .scaleEffect(reduceMotion ? 1 : (hovering ? 1 : 0.8))
-                .allowsHitTesting(hovering)
-
+            Group {
                 if let size = fileSize {
                     Text(ByteCountFormatter.string(fromByteCount: size, countStyle: .file))
-                        .monospacedDigit()
-                        .foregroundStyle(.secondary)
+                } else {
+                    Text(verbatim: "…")
                 }
             }
+            .font(.siftMono(12.5))
+            .foregroundStyle(isSelected ? SiftColor.accent : (fileSize == nil ? SiftColor.textTertiary : SiftColor.textPrimary))
+            .lineLimit(1)
+            .frame(width: 90, alignment: .trailing)
         }
-        .toggleStyle(AnimatedCheckboxStyle(tint: Tint.pink))
-        .padding(.vertical, 2)
-        .padding(.horizontal, 4)
-        .background(
-            RoundedRectangle(cornerRadius: 6, style: .continuous)
-                .fill(hovering ? Color.primary.opacity(0.06) : .clear)
-        )
-        .animation(reduceMotion ? nil : MotionTokens.snappy, value: hovering)
+        .padding(.horizontal, 14)
+        .frame(height: 58)
+        .siftRowBackground(accented: isSelected, radius: 16)
+        .onTapGesture { isSelected.toggle() }
+        .animation(reduceMotion ? nil : SiftMotion.quick, value: hovering)
         .onHover { hovering = $0 }
         .contextMenu {
             Button("Reveal in Finder") { onReveal() }

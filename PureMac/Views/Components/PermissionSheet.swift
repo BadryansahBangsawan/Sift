@@ -1,8 +1,8 @@
 import SwiftUI
 
-/// Premium Full Disk Access prompt that replaces the bare permission-denied
-/// alert. Auto-polls FDA state, auto-retries the failed operation on grant,
-/// and offers escape hatches for the "PureMac isn't in the list" case.
+/// Full Disk Access prompt that replaces the bare permission-denied alert.
+/// Auto-polls FDA state, auto-retries the failed operation on grant, and
+/// offers escape hatches for the "Sift isn't in the list" case.
 struct PermissionSheet: View {
     @ObservedObject private var coordinator = PermissionCoordinator.shared
     @State private var appeared = false
@@ -13,70 +13,58 @@ struct PermissionSheet: View {
     var body: some View {
         VStack(spacing: 0) {
             header
-            Divider().opacity(0.4)
+            divider
             body_
-            Divider().opacity(0.4)
+            divider
             footer
         }
-        .frame(width: 540)
-        .background(Color(nsColor: .windowBackgroundColor))
-        .animation(reduceMotion ? nil : .spring(response: 0.4, dampingFraction: 0.8),
-                   value: coordinator.hasFullDiskAccess)
+        .frame(width: 560)
+        .background(SiftColor.card)
+        .animation(reduceMotion ? nil : SiftMotion.snappy, value: coordinator.hasFullDiskAccess)
         .onAppear {
             if reduceMotion {
                 appeared = true
                 return
             }
-            withAnimation(.easeOut(duration: 0.4)) { appeared = true }
+            withAnimation(.easeOut(duration: 0.3)) { appeared = true }
             withAnimation(.easeInOut(duration: 1.4).repeatForever(autoreverses: true)) {
                 pulse = true
             }
         }
     }
 
+    private var divider: some View {
+        Rectangle().fill(SiftColor.stroke).frame(height: 1)
+    }
+
     // MARK: - Header
 
     private var header: some View {
         HStack(spacing: 14) {
-            ZStack {
-                let tint = coordinator.hasFullDiskAccess ? Tint.green : Tint.blue
-                Circle()
-                    .fill(tint.opacity(0.14))
-                    .frame(width: 40, height: 40)
-                headerIcon
-                    .foregroundStyle(tint)
-            }
+            SiftIconTile(
+                icon: coordinator.hasFullDiskAccess ? .shieldCheck : .lockKeyhole,
+                tone: coordinator.hasFullDiskAccess ? .success : .accent,
+                size: 40
+            )
 
-            VStack(alignment: .leading, spacing: 2) {
+            VStack(alignment: .leading, spacing: 3) {
                 Text(coordinator.context.headline)
-                    .font(.system(size: 16, weight: .bold))
+                    .font(.siftDisplay(24))
+                    .tracking(-0.4)
+                    .foregroundStyle(SiftColor.textPrimary)
                 Text(LocalizedStringKey(
                     coordinator.hasFullDiskAccess
                         ? "Access granted. Retrying…"
                         : "1-tap setup. We'll detect the change automatically."
                 ))
-                    .font(.system(size: 12))
-                    .foregroundStyle(.secondary)
+                    .siftStyle(.label)
             }
 
             Spacer()
         }
-        .padding(.horizontal, 22)
-        .padding(.vertical, 18)
+        .padding(.horizontal, 24)
+        .padding(.vertical, 20)
         .opacity(appeared ? 1 : 0)
-        .offset(y: appeared ? 0 : -6)
-    }
-
-    @ViewBuilder
-    private var headerIcon: some View {
-        let name = coordinator.hasFullDiskAccess ? "checkmark.shield.fill" : "lock.shield.fill"
-        let base = Image(systemName: name)
-            .font(.system(size: 18, weight: .semibold))
-        if #available(macOS 14.0, *) {
-            base.contentTransition(.symbolEffect(.replace))
-        } else {
-            base
-        }
     }
 
     // MARK: - Body
@@ -85,11 +73,7 @@ struct PermissionSheet: View {
     private var body_: some View {
         if coordinator.hasFullDiskAccess {
             grantedBody
-                .transition(
-                    reduceMotion
-                        ? .opacity
-                        : .scale(scale: 0.9).combined(with: .opacity)
-                )
+                .transition(reduceMotion ? .opacity : .scale(scale: 0.94).combined(with: .opacity))
         } else {
             requestBody
                 .transition(.opacity)
@@ -97,41 +81,41 @@ struct PermissionSheet: View {
     }
 
     private var requestBody: some View {
-        VStack(alignment: .leading, spacing: 18) {
-            // Two paths the user can choose between: drag the PureMac bundle
+        VStack(alignment: .leading, spacing: 16) {
+            // Two paths the user can choose between: drag the Sift bundle
             // straight into the FDA list, OR have us reveal it in Finder so
             // they can drag from there. Drag-from-our-sheet is faster but
             // some users will still prefer the Finder flow they recognize.
-            HStack(alignment: .center, spacing: 14) {
+            HStack(alignment: .center, spacing: 16) {
                 AppBundleDragHandle()
 
-                Divider().frame(maxHeight: 110)
+                Rectangle().fill(SiftColor.stroke).frame(width: 1, height: 96)
 
-                VStack(spacing: 8) {
+                VStack(alignment: .leading, spacing: 10) {
                     Button {
                         Haptics.tap()
                         coordinator.openSettingsAndReveal()
                     } label: {
-                        Label("Open Settings & reveal PureMac", systemImage: "gear")
-                            .font(.system(size: 13, weight: .semibold))
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 4)
+                        Label {
+                            Text("Open Settings & reveal Sift")
+                        } icon: {
+                            SiftIcon.settings.image(15)
+                        }
+                        .frame(maxWidth: .infinity)
                     }
-                    .buttonStyle(.borderedProminent)
-                    .controlSize(.large)
+                    .buttonStyle(.siftPrimary)
                     .keyboardShortcut(.defaultAction)
 
                     Text("Or drag the icon on the left straight into Settings.")
-                        .font(.system(size: 11))
-                        .foregroundStyle(.tertiary)
-                        .multilineTextAlignment(.center)
+                        .font(.sift(11.5))
+                        .foregroundStyle(SiftColor.textTertiary)
                 }
                 .frame(maxWidth: .infinity)
             }
 
-            // Step-by-step strip
-            HStack(spacing: 0) {
-                stepCell(number: 1, title: "Turn on PureMac",
+            // Step-by-step strip: a real sequence, so it is numbered.
+            HStack(alignment: .top, spacing: 0) {
+                stepCell(number: 1, title: "Turn on Sift",
                          caption: "Toggle the row that appears.")
                 stepDivider
                 stepCell(number: 2, title: "Authenticate",
@@ -141,32 +125,33 @@ struct PermissionSheet: View {
                          caption: "We auto-retry — no need to come back.")
             }
             .padding(.vertical, 4)
-            .background(
-                RoundedRectangle(cornerRadius: 10, style: .continuous)
-                    .fill(Color.primary.opacity(0.04))
+            .background(RoundedRectangle(cornerRadius: SiftRadius.row, style: .continuous).fill(SiftColor.control))
+            .overlay(
+                RoundedRectangle(cornerRadius: SiftRadius.row, style: .continuous)
+                    .strokeBorder(SiftColor.controlStroke, lineWidth: 1)
             )
 
             // Listening indicator
             HStack(spacing: 8) {
                 ZStack {
                     Circle()
-                        .stroke(Tint.blue.opacity(0.3), lineWidth: 1.5)
+                        .stroke(SiftColor.accent.opacity(0.35), lineWidth: 1.5)
                         .frame(width: 10, height: 10)
                     Circle()
-                        .fill(Tint.blue)
+                        .fill(SiftColor.accent)
                         .frame(width: 6, height: 6)
                         .scaleEffect(pulse ? 1.4 : 0.8)
                         .opacity(pulse ? 0.4 : 1)
                 }
+                .accessibilityHidden(true)
                 Text("Watching for permission change…")
-                    .font(.system(size: 11.5))
-                    .foregroundStyle(.secondary)
+                    .font(.sift(12))
+                    .foregroundStyle(SiftColor.textSecondary)
                 Spacer()
-                Button(LocalizedStringKey(showAdvanced ? "Hide help" : "PureMac not in the list?")) {
-                    withAnimation(.easeInOut(duration: 0.25)) { showAdvanced.toggle() }
+                Button(LocalizedStringKey(showAdvanced ? "Hide help" : "Sift not in the list?")) {
+                    withAnimation(SiftMotion.snappy) { showAdvanced.toggle() }
                 }
-                .buttonStyle(.link)
-                .font(.system(size: 11.5))
+                .buttonStyle(.siftQuiet)
             }
 
             if showAdvanced {
@@ -178,27 +163,27 @@ struct PermissionSheet: View {
                 blockedList
             }
         }
-        .padding(.horizontal, 22)
-        .padding(.vertical, 18)
+        .padding(.horizontal, 24)
+        .padding(.vertical, 20)
         .opacity(appeared ? 1 : 0)
     }
 
     private var advancedPanel: some View {
         VStack(alignment: .leading, spacing: 10) {
-            Text("Try this if PureMac doesn't appear:")
-                .font(.system(size: 11.5, weight: .semibold))
-                .foregroundStyle(.secondary)
+            Text("Try this if Sift doesn't appear:")
+                .font(.sift(12, weight: 500))
+                .foregroundStyle(SiftColor.textSecondary)
 
             HStack(spacing: 8) {
                 advancedButton(
-                    icon: "folder.badge.gearshape",
+                    icon: .folderOpen,
                     title: "Reveal app",
-                    subtitle: "Drag PureMac.app into the list"
+                    subtitle: "Drag Sift.app into the list"
                 ) {
                     FullDiskAccessManager.shared.revealAppInFinder()
                 }
                 advancedButton(
-                    icon: "arrow.clockwise.circle",
+                    icon: .rotateCw,
                     title: "Reset + reprompt",
                     subtitle: "Clear stale TCC entry"
                 ) {
@@ -206,43 +191,29 @@ struct PermissionSheet: View {
                 }
             }
         }
-        .padding(12)
-        .background(
-            RoundedRectangle(cornerRadius: 10, style: .continuous)
-                .fill(Color.primary.opacity(0.04))
-        )
-        .overlay(
-            RoundedRectangle(cornerRadius: 10, style: .continuous)
-                .strokeBorder(Color.primary.opacity(0.06), lineWidth: 0.5)
-        )
+        .siftSurface(.inset, padding: 14)
     }
 
-    private func advancedButton(icon: String, title: LocalizedStringKey,
+    private func advancedButton(icon: SiftIcon, title: LocalizedStringKey,
                                 subtitle: LocalizedStringKey,
                                 action: @escaping () -> Void) -> some View {
         Button(action: action) {
             HStack(spacing: 10) {
-                IconTile(systemName: icon, tint: Tint.orange, size: 30, corner: 7)
+                SiftIconTile(icon: icon, tone: .warning, size: 30)
                 VStack(alignment: .leading, spacing: 1) {
                     Text(title)
-                        .font(.system(size: 12.5, weight: .semibold))
-                        .foregroundStyle(.primary)
+                        .font(.sift(12.5, weight: 500))
+                        .foregroundStyle(SiftColor.textPrimary)
                     Text(subtitle)
-                        .font(.system(size: 10.5))
-                        .foregroundStyle(.secondary)
+                        .font(.sift(11))
+                        .foregroundStyle(SiftColor.textTertiary)
                 }
                 Spacer(minLength: 0)
             }
             .padding(.horizontal, 10)
             .padding(.vertical, 8)
-            .background(
-                RoundedRectangle(cornerRadius: 8, style: .continuous)
-                    .fill(Color(nsColor: .controlBackgroundColor))
-            )
-            .overlay(
-                RoundedRectangle(cornerRadius: 8, style: .continuous)
-                    .strokeBorder(Color.primary.opacity(0.08), lineWidth: 0.5)
-            )
+            .siftRowBackground()
+            .background(RoundedRectangle(cornerRadius: SiftRadius.row, style: .continuous).fill(SiftColor.card))
         }
         .buttonStyle(.plain)
     }
@@ -252,23 +223,23 @@ struct PermissionSheet: View {
             VStack(alignment: .leading, spacing: 4) {
                 ForEach(coordinator.failedItemPaths.prefix(6), id: \.self) { path in
                     Text(path)
-                        .font(.system(size: 10.5, design: .monospaced))
-                        .foregroundStyle(.secondary)
+                        .siftStyle(.monoSmall)
                         .lineLimit(1)
                         .truncationMode(.middle)
                 }
                 if coordinator.failedItemPaths.count > 6 {
                     Text(remainingText(coordinator.failedItemPaths.count - 6))
-                        .font(.system(size: 10.5))
-                        .foregroundStyle(.tertiary)
+                        .font(.sift(11))
+                        .foregroundStyle(SiftColor.textTertiary)
                 }
             }
             .padding(.top, 4)
         } label: {
             Text(blockedHeaderText(coordinator.failedItemPaths.count))
-                .font(.system(size: 11.5, weight: .semibold))
-                .foregroundStyle(.secondary)
+                .font(.sift(12, weight: 500))
+                .foregroundStyle(SiftColor.textSecondary)
         }
+        .tint(SiftColor.textTertiary)
     }
 
     private func remainingText(_ count: Int) -> String {
@@ -285,18 +256,20 @@ struct PermissionSheet: View {
     private func stepCell(number: Int, title: LocalizedStringKey,
                           caption: LocalizedStringKey) -> some View {
         HStack(alignment: .top, spacing: 8) {
-            Text("\(number)")
-                .font(.system(size: 11, weight: .bold))
-                .foregroundStyle(.white)
+            Text(verbatim: "\(number)")
+                .font(.siftMono(10.5, weight: 600))
+                .foregroundStyle(SiftColor.onAccent)
                 .frame(width: 18, height: 18)
-                .background(Circle().fill(Tint.blue))
-            VStack(alignment: .leading, spacing: 1) {
+                .background(Circle().fill(SiftColor.accent))
+            VStack(alignment: .leading, spacing: 2) {
                 Text(title)
-                    .font(.system(size: 11.5, weight: .semibold))
+                    .font(.sift(12, weight: 500))
+                    .foregroundStyle(SiftColor.textPrimary)
                 Text(caption)
-                    .font(.system(size: 10))
-                    .foregroundStyle(.secondary)
+                    .font(.sift(10.5))
+                    .foregroundStyle(SiftColor.textTertiary)
                     .lineLimit(2)
+                    .fixedSize(horizontal: false, vertical: true)
             }
             Spacer(minLength: 0)
         }
@@ -307,24 +280,23 @@ struct PermissionSheet: View {
 
     private var stepDivider: some View {
         Rectangle()
-            .fill(Color.primary.opacity(0.08))
-            .frame(width: 0.5)
-            .padding(.vertical, 6)
+            .fill(SiftColor.controlStroke)
+            .frame(width: 1)
+            .padding(.vertical, 8)
     }
 
     private var grantedBody: some View {
         VStack(spacing: 10) {
-            // SuccessMedal pops + ripples once on its own and already
-            // honors Reduce Motion — no shared `pulse` state reuse.
-            SuccessMedal(size: 72)
+            SiftIconTile(icon: .check, tone: .success, size: 64)
             Text("Access granted")
-                .font(.system(size: 15, weight: .bold))
+                .font(.siftDisplay(24))
+                .tracking(-0.4)
+                .foregroundStyle(SiftColor.textPrimary)
             Text("Retrying the operation now.")
-                .font(.system(size: 11.5))
-                .foregroundStyle(.secondary)
+                .siftStyle(.label)
         }
         .frame(maxWidth: .infinity)
-        .padding(.vertical, 28)
+        .padding(.vertical, 32)
     }
 
     // MARK: - Footer
@@ -334,8 +306,7 @@ struct PermissionSheet: View {
             Button("Skip for now") {
                 coordinator.dismiss(callRetry: false)
             }
-            .buttonStyle(.link)
-            .foregroundStyle(.secondary)
+            .buttonStyle(.siftQuiet)
 
             Spacer()
 
@@ -348,11 +319,11 @@ struct PermissionSheet: View {
                         }
                     }
                 }
-                .buttonStyle(.borderedProminent)
-                .controlSize(.regular)
+                .buttonStyle(.siftSecondary)
             }
         }
-        .padding(.horizontal, 22)
+        .padding(.horizontal, 24)
         .padding(.vertical, 14)
+        .background(SiftColor.rail)
     }
 }

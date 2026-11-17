@@ -23,7 +23,7 @@ struct FDADemoView: View {
     private var rows: [DemoRow] {
         [
             DemoRow(name: "Finder", systemImage: "macwindow", granted: true),
-            DemoRow(name: "PureMac", systemImage: "sparkles",
+            DemoRow(name: "Sift", systemImage: "sparkles",
                     granted: frame == .toggleOn || frame == .granted || frame == .hold,
                     isPureMac: true),
             DemoRow(name: "Terminal", systemImage: "terminal", granted: true),
@@ -35,12 +35,11 @@ struct FDADemoView: View {
             settingsCard
 
             HStack(spacing: 6) {
-                Image(systemName: "lock.shield")
-                    .font(.system(size: 11, weight: .semibold))
+                SiftIcon.lockKeyhole.image(12)
                 Text("Privacy & Security → Full Disk Access")
-                    .font(.system(size: 11.5, weight: .medium))
+                    .font(.sift(11.5))
             }
-            .foregroundStyle(.secondary)
+            .foregroundStyle(SiftColor.textTertiary)
         }
         .onAppear {
             // Reduce Motion: freeze on the end state — the user sees the
@@ -62,37 +61,35 @@ struct FDADemoView: View {
         VStack(spacing: 0) {
             // Faux titlebar
             HStack(spacing: 6) {
-                Circle().fill(Color(red: 1.0, green: 0.36, blue: 0.34)).frame(width: 9, height: 9)
-                Circle().fill(Color(red: 1.0, green: 0.78, blue: 0.27)).frame(width: 9, height: 9)
-                Circle().fill(Color(red: 0.31, green: 0.78, blue: 0.36)).frame(width: 9, height: 9)
+                ForEach(0..<3, id: \.self) { _ in
+                    Circle().fill(SiftColor.faint).frame(width: 9, height: 9)
+                }
                 Spacer()
                 Text("Full Disk Access")
-                    .font(.system(size: 11, weight: .semibold))
-                    .foregroundStyle(.secondary)
+                    .font(.sift(11.5, weight: 500))
+                    .foregroundStyle(SiftColor.textSecondary)
                 Spacer()
+                Color.clear.frame(width: 39, height: 9)
             }
-            .padding(.horizontal, 12)
-            .padding(.vertical, 8)
-            .background(Color.primary.opacity(0.04))
+            .padding(.horizontal, 14)
+            .padding(.vertical, 10)
 
-            Divider()
+            Rectangle().fill(SiftColor.stroke).frame(height: 1)
 
-            VStack(spacing: 0) {
-                ForEach(Array(rows.enumerated()), id: \.offset) { idx, row in
+            VStack(spacing: 2) {
+                ForEach(Array(rows.enumerated()), id: \.offset) { _, row in
                     rowView(row)
-                    if idx != rows.count - 1 {
-                        Divider().padding(.leading, 46)
-                    }
                 }
             }
+            .padding(6)
         }
-        .background(Color(nsColor: .controlBackgroundColor))
-        .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+        .background(RoundedRectangle(cornerRadius: SiftRadius.panel, style: .continuous).fill(SiftColor.card))
         .overlay(
-            RoundedRectangle(cornerRadius: 10, style: .continuous)
-                .strokeBorder(Color.primary.opacity(0.10), lineWidth: 0.5)
+            RoundedRectangle(cornerRadius: SiftRadius.panel, style: .continuous)
+                .strokeBorder(SiftColor.stroke, lineWidth: 1)
         )
-        .shadow(color: .black.opacity(0.08), radius: 12, y: 4)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(Text("Privacy & Security → Full Disk Access"))
     }
 
     private func rowView(_ row: DemoRow) -> some View {
@@ -100,36 +97,41 @@ struct FDADemoView: View {
         let succeeded = row.isPureMac && (frame == .granted || frame == .hold)
 
         return HStack(spacing: 12) {
-            ZStack {
-                RoundedRectangle(cornerRadius: 6, style: .continuous)
-                    .fill(row.isPureMac ? Tint.blue.opacity(0.16) : Color.primary.opacity(0.08))
-                Image(systemName: row.systemImage)
-                    .font(.system(size: 13, weight: .semibold))
-                    .foregroundStyle(row.isPureMac ? Tint.blue : .secondary)
+            Group {
+                if row.isPureMac {
+                    SiftWordmark(tile: 28, showsName: false)
+                } else {
+                    Image(systemName: row.systemImage)
+                        .font(.system(size: 13))
+                        .foregroundStyle(SiftColor.textSecondary)
+                        .frame(width: 28, height: 28)
+                        .background(RoundedRectangle(cornerRadius: 9, style: .continuous).fill(SiftColor.control))
+                }
             }
-            .frame(width: 26, height: 26)
 
             Text(row.name)
-                .font(.system(size: 13, weight: row.isPureMac ? .semibold : .regular))
+                .font(.sift(13, weight: row.isPureMac ? 500 : 400))
+                .foregroundStyle(SiftColor.textPrimary)
 
             Spacer()
 
             if succeeded {
-                Image(systemName: "checkmark.circle.fill")
-                    .font(.system(size: 14))
-                    .foregroundStyle(Tint.green)
+                SiftIcon.check.image(14)
+                    .foregroundStyle(SiftColor.success)
                     .transition(.scale.combined(with: .opacity))
             }
 
             ToggleSwitch(isOn: row.granted)
         }
-        .padding(.horizontal, 14)
-        .padding(.vertical, 10)
+        .padding(.horizontal, 12)
+        .frame(height: 48)
         .background(
-            RoundedRectangle(cornerRadius: 6, style: .continuous)
-                .fill(highlight ? Tint.blue.opacity(0.10) : .clear)
-                .padding(.horizontal, 6)
-                .padding(.vertical, 2)
+            RoundedRectangle(cornerRadius: SiftRadius.row, style: .continuous)
+                .fill(highlight ? SiftColor.accentWash : (row.isPureMac ? SiftColor.control : .clear))
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: SiftRadius.row, style: .continuous)
+                .strokeBorder(highlight ? SiftColor.accent : .clear, lineWidth: 1)
         )
         .animation(.easeInOut(duration: 0.35), value: highlight)
         .animation(.easeInOut(duration: 0.35), value: succeeded)
@@ -177,21 +179,21 @@ struct FDADemoView: View {
     }
 }
 
-/// Tiny stand-in for an OS-style toggle. NSSwitch via SwiftUI would also work
-/// but rendering one ourselves gives us full control over the animation.
+/// Tiny stand-in for the Sift switch (40×24, 18 pt thumb), drawn statically
+/// so the demo controls its own animation.
 private struct ToggleSwitch: View {
     let isOn: Bool
 
     var body: some View {
         ZStack(alignment: isOn ? .trailing : .leading) {
             Capsule()
-                .fill(isOn ? Tint.green : Color.secondary.opacity(0.30))
+                .fill(isOn ? SiftColor.accent : SiftColor.switchOff)
             Circle()
-                .fill(Color.white)
-                .shadow(color: .black.opacity(0.15), radius: 1.5, y: 0.5)
-                .padding(2)
+                .fill(isOn ? SiftColor.onAccent : SiftColor.textTertiary)
+                .frame(width: 18, height: 18)
+                .padding(3)
         }
-        .frame(width: 32, height: 19)
-        .animation(.spring(response: 0.35, dampingFraction: 0.78), value: isOn)
+        .frame(width: 40, height: 24)
+        .animation(SiftMotion.snappy, value: isOn)
     }
 }
