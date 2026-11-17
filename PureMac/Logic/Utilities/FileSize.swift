@@ -1,5 +1,25 @@
 import Foundation
 
+extension Int64 {
+    /// Multiplication that clamps instead of wrapping or trapping.
+    ///
+    /// Sizes are read from `stat` and from filesystem metadata: a corrupt or
+    /// hostile block count must not be able to wrap a total into a negative
+    /// "freed space" figure.
+    func saturatedProduct(_ factor: Int64) -> Int64 {
+        let (result, overflow) = multipliedReportingOverflow(by: factor)
+        guard overflow else { return result }
+        return (self < 0) == (factor < 0) ? .max : .min
+    }
+
+    /// Addition that clamps instead of wrapping or trapping.
+    func saturatedSum(_ other: Int64) -> Int64 {
+        let (result, overflow) = addingReportingOverflow(other)
+        guard overflow else { return result }
+        return other > 0 ? .max : .min
+    }
+}
+
 /// Allocated-size calculation that works for both files and directories.
 ///
 /// `URLResourceValues.totalFileAllocatedSize` does **not** recurse: on a

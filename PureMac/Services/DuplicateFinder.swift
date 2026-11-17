@@ -37,7 +37,7 @@ struct DuplicateGroup: Identifiable, Hashable, Sendable {
     var id: String { digest }
     var keeper: DuplicateFile { files[0] }
     var fileSize: Int64 { files[0].size }
-    var reclaimableSize: Int64 { fileSize * Int64(max(0, files.count - 1)) }
+    var reclaimableSize: Int64 { fileSize.saturatedProduct(Int64(max(0, files.count - 1))) }
 
     func contains(_ url: URL) -> Bool {
         files.contains { $0.url == url }

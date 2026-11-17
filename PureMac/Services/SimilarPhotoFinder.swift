@@ -27,7 +27,7 @@ struct SimilarPhotoGroup: Identifiable, Sendable {
     let similarity: Double
 
     var id: URL { photos[0].url }
-    var totalSize: Int64 { photos.reduce(0) { $0 + $1.size } }
+    var totalSize: Int64 { photos.reduce(0) { $0.saturatedSum($1.size) } }
 }
 
 struct SimilarPhotoScanResult: Sendable {
@@ -41,7 +41,7 @@ struct SimilarPhotoScanResult: Sendable {
     let entryLimitReached: Bool
 
     var matchedPhotoCount: Int { groups.reduce(0) { $0 + $1.photos.count } }
-    var matchedPhotoSize: Int64 { groups.reduce(0) { $0 + $1.totalSize } }
+    var matchedPhotoSize: Int64 { groups.reduce(0) { $0.saturatedSum($1.totalSize) } }
     var isPartial: Bool { photoLimitReached || entryLimitReached }
 }
 

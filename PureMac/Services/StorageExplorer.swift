@@ -243,9 +243,9 @@ actor StorageExplorer {
                 if url == topURL {
                     topKind = values.isPackage == true ? .package : .directory
                 }
-                context.allocatedSize += metadata.allocatedSize
+                context.allocatedSize = context.allocatedSize.saturatedSum(metadata.allocatedSize)
                 context.directoryCount += 1
-                entryMeasure.allocatedSize += metadata.allocatedSize
+                entryMeasure.allocatedSize = entryMeasure.allocatedSize.saturatedSum(metadata.allocatedSize)
                 entryMeasure.directoryCount += 1
 
                 do {
@@ -264,9 +264,9 @@ actor StorageExplorer {
                     topKind = .file
                 }
                 if context.seenFiles.insert(metadata.identity).inserted {
-                    context.allocatedSize += metadata.allocatedSize
+                    context.allocatedSize = context.allocatedSize.saturatedSum(metadata.allocatedSize)
                     context.fileCount += 1
-                    entryMeasure.allocatedSize += metadata.allocatedSize
+                    entryMeasure.allocatedSize = entryMeasure.allocatedSize.saturatedSum(metadata.allocatedSize)
                     entryMeasure.fileCount += 1
                 } else {
                     context.skippedCount += 1
@@ -321,7 +321,7 @@ actor StorageExplorer {
         let blocks = max(Int64(0), Int64(fileStat.st_blocks))
         return FileMetadata(
             identity: FileIdentity(device: UInt64(fileStat.st_dev), inode: UInt64(fileStat.st_ino)),
-            allocatedSize: blocks * 512,
+            allocatedSize: blocks.saturatedProduct(512),
             isDataless: fileStat.st_flags & UInt32(SF_DATALESS) != 0
         )
     }

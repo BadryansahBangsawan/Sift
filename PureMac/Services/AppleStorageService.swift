@@ -188,7 +188,7 @@ enum AppleStorageService {
                 continue
             }
             if seen.insert(Identity(device: metadata.st_dev, inode: metadata.st_ino)).inserted {
-                bytes += max(0, Int64(metadata.st_blocks)) * 512
+                bytes = bytes.saturatedSum(max(0, Int64(metadata.st_blocks)).saturatedProduct(512))
             }
         }
 

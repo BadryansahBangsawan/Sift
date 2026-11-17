@@ -213,7 +213,8 @@ actor DeviceBackupService {
         measurement.hasher.update(data: Data((relative + "\0" + identity(before) + "\0").utf8))
         let physicalID = "\(before.st_dev):\(before.st_ino)"
         if measurement.seenFiles.insert(physicalID).inserted {
-            measurement.allocatedSize += max(0, Int64(before.st_blocks)) * 512
+            measurement.allocatedSize = measurement.allocatedSize
+                .saturatedSum(max(0, Int64(before.st_blocks)).saturatedProduct(512))
         }
         if kind == S_IFDIR {
             let child = openat(parent, name, O_RDONLY | O_DIRECTORY | O_NOFOLLOW | O_CLOEXEC)
