@@ -98,6 +98,7 @@
 		AA5B461EEE5E3321C3C47DC3 /* EmptyStateView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FDC7AB3D45862C113A9F8C4 /* EmptyStateView.swift */; };
 		ACB109604ADD703927E8EFF3 /* SiftTokens.swift in Sources */ = {isa = PBXBuildFile; fileRef = 706216A07A1FC650FB8CF3B4 /* SiftTokens.swift */; };
 		AD03BE96501AAAD969A00224 /* ProcessResourceMonitorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE8B1FC7C9AC1221DFB1BE0A /* ProcessResourceMonitorTests.swift */; };
+		B09136D3AE6447ED66F4AD31 /* SiftRedesignLocalizationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 091A5DCCFB40C3CD1D54FC82 /* SiftRedesignLocalizationTests.swift */; };
 		B1AF860BCF3473D532B5A9E3 /* SimilarPhotoFinderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8AA65BA0A3F3650C0B7C4AF /* SimilarPhotoFinderTests.swift */; };
 		B48ECF17DE77C753EE490D79 /* SpaceExplorerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC81790FF5EF1BF0A3F851D2 /* SpaceExplorerView.swift */; };
 		B7287995D5FA2D19A1FBD161 /* BatteryInspectorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 741BB0C68D627DFC2B9D503A /* BatteryInspectorTests.swift */; };
@@ -158,6 +159,7 @@
 		03C1D7141EAD88B14CE23046 /* fr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fr; path = fr.lproj/ServicesMenu.strings; sourceTree = "<group>"; };
 		06CAD8E15A6CCD96E2833A71 /* StorageExplorerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageExplorerTests.swift; sourceTree = "<group>"; };
 		08B127D3491D0E77696F1D55 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		091A5DCCFB40C3CD1D54FC82 /* SiftRedesignLocalizationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SiftRedesignLocalizationTests.swift; sourceTree = "<group>"; };
 		09F97A0E9887D6417884249A /* AppleFeaturesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppleFeaturesView.swift; sourceTree = "<group>"; };
 		0B4010C7BA5B6D0C9DFE0520 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		0F77FC1041B7BE6266FE4697 /* PerformanceInspectorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PerformanceInspectorTests.swift; sourceTree = "<group>"; };
@@ -546,6 +548,7 @@
 				F022ADACF466ACEE9C86FC65 /* RunningAppGuardTests.swift */,
 				E586C6BA1E1490736BF73122 /* ScheduleConfigTests.swift */,
 				B6C3CA0053918EFEC1C41FCE /* SiftDesignSystemTests.swift */,
+				091A5DCCFB40C3CD1D54FC82 /* SiftRedesignLocalizationTests.swift */,
 				A8AA65BA0A3F3650C0B7C4AF /* SimilarPhotoFinderTests.swift */,
 				CAB0041E3FC64BA308DC0E7D /* SimulatorRuntimeSupportTests.swift */,
 				06CAD8E15A6CCD96E2833A71 /* StorageExplorerTests.swift */,
@@ -847,6 +850,7 @@
 				6EFFFF8103208E3061D77547 /* RunningAppGuardTests.swift in Sources */,
 				04C20AAB36EC1CB8263541D5 /* ScheduleConfigTests.swift in Sources */,
 				4F224AE93FA1746332C1B442 /* SiftDesignSystemTests.swift in Sources */,
+				B09136D3AE6447ED66F4AD31 /* SiftRedesignLocalizationTests.swift in Sources */,
 				B1AF860BCF3473D532B5A9E3 /* SimilarPhotoFinderTests.swift in Sources */,
 				1D2BA33C80EB79D9A2D2F1B5 /* SimulatorRuntimeSupportTests.swift in Sources */,
 				31DED15A94D2E6487580E164 /* StorageExplorerTests.swift in Sources */,
