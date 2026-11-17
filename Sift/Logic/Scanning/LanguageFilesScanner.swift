@@ -127,7 +127,7 @@ struct LanguageFilesScanner: Sendable {
         // to strip itself.
         if standardized.hasPrefix("/System/") { return nil }
         if standardized == ownPath { return nil }
-        if (standardized as NSString).lastPathComponent == "PureMac.app" { return nil }
+        if ["Sift.app", "PureMac.app"].contains((standardized as NSString).lastPathComponent) { return nil }
 
         let resourcesPath = appPath + "/Contents/Resources"
         guard isDirectory(resourcesPath, fileManager: fileManager) else { return nil }
