@@ -1,5 +1,5 @@
 import XCTest
-@testable import puremac
+@testable import sift
 
 final class TerminalUITests: XCTestCase {
     func testANSIAndUnicodeDisplayWidth() {
@@ -160,7 +160,7 @@ final class TerminalUITests: XCTestCase {
         let options = (1...8).map { (title: "Tool \($0)", detail: "Description \($0)") }
         for (width, height) in [(40, 12), (80, 24)] {
             let lines = TerminalMenu.render(
-                title: "PureMac",
+                title: "Sift",
                 subtitle: "Choose a task",
                 options: options,
                 selection: 6,

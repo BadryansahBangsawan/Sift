@@ -91,7 +91,7 @@ enum TerminalMenu {
         let safeHeight = max(1, height)
         if safeWidth < 40 || safeHeight < 12 {
             let compact = [
-                Term.bold(Term.cyan(Term.truncate("PureMac", to: safeWidth))),
+                Term.bold(Term.cyan(Term.truncate("Sift", to: safeWidth))),
                 Term.truncate("Terminal too small", to: safeWidth),
                 Term.dim(Term.truncate("Resize to at least 40 x 12", to: safeWidth)),
                 "",
@@ -101,7 +101,7 @@ enum TerminalMenu {
         }
         let safeSelection = min(max(0, selection), max(0, options.count - 1))
         var lines = [
-            Term.dim("PUREMAC  /  CHOOSE A TOOL"),
+            Term.dim("SIFT  /  CHOOSE A TOOL"),
             Term.bold(Term.cyan(Term.truncate(title, to: safeWidth))),
             Term.dim(Term.truncate(subtitle, to: safeWidth)),
             ""

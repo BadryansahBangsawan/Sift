@@ -5,11 +5,11 @@ struct Optimize: ParsableCommand {
     static let configuration = CommandConfiguration(
         abstract: "Review memory, storage, and local snapshot status.",
         discussion: """
-          puremac optimize             Show memory and storage status
-          puremac optimize ram         Show memory details
-          puremac optimize purgeable   Explain APFS managed capacity
-          puremac optimize snapshots   List local Time Machine snapshots
-        These checks are read-only. PureMac does not force memory purges or promise
+          sift-cli optimize             Show memory and storage status
+          sift-cli optimize ram         Show memory details
+          sift-cli optimize purgeable   Explain APFS managed capacity
+          sift-cli optimize snapshots   List local Time Machine snapshots
+        These checks are read-only. Sift does not force memory purges or promise
         that APFS managed capacity can be reclaimed on demand.
         """
     )
@@ -48,7 +48,7 @@ struct Optimize: ParsableCommand {
             print("")
             print("  " + Term.dim("Uptime") + "  " + Self.formatUptime(ProcessInfo.processInfo.systemUptime))
             print("")
-            print(Term.dim("No maintenance ran. Use `puremac clean --dry-run` to review removable files."))
+            print(Term.dim("No maintenance ran. Use `sift-cli clean --dry-run` to review removable files."))
         }
     }
 

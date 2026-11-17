@@ -1,5 +1,5 @@
 import XCTest
-@testable import puremac
+@testable import sift
 
 final class CommandReviewTests: XCTestCase {
     func testReadOnlyModesOverrideForceAndNeverRequireTerminal() {

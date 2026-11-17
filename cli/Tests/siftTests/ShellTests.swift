@@ -1,6 +1,6 @@
 import Foundation
 import XCTest
-@testable import puremac
+@testable import sift
 
 final class ShellTests: XCTestCase {
     func testArgumentsArePassedWithoutShellExpansion() {
@@ -12,7 +12,7 @@ final class ShellTests: XCTestCase {
     }
 
     func testMissingExecutableHasDeterministicError() {
-        let path = "/path/that/does/not/exist/puremac-test"
+        let path = "/path/that/does/not/exist/sift-test"
         let result = Shell.run(path, [])
 
         XCTAssertEqual(result.status, 127)

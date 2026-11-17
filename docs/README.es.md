@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="../screenshots/smart-care.png" alt="PureMac" width="700">
+  <img src="../screenshots/smart-care.png" alt="Sift" width="700">
 </p>
 
 <p align="center">
@@ -12,7 +12,9 @@
   <a href="README.zh-Hant.md">繁體中文</a>
 </p>
 
-<h1 align="center">PureMac</h1>
+<h1 align="center">Sift</h1>
+
+<p align="center"><sub>Sift es el nuevo nombre de PureMac. Todavía no hay una versión publicada de Sift: compílalo desde el código fuente. Consulta <a href="../README.md#renamed-from-puremac">Renamed from PureMac</a> sobre la migración de ajustes y el Acceso total al disco.</sub></p>
 
 <p align="center">
   <b>Gestor de aplicaciones y limpiador de sistema para macOS, gratuito y de código abierto.</b><br>
@@ -45,12 +47,12 @@
 
 ```bash
 brew update
-brew install --cask puremac
+brew install --cask sift
 ```
 
 ### Descarga directa
 
-Descarga el `.dmg` más reciente desde [Releases](https://github.com/momenbasel/PureMac/releases/latest), ábrelo y arrastra PureMac a `/Applications`.
+Descarga el `.dmg` más reciente desde [Releases](https://github.com/momenbasel/PureMac/releases/latest), ábrelo y arrastra Sift a `/Applications`.
 
 > Firmado y notarizado con Apple Developer ID — se instala sin advertencias de Gatekeeper.
 
@@ -61,8 +63,8 @@ brew install xcodegen
 git clone https://github.com/momenbasel/PureMac.git
 cd PureMac
 xcodegen generate
-xcodebuild -project PureMac.xcodeproj -scheme PureMac -configuration Release -derivedDataPath build build
-open build/Build/Products/Release/PureMac.app
+xcodebuild -project Sift.xcodeproj -scheme Sift -configuration Release -derivedDataPath build build
+open build/Build/Products/Release/Sift.app
 ```
 
 ## Características
@@ -125,7 +127,7 @@ open build/Build/Products/Release/PureMac.app
 ## Arquitectura
 
 ```
-PureMac/
+Sift/
   Logic/Scanning/     - Motor heurístico de escaneo, base de ubicaciones, condiciones
   Logic/Utilities/    - Registro estructurado
   Models/             - Modelos de datos, errores tipados

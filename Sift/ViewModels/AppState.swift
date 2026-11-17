@@ -20,12 +20,12 @@ enum AppSection: Hashable {
 }
 
 extension Notification.Name {
-    /// Posted by the Finder Services handler ("Uninstall with PureMac") with a
+    /// Posted by the Finder Services handler ("Uninstall with Sift") with a
     /// `["path": String]` userInfo pointing at the right-clicked .app bundle.
     static let pureMacExternalUninstall = Notification.Name("PureMac.ExternalUninstall")
 }
 
-/// Cold-launch buffer for Finder Services. A "Uninstall with PureMac" request
+/// Cold-launch buffer for Finder Services. A "Uninstall with Sift" request
 /// can arrive before the SwiftUI scene (and thus AppState) exists; the posted
 /// notification then has no subscriber and is lost (NotificationCenter has no
 /// replay). AppDelegate stashes the path here and AppState drains it in init.
@@ -247,7 +247,7 @@ final class AppState: ObservableObject {
         cleanupHistory = historyStore.load()
         lastScanDate = UserDefaults.standard.object(forKey: Self.lastScanDateKey) as? Date
 
-        // Listen for right-click "Uninstall with PureMac" hand-offs from the
+        // Listen for right-click "Uninstall with Sift" hand-offs from the
         // Finder Services handler in AppDelegate.
         externalUninstallObserver = NotificationCenter.default
             .publisher(for: .pureMacExternalUninstall)
@@ -429,10 +429,10 @@ final class AppState: ObservableObject {
     }
 
     /// Move files to the Trash via FileManager.trashItem so the syscall
-    /// originates from PureMac itself - TCC then registers PureMac in the
+    /// originates from Sift itself - TCC then registers Sift in the
     /// Full Disk Access list. The previous AppleScript-via-Finder bridge
     /// caused the syscall to originate from Finder, which is why granting
-    /// FDA to PureMac made no difference (issue #75).
+    /// FDA to Sift made no difference (issue #75).
     private static func defaultAppFileTrasher(urls: [URL], completion: @escaping ([URL], Bool, [URL], [URL]) -> Void) {
         DispatchQueue.global(qos: .userInitiated).async {
             let hasFullDiskAccess = FullDiskAccessManager.shared.hasFullDiskAccess
@@ -1246,7 +1246,7 @@ final class AppState: ObservableObject {
 
     /// Empties the Trash by asking Finder. Call only after the user confirmed:
     /// this is the one cleanup in the app that is not recoverable. Items in
-    /// the Trash are never unlinked by PureMac itself (CleaningEngine refuses
+    /// the Trash are never unlinked by Sift itself (CleaningEngine refuses
     /// `.trash` items). Errors land in `cleanError`.
     func emptyTrash() async {
         guard !scanState.isActive, !isEmptyingTrash, !deviceBackupRemovalInProgress else { return }

@@ -1,6 +1,6 @@
 import Foundation
 
-/// Pure parsers behind `puremac doctor`, kept separate so they can be tested
+/// Pure parsers behind `sift-cli doctor`, kept separate so they can be tested
 /// against fixture bytes without touching the filesystem or a real disk.
 enum DoctorSupport {
     /// Reads `SMARTStatus` from the plist `diskutil info -plist` prints.

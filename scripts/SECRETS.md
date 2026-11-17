@@ -30,7 +30,7 @@ The official `Homebrew/homebrew-cask` entry is updated separately through a cask
 ## Extracting your Developer ID cert as a filtered `.p12`
 
 ```bash
-mkdir -p ~/Desktop/PureMac-secrets && cd ~/Desktop/PureMac-secrets
+mkdir -p ~/Desktop/Sift-secrets && cd ~/Desktop/Sift-secrets
 
 # 1. Export everything from login keychain
 P12_PWD=$(openssl rand -base64 24)
@@ -60,12 +60,12 @@ done
 openssl pkcs12 -export \
   -in devid.crt -inkey devid.key \
   -name "Developer ID Application: Moamen Basel (H3WXHVTP97)" \
-  -out PureMac-DeveloperID.p12 \
+  -out Sift-DeveloperID.p12 \
   -passout "pass:$P12_PWD" \
   -macalg sha256 -keypbe AES-256-CBC -certpbe AES-256-CBC
 
 # 5. Base64 for the GH secret + scrub intermediates
-base64 -i PureMac-DeveloperID.p12 -o PureMac-DeveloperID.p12.b64
+base64 -i Sift-DeveloperID.p12 -o Sift-DeveloperID.p12.b64
 rm -P all.p12 all.pem devid.key key_*.pem
 ```
 
@@ -89,10 +89,10 @@ the runner).
 
 ```bash
 # Fill in the 4 you control:
-P12_PWD=$(cat ~/Desktop/PureMac-secrets/P12_PASSWORD.txt)
-KC_PWD=$(cat ~/Desktop/PureMac-secrets/KEYCHAIN_PASSWORD.txt)
+P12_PWD=$(cat ~/Desktop/Sift-secrets/P12_PASSWORD.txt)
+KC_PWD=$(cat ~/Desktop/Sift-secrets/KEYCHAIN_PASSWORD.txt)
 
-gh secret set BUILD_CERTIFICATE_BASE64       --repo momenbasel/PureMac < ~/Desktop/PureMac-secrets/PureMac-DeveloperID.p12.b64
+gh secret set BUILD_CERTIFICATE_BASE64       --repo momenbasel/PureMac < ~/Desktop/Sift-secrets/Sift-DeveloperID.p12.b64
 gh secret set P12_PASSWORD                   --repo momenbasel/PureMac --body "$P12_PWD"
 gh secret set KEYCHAIN_PASSWORD              --repo momenbasel/PureMac --body "$KC_PWD"
 gh secret set APP_STORE_CONNECT_KEY_ID       --repo momenbasel/PureMac --body "5G7R52L8RK"
@@ -109,9 +109,9 @@ gh secret list --repo momenbasel/PureMac
 After upload:
 
 ```bash
-rm -P ~/Desktop/PureMac-secrets/PureMac-DeveloperID.p12* \
-      ~/Desktop/PureMac-secrets/P12_PASSWORD.txt \
-      ~/Desktop/PureMac-secrets/KEYCHAIN_PASSWORD.txt
+rm -P ~/Desktop/Sift-secrets/Sift-DeveloperID.p12* \
+      ~/Desktop/Sift-secrets/P12_PASSWORD.txt \
+      ~/Desktop/Sift-secrets/KEYCHAIN_PASSWORD.txt
 ```
 
 ## Triggering a release
@@ -134,8 +134,8 @@ git push origin v3.0.0
 
 | Artifact | Purpose |
 |----------|---------|
-| `PureMac-X.Y.Z.dmg` | Direct download link in release notes (signed + notarized + stapled) |
-| `PureMac-X.Y.Z.zip` | Source for the homebrew cask (notarized + stapled `.app` inside) |
+| `Sift-X.Y.Z.dmg` | Direct download link in release notes (signed + notarized + stapled) |
+| `Sift-X.Y.Z.zip` | Source for the homebrew cask (notarized + stapled `.app` inside) |
 
 Both checksums land in `build/CHECKSUMS.md` and the GH release body.
 

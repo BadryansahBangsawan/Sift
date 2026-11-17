@@ -1,21 +1,33 @@
 import Foundation
 
 enum AppPaths {
-    static var configDir: URL {
-        let base: URL
+    private static var configBase: URL {
         if let xdg = ProcessInfo.processInfo.environment["XDG_CONFIG_HOME"],
            !xdg.isEmpty,
            xdg.hasPrefix("/") {
-            base = URL(fileURLWithPath: xdg, isDirectory: true)
-        } else {
-            base = FileManager.default.homeDirectoryForCurrentUser
-                .appendingPathComponent(".config", isDirectory: true)
+            return URL(fileURLWithPath: xdg, isDirectory: true)
         }
-        return base.appendingPathComponent("puremac", isDirectory: true)
+        return FileManager.default.homeDirectoryForCurrentUser
+            .appendingPathComponent(".config", isDirectory: true)
     }
+
+    static var configDir: URL { configBase.appendingPathComponent("sift", isDirectory: true) }
+    /// Directory used before the rename to Sift. Read only as a fallback.
+    static var legacyConfigDir: URL { configBase.appendingPathComponent("puremac", isDirectory: true) }
 
     static var ignoreFile: URL { configDir.appendingPathComponent("ignore") }
     static var configFile: URL { configDir.appendingPathComponent("config.json") }
+    static var legacyIgnoreFile: URL { legacyConfigDir.appendingPathComponent("ignore") }
+    static var legacyConfigFile: URL { legacyConfigDir.appendingPathComponent("config.json") }
+
+    /// The file to read: `file` when it exists, otherwise `legacyFile` when that
+    /// exists. Writes always go to `file`, so the first save migrates the data.
+    static func readableFile(_ file: URL, legacyFile: URL?) -> URL {
+        let fm = FileManager.default
+        if fm.fileExists(atPath: file.path) { return file }
+        if let legacyFile, fm.fileExists(atPath: legacyFile.path) { return legacyFile }
+        return file
+    }
 
     static func ensureDir() throws {
         try FileManager.default.createDirectory(at: configDir, withIntermediateDirectories: true)
@@ -31,7 +43,7 @@ enum StoreError: LocalizedError {
     var errorDescription: String? {
         switch self {
         case .invalidConfigFile(let path):
-            return "Configuration file is not a valid PureMac settings file: \(path)"
+            return "Configuration file is not a valid Sift settings file: \(path)"
         case .unknownConfigKey(let key):
             return "Unknown setting '\(key)'."
         case .invalidConfigValue(let key, let value):
@@ -50,16 +62,19 @@ struct IgnoreStore {
     init() {
         fileURL = AppPaths.ignoreFile
         currentDirectoryPath = FileManager.default.currentDirectoryPath
-        roots = (try? Self.load(from: fileURL)) ?? []
+        roots = (try? Self.load(
+            from: AppPaths.readableFile(fileURL, legacyFile: AppPaths.legacyIgnoreFile)
+        )) ?? []
     }
 
     init(
         fileURL: URL,
+        legacyFileURL: URL? = nil,
         currentDirectoryPath: String = FileManager.default.currentDirectoryPath
     ) throws {
         self.fileURL = fileURL
         self.currentDirectoryPath = currentDirectoryPath
-        roots = try Self.load(from: fileURL)
+        roots = try Self.load(from: AppPaths.readableFile(fileURL, legacyFile: legacyFileURL))
     }
 
     func isIgnored(_ path: String) -> Bool {
@@ -185,12 +200,14 @@ struct ConfigStore {
 
     init() {
         fileURL = AppPaths.configFile
-        values = (try? Self.load(from: fileURL)) ?? [:]
+        values = (try? Self.load(
+            from: AppPaths.readableFile(fileURL, legacyFile: AppPaths.legacyConfigFile)
+        )) ?? [:]
     }
 
-    init(fileURL: URL) throws {
+    init(fileURL: URL, legacyFileURL: URL? = nil) throws {
         self.fileURL = fileURL
-        values = try Self.load(from: fileURL)
+        values = try Self.load(from: AppPaths.readableFile(fileURL, legacyFile: legacyFileURL))
     }
 
     mutating func set(_ key: String, _ value: String) throws {

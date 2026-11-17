@@ -89,7 +89,7 @@ struct Uninstall: ParsableCommand {
             throw ValidationError("Interactive review requires a terminal. Re-run with --force to remove the matched items, or use --dry-run or --json for a read-only report.")
         }
 
-        let ignore = try IgnoreStore(fileURL: AppPaths.ignoreFile)
+        let ignore = try IgnoreStore(fileURL: AppPaths.ignoreFile, legacyFileURL: AppPaths.legacyIgnoreFile)
         let home = FileManager.default.homeDirectoryForCurrentUser.path
         let matched = Self.leftoverPaths(for: bundleID, home: home, ignore: ignore)
         var scan = Self.scan(appPath: appPath, bundleID: bundleID, leftovers: matched)

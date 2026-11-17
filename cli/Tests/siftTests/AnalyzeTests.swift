@@ -1,13 +1,13 @@
 import Darwin
 import XCTest
-@testable import puremac
+@testable import sift
 
 final class AnalyzeTests: XCTestCase {
     private var root: URL!
 
     override func setUpWithError() throws {
         root = FileManager.default.temporaryDirectory
-            .appendingPathComponent("puremac-analyze-\(UUID().uuidString)", isDirectory: true)
+            .appendingPathComponent("sift-analyze-\(UUID().uuidString)", isDirectory: true)
         try FileManager.default.createDirectory(at: root, withIntermediateDirectories: true)
     }
 

@@ -1,9 +1,9 @@
 <p align="center">
-  <img src="screenshots/smart-care.png" alt="PureMac Overview - storage and cleanup review" width="820">
+  <img src="screenshots/smart-care.png" alt="Sift Overview - storage and cleanup review" width="820">
 </p>
 
 <p align="center">
-  <img src="screenshots/smart-care-dark.png" alt="PureMac Overview in dark appearance" width="820">
+  <img src="screenshots/smart-care-dark.png" alt="Sift Overview in dark appearance" width="820">
 </p>
 
 <p align="center">
@@ -16,7 +16,7 @@
   <a href="docs/README.zh-Hant.md">繁體中文</a>
 </p>
 
-<h1 align="center">PureMac</h1>
+<h1 align="center">Sift</h1>
 
 <p align="center">
   <b>Reclaim your Mac.</b><br>
@@ -49,13 +49,19 @@
 
 ---
 
+## Renamed from PureMac
+
+Sift is the new name of PureMac, the open-source Mac cleaner created by [Moamen Basel](https://github.com/momenbasel). The app now uses the bundle identifier `com.sift.app` (previously `com.puremac.app`).
+
+- **Settings and history migrate automatically.** On first launch Sift copies your PureMac preferences and its `~/Library/Application Support/PureMac` folder. The PureMac data is left untouched, so an old copy keeps working until you remove it.
+- **Grant Full Disk Access again.** macOS ties the permission to the bundle identifier, so Sift needs its own entry in System Settings > Privacy & Security > Full Disk Access. You can remove the old PureMac entry.
+- **The command-line tool is now `sift-cli`.** It is not called `sift` because Homebrew already ships an unrelated `sift` (a grep alternative). It reads `~/.config/sift/` first and falls back to your existing `~/.config/puremac/` settings and protected paths.
+
+The screenshots in this README still show the PureMac interface.
+
 ## Install
 
-```bash
-brew install --cask puremac
-```
-
-Or download the signed, notarized `.dmg` from [Releases](https://github.com/momenbasel/PureMac/releases/latest) and drag PureMac into `/Applications`. No Gatekeeper warnings, no quarantine workaround.
+Sift has no published release yet. Until one exists, [build it from source](#build-from-source). The Homebrew cask (`homebrew/sift.rb`) and CLI formula (`homebrew/sift-cli.rb`) are ready for `Sift-<version>.zip` and `sift-cli-<version>.tar.gz` release assets.
 
 ### Build from source
 
@@ -64,30 +70,31 @@ brew install xcodegen
 git clone https://github.com/momenbasel/PureMac.git
 cd PureMac
 xcodegen generate
-xcodebuild -project PureMac.xcodeproj -scheme PureMac -configuration Release \
+xcodebuild -project Sift.xcodeproj -scheme Sift -configuration Release \
   -derivedDataPath build build
-open build/Build/Products/Release/PureMac.app
+open build/Build/Products/Release/Sift.app
 ```
 
 ### Command line
 
-Open `puremac` for a keyboard-driven workspace. Select individual cache paths,
+Open `sift-cli` for a keyboard-driven workspace. Select individual cache paths,
 review project artifacts, or browse your storage by size. Cleanup shows the exact
 selection and asks for confirmation before permanently removing it.
 
 ```bash
-brew install momenbasel/tap/puremac-cli
-puremac
+cd cli
+swift build -c release
+.build/release/sift-cli
 ```
 
-![PureMac CLI with individual selections and a running size total](cli/screenshots/clean.png)
+![Sift CLI with individual selections and a running size total](cli/screenshots/clean.png)
 
-Use `puremac clean dev --dry-run` for a preview or `--json` for scripts. See
+Use `sift-cli clean dev --dry-run` for a preview or `--json` for scripts. See
 [`cli/README.md`](cli/README.md) for controls, commands, and cleanup boundaries.
 
 ## How it compares
 
-|  | **PureMac** | CleanMyMac | Pearcleaner | Mole | OnyX |
+|  | **Sift** | CleanMyMac | Pearcleaner | Mole | OnyX |
 |---|:---:|:---:|:---:|:---:|:---:|
 | Price | **Free** | $40+/yr | Free | CLI free / GUI paid | Free |
 | Open source | **Yes (MIT)** | No | Source-available¹ | CLI only | No |
@@ -99,26 +106,26 @@ Use `puremac clean dev --dry-run` for a preview or `--json` for scripts. See
 | App-uninstall Trash support | **Yes** | Partial | Yes | Partial | No |
 | Honest about purgeable space | **Yes** | No | n/a | n/a | n/a |
 
-<sub>¹ Pearcleaner is Apache 2.0 **+ Commons Clause** - source-available but not OSI-approved (you may not sell it). PureMac is true MIT. Comparison reflects publicly documented features as of 2026; corrections welcome via PR.</sub>
+<sub>¹ Pearcleaner is Apache 2.0 **+ Commons Clause** - source-available but not OSI-approved (you may not sell it). Sift is true MIT. Comparison reflects publicly documented features as of 2026; corrections welcome via PR.</sub>
 
 ## Our promise
 
-A Mac cleaner asks for the deepest permission macOS grants - Full Disk Access - and then deletes your files. That demands a level of trust the category has spent twenty years burning. Here's the contract PureMac holds itself to, and you can verify every line of it in the source:
+A Mac cleaner asks for the deepest permission macOS grants - Full Disk Access - and then deletes your files. That demands a level of trust the category has spent twenty years burning. Here's the contract Sift holds itself to, and you can verify every line of it in the source:
 
-- **Deletion behavior is explicit.** App uninstalls, orphan removal, and exact-duplicate removal use the Trash at user level. PureMac never empties the Trash: empty it yourself in Finder. Dashboard/category cleanup, scheduled auto-clean, Docker/Xcode runtime cleanup, administrator-authorized removal, local snapshot deletion, and CLI cleanup can permanently delete data. Review selections carefully and use CLI dry runs.
+- **Deletion behavior is explicit.** App uninstalls, orphan removal, and exact-duplicate removal use the Trash at user level. Sift never empties the Trash: empty it yourself in Finder. Dashboard/category cleanup, scheduled auto-clean, Docker/Xcode runtime cleanup, administrator-authorized removal, local snapshot deletion, and CLI cleanup can permanently delete data. Review selections carefully and use CLI dry runs.
 - **No telemetry, ever.** No analytics, no crash reporting, no "anonymous usage stats," no network calls to us. The app doesn't know you exist.
 - **No fake urgency.** No dramatized "47 GB of junk detected!" badge, no red alarm counters, no "your Mac is at risk." We show you neutral facts and let you decide.
 - **No overpromising.** We don't claim to "reclaim purgeable space," "boost RAM," or "speed up your Mac" - things no app can reliably do. See the purgeable-space note below.
 - **Reviewable selection.** Manual cleanup, app-file removal, orphan removal, duplicate removal, and local snapshot deletion require confirmation. Cleanup filters show when selected items are hidden; select-visible controls affect only the rows on screen. Scheduled auto-clean remains unattended once enabled.
-- **Auditable.** It's MIT. The exact code that decides what gets removed is in [`PureMac/Services`](PureMac/Services) and [`PureMac/Logic/Scanning`](PureMac/Logic/Scanning). Read it. Fork it. Ship your own.
+- **Auditable.** It's MIT. The exact code that decides what gets removed is in [`Sift/Services`](Sift/Services) and [`Sift/Logic/Scanning`](Sift/Logic/Scanning). Read it. Fork it. Ship your own.
 
-If PureMac ever adds telemetry, a paywall on core features, or a fear-based scan, it will have become the thing it was built to replace. Hold us to this.
+If Sift ever adds telemetry, a paywall on core features, or a fear-based scan, it will have become the thing it was built to replace. Hold us to this.
 
 ## Why this exists
 
 Apple sells base-model Macs with 256 GB SSDs that you can't upgrade. The Mac mini, the Air, every entry-level MacBook Pro - the drive is soldered down. The next storage tier costs more than a midrange Windows laptop. Once you've paid it, every gigabyte you've already bought matters.
 
-Most Mac cleaners are subscription apps that hide their disk usage behind a paywall, ship telemetry by default, and trade on FUD ("47 GB of junk detected!"). PureMac is the opposite:
+Most Mac cleaners are subscription apps that hide their disk usage behind a paywall, ship telemetry by default, and trade on FUD ("47 GB of junk detected!"). Sift is the opposite:
 
 - **One-time install.** No subscription, no trial, no account.
 - **No telemetry.** It never phones home. It doesn't even know you exist.
@@ -129,7 +136,7 @@ Most Mac cleaners are subscription apps that hide their disk usage behind a payw
 ## What it does
 
 ### App Uninstaller
-Discovers everything in `/Applications` and `~/Applications`, then uses a 10-level matching engine (bundle ID, team identifier, entitlements, Spotlight metadata, container discovery, company-name heuristics, partial path matches) to find related files on your disk. Matching is heuristic, so review the results before removal. Three sensitivity tiers - Strict, Enhanced, Deep - let you choose how aggressive that match is. Apple system apps are excluded from the uninstall list automatically. You can also right-click any app in Finder and choose **Services → Uninstall with PureMac** to jump straight into its related-files scan.
+Discovers everything in `/Applications` and `~/Applications`, then uses a 10-level matching engine (bundle ID, team identifier, entitlements, Spotlight metadata, container discovery, company-name heuristics, partial path matches) to find related files on your disk. Matching is heuristic, so review the results before removal. Three sensitivity tiers - Strict, Enhanced, Deep - let you choose how aggressive that match is. Apple system apps are excluded from the uninstall list automatically. You can also right-click any app in Finder and choose **Services → Uninstall with Sift** to jump straight into its related-files scan.
 
 ### Orphan Finder
 Walks `~/Library` and surfaces files left behind by apps that no longer exist on disk. The matcher compares against bundle identifiers and normalized names of every installed app, so a leftover `~/Library/Containers/com.foo.bar` from an app you deleted in 2022 shows up clearly.
@@ -147,11 +154,11 @@ Smart Scan checks each category in sequence and reports progress as files are fo
 - **Node Cache** - npm, yarn classic, pnpm content-addressable store
 - **Docker Cache** - images, containers, build cache
 
-> **On "purgeable space":** PureMac shows your APFS purgeable space in the storage breakdown for transparency, but it deliberately does **not** list it as junk to delete. Purgeable space is reserved and reclaimed by macOS itself - no third-party app can reliably free it, and even the Finder's purgeable figure is known to be inaccurate. Cleaners that claim to "reclaim purgeable space" are overpromising. We'd rather be honest than impressive.
+> **On "purgeable space":** Sift shows your APFS purgeable space in the storage breakdown for transparency, but it deliberately does **not** list it as junk to delete. Purgeable space is reserved and reclaimed by macOS itself - no third-party app can reliably free it, and even the Finder's purgeable figure is known to be inaccurate. Cleaners that claim to "reclaim purgeable space" are overpromising. We'd rather be honest than impressive.
 
 ### Storage and file review
 
-**Apple Features** brings together the supported controls for Siri, Apple Intelligence, Image Playground, Genmoji, writing assistance, summaries, inline predictions, analytics, and personalized ads. Instructions follow the installed macOS version and open the relevant Settings pane or app. PureMac cannot reliably read or change these protected switches itself; opening Settings never marks a feature disabled.
+**Apple Features** brings together the supported controls for Siri, Apple Intelligence, Image Playground, Genmoji, writing assistance, summaries, inline predictions, analytics, and personalized ads. Instructions follow the installed macOS version and open the relevant Settings pane or app. Sift cannot reliably read or change these protected switches itself; opening Settings never marks a feature disabled.
 
 The **Storage** tab in Apple Features measures known model assets, downloaded screen savers, GarageBand support files, Apple Loops, and local device backups. Missing, inaccessible, and partial results are distinguished. System-managed content is shown for review and is excluded from cleanup totals. Model storage is not promised as recoverable space. See the [Apple controls and storage research](docs/APPLE-FEATURES.md) for sources and version limits.
 
@@ -173,7 +180,7 @@ Cleanup results support name/path search, size and age filters, sorting, and sel
 
 ### App updates
 
-Check for updates to Homebrew-managed cask apps and choose which ones to upgrade. PureMac runs Homebrew with analytics disabled and shows command failures. These actions use the network and Homebrew's package sources. Apps installed outside Homebrew are not covered; an App Store shortcut is provided for those managed by Apple.
+Check for updates to Homebrew-managed cask apps and choose which ones to upgrade. Sift runs Homebrew with analytics disabled and shows command failures. These actions use the network and Homebrew's package sources. Apps installed outside Homebrew are not covered; an App Store shortcut is provided for those managed by Apple.
 
 ### Scheduled Cleaning
 Optional. Configurable interval (hourly to monthly), with auto-clean threshold so background runs only fire when there's something meaningful to remove.
@@ -186,28 +193,28 @@ The **Updates** tab shows the installed version and build and checks official Gi
 
 ## Permissions
 
-PureMac needs **Full Disk Access** to read the locations macOS hides from every app by default - Mail downloads, Safari data, the TCC database, protected app containers. Without it, some cleanup categories and app-container scans will be incomplete. The locations available depend on your macOS version and permissions.
+Sift needs **Full Disk Access** to read the locations macOS hides from every app by default - Mail downloads, Safari data, the TCC database, protected app containers. Without it, some cleanup categories and app-container scans will be incomplete. The locations available depend on your macOS version and permissions.
 
-The first-launch onboarding walks you through granting it with an animated preview of the exact toggle you need to flip. If you skip it, the dashboard surfaces a single-click "Set up" pill. If a cleanup fails because of a permission issue, PureMac opens System Settings, reveals its bundle in Finder so you can drag it into the FDA list, polls the permission state every second, and auto-retries the failed batch the moment you grant access. You never have to re-select anything.
+The first-launch onboarding walks you through granting it with an animated preview of the exact toggle you need to flip. If you skip it, the dashboard surfaces a single-click "Set up" pill. If a cleanup fails because of a permission issue, Sift opens System Settings, reveals its bundle in Finder so you can drag it into the FDA list, polls the permission state every second, and auto-retries the failed batch the moment you grant access. You never have to re-select anything.
 
-What PureMac does *not* do:
+What Sift does *not* do:
 - It does not collect telemetry, crash reports, or usage analytics.
 - Local scans and cleanup work offline. Checking for or installing Homebrew app updates requires a network connection.
 - It does not upload or transmit scanned paths or deleted data.
 
 ## Troubleshooting
 
-### Launchpad / Dock shows a stale or dull PureMac icon
+### Launchpad / Dock shows a stale or dull Sift icon
 
-macOS aggressively caches app icons in LaunchServices. After a Homebrew **reinstall or upgrade** the Dock and Launchpad can keep showing the old cached icon. PureMac's cask runs `lsregister -f` on install to refresh it automatically. If a stale icon persists, re-register only PureMac and restart the Dock (adjust the app path if you installed it elsewhere):
+macOS aggressively caches app icons in LaunchServices. After a Homebrew **reinstall or upgrade** the Dock and Launchpad can keep showing the old cached icon. Sift's cask runs `lsregister -f` on install to refresh it automatically. If a stale icon persists, re-register only Sift and restart the Dock (adjust the app path if you installed it elsewhere):
 
 ```bash
 /System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/LaunchServices.framework/Versions/A/Support/lsregister \
-  -f "/Applications/PureMac.app"
+  -f "/Applications/Sift.app"
 killall Dock
 ```
 
-Give it a minute to re-seed, then open PureMac once. If it still sticks, a restart (or Safe Mode boot) forces a full rebuild.
+Give it a minute to re-seed, then open Sift once. If it still sticks, a restart (or Safe Mode boot) forces a full rebuild.
 
 ## Screenshots
 
@@ -236,7 +243,7 @@ Screenshots show the running macOS app. File tools use sample files and images.
 ## Architecture
 
 ```
-PureMac/
+Sift/
   Logic/Scanning/     - Heuristic scan engine, locations database, conditions
   Logic/Utilities/    - Structured logging
   Models/             - Data models, typed errors
@@ -291,13 +298,13 @@ Especially welcome:
 
 ## Star History
 
-If PureMac saved you some disk space, a star helps other people find it.
+If Sift saved you some disk space, a star helps other people find it.
 
 <a href="https://github.com/momenbasel/PureMac/stargazers">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="assets/star-history-dark.svg" />
     <source media="(prefers-color-scheme: light)" srcset="assets/star-history.svg" />
-    <img alt="PureMac star history chart" src="assets/star-history.svg" width="720" />
+    <img alt="Star history chart for the PureMac repository" src="assets/star-history.svg" width="720" />
   </picture>
 </a>
 

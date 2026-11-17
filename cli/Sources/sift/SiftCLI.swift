@@ -1,19 +1,19 @@
 import ArgumentParser
 import Foundation
 
-let puremacVersion = "1.1.1"
+let siftVersion = "1.1.1"
 
 @main
-struct PureMac: ParsableCommand {
+struct SiftCLI: ParsableCommand {
     static let configuration = CommandConfiguration(
-        commandName: "puremac",
+        commandName: "sift-cli",
         abstract: "Review caches, clean project artifacts, and explore your storage.",
         discussion: """
-        Run puremac to open the interactive workspace. Select individual paths,
+        Run sift-cli to open the interactive workspace. Select individual paths,
         review their sizes, and confirm before permanent cleanup.
         Use --help on any command for script-friendly options.
         """,
-        version: puremacVersion,
+        version: siftVersion,
         subcommands: [Clean.self, Purge.self, Analyze.self, Optimize.self, Doctor.self, Dupes.self, Uninstall.self, Ignore.self, Config.self]
     )
 
@@ -46,8 +46,8 @@ enum HomeMenu {
             ("Uninstall", "Remove an app and its bundle-ID-matched leftovers")
         ]
         while let choice = try TerminalMenu.choose(
-            title: "PureMac",
-            subtitle: "Your Mac, with room to work.  /  \(puremacVersion)",
+            title: "Sift",
+            subtitle: "Your Mac, with room to work.  /  \(siftVersion)",
             options: options
         ) {
             switch choice {
@@ -79,7 +79,7 @@ enum HomeMenu {
                 try Uninstall.parse([app]).run()
             default: return
             }
-            print(Term.dim("\nPress Return to return to PureMac."), terminator: " ")
+            print(Term.dim("\nPress Return to return to Sift."), terminator: " ")
             guard readLine() != nil else { return }
         }
     }

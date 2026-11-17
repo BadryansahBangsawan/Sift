@@ -1,7 +1,7 @@
 import XCTest
-@testable import puremac
+@testable import sift
 
-final class PureMacTests: XCTestCase {
+final class SiftCLITests: XCTestCase {
     let home = FileManager.default.homeDirectoryForCurrentUser.path
 
     func testByteCountFormatting() {
@@ -71,7 +71,7 @@ final class PureMacTests: XCTestCase {
 
     func testSafetyHonorsIgnoreList() throws {
 
-        let tmp = NSTemporaryDirectory() + "puremac-test-\(getpid())"
+        let tmp = NSTemporaryDirectory() + "sift-test-\(getpid())"
         try? FileManager.default.createDirectory(atPath: tmp, withIntermediateDirectories: true)
         defer { try? FileManager.default.removeItem(atPath: tmp) }
 

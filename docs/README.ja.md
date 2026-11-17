@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="../screenshots/smart-care.png" alt="PureMac" width="700">
+  <img src="../screenshots/smart-care.png" alt="Sift" width="700">
 </p>
 
 <p align="center">
@@ -12,7 +12,9 @@
   <a href="README.zh-Hant.md">繁體中文</a>
 </p>
 
-<h1 align="center">PureMac</h1>
+<h1 align="center">Sift</h1>
+
+<p align="center"><sub>Sift は PureMac の新しい名前です。Sift のリリースはまだ公開されていないため、ソースからビルドしてください。設定の移行とフルディスクアクセスについては <a href="../README.md#renamed-from-puremac">Renamed from PureMac</a> を参照してください。</sub></p>
 
 <p align="center">
   <b>無料・オープンソースの macOS アプリマネージャー兼システムクリーナー。</b><br>
@@ -45,12 +47,12 @@
 
 ```bash
 brew update
-brew install --cask puremac
+brew install --cask sift
 ```
 
 ### 直接ダウンロード
 
-[Releases](https://github.com/momenbasel/PureMac/releases/latest) から最新の `.dmg` をダウンロードし、開いて PureMac を `/Applications` にドラッグします。
+[Releases](https://github.com/momenbasel/PureMac/releases/latest) から最新の `.dmg` をダウンロードし、開いて Sift を `/Applications` にドラッグします。
 
 > Apple Developer ID で署名・公証済み — Gatekeeper の警告なしでインストールできます。
 
@@ -61,8 +63,8 @@ brew install xcodegen
 git clone https://github.com/momenbasel/PureMac.git
 cd PureMac
 xcodegen generate
-xcodebuild -project PureMac.xcodeproj -scheme PureMac -configuration Release -derivedDataPath build build
-open build/Build/Products/Release/PureMac.app
+xcodebuild -project Sift.xcodeproj -scheme Sift -configuration Release -derivedDataPath build build
+open build/Build/Products/Release/Sift.app
 ```
 
 ## 機能
@@ -125,7 +127,7 @@ open build/Build/Products/Release/PureMac.app
 ## アーキテクチャ
 
 ```
-PureMac/
+Sift/
   Logic/Scanning/     - ヒューリスティックなスキャンエンジン、ロケーションデータベース、条件
   Logic/Utilities/    - 構造化ログ
   Models/             - データモデル、型付きエラー

@@ -1,6 +1,6 @@
 import Foundation
 import XCTest
-@testable import puremac
+@testable import sift
 
 final class DoctorTests: XCTestCase {
     private func plist(_ body: String) -> Data {

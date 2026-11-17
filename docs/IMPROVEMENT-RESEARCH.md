@@ -1,12 +1,12 @@
-# PureMac Improvement Research
+# Sift Improvement Research
 
 > Multi-agent deep research (CleanMyMac UX, SwiftUI motion, feature gaps, icon/Launchpad cache). Generated for the v2.7.0 polish pass.
 
 Deployment target is macOS 13.0 (constrains some APIs). I have everything needed to write the report.
 
-# PureMac -> CleanMyMac-Grade: Engineering Report
+# Sift -> CleanMyMac-Grade: Engineering Report
 
-**Constraint baseline:** Deployment target is `MACOSX_DEPLOYMENT_TARGET = 13.0` (confirmed in `.pbxproj`). This gates several premium APIs. `PhaseAnimator`/`KeyframeAnimator`/`.symbolEffect`/`.contentTransition(.numericText)`/`SectorMark` selection require macOS 14+; `.scrollTransition`/`.visualEffect` are macOS 14+; `TextRenderer`/zoom transitions are macOS 15+. **Recommendation: raise the floor to macOS 14.0** — it unlocks ~80% of the premium toolkit (Swift Charts `SectorMark`, symbol effects, numeric text, phase/keyframe animators) at minimal user-base cost given macOS 14 shipped 2023. Where I list a 14+ API, a macOS 13 fallback is noted. Existing confetti, dashboard, and onboarding files are at `PureMac/Views/{DashboardView.swift, OnboardingView.swift, Components/ConfettiView.swift}`.
+**Constraint baseline:** Deployment target is `MACOSX_DEPLOYMENT_TARGET = 13.0` (confirmed in `.pbxproj`). This gates several premium APIs. `PhaseAnimator`/`KeyframeAnimator`/`.symbolEffect`/`.contentTransition(.numericText)`/`SectorMark` selection require macOS 14+; `.scrollTransition`/`.visualEffect` are macOS 14+; `TextRenderer`/zoom transitions are macOS 15+. **Recommendation: raise the floor to macOS 14.0** — it unlocks ~80% of the premium toolkit (Swift Charts `SectorMark`, symbol effects, numeric text, phase/keyframe animators) at minimal user-base cost given macOS 14 shipped 2023. Where I list a 14+ API, a macOS 13 fallback is noted. Existing confetti, dashboard, and onboarding files are at `Sift/Views/{DashboardView.swift, OnboardingView.swift, Components/ConfettiView.swift}`.
 
 ---
 
@@ -15,7 +15,7 @@ Deployment target is macOS 13.0 (constrains some APIs). I have everything needed
 CleanMyMac's premium feel is not one trick; it is five stacked systems — organic geometry, a warm gradient color language, sensory layering (parallax + translucency + sound), tight micro-interaction timing, and glassmorphic depth [cleanmymac-ux ^1][^3]. Translate each into the existing SwiftUI surfaces.
 
 ### 1.1 Dashboard — tile-based information architecture
-Replace any list-first dashboard with a `LazyVGrid` of 2-3 module tiles (Cleanup, Apps, Orphans, Storage, Large/Old, Schedule), each a summary stat + "Review"/"Clean" actions — progressive disclosure removes the wall-of-text intimidation factor [cleanmymac-ux ^10]. Edit `PureMac/Views/DashboardView.swift`.
+Replace any list-first dashboard with a `LazyVGrid` of 2-3 module tiles (Cleanup, Apps, Orphans, Storage, Large/Old, Schedule), each a summary stat + "Review"/"Clean" actions — progressive disclosure removes the wall-of-text intimidation factor [cleanmymac-ux ^10]. Edit `Sift/Views/DashboardView.swift`.
 
 - Each tile gets its **own gradient pair** for wayfinding without labels (Cleanup pink→blue, Storage blue→purple, Apps pink→lavender) [cleanmymac-ux ^1].
 - Tile container: `.background(.ultraThinMaterial)` + `.overlay(RoundedRectangle(cornerRadius: 16).stroke(.white.opacity(0.18), lineWidth: 1))`, placed above a `LinearGradient` window backdrop. Glassmorphism only shines over vibrant saturated backgrounds — not flat gray [cleanmymac-ux ^7][^8].
@@ -49,7 +49,7 @@ Adopt **Swift Charts** (macOS 14+) for storage breakdown — this is the single 
 - macOS 13 fallback: `Canvas` arc drawing (hardware-accelerated) for the donut — pattern in [swiftui-motion]. Existing gauges already prove the team can do `Canvas`/`trim`.
 
 ### 1.6 Color & depth
-Define 3 module gradient pairs as `Theme` tokens (extend `PureMac/Extensions/Theme.swift`); test all over light/dark via `NSColor` dynamic providers. Use `.ultraThinMaterial` for floating panels, vibrant gradient for window background — layered planes are what flat design cannot reproduce [cleanmymac-ux ^1][^7][^8]. Add a subtle parallax: a low-opacity (0.6-0.8) gradient layer with a 2-3s offset loop behind the hero gauge for atmospheric depth [cleanmymac-ux ^1].
+Define 3 module gradient pairs as `Theme` tokens (extend `Sift/Extensions/Theme.swift`); test all over light/dark via `NSColor` dynamic providers. Use `.ultraThinMaterial` for floating panels, vibrant gradient for window background — layered planes are what flat design cannot reproduce [cleanmymac-ux ^1][^7][^8]. Add a subtle parallax: a low-opacity (0.6-0.8) gradient layer with a 2-3s offset loop behind the hero gauge for atmospheric depth [cleanmymac-ux ^1].
 
 ### 1.7 Sound + accessibility (mandatory)
 - Success chime `NSSound(named: "Glass")?.play()`, error `NSSound(named: "Basso")` — fire in sync with the visual, not after [cleanmymac-ux ^3][^9]. macOS has no Taptic Engine; the existing `Haptics.swift` likely uses `NSHapticFeedbackManager` for trackpad — keep that paired with sound.
@@ -84,7 +84,7 @@ Either way: fire on the animation **completion handler** (§1.3), respect `reduc
 | **Duplicate file finder** | HIGH — 2-10 GB typical recovery [feature-gaps] | MED (2-3w) | Size-bucket → partial hash → full SHA fingerprint; xattr-cache hashes; filetype-aware (EXIF/MP3 tags); reference-dir safety (keep originals, delete only from chosen dirs). |
 | **Large/Old files filter presets** | MED-HIGH — reuses existing scanner; power-user control [feature-gaps] | LOW (3-5d) | Add size slider + date picker + location scope to existing "Large & Old"; ship presets (Old Backups >5y, Bulky Media >1GB, Installers >500MB matching `.dmg/.pkg`); persist custom presets to `UserDefaults`. |
 | **Login items / launch agents manager** | MED — boot-time bloat, no good OSS tool [feature-gaps] | MED-HIGH (1-2w) | Parse `~/Library/LaunchAgents`, `/Library/LaunchAgents`, daemons; PropertyList parse via Foundation; table (App/Label/Executable/toggle/delete); warn on Apple system agents; cross-ref `launchctl list`. |
-| **Finder right-click "Uninstall with PureMac"** | MED-HIGH — removes drag/launch friction [feature-gaps] | MED (5-7d) | App Extension (Finder/Action extension) registered for `.app` bundles; launch host with bundle URL arg → pre-populate the existing uninstaller (`AppPathFinder`). |
+| **Finder right-click "Uninstall with Sift"** | MED-HIGH — removes drag/launch friction [feature-gaps] | MED (5-7d) | App Extension (Finder/Action extension) registered for `.app` bundles; launch host with bundle URL arg → pre-populate the existing uninstaller (`AppPathFinder`). |
 | **Real-time monitoring (CPU/RAM/disk)** | LOW-MED — Sensei-style, mostly background value [feature-gaps] | MED (1-2w) | Defer to Phase 3. |
 | **Malware/security scan** | MED (FUD-driven) [feature-gaps] | LOW value/HIGH cost (2-4w) | Defer; signature DB upkeep is a long-term liability. |
 
@@ -98,7 +98,7 @@ Engine is already ahead of AppCleaner/Pearcleaner; the entire gap to CleanMyMac 
 A near-white icon (≥ `#F5F5F5`) has insufficient contrast for macOS's Liquid-Glass specular/translucency layer, rendering dull/blank — worst in the Dock when the app is running [icon-launchpad]. Fix the asset, not just the cache.
 
 ### 4.2 Design guidance (asset fixes)
-Edit the source art behind `PureMac/Assets.xcassets/AppIcon.appiconset`:
+Edit the source art behind `Sift/Assets.xcassets/AppIcon.appiconset`:
 - **Do NOT bake rounded corners** — the OS applies the squircle/superellipse mask (~22.37% width radius, ~60% smoothing). Provide square layers [icon-launchpad].
 - **512×512 canvas, 50px transparent padding all sides; primary content within the centered 412×412** — edge-to-edge fill makes the icon look 20-30% oversized in Dock/Launchpad [icon-launchpad].
 - **Contrast ≥ 3:1** vs. background (prefer 4.5:1+ in grids); avoid solid light grays ≥ `#D0D0D0` as the primary color; **test light + dark mode** [icon-launchpad]. Give the near-white mark a saturated/dark backplate or gradient so Liquid Glass has something to catch.
@@ -122,7 +122,7 @@ sleep 3
 killall Dock
 killall Finder
 ```
-Allow 2-5 min for the LaunchServices DB to re-seed (system runs slower during rebuild); open PureMac once to force re-registration. If still stale, Safe Mode restart (Shut down → power on holding **Shift** through login → wait 5 min → restart normally) forces a rebuild with no third-party interference [icon-launchpad].
+Allow 2-5 min for the LaunchServices DB to re-seed (system runs slower during rebuild); open Sift once to force re-registration. If still stale, Safe Mode restart (Shut down → power on holding **Shift** through login → wait 5 min → restart normally) forces a rebuild with no third-party interference [icon-launchpad].
 
 Faster user-domain-only LaunchServices variant for dev iteration: append `-apps u` instead of the `-domain` flags [icon-launchpad].
 
@@ -149,6 +149,6 @@ Faster user-domain-only LaunchServices variant for dev iteration: append `-apps 
 
 ---
 
-**Files to touch:** `PureMac/Views/DashboardView.swift` (tiles, charts, reveal), `PureMac/Views/Components/ConfettiView.swift` (redesign), `PureMac/Extensions/Theme.swift` (gradient/color tokens), `PureMac/Services/Haptics.swift` (sound+haptic pairing), `PureMac/Assets.xcassets/AppIcon.appiconset` (icon art), and the `.pbxproj` `MACOSX_DEPLOYMENT_TARGET` (13.0 → 14.0 for the follow-up wave). New: a `MenuBarExtra` scene in `PureMac/PureMacApp.swift`, a `StorageChartView`, and an `AppExtension` target for Finder integration.
+**Files to touch:** `Sift/Views/DashboardView.swift` (tiles, charts, reveal), `Sift/Views/Components/ConfettiView.swift` (redesign), `Sift/Extensions/Theme.swift` (gradient/color tokens), `Sift/Services/Haptics.swift` (sound+haptic pairing), `Sift/Assets.xcassets/AppIcon.appiconset` (icon art), and the `.pbxproj` `MACOSX_DEPLOYMENT_TARGET` (13.0 → 14.0 for the follow-up wave). New: a `MenuBarExtra` scene in `Sift/SiftApp.swift`, a `StorageChartView`, and an `AppExtension` target for Finder integration.
 
 **Citation key:** [cleanmymac-ux] = CleanMyMac UX brief (Behance/Novikov ^1-3, micro-interactions ^4/^6, color ^5, glass ^7/^8, audio-haptic ^9, Smart Care ^10, reveal ^11); [swiftui-motion] = SwiftUI/macOS 2026 motion brief (Apple WWDC23-25 docs); [feature-gaps] = competitive feature brief (CleanMyMac X, DaisyDisk, Sensei, dupeGuru, Pearcleaner); [icon-launchpad] = icon/cache brief (Apple HIG, Eclectic Light, squircle.js.org, ithy.com Sequoia guide).

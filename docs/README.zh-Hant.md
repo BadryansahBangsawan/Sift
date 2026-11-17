@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="../screenshots/smart-care.png" alt="PureMac" width="700">
+  <img src="../screenshots/smart-care.png" alt="Sift" width="700">
 </p>
 
 <p align="center">
@@ -12,7 +12,9 @@
   <b>繁體中文</b>
 </p>
 
-<h1 align="center">PureMac</h1>
+<h1 align="center">Sift</h1>
+
+<p align="center"><sub>Sift 是 PureMac 的新名稱。Sift 尚未發佈正式版本，請從原始碼建置。設定移轉與完整磁碟取用權限的說明請見 <a href="../README.md#renamed-from-puremac">Renamed from PureMac</a>。</sub></p>
 
 <p align="center">
   <b>免費、開源的 macOS 應用程式管理與系統清理工具。</b><br>
@@ -45,12 +47,12 @@
 
 ```bash
 brew update
-brew install --cask puremac
+brew install --cask sift
 ```
 
 ### 直接下載
 
-從 [Releases](https://github.com/momenbasel/PureMac/releases/latest) 下載最新的 `.dmg`,開啟後將 PureMac 拖曳到 `/Applications`。
+從 [Releases](https://github.com/momenbasel/PureMac/releases/latest) 下載最新的 `.dmg`,開啟後將 Sift 拖曳到 `/Applications`。
 
 > 已使用 Apple Developer ID 簽署並公證 — 安裝時不會出現 Gatekeeper 警告。
 
@@ -61,8 +63,8 @@ brew install xcodegen
 git clone https://github.com/momenbasel/PureMac.git
 cd PureMac
 xcodegen generate
-xcodebuild -project PureMac.xcodeproj -scheme PureMac -configuration Release -derivedDataPath build build
-open build/Build/Products/Release/PureMac.app
+xcodebuild -project Sift.xcodeproj -scheme Sift -configuration Release -derivedDataPath build build
+open build/Build/Products/Release/Sift.app
 ```
 
 ## 功能
@@ -125,7 +127,7 @@ open build/Build/Products/Release/PureMac.app
 ## 架構
 
 ```
-PureMac/
+Sift/
   Logic/Scanning/     - 啟發式掃描引擎、位置資料庫、條件
   Logic/Utilities/    - 結構化記錄
   Models/             - 資料模型、型別化錯誤
