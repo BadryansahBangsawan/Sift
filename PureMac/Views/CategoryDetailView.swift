@@ -98,7 +98,15 @@ struct CategoryDetailView: View {
     private var presetsMenu: some View {
         Menu {
             ForEach(CleanupFilterPreset.builtIns) { preset in
-                Button(preset.name) { filter = preset.filter }
+                Button {
+                    filter = preset.filter
+                } label: {
+                    if filter == preset.filter {
+                        Label(preset.name, systemImage: "checkmark")
+                    } else {
+                        Text(preset.name)
+                    }
+                }
             }
             Divider()
             Button("Save current filters") {

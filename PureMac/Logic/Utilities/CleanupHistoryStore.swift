@@ -47,10 +47,6 @@ final class CleanupHistoryStore {
         return records.sorted { $0.date > $1.date }
     }
 
-    var totalFreed: Int64 {
-        load().reduce(0) { $0 + $1.freedBytes }
-    }
-
     /// Appends one record and returns the trimmed list, newest first, so the
     /// caller can publish it without a second disk read.
     @discardableResult
