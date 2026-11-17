@@ -37,23 +37,28 @@ struct OnboardingView: View {
     }
 
     var body: some View {
-        ZStack {
-            backdrop
-                .ignoresSafeArea()
-
-            VStack(spacing: 0) {
-                content
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .padding(.horizontal, 36)
-                    .padding(.top, 44)
-                    .padding(.bottom, 12)
-                    .id(page)
-                    .transition(pageTransition)
-
-                bottomBar
+        VStack(spacing: 0) {
+            HStack {
+                SiftWordmark()
+                Spacer()
             }
+            .frame(maxWidth: 620)
+            .padding(.horizontal, 32)
+            .padding(.top, 44)
+
+            content
+                .frame(maxWidth: 620, maxHeight: .infinity)
+                .padding(.horizontal, 32)
+                .padding(.vertical, 12)
+                .id(page)
+                .transition(pageTransition)
+
+            bottomBar
         }
-        .frame(width: 680, height: 560)
+        .frame(minWidth: 680, idealWidth: 680, maxWidth: .infinity, minHeight: 560, idealHeight: 560, maxHeight: .infinity)
+        .background(SiftColor.window.ignoresSafeArea())
+        .ignoresSafeArea(.container, edges: .top)
+        .tint(SiftColor.accent)
         .onAppear {
             FullDiskAccessManager.shared.triggerRegistration()
             refreshFda()
@@ -78,46 +83,16 @@ struct OnboardingView: View {
         }
     }
 
-    // MARK: - Background
-
-    private var backdrop: some View {
-        ZStack {
-            Color(nsColor: .windowBackgroundColor)
-            // Radial wash that shifts hue per page and drifts opposite the
-            // page slide — a slow parallax layer behind the faster foreground
-            // spring. Static under Reduce Motion.
-            RadialGradient(
-                colors: [pageTint.opacity(0.18), .clear],
-                center: .topTrailing,
-                startRadius: 60,
-                endRadius: 520
-            )
-            .offset(x: reduceMotion ? 0 : CGFloat(page.index) * -30)
-            .animation(reduceMotion ? nil : .easeInOut(duration: 0.8), value: page)
-        }
-    }
-
-    private var pageTint: Color {
-        switch page {
-        case .welcome: return Tint.blue
-        case .mission: return Tint.purple
-        case .permission: return Tint.orange
-        case .ready: return Tint.green
-        }
-    }
-
     // MARK: - Bottom bar
 
     private var bottomBar: some View {
         HStack {
             if page != .welcome {
                 Button("Back") { advance(by: -1) }
-                    .buttonStyle(.plain)
-                    .foregroundStyle(.secondary)
+                    .buttonStyle(.sift(.quiet))
             } else {
                 Button("Skip") { isComplete = true }
-                    .buttonStyle(.plain)
-                    .foregroundStyle(.secondary)
+                    .buttonStyle(.sift(.quiet))
             }
 
             Spacer()
@@ -125,31 +100,28 @@ struct OnboardingView: View {
             HStack(spacing: 6) {
                 ForEach(Page.allCases, id: \.self) { p in
                     Capsule()
-                        .fill(p == page ? Color.primary.opacity(0.75) : Color.primary.opacity(0.15))
-                        .frame(width: p == page ? 18 : 6, height: 6)
-                        .animation(.spring(response: 0.35, dampingFraction: 0.85), value: page)
+                        .fill(p == page ? SiftColor.accent : SiftColor.track)
+                        .frame(width: p == page ? 20 : 6, height: 6)
+                        .animation(reduceMotion ? nil : SiftMotion.snappy, value: page)
                 }
             }
+            .accessibilityHidden(true)
 
             Spacer()
 
             if page == .ready {
                 Button("Start") { isComplete = true }
-                    .buttonStyle(GlowProminentButtonStyle(breathes: true))
+                    .buttonStyle(.siftPrimary)
             } else {
+                // On the permission page the Settings button is the main action.
                 Button(LocalizedStringKey(page == .permission ? "Continue" : "Next")) { advance(by: 1) }
-                    .buttonStyle(.borderedProminent)
-                    .controlSize(.large)
+                    .buttonStyle(page == .permission ? .siftSecondary : .siftPrimary)
             }
         }
-        .padding(.horizontal, 28)
-        .padding(.vertical, 16)
-        .background(
-            VStack(spacing: 0) {
-                Divider().opacity(0.5)
-                Color.clear
-            }
-        )
+        .frame(maxWidth: 620)
+        .padding(.horizontal, 32)
+        .padding(.top, 12)
+        .padding(.bottom, 24)
     }
 
     // MARK: - Actions
@@ -206,54 +178,23 @@ struct OnboardingView: View {
 // MARK: - Scenes
 
 private struct WelcomeScene: View {
-    @State private var bob = false
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
-
     var body: some View {
-        VStack(spacing: 26) {
+        VStack(alignment: .leading, spacing: 0) {
             Spacer(minLength: 0)
-
-            ZStack {
-                if let icon = NSImage(named: "AppIcon") {
-                    Image(nsImage: icon)
-                        .resizable()
-                        .interpolation(.high)
-                        .frame(width: 120, height: 120)
-                        .shadow(color: .black.opacity(0.15), radius: 18, y: 8)
-                        .offset(y: reduceMotion ? 0 : (bob ? -4 : 4))
-                        .onAppear {
-                            guard !reduceMotion else { return }
-                            withAnimation(.easeInOut(duration: 2.4).repeatForever(autoreverses: true)) {
-                                bob = true
-                            }
-                        }
-                } else {
-                    Image(systemName: "sparkles")
-                        .font(.system(size: 88, weight: .semibold))
-                        .foregroundStyle(Tint.blue)
-                }
-            }
-            .staggered(0, baseDelay: 0.07)
-
-            VStack(spacing: 12) {
+            VStack(alignment: .leading, spacing: 14) {
                 Text("Reclaim your Mac")
-                    .font(.system(size: 38, weight: .semibold))
-                    .multilineTextAlignment(.center)
+                    .siftStyle(.hero)
+                    .fixedSize(horizontal: false, vertical: true)
                 Text("Apple sells you small disks. We help you keep them clean.")
-                    .font(.system(size: 15))
-                    .foregroundStyle(.secondary)
-                    .multilineTextAlignment(.center)
-                    .frame(maxWidth: 420)
+                    .font(.sift(15))
+                    .foregroundStyle(SiftColor.textSecondary)
+                    .fixedSize(horizontal: false, vertical: true)
+                Text("Free. Open source. MIT licensed.")
+                    .siftStyle(.label)
+                    .padding(.top, 10)
             }
-            .staggered(1, baseDelay: 0.07)
-
-            Text("Free. Open source. MIT licensed.")
-                .font(.system(size: 11.5, weight: .medium))
-                .foregroundStyle(.tertiary)
-                .tracking(0.3)
-                .padding(.top, 4)
-                .staggered(2, baseDelay: 0.07)
-
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .siftSurface(.hero)
             Spacer(minLength: 0)
         }
     }
@@ -261,80 +202,75 @@ private struct WelcomeScene: View {
 
 private struct MissionScene: View {
     var body: some View {
-        VStack(spacing: 28) {
+        VStack(alignment: .leading, spacing: 18) {
             Spacer(minLength: 0)
 
-            VStack(spacing: 12) {
+            VStack(alignment: .leading, spacing: 6) {
                 Text("What's inside")
-                    .font(.system(size: 30, weight: .semibold))
-                    .multilineTextAlignment(.center)
+                    .siftStyle(.pageTitle)
                 Text("Three things, done well.")
-                    .font(.system(size: 14))
-                    .foregroundStyle(.secondary)
+                    .siftStyle(.body)
             }
-            .staggered(0, baseDelay: 0.07)
+            .padding(.horizontal, 4)
 
-            VStack(spacing: 12) {
+            VStack(spacing: 0) {
                 FeatureRow(
-                    systemImage: "sparkles",
-                    tint: Tint.blue,
+                    icon: .sparkles,
                     title: "Smart Scan",
                     body: "Find caches, logs, broken installs, and the AI-app history hiding in your library."
                 )
-                .staggered(1, baseDelay: 0.07)
+                rowDivider
                 FeatureRow(
-                    systemImage: "square.grid.2x2.fill",
-                    tint: Tint.purple,
+                    icon: .packageMinus,
                     title: "App Uninstaller",
                     body: "Drag an app, see every file it dropped, remove all of it. No leftovers."
                 )
-                .staggered(2, baseDelay: 0.07)
+                rowDivider
                 FeatureRow(
-                    systemImage: "doc.questionmark.fill",
-                    tint: Tint.pink,
+                    icon: .file,
                     title: "Orphan Finder",
                     body: "Surfaces files that outlived the apps that created them."
                 )
-                .staggered(3, baseDelay: 0.07)
             }
-            .frame(maxWidth: 460)
+            .siftSurface(.card, padding: 0)
 
             Spacer(minLength: 0)
         }
     }
+
+    private var rowDivider: some View {
+        Rectangle().fill(SiftColor.stroke).frame(height: 1).padding(.horizontal, 18)
+    }
 }
 
 private struct FeatureRow: View {
-    let systemImage: String
-    let tint: Color
+    let icon: SiftIcon
     let title: LocalizedStringKey
     let body_: LocalizedStringKey
 
-    init(systemImage: String, tint: Color, title: LocalizedStringKey, body: LocalizedStringKey) {
-        self.systemImage = systemImage
-        self.tint = tint
+    init(icon: SiftIcon, title: LocalizedStringKey, body: LocalizedStringKey) {
+        self.icon = icon
         self.title = title
         self.body_ = body
     }
 
     var body: some View {
-        HStack(alignment: .top, spacing: 14) {
-            IconTile(systemName: systemImage, tint: tint, size: 36, corner: 9)
-            VStack(alignment: .leading, spacing: 2) {
+        HStack(alignment: .center, spacing: 14) {
+            SiftIconTile(icon: icon, tone: .accent, size: 36)
+            VStack(alignment: .leading, spacing: 3) {
                 Text(title)
-                    .font(.system(size: 14, weight: .semibold))
+                    .font(.sift(13.5, weight: 500))
+                    .foregroundStyle(SiftColor.textPrimary)
                 Text(body_)
-                    .font(.system(size: 12.5))
-                    .foregroundStyle(.secondary)
+                    .font(.sift(12))
+                    .foregroundStyle(SiftColor.textTertiary)
                     .fixedSize(horizontal: false, vertical: true)
             }
-            Spacer()
+            Spacer(minLength: 0)
         }
-        .padding(14)
-        .background(
-            RoundedRectangle(cornerRadius: 10, style: .continuous)
-                .fill(Color.primary.opacity(0.04))
-        )
+        .padding(.horizontal, 18)
+        .padding(.vertical, 16)
+        .accessibilityElement(children: .combine)
     }
 }
 
@@ -345,79 +281,84 @@ private struct PermissionScene: View {
     let revealAppInFinder: () -> Void
 
     var body: some View {
-        VStack(spacing: 18) {
-            VStack(spacing: 8) {
-                Text(LocalizedStringKey(hasFda ? "Permission granted" : "One permission, then we're done"))
-                    .font(.system(size: 26, weight: .semibold))
-                    .multilineTextAlignment(.center)
-                Text(LocalizedStringKey(
-                    hasFda
-                        ? "PureMac can now reach the locations macOS protects by default."
-                        : "macOS hides certain folders from every app until you say otherwise. We need them to find caches and uninstall cleanly."
-                ))
-                    .font(.system(size: 13))
-                    .foregroundStyle(.secondary)
-                    .multilineTextAlignment(.center)
-                    .frame(maxWidth: 460)
-            }
-            .staggered(0, baseDelay: 0.07)
+        VStack(alignment: .leading, spacing: 16) {
+            Spacer(minLength: 0)
 
-            FDADemoView()
-                .frame(maxWidth: 420)
-                .staggered(1, baseDelay: 0.07)
+            HStack(alignment: .center, spacing: 20) {
+                VStack(alignment: .leading, spacing: 8) {
+                    Text(LocalizedStringKey(hasFda ? "Permission granted" : "One permission, then we're done"))
+                        .siftStyle(.metricSmall)
+                        .fixedSize(horizontal: false, vertical: true)
+                    Text(LocalizedStringKey(
+                        hasFda
+                            ? "Sift can now reach the locations macOS protects by default."
+                            : "macOS hides certain folders from every app until you say otherwise. We need them to find caches and uninstall cleanly."
+                    ))
+                        .siftStyle(.body)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+                .padding(.horizontal, 4)
+                .frame(maxWidth: .infinity, alignment: .leading)
+
+                FDADemoView()
+                    .frame(width: 290)
+            }
 
             if hasFda {
-                Label("All set — moving you to the next step.", systemImage: "checkmark.circle.fill")
-                    .font(.system(size: 12.5, weight: .medium))
-                    .foregroundStyle(Tint.green)
-                    .transition(.opacity.combined(with: .scale))
+                SiftNoticeBanner(
+                    Text("All set — moving you to the next step."),
+                    icon: .check,
+                    tone: .success
+                )
+                .transition(.opacity.combined(with: .scale))
             } else {
                 // Two equally legitimate paths: open Settings and have it
-                // reveal PureMac in Finder, OR grab the draggable icon on the
-                // left and drop it directly into the FDA list. Showing both
-                // side by side lets users pick the path their mental model
-                // prefers without a 3-step decision tree.
-                HStack(alignment: .top, spacing: 18) {
+                // reveal Sift in Finder, OR grab the draggable icon on the
+                // left and drop it directly into the FDA list.
+                HStack(alignment: .center, spacing: 18) {
                     AppBundleDragHandle()
-                    Divider().frame(maxHeight: 90)
-                    VStack(spacing: 8) {
+
+                    Rectangle().fill(SiftColor.stroke).frame(width: 1, height: 96)
+
+                    VStack(spacing: 10) {
                         Button {
                             openSettings()
                         } label: {
-                            Label(LocalizedStringKey(hasOpenedSettings ? "Reopen Settings" : "Open Settings & reveal PureMac"),
-                                  systemImage: "gear")
-                                .font(.system(size: 13, weight: .semibold))
-                                .frame(minWidth: 240)
-                                .padding(.vertical, 2)
+                            Label {
+                                Text(LocalizedStringKey(hasOpenedSettings ? "Reopen Settings" : "Open Settings & reveal Sift"))
+                            } icon: {
+                                SiftIcon.settings.image(15)
+                            }
+                            .frame(maxWidth: .infinity)
                         }
-                        .buttonStyle(.borderedProminent)
-                        .controlSize(.large)
+                        .buttonStyle(.siftPrimary)
                         .keyboardShortcut(.defaultAction)
 
                         if hasOpenedSettings {
-                            HStack(spacing: 12) {
+                            HStack(spacing: 4) {
                                 Button("Reveal app again") { revealAppInFinder() }
-                                    .buttonStyle(.link)
-                                    .font(.system(size: 11.5))
                                 Button("Reset permissions") {
                                     _ = FullDiskAccessManager.shared.resetFullDiskAccess()
                                     FullDiskAccessManager.shared.triggerRegistration()
                                 }
-                                .buttonStyle(.link)
-                                .font(.system(size: 11.5))
                             }
+                            .buttonStyle(.siftQuiet)
                             .transition(.opacity)
                         } else {
                             Text("Tip: drag the icon on the left straight into the list.")
-                                .font(.system(size: 11))
-                                .foregroundStyle(.tertiary)
+                                .font(.sift(11.5))
+                                .foregroundStyle(SiftColor.textTertiary)
                                 .multilineTextAlignment(.center)
+                                .fixedSize(horizontal: false, vertical: true)
                         }
                     }
-                    .frame(maxWidth: 260)
+                    .frame(maxWidth: 320)
+                    .frame(maxWidth: .infinity)
                 }
-                .padding(.top, 4)
+                .siftSurface(.card, padding: 12)
             }
+
+            Spacer(minLength: 0)
         }
     }
 }
@@ -428,6 +369,7 @@ private struct ReadyScene: View {
     @State private var fireConfetti = false
     @State private var confettiWork: DispatchWorkItem?
     @AppStorage("PureMac.HasSeenWelcomeConfetti") private var hasSeenConfetti = false
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
         ZStack {
@@ -439,54 +381,50 @@ private struct ReadyScene: View {
                     .allowsHitTesting(false)
             }
 
-            VStack(spacing: 22) {
+            VStack(alignment: .leading, spacing: 18) {
                 Spacer(minLength: 0)
 
-                ZStack {
-                    Circle()
-                        .fill((hasFda ? Tint.green : Tint.orange).opacity(0.12))
-                        .frame(width: 110, height: 110)
-                    Image(systemName: hasFda ? "checkmark" : "hand.wave.fill")
-                        .font(.system(size: 50, weight: .semibold))
-                        .foregroundStyle(hasFda ? Tint.green : Tint.orange)
-                        .scaleEffect(bounce ? 1.05 : 1.0)
-                }
-                .onAppear {
-                    withAnimation(.spring(response: 0.5, dampingFraction: 0.55)) {
-                        bounce = true
-                    }
-                    // Fire the welcome confetti exactly once per install.
-                    // The work item is cancelled in onDisappear so a fast
-                    // user who clicks Start within the 0.35s delay doesn't
-                    // burn the once-per-install flag without ever seeing the
-                    // celebration.
-                    guard !hasSeenConfetti else { return }
-                    let work = DispatchWorkItem {
-                        fireConfetti = true
-                        hasSeenConfetti = true
-                        Haptics.success()
-                    }
-                    confettiWork = work
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.35, execute: work)
-                }
-                .onDisappear {
-                    confettiWork?.cancel()
-                    confettiWork = nil
-                }
+                VStack(alignment: .leading, spacing: 18) {
+                    SiftIconTile(icon: hasFda ? .check : .lockKeyhole, tone: hasFda ? .success : .warning, size: 56)
+                        .scaleEffect(bounce || reduceMotion ? 1.0 : 0.85)
+                        .onAppear {
+                            withAnimation(reduceMotion ? nil : .spring(response: 0.5, dampingFraction: 0.55)) {
+                                bounce = true
+                            }
+                            // Fire the welcome confetti exactly once per install.
+                            // The work item is cancelled in onDisappear so a fast
+                            // user who clicks Start within the 0.35s delay doesn't
+                            // burn the once-per-install flag without ever seeing the
+                            // celebration.
+                            guard !hasSeenConfetti else { return }
+                            let work = DispatchWorkItem {
+                                fireConfetti = true
+                                hasSeenConfetti = true
+                                Haptics.success()
+                            }
+                            confettiWork = work
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.35, execute: work)
+                        }
+                        .onDisappear {
+                            confettiWork?.cancel()
+                            confettiWork = nil
+                        }
 
-                VStack(spacing: 10) {
-                    Text(LocalizedStringKey(hasFda ? "You're ready" : "Ready when you are"))
-                        .font(.system(size: 30, weight: .semibold))
-                    Text(LocalizedStringKey(
-                        hasFda
-                            ? "Hit Start to run your first Smart Scan."
-                            : "Some features will be limited without Full Disk Access. You can grant it later in Settings."
-                    ))
-                        .font(.system(size: 13.5))
-                        .foregroundStyle(.secondary)
-                        .multilineTextAlignment(.center)
-                        .frame(maxWidth: 420)
+                    VStack(alignment: .leading, spacing: 10) {
+                        Text(LocalizedStringKey(hasFda ? "You're ready" : "Ready when you are"))
+                            .siftStyle(.hero)
+                        Text(LocalizedStringKey(
+                            hasFda
+                                ? "Hit Start to run your first Smart Scan."
+                                : "Some features will be limited without Full Disk Access. You can grant it later in Settings."
+                        ))
+                            .font(.sift(14))
+                            .foregroundStyle(SiftColor.textSecondary)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
                 }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .siftSurface(.hero)
 
                 Spacer(minLength: 0)
             }

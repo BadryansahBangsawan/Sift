@@ -12,10 +12,10 @@ struct SmartCareCoreArtwork: View {
 
         var tint: Color {
             switch self {
-            case .idle: return Tint.cyan
-            case .scanning: return Tint.blue
-            case .review, .cleaning: return Tint.orange
-            case .success: return Tint.green
+            case .idle: return SiftColor.info
+            case .scanning: return SiftColor.accent
+            case .review, .cleaning: return SiftColor.warning
+            case .success: return SiftColor.success
             }
         }
 
@@ -60,7 +60,7 @@ struct SmartCareCoreArtwork: View {
                     radius: phase.isWorking ? 22 : 14,
                     y: 5
                 )
-                .animation(reduceMotion ? nil : MotionTokens.gentle, value: phase)
+                .animation(reduceMotion ? nil : .easeInOut(duration: 0.4), value: phase)
 
             phaseLight
 
@@ -239,9 +239,9 @@ struct SmartCareCoreArtwork: View {
         if let progress = phase.progress {
             inspectionFill(progress: progress)
         } else if phase == .review {
-            edgeGlow(color: Tint.orange, opacity: 0.14)
+            edgeGlow(color: SiftColor.warning, opacity: 0.14)
         } else if phase == .success {
-            edgeGlow(color: Tint.green, opacity: 0.18)
+            edgeGlow(color: SiftColor.success, opacity: 0.18)
         }
     }
 

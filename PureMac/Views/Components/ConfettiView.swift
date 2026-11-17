@@ -129,14 +129,15 @@ private struct Particle {
     var size: CGSize
     var shape: ConfettiShape
 
-    /// Soft, slightly desaturated brand palette — premium, not garish.
+    /// The Sift palette: the accent leads, status colors fill in.
     static let palette: [Color] = [
-        Color(red: 0.27, green: 0.56, blue: 1.00),  // blue
-        Color(red: 0.30, green: 0.80, blue: 0.56),  // green
-        Color(red: 1.00, green: 0.66, blue: 0.30),  // amber
-        Color(red: 0.62, green: 0.45, blue: 0.92),  // purple
-        Color(red: 1.00, green: 0.46, blue: 0.62),  // pink
-        Color(red: 0.36, green: 0.80, blue: 0.94),  // cyan
+        SiftColor.accent,
+        SiftColor.accent,
+        SiftColor.accentDim,
+        SiftColor.success,
+        SiftColor.info,
+        SiftColor.warning,
+        SiftColor.textSecondary,
     ]
 
     /// Radial explosion from a fixed point. Same physics as the rain mode —

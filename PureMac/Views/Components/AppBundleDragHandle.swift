@@ -1,7 +1,7 @@
 import AppKit
 import SwiftUI
 
-/// Draggable PureMac.app affordance. The user grabs the icon out of our sheet
+/// Draggable Sift.app affordance. The user grabs the icon out of our sheet
 /// and drops it into the Full Disk Access list inside System Settings, which
 /// auto-adds the bundle without making them hunt for it in Finder.
 ///
@@ -17,34 +17,32 @@ struct AppBundleDragHandle: View {
     }
 
     var body: some View {
-        VStack(spacing: 8) {
-            ZStack {
-                RoundedRectangle(cornerRadius: 14, style: .continuous)
-                    .fill(Color.primary.opacity(hovering ? 0.10 : 0.06))
-                    .frame(width: 84, height: 84)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 14, style: .continuous)
-                            .strokeBorder(
-                                hovering ? Tint.blue.opacity(0.6) : Color.primary.opacity(0.10),
-                                style: StrokeStyle(lineWidth: hovering ? 1.5 : 0.5,
-                                                   dash: hovering ? [] : [3, 3])
-                            )
-                    )
+        VStack(spacing: 10) {
+            appIcon
+                .frame(width: 52, height: 52)
+                .scaleEffect(hovering ? 1.04 : 1.0)
+                .frame(width: 84, height: 84)
+                .background(
+                    RoundedRectangle(cornerRadius: SiftRadius.panel, style: .continuous)
+                        .fill(hovering ? SiftColor.accentWash : SiftColor.control)
+                )
+                .overlay(
+                    RoundedRectangle(cornerRadius: SiftRadius.panel, style: .continuous)
+                        .strokeBorder(
+                            hovering ? SiftColor.accent : SiftColor.checkboxStroke,
+                            style: StrokeStyle(lineWidth: hovering ? 1.5 : 1, dash: hovering ? [] : [4, 4])
+                        )
+                )
+                .animation(SiftMotion.quick, value: hovering)
 
-                appIcon
-                    .frame(width: 56, height: 56)
-                    .scaleEffect(hovering ? 1.04 : 1.0)
-                    .shadow(color: .black.opacity(hovering ? 0.18 : 0.08),
-                            radius: hovering ? 8 : 4, y: hovering ? 3 : 1)
-            }
-            .animation(.easeOut(duration: 0.18), value: hovering)
-
-            VStack(spacing: 1) {
-                Text("PureMac.app")
-                    .font(.system(size: 11.5, weight: .semibold))
+            VStack(spacing: 2) {
+                // The real bundle name, so it matches what Finder and System Settings show.
+                Text(verbatim: bundleURL.lastPathComponent)
+                    .font(.siftMono(11))
+                    .foregroundStyle(SiftColor.textPrimary)
                 Text("Drag to the Settings list")
-                    .font(.system(size: 10.5))
-                    .foregroundStyle(.secondary)
+                    .font(.sift(11))
+                    .foregroundStyle(SiftColor.textTertiary)
             }
         }
         .padding(12)
@@ -70,9 +68,7 @@ struct AppBundleDragHandle: View {
                 .resizable()
                 .interpolation(.high)
         } else {
-            Image(systemName: "app.fill")
-                .font(.system(size: 36))
-                .foregroundStyle(Tint.blue)
+            SiftWordmark(tile: 44, showsName: false)
         }
     }
 }

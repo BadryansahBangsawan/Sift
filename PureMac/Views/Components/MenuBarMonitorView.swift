@@ -34,54 +34,49 @@ struct MenuBarMonitorView: View {
     @ObservedObject private var monitor = SystemMonitor.shared
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            HStack(spacing: 7) {
-                if let appIcon = NSImage(named: "AppIcon") {
-                    Image(nsImage: appIcon)
-                        .resizable()
-                        .frame(width: 18, height: 18)
-                }
+        VStack(alignment: .leading, spacing: 14) {
+            HStack(spacing: 8) {
+                SiftWordmark(tile: 20, showsName: false)
                 Text("System Monitor")
-                    .font(.system(size: 13, weight: .semibold))
-                    .foregroundStyle(.primary)
+                    .siftStyle(.cardTitle)
             }
 
-            VStack(spacing: 10) {
-                MeterRow(title: "CPU", tint: Tint.blue,
+            VStack(spacing: 12) {
+                MeterRow(title: "CPU", fill: SiftColor.accent,
                          fraction: monitor.cpuUsage,
                          detail: "\(Int((monitor.cpuUsage * 100).rounded()))%")
-                MeterRow(title: "Memory", tint: Tint.purple,
+                MeterRow(title: "Memory", fill: SiftColor.accentDim,
                          fraction: monitor.memoryFraction,
                          detail: byteDetail(monitor.memoryUsed, monitor.memoryTotal))
-                MeterRow(title: "Disk", tint: Tint.green,
+                MeterRow(title: "Disk", fill: SiftColor.textTertiary,
                          fraction: monitor.diskFraction,
                          detail: byteDetail(monitor.diskUsed, monitor.diskTotal))
             }
 
-            Divider()
+            Rectangle()
+                .fill(SiftColor.stroke)
+                .frame(height: 1)
 
-            HStack {
+            HStack(spacing: 8) {
                 Button {
                     openMainWindow()
                 } label: {
-                    Text("Open PureMac")
+                    Text("Open Sift")
                 }
-                .buttonStyle(.borderedProminent)
-                .controlSize(.small)
+                .buttonStyle(.sift(.primary, compact: true))
 
                 Spacer()
 
                 Button {
                     NSApp.terminate(nil)
                 } label: {
-                    Text("Quit PureMac")
+                    Text("Quit Sift")
                 }
-                .buttonStyle(.bordered)
-                .controlSize(.small)
+                .buttonStyle(.sift(.quiet, compact: true))
             }
         }
-        .padding(14)
-        .frame(width: 252)
+        .padding(16)
+        .frame(width: 260)
         // The owning MenuBarController keeps telemetry alive for the status
         // item and popover together, and releases it explicitly on teardown.
     }
@@ -112,43 +107,27 @@ struct MenuBarMonitorView: View {
     }
 }
 
-/// One labeled meter: title on the left, a thin tinted progress bar, and a
-/// trailing numeric detail. Mirrors the restrained chrome used elsewhere.
+/// One labeled meter: title on the left, a mono value on the right and a
+/// thin Sift meter underneath.
 private struct MeterRow: View {
     let title: LocalizedStringKey
-    let tint: Color
+    let fill: Color
     let fraction: Double
     let detail: String
 
-    private var clamped: Double { max(0, min(1, fraction)) }
-
     var body: some View {
-        VStack(spacing: 4) {
+        VStack(spacing: 6) {
             HStack {
                 Text(title)
-                    .font(.system(size: 11, weight: .medium))
-                    .foregroundStyle(.secondary)
+                    .font(.sift(11.5))
+                    .foregroundStyle(SiftColor.textTertiary)
                 Spacer()
                 Text(detail)
-                    .font(.system(size: 11, weight: .semibold))
-                    .monospacedDigit()
-                    .foregroundStyle(.primary)
+                    .font(.siftMono(11))
+                    .foregroundStyle(SiftColor.textPrimary)
             }
-            GeometryReader { geo in
-                ZStack(alignment: .leading) {
-                    Capsule()
-                        .fill(Color.primary.opacity(0.08))
-                    Capsule()
-                        .fill(
-                            LinearGradient(
-                                colors: [tint, tint.opacity(0.65)],
-                                startPoint: .leading, endPoint: .trailing
-                            )
-                        )
-                        .frame(width: max(2, geo.size.width * clamped))
-                }
-            }
-            .frame(height: 6)
+            SiftMeterBar(fraction: fraction, fill: fill)
         }
+        .accessibilityElement(children: .combine)
     }
 }
