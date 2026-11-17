@@ -220,12 +220,13 @@ struct SiftRail: View {
     /// Cleanup groups fold the finer scan categories into the design's five rows.
     static let cleanupItems: [Item] = [
         Item(section: .cleaning(.systemJunk), label: "System junk", icon: .trash2,
-             categories: [.systemJunk, .userCache, .aiApps].filter(CleaningCategory.scannable.contains)),
+             categories: CleaningCategory.systemJunkGroup.filter(CleaningCategory.scannable.contains)),
         Item(section: .cleaning(.xcodeJunk), label: "Developer caches", icon: .codeXml,
-             categories: [.xcodeJunk, .brewCache, .nodeCache, .dockerCache].filter(CleaningCategory.scannable.contains)),
+             categories: CleaningCategory.developerCaches.filter(CleaningCategory.scannable.contains)),
         Item(section: .cleaning(.installers), label: "Installers", icon: .disc3, categories: [.installers]),
         Item(section: .cleaning(.largeFiles), label: "Large & old files", icon: .fileArchive, categories: [.largeFiles]),
-        Item(section: .cleaning(.mailAttachments), label: "Mail files", icon: .mail, categories: [.mailAttachments])
+        Item(section: .cleaning(.mailAttachments), label: "Mail files", icon: .mail, categories: [.mailAttachments]),
+        Item(section: .cleaning(.trash), label: "Trash", icon: .trash, categories: [.trash])
     ]
 
     static let toolItems: [Item] = [
