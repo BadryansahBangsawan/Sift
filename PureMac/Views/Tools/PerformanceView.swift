@@ -9,6 +9,12 @@ struct PerformanceView: View {
         case failed(String)
     }
 
+    /// Matches the "samples every 2 seconds" eyebrow.
+    private static let samplingInterval: TimeInterval = 2
+    /// Startup rows shown before "Show all".
+    private static let startupPreviewCount = 5
+    private static let startupCardID = "performance.startupCard"
+
     @ObservedObject private var monitor = SystemMonitor.shared
     @State private var state: LoadState = .idle
     @State private var resourcesExpanded = false
@@ -18,7 +24,9 @@ struct PerformanceView: View {
     @State private var windowIsMinimized = false
     @State private var windowIsKey = false
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
-    @State private var startupExpanded = false
+    @State private var startupShowsAll = false
+    @State private var startupHighlighted = false
+    @State private var issuesExpanded = false
     @State private var snapshotPendingDeletion: PerformanceSnapshot?
     @State private var deletingSnapshotID: String?
     @State private var deletionError: String?
@@ -29,39 +37,23 @@ struct PerformanceView: View {
     private let batteryInspector = BatteryInspector()
 
     var body: some View {
-        ZStack {
-            Color(nsColor: .windowBackgroundColor)
-                .ignoresSafeArea()
-
+        ScrollViewReader { scroller in
             ScrollView {
-                // Only a few expandable cards: eager layout avoids unstable lazy height estimates.
-                VStack(alignment: .leading, spacing: 14) {
-                    header
+                VStack(alignment: .leading, spacing: SiftSpacing.gutter) {
+                    header(scroller)
+                    HStack(alignment: .top, spacing: SiftSpacing.gutter) {
+                        processorCard
+                        memoryCard
+                    }
+                    .fixedSize(horizontal: false, vertical: true)
                     if batteryStatus?.isInstalled == true {
                         batteryCard
                     }
-                    liveResources
                     inspectionContent
+                    processesCard
                 }
-                .padding(24)
-                .frame(maxWidth: 1040)
-                .frame(maxWidth: .infinity)
             }
-        }
-        .navigationTitle("Performance")
-        .toolbar {
-            ToolbarItem {
-                Button {
-                    Task {
-                        await refresh()
-                        await refreshBattery()
-                    }
-                } label: {
-                    Label("Refresh", systemImage: "arrow.clockwise")
-                }
-                .disabled(isLoading)
-                .help("Inspect startup items and local snapshots again")
-            }
+            .scrollIndicators(.never)
         }
         .task {
             await refresh()
@@ -137,79 +129,258 @@ struct PerformanceView: View {
         }
     }
 
-    private var header: some View {
-        HStack(alignment: .center, spacing: 14) {
-            IconTile(systemName: "gauge.with.dots.needle.67percent", tint: Tint.accent, size: 44, corner: 12)
-            VStack(alignment: .leading, spacing: 3) {
-                Text("Performance")
-                    .font(.system(size: 26, weight: .bold))
-                Text("See current resource use and review what starts in the background.")
-                    .font(.system(size: 13))
-                    .foregroundStyle(.secondary)
+    // MARK: - Header
+
+    /// SiftPageHeader's layout, with a live dot in the eyebrow.
+    private func header(_ scroller: ScrollViewProxy) -> some View {
+        HStack(alignment: .bottom, spacing: 16) {
+            VStack(alignment: .leading, spacing: 6) {
+                liveEyebrow
+                Text("Performance").siftStyle(.pageTitle).lineLimit(1)
             }
-            Spacer()
-            Button("Open Activity Monitor") {
-                openActivityMonitor()
+            Spacer(minLength: 16)
+            HStack(spacing: 8) {
+                Button {
+                    Task {
+                        await refresh()
+                        await refreshBattery()
+                    }
+                } label: {
+                    headerButtonLabel("Refresh", icon: .rotateCw)
+                }
+                .buttonStyle(.siftSecondary)
+                .disabled(isLoading)
+                .help("Inspect startup items and local snapshots again")
+
+                Button {
+                    showStartupItems(scroller)
+                } label: {
+                    headerButtonLabel("Startup items", icon: .power)
+                }
+                .buttonStyle(.siftSecondary)
+                .help("Jump to the startup items")
             }
-            .buttonStyle(.bordered)
         }
-        .padding(.bottom, 2)
+        .padding(.top, 14)
+        .padding(.horizontal, 12)
+        .padding(.bottom, 4)
     }
+
+    private var liveEyebrow: some View {
+        HStack(spacing: 8) {
+            Circle()
+                .fill(resourcesAreActive ? SiftColor.success : SiftColor.textTertiary)
+                .frame(width: 8, height: 8)
+                .background(
+                    Circle()
+                        .fill((resourcesAreActive ? SiftColor.success : SiftColor.textTertiary).opacity(0.27))
+                        .padding(-3)
+                )
+            Text(resourcesAreActive ? "Live, samples every 2 seconds" : "Paused while Sift is in the background")
+                .siftStyle(.label)
+        }
+    }
+
+    private func headerButtonLabel(_ title: LocalizedStringKey, icon: SiftIcon) -> some View {
+        HStack(spacing: 8) {
+            icon.image(15).foregroundStyle(SiftColor.textSecondary)
+            Text(title)
+        }
+    }
+
+    private func showStartupItems(_ scroller: ScrollViewProxy) {
+        withAnimation(reduceMotion ? nil : SiftMotion.snappy) {
+            scroller.scrollTo(Self.startupCardID, anchor: .top)
+        }
+        withAnimation(SiftMotion.quick) { startupHighlighted = true }
+        Task {
+            try? await Task.sleep(nanoseconds: 1_200_000_000)
+            withAnimation(.easeOut(duration: 0.4)) { startupHighlighted = false }
+        }
+    }
+
+    // MARK: - Processor and memory
+
+    private var processorCard: some View {
+        VStack(alignment: .leading, spacing: 14) {
+            SiftCardHeader(Text("Processor"), icon: .cpu) {
+                SiftStatusPill(Text("\(percent(monitor.cpuUsage))% busy"), tone: monitor.cpuUsage >= 0.85 ? .warning : .success)
+            }
+            HStack(alignment: .bottom, spacing: 24) {
+                SiftMetric("\(percent(monitor.cpuUsage))%", caption: Text("of \(ProcessInfo.processInfo.activeProcessorCount) cores"))
+                    .fixedSize()
+                SiftHistoryBars(values: monitor.cpuHistory)
+            }
+            HStack(spacing: 8) {
+                SiftChip(Text("User"), value: "\(percent(monitor.cpuUser))%")
+                SiftChip(Text("System"), value: "\(percent(monitor.cpuSystem))%")
+                SiftChip(Text("Idle"), value: "\(percent(monitor.cpuIdle))%")
+            }
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+        .siftSurface()
+        .accessibilityElement(children: .contain)
+    }
+
+    private var memoryCard: some View {
+        VStack(alignment: .leading, spacing: 14) {
+            SiftCardHeader(Text("Memory"), icon: .memoryStick) {
+                SiftStatusPill(
+                    Text("\(bytes(monitor.memoryUsed)) of \(bytes(monitor.memoryTotal))"),
+                    tone: .accent
+                )
+            }
+            SiftMetric("\(percent(monitor.memoryFraction))%", caption: Text("wired, active and compressed"))
+            memoryBar
+            // Narrow windows drop the labels before the chips would overflow;
+            // the dot colors still match the bar.
+            ViewThatFits(in: .horizontal) {
+                memoryLegend(showsLabels: true, compact: false)
+                memoryLegend(showsLabels: true, compact: true)
+                memoryLegend(showsLabels: false, compact: true)
+            }
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+        .siftSurface()
+        .accessibilityElement(children: .contain)
+    }
+
+    private func memoryLegend(showsLabels: Bool, compact: Bool) -> some View {
+        HStack(spacing: compact ? 6 : 8) {
+            SiftLegendChip(color: SiftColor.accent, label: Text("Wired"), value: bytes(monitor.memoryWired), showsLabel: showsLabels, compact: compact)
+            SiftLegendChip(color: SiftColor.memoryActive, label: Text("Active"), value: bytes(monitor.memoryActive), showsLabel: showsLabels, compact: compact)
+            SiftLegendChip(color: SiftColor.memoryCompressed, label: Text("Compressed"), value: bytes(monitor.memoryCompressed), showsLabel: showsLabels, compact: compact)
+            SiftLegendChip(color: SiftColor.memoryFreeDot, label: Text("Free"), value: bytes(unusedMemory), showsLabel: showsLabels, compact: compact)
+        }
+    }
+
+    /// Wired, active and compressed scaled to total memory; the last segment
+    /// is everything else.
+    private var memoryBar: some View {
+        GeometryReader { proxy in
+            let total = Double(max(monitor.memoryTotal, 1))
+            let spacing: CGFloat = 3
+            let usable = max(proxy.size.width - spacing * 3, 0)
+            let parts: [(Int64, Color)] = [
+                (monitor.memoryWired, SiftColor.accent),
+                (monitor.memoryActive, SiftColor.memoryActive),
+                (monitor.memoryCompressed, SiftColor.memoryCompressed),
+            ]
+            HStack(spacing: spacing) {
+                ForEach(parts.indices, id: \.self) { index in
+                    Capsule(style: .continuous)
+                        .fill(parts[index].1)
+                        .frame(width: max(0, usable * CGFloat(Double(parts[index].0) / total)))
+                }
+                Capsule(style: .continuous)
+                    .fill(SiftColor.meterUsed)
+                    .frame(maxWidth: .infinity)
+            }
+            .animation(SiftMotion.quick, value: monitor.memoryUsed)
+        }
+        .frame(height: 14)
+        .accessibilityElement()
+        .accessibilityLabel(Text("Memory in use"))
+        .accessibilityValue(Text("\(percent(monitor.memoryFraction))%"))
+    }
+
+    /// Memory not wired, active or compressed, so the legend adds up to the total.
+    private var unusedMemory: Int64 {
+        max(0, monitor.memoryTotal - monitor.memoryUsed)
+    }
+
+    // MARK: - Battery
 
     /// Hidden entirely on Macs without a battery — a card that reads "no
     /// battery" is noise on a desktop, not information.
     private var batteryCard: some View {
-        CardSurface(padding: 18, elevation: .standard) {
-            HStack(alignment: .center, spacing: 14) {
-                IconTile(systemName: "battery.100percent", tint: Tint.accent, size: 34, corner: 9)
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("Battery")
-                        .font(.system(size: 15, weight: .semibold))
-                    if let cycleCount = batteryStatus?.cycleCount, let health = batteryStatus?.healthPercent {
-                        Text("\(cycleCount) cycles · \(health)% health")
-                            .font(.system(size: 11.5))
-                            .foregroundStyle(.secondary)
-                            .monospacedDigit()
-                    } else if let cycles = batteryStatus?.cycleCount {
-                        Text("\(cycles) cycles")
-                            .font(.system(size: 11.5))
-                            .foregroundStyle(.secondary)
-                            .monospacedDigit()
-                    } else if let health = batteryStatus?.healthPercent {
-                        Text("\(health)% health")
-                            .font(.system(size: 11.5))
-                            .foregroundStyle(.secondary)
-                            .monospacedDigit()
-                    }
-                    if let health = batteryStatus?.healthPercent, health < 80 {
-                        Label("Service recommended", systemImage: "exclamationmark.triangle")
-                            .font(.system(size: 11, weight: .medium))
-                            .foregroundStyle(Tint.orange)
-                    }
+        let status = batteryStatus ?? .notInstalled
+        return VStack(alignment: .leading, spacing: 14) {
+            SiftCardHeader(Text("Battery"), icon: .batteryCharging) {
+                Text("Read from IOKit and pmset at every page visit")
+                    .font(.sift(11.5))
+                    .foregroundStyle(SiftColor.textTertiary)
+                    .lineLimit(1)
+            }
+            HStack(alignment: .top, spacing: 12) {
+                batteryPanel(title: Text("Charge"), pill: chargePill(status)) {
+                    SiftMetric(status.chargePercent.map { "\($0)%" } ?? "–", caption: Text("charged"))
+                    SiftSegmentBar(filled: Int((Double(status.chargePercent ?? 0) / 5).rounded()))
+                    Text(verbatim: chargeDetail(status) ?? " ")
+                        .siftStyle(.monoSmall)
                 }
-                Spacer()
-                VStack(alignment: .trailing, spacing: 6) {
-                    if let charge = batteryStatus?.chargePercent {
-                        Text("\(charge)%")
-                            .font(.system(size: 24, weight: .semibold, design: .rounded))
-                            .monospacedDigit()
-                    }
-                    if let chip = batteryStateChip {
-                        StatusChip(label: chip.label, systemImage: chip.icon, tint: chip.tint)
-                    }
+                batteryPanel(title: Text("Health"), pill: nil) {
+                    SiftMetric(status.healthPercent.map { "\($0)%" } ?? "–", caption: Text("of design"))
+                    SiftPanelBar(
+                        fraction: Double(status.healthPercent ?? 0) / 100,
+                        fill: (status.healthPercent ?? 100) < 80 ? SiftColor.warning : SiftColor.accent
+                    )
+                    healthDetail(status).siftStyle(.monoSmall)
+                }
+                batteryPanel(title: Text("Cycles"), pill: nil) {
+                    SiftMetric(status.cycleCount.map { "\($0)" } ?? "–", caption: Text("counted"))
+                    SiftPanelBar(fraction: Double(status.cycleCount ?? 0) / 1000)
+                    Text("rated for 1000 cycles").siftStyle(.monoSmall)
                 }
             }
+            .fixedSize(horizontal: false, vertical: true)
         }
+        .siftSurface()
     }
 
-    private var batteryStateChip: (label: String, icon: String, tint: Color)? {
-        guard let charging = batteryStatus?.isCharging else { return nil }
-        if charging, let charge = batteryStatus?.chargePercent, charge >= 100 {
-            return (String(localized: "Fully charged"), "checkmark.circle.fill", Tint.green)
+    private func batteryPanel<Content: View>(
+        title: Text,
+        pill: SiftStatusPill?,
+        @ViewBuilder content: () -> Content
+    ) -> some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack {
+                title.font(.sift(12)).foregroundStyle(SiftColor.textSecondary)
+                Spacer(minLength: 8)
+                if let pill { pill }
+            }
+            content()
         }
-        return charging
-            ? (String(localized: "Charging"), "bolt.fill", Tint.green)
-            : (String(localized: "On battery"), "battery.75percent", Tint.orange)
+        .lineLimit(1)
+        .frame(maxHeight: .infinity, alignment: .top)
+        .siftInsetPanel()
+    }
+
+    private func chargePill(_ status: BatteryStatus) -> SiftStatusPill? {
+        guard let charging = status.isCharging else { return nil }
+        if charging, let charge = status.chargePercent, charge >= 100 {
+            return SiftStatusPill(Text("Fully charged"), tone: .success)
+        }
+        if charging { return SiftStatusPill(Text("Charging"), tone: .success) }
+        if status.isOnACPower == true { return SiftStatusPill(Text("Not charging"), tone: .neutral) }
+        return SiftStatusPill(Text("On battery"), tone: .warning)
+    }
+
+    /// "1h 12m to full, AC power". The time part is left out when macOS has no estimate.
+    private func chargeDetail(_ status: BatteryStatus) -> String? {
+        var parts: [String] = []
+        if status.isCharging == true, let minutes = status.minutesToFull, minutes > 0 {
+            let formatter = DateComponentsFormatter()
+            formatter.allowedUnits = minutes >= 60 ? [.hour, .minute] : [.minute]
+            formatter.unitsStyle = .abbreviated
+            if let duration = formatter.string(from: TimeInterval(minutes * 60)) {
+                parts.append(String(localized: "\(duration) to full"))
+            }
+        }
+        switch status.isOnACPower {
+        case true?: parts.append(String(localized: "AC power"))
+        case false?: parts.append(String(localized: "battery power"))
+        case nil: break
+        }
+        return parts.isEmpty ? nil : parts.joined(separator: ", ")
+    }
+
+    private func healthDetail(_ status: BatteryStatus) -> Text {
+        if let max = status.maxCapacityMAh, let design = status.designCapacityMAh {
+            // Plain digits, as the design writes capacities ("4082 of 4629 mAh").
+            return Text("\(String(max)) of \(String(design)) mAh, service below 80%")
+        }
+        return Text("service below 80%")
     }
 
     @MainActor
@@ -219,261 +390,258 @@ struct PerformanceView: View {
         batteryStatus = status
     }
 
+    // MARK: - Monitoring lifecycle
+
     private var resourcesAreActive: Bool {
         pageIsVisible && appIsActive && windowIsKey && !windowIsMinimized
     }
 
     private func synchronizeMonitoring() {
         if resourcesAreActive {
-            monitor.start(owner: monitorOwner, interval: 1.5)
+            monitor.start(owner: monitorOwner, interval: Self.samplingInterval)
         } else {
             monitor.stop(owner: monitorOwner)
         }
     }
 
-    private var liveResources: some View {
-        CardSurface(padding: 18, elevation: .standard, tint: Tint.accent) {
-            VStack(alignment: .leading, spacing: 18) {
-                Button {
-                    withAnimation(reduceMotion ? nil : .easeInOut(duration: 0.2)) {
-                        resourcesExpanded.toggle()
-                    }
-                } label: {
-                    HStack(spacing: 10) {
-                        Image(systemName: "chevron.right")
-                            .font(.system(size: 11, weight: .semibold))
-                            .rotationEffect(.degrees(resourcesExpanded ? 90 : 0))
-                            .foregroundStyle(.secondary)
-                        IconTile(systemName: "cpu", tint: Tint.accent, size: 30, corner: 8)
-                        Text("CPU - Memory")
-                            .font(.system(size: 15, weight: .semibold))
-                        Spacer()
-                        StatusChip(label: resourcesAreActive ? String(localized: "Live") : String(localized: "Paused"),
-                                   systemImage: resourcesAreActive ? "circle.fill" : "pause.fill",
-                                   tint: resourcesAreActive ? Tint.green : .secondary)
-                    }
-                    .contentShape(Rectangle())
-                }
-                .buttonStyle(.plain)
-                .accessibilityLabel("CPU - Memory")
-                .accessibilityValue(Text(LocalizedStringKey(resourcesExpanded ? "Expanded" : "Collapsed")))
-                .accessibilityIdentifier("performance.resourcesDisclosure")
-
-                HStack(spacing: 26) {
-                    ResourceMeter(
-                        title: "CPU",
-                        value: monitor.cpuUsage,
-                        detail: "\(Int((monitor.cpuUsage * 100).rounded()))%",
-                        tint: Tint.accent
-                    )
-                    Divider().frame(height: 52)
-                    ResourceMeter(
-                        title: "Memory in use",
-                        value: monitor.memoryFraction,
-                        detail: memoryDetail,
-                        tint: Tint.purple
-                    )
-                }
-                if resourcesExpanded {
-                    ProcessResourcesView(isActive: resourcesAreActive)
-                }
-            }
-        }
-    }
+    // MARK: - Startup items and snapshots
 
     @ViewBuilder
     private var inspectionContent: some View {
         switch state {
         case .idle, .loading:
-            CardSurface(padding: 28, elevation: .flat) {
-                HStack(spacing: 12) {
-                    ProgressView()
-                        .controlSize(.small)
-                    Text("Inspecting startup items and local snapshots…")
-                        .foregroundStyle(.secondary)
-                    Spacer()
-                }
+            HStack(spacing: 12) {
+                ProgressView().controlSize(.small)
+                Text("Inspecting startup items and local snapshots…")
+                    .siftStyle(.body)
+                Spacer()
             }
+            .siftSurface()
         case .loaded(let inspection):
             if !inspection.issues.isEmpty {
                 issuesCard(inspection.issues)
             }
-            startupCard(inspection.startupItems)
-            snapshotsCard(inspection.snapshots)
-        case .failed(let message):
-            CardSurface(padding: 18, elevation: .standard, tint: Tint.orange) {
-                HStack(alignment: .top, spacing: 12) {
-                    IconTile(systemName: "exclamationmark.triangle.fill", tint: Tint.orange, size: 32, corner: 9)
-                    VStack(alignment: .leading, spacing: 5) {
-                        Text("Inspection stopped")
-                            .font(.system(size: 14, weight: .semibold))
-                        Text(message)
-                            .font(.system(size: 12))
-                            .foregroundStyle(.secondary)
-                    }
-                    Spacer()
-                    Button("Try Again") {
-                        Task { await refresh() }
-                    }
-                    .buttonStyle(.bordered)
-                }
+            HStack(alignment: .top, spacing: SiftSpacing.gutter) {
+                startupCard(inspection.startupItems)
+                snapshotsCard(inspection.snapshots)
             }
+            .fixedSize(horizontal: false, vertical: true)
+        case .failed(let message):
+            HStack(alignment: .center, spacing: 12) {
+                SiftIconTile(icon: .triangleAlert, tone: .warning, size: 30)
+                VStack(alignment: .leading, spacing: 3) {
+                    Text("Inspection stopped").siftStyle(.bodyStrong)
+                    Text(message).siftStyle(.label).textSelection(.enabled)
+                }
+                Spacer()
+                Button("Try Again") {
+                    Task { await refresh() }
+                }
+                .buttonStyle(.siftSecondary)
+            }
+            .siftSurface()
         }
     }
 
     private func issuesCard(_ issues: [PerformanceInspectionIssue]) -> some View {
-        CardSurface(padding: 16, elevation: .flat, tint: Tint.orange) {
-            DisclosureGroup {
+        VStack(alignment: .leading, spacing: 12) {
+            Button {
+                withAnimation(reduceMotion ? nil : SiftMotion.snappy) { issuesExpanded.toggle() }
+            } label: {
+                HStack(spacing: 10) {
+                    SiftIcon.triangleAlert.image(16).foregroundStyle(SiftColor.warning)
+                    Text("Some information could not be read (\(issues.count))")
+                        .font(.sift(12.5))
+                        .foregroundStyle(SiftColor.cautionText)
+                    Spacer()
+                    SiftIcon.chevronDown.image(13)
+                        .foregroundStyle(SiftColor.warning)
+                        .rotationEffect(.degrees(issuesExpanded ? 180 : 0))
+                }
+                .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            .accessibilityValue(Text(LocalizedStringKey(issuesExpanded ? "Expanded" : "Collapsed")))
+
+            if issuesExpanded {
                 VStack(alignment: .leading, spacing: 10) {
                     ForEach(issues) { issue in
                         VStack(alignment: .leading, spacing: 2) {
-                            Text(issue.title)
-                                .font(.system(size: 12, weight: .medium))
-                            Text(issue.detail)
-                                .font(.system(size: 11))
-                                .foregroundStyle(.secondary)
-                                .textSelection(.enabled)
+                            Text(issue.title).font(.sift(12, weight: 500)).foregroundStyle(SiftColor.textPrimary)
+                            Text(issue.detail).siftStyle(.monoSmall).textSelection(.enabled)
                         }
                     }
                 }
-                .padding(.top, 10)
-            } label: {
-                Label(
-                    "Some information could not be read (\(issues.count))",
-                    systemImage: "exclamationmark.triangle.fill"
-                )
-                .font(.system(size: 13, weight: .semibold))
-                .foregroundStyle(Tint.orange)
             }
         }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 12)
+        .background(RoundedRectangle(cornerRadius: 16, style: .continuous).fill(SiftColor.cautionBackground))
+        .overlay(RoundedRectangle(cornerRadius: 16, style: .continuous).strokeBorder(SiftColor.cautionStroke, lineWidth: 1))
     }
 
     private func startupCard(_ items: [PerformanceStartupItem]) -> some View {
-        CardSurface(padding: 18, elevation: .standard) {
-            DisclosureGroup(isExpanded: $startupExpanded) {
-                VStack(alignment: .leading, spacing: 12) {
-                    HStack {
-                        Text("Launch agents and daemons installed outside macOS system folders")
-                            .font(.system(size: 11.5))
-                            .foregroundStyle(.secondary)
-                        Spacer()
-                        Button("Login Items Settings") {
-                            openLoginItemsSettings()
-                        }
-                        .buttonStyle(.bordered)
-                        .controlSize(.small)
-                    }
-                    Divider()
-                    if items.isEmpty {
-                        EmptyInspectionRow(
-                            systemImage: "checkmark.circle.fill",
-                            title: "No launchd items found",
-                            detail: "The inspected user and third-party launch folders are empty."
-                        )
-                    } else {
-                        LazyVStack(spacing: 0) {
-                            ForEach(Array(items.enumerated()), id: \.element.id) { index, item in
-                                StartupItemRow(
-                                    item: item,
-                                    isBusy: togglingLabel == item.label,
-                                    onToggle: item.domain == .userAgent
-                                        ? { toggleStartupItem(item) }
-                                        : nil
-                                ) {
-                                    reveal(item.sourceURL)
-                                }
-                                if index < items.count - 1 {
-                                    Divider().padding(.leading, 58)
-                                }
-                            }
+        let visible = startupShowsAll ? items : Array(items.prefix(Self.startupPreviewCount))
+        return VStack(alignment: .leading, spacing: 14) {
+            SiftCardHeader(Text("Startup items"), icon: .power) {
+                Text("\(items.count) registered").siftStyle(.mono)
+            }
+            if items.isEmpty {
+                SiftFootnote(Text("No launch agents or daemons were found outside macOS system folders."), icon: .check)
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 8)
+            } else {
+                VStack(spacing: 4) {
+                    ForEach(visible) { item in
+                        StartupItemRow(
+                            item: item,
+                            isBusy: togglingLabel == item.label,
+                            onToggle: item.domain == .userAgent
+                                ? { toggleStartupItem(item) }
+                                : nil
+                        ) {
+                            reveal(item.sourceURL)
                         }
                     }
                 }
-                .padding(.top, 14)
-            } label: {
-                HStack(spacing: 10) {
-                    IconTile(systemName: "switch.2", tint: Tint.accent, size: 30, corner: 8)
-                    Text("Startup and background items")
-                        .font(.system(size: 15, weight: .semibold))
-                    Spacer()
-                    StatusChip(label: String(format: String(localized: "%lld found"), Int64(items.count)), tint: Tint.accent)
+                if items.count > Self.startupPreviewCount {
+                    Button {
+                        withAnimation(reduceMotion ? nil : SiftMotion.snappy) { startupShowsAll.toggle() }
+                    } label: {
+                        Text(startupShowsAll ? "Show fewer" : "Show all \(items.count)")
+                    }
+                    .buttonStyle(.siftQuiet)
+                    .padding(.leading, 2)
                 }
             }
-            .accessibilityIdentifier("performance.startupDisclosure")
+            Spacer(minLength: 0)
+            HStack(spacing: 8) {
+                footnote(Text("Only agents in your Library can be switched off"))
+                Spacer(minLength: 8)
+                Button("Login Items Settings") { openLoginItemsSettings() }
+                    .buttonStyle(.siftQuiet)
+            }
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+        .siftSurface()
+        .overlay(
+            RoundedRectangle(cornerRadius: SiftRadius.card, style: .continuous)
+                .strokeBorder(SiftColor.accent, lineWidth: 1.5)
+                .opacity(startupHighlighted ? 1 : 0)
+                .allowsHitTesting(false)
+        )
+        .id(Self.startupCardID)
+        .accessibilityElement(children: .contain)
+        .accessibilityIdentifier("performance.startupDisclosure")
     }
 
     private func snapshotsCard(_ snapshots: [PerformanceSnapshot]) -> some View {
-        CardSurface(padding: 0, elevation: .standard) {
-            VStack(alignment: .leading, spacing: 0) {
-                HStack(spacing: 10) {
-                    IconTile(systemName: "clock.arrow.circlepath", tint: Tint.purple, size: 30, corner: 8)
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text("Local snapshots")
-                            .font(.system(size: 15, weight: .semibold))
-                        Text("Time Machine snapshots can be reviewed and removed individually")
-                            .font(.system(size: 11.5))
-                            .foregroundStyle(.secondary)
-                    }
-                    Spacer()
-                    StatusChip(label: String(localized: "\(snapshots.count) found"), tint: Tint.purple)
-                    Button("Time Machine Settings") {
-                        openTimeMachineSettings()
-                    }
-                    .buttonStyle(.bordered)
-                    .controlSize(.small)
+        VStack(alignment: .leading, spacing: 14) {
+            SiftCardHeader(Text("Local snapshots"), icon: .history) {
+                Button {
+                    openTimeMachineSettings()
+                } label: {
+                    Text("Time Machine")
+                        .font(.sift(11))
+                        .foregroundStyle(SiftColor.textTertiary)
                 }
-                .padding(18)
-
-                Divider()
-
-                if snapshots.isEmpty {
-                    EmptyInspectionRow(
-                        systemImage: "clock.badge.checkmark.fill",
-                        title: "No local snapshots reported",
-                        detail: "Time Machine did not report any snapshots for the startup disk."
-                    )
-                } else {
-                    LazyVStack(spacing: 0) {
-                        ForEach(Array(snapshots.enumerated()), id: \.element.id) { index, snapshot in
-                            SnapshotRow(
-                                snapshot: snapshot,
-                                isDeleting: deletingSnapshotID == snapshot.id,
-                                deletionInProgress: deletingSnapshotID != nil
-                            ) {
-                                snapshotPendingDeletion = snapshot
-                            }
-                            if index < snapshots.count - 1 {
-                                Divider()
-                                    .padding(.leading, 58)
-                            }
+                .buttonStyle(.plain)
+                .help("Open Time Machine settings")
+            }
+            if snapshots.isEmpty {
+                SiftFootnote(Text("Time Machine did not report any snapshots for the startup disk."), icon: .check)
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 8)
+            } else {
+                VStack(spacing: 8) {
+                    ForEach(Array(snapshots.enumerated()), id: \.element.id) { index, snapshot in
+                        SnapshotRow(
+                            snapshot: snapshot,
+                            emphasized: index == 0,
+                            isDeleting: deletingSnapshotID == snapshot.id,
+                            deletionInProgress: deletingSnapshotID != nil
+                        ) {
+                            snapshotPendingDeletion = snapshot
                         }
                     }
-
-                    HStack(spacing: 6) {
-                        Image(systemName: "info.circle")
-                        Text("macOS does not report reliable per-snapshot sizes in this listing.")
-                    }
-                    .font(.system(size: 11))
-                    .foregroundStyle(.secondary)
-                    .padding(.horizontal, 18)
-                    .padding(.vertical, 12)
-                    .background(Color.primary.opacity(0.025))
                 }
             }
+            footnote(Text("Snapshots are thinned by macOS after 24 hours"))
+            Spacer(minLength: 0)
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+        .siftSurface()
+        .accessibilityElement(children: .contain)
+    }
+
+    /// The design's card footnote: 13 pt info icon, 11.5 pt tertiary text.
+    private func footnote(_ text: Text) -> some View {
+        HStack(spacing: 8) {
+            SiftIcon.info.image(13).foregroundStyle(SiftColor.textTertiary)
+            text.font(.sift(11.5)).foregroundStyle(SiftColor.textTertiary)
+        }
+    }
+
+    // MARK: - Processes
+
+    private var processesCard: some View {
+        VStack(alignment: .leading, spacing: 14) {
+            SiftCardHeader(Text("Processes"), icon: .activity) {
+                HStack(spacing: 6) {
+                    Button("Activity Monitor") { openActivityMonitor() }
+                        .buttonStyle(.siftQuiet)
+                    Button {
+                        withAnimation(reduceMotion ? nil : SiftMotion.snappy) { resourcesExpanded.toggle() }
+                    } label: {
+                        HStack(spacing: 6) {
+                            Text(resourcesExpanded ? "Hide" : "Show")
+                            SiftIcon.chevronDown.image(12)
+                                .rotationEffect(.degrees(resourcesExpanded ? 180 : 0))
+                        }
+                    }
+                    .buttonStyle(.sift(.secondary, compact: true))
+                    .accessibilityLabel(Text("Processes"))
+                    .accessibilityValue(Text(LocalizedStringKey(resourcesExpanded ? "Expanded" : "Collapsed")))
+                    .accessibilityIdentifier("performance.resourcesDisclosure")
+                }
+            }
+            if resourcesExpanded {
+                ProcessResourcesView(isActive: resourcesAreActive)
+            }
+        }
+        .siftSurface()
+        .padding(.bottom, 2)
+    }
+
+    // MARK: - Formatting
+
+    private func percent(_ fraction: Double) -> Int {
+        Int((min(max(fraction, 0), 1) * 100).rounded())
+    }
+
+    /// "15.9 GB" with one decimal, as the design writes memory sizes; a dash
+    /// until the monitor has taken its first sample.
+    private func bytes(_ value: Int64) -> String {
+        guard monitor.memoryTotal > 0 else { return "–" }
+        return Self.memorySize(value)
+    }
+
+    /// Binary gigabytes with at most one decimal ("15.9 GB", "16 GB"), as
+    /// ByteCountFormatter's memory style counts them; megabytes below 1 GB.
+    static func memorySize(_ value: Int64) -> String {
+        let gigabytes = Double(value) / 1_073_741_824
+        let (amount, unit): (Double, UnitInformationStorage) = gigabytes >= 1
+            ? (gigabytes, .gigabytes)
+            : (Double(value) / 1_048_576, .megabytes)
+        return Measurement(value: amount, unit: unit).formatted(
+            .measurement(width: .abbreviated, usage: .asProvided,
+                         numberFormatStyle: .number.precision(.fractionLength(0...(unit == .gigabytes ? 1 : 0))))
+        )
     }
 
     private var isLoading: Bool {
         if case .loading = state { return true }
         return false
-    }
-
-    private var memoryDetail: String {
-        let formatter = ByteCountFormatter()
-        formatter.countStyle = .memory
-        formatter.allowedUnits = [.useGB, .useMB]
-        return String(format: String(localized: "%@ of %@"), formatter.string(fromByteCount: monitor.memoryUsed), formatter.string(fromByteCount: monitor.memoryTotal))
     }
 
     private var deletionConfirmationPresented: Binding<Bool> {
@@ -506,6 +674,8 @@ struct PerformanceView: View {
             }
         )
     }
+
+    // MARK: - Actions
 
     private func toggleStartupItem(_ item: PerformanceStartupItem) {
         guard togglingLabel == nil else { return }
@@ -571,29 +741,7 @@ struct PerformanceView: View {
     }
 }
 
-private struct ResourceMeter: View {
-    let title: LocalizedStringKey
-    let value: Double
-    let detail: String
-    let tint: Color
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            HStack {
-                Text(title)
-                    .font(.system(size: 12, weight: .medium))
-                    .foregroundStyle(.secondary)
-                Spacer()
-                Text(detail)
-                    .font(.system(size: 12, weight: .semibold, design: .rounded))
-                    .monospacedDigit()
-            }
-            ProgressView(value: min(1, max(0, value)))
-                .tint(tint)
-        }
-        .frame(maxWidth: .infinity)
-    }
-}
+// MARK: - Rows
 
 private struct StartupItemRow: View {
     let item: PerformanceStartupItem
@@ -602,156 +750,138 @@ private struct StartupItemRow: View {
     /// daemons), which renders no switch at all.
     var onToggle: (() -> Void)?
     let onReveal: () -> Void
-    @State private var hovering = false
 
     var body: some View {
-        HStack(alignment: .top, spacing: 12) {
-            IconTile(
-                systemName: item.domain == .systemDaemon ? "gearshape.2.fill" : "bolt.horizontal.circle.fill",
-                tint: item.isDisabled ? Color.secondary : Tint.accent,
-                size: 28,
-                corner: 8
-            )
-
-            VStack(alignment: .leading, spacing: 5) {
-                HStack(spacing: 7) {
-                    Text(item.label)
-                        .font(.system(size: 13, weight: .medium))
-                        .lineLimit(1)
-                    StatusChip(
-                        label: item.isDisabled ? String(localized: "Disabled") : item.domain.title,
-                        tint: item.isDisabled ? Color.secondary : Tint.accent
-                    )
-                    ForEach(item.triggers.prefix(2), id: \.self) { trigger in
-                        StatusChip(label: trigger, tint: Tint.purple)
-                    }
-                }
-
-                Text(item.program ?? String(localized: "Program not declared in this plist"))
-                    .font(.system(size: 11.5, design: .monospaced))
-                    .foregroundStyle(item.program == nil ? Tint.orange : .secondary)
+        HStack(spacing: 12) {
+            Circle()
+                .fill(statusColor)
+                .frame(width: 8, height: 8)
+            VStack(alignment: .leading, spacing: 2) {
+                Text(verbatim: item.label)
+                    .font(.sift(12.5, weight: 500))
+                    .foregroundStyle(SiftColor.textPrimary)
                     .lineLimit(1)
                     .truncationMode(.middle)
-                    .textSelection(.enabled)
-
-                Text(item.sourceURL.path)
-                    .font(.system(size: 10.5, design: .monospaced))
-                    .foregroundStyle(.tertiary)
+                Text(statusText)
+                    .font(.siftMono(10.5))
+                    .foregroundStyle(item.status == .notLoaded ? SiftColor.warning : SiftColor.textTertiary)
                     .lineLimit(1)
-                    .truncationMode(.middle)
-                    .textSelection(.enabled)
             }
-
             Spacer(minLength: 8)
-
             if let onToggle {
-                Toggle(
-                    "",
-                    isOn: Binding(
-                        get: { !item.isDisabled },
-                        set: { _ in onToggle() }
-                    )
-                )
-                .labelsHidden()
-                .toggleStyle(.switch)
-                .controlSize(.mini)
-                .disabled(isBusy)
-                .help("Enable or disable this launch agent at login")
+                Toggle(isOn: Binding(
+                    get: { !item.isDisabled },
+                    set: { _ in onToggle() }
+                )) { EmptyView() }
+                    .toggleStyle(.siftSwitch)
+                    .labelsHidden()
+                    .disabled(isBusy)
+                    .accessibilityLabel(Text(verbatim: item.label))
+                    .help("Enable or disable this launch agent at login")
             }
-
-            Button(action: onReveal) {
-                Image(systemName: "folder")
-                    .frame(width: 18, height: 18)
-            }
-            .buttonStyle(.plain)
-            .foregroundStyle(.secondary)
-            .help("Reveal plist in Finder")
-            .opacity(hovering ? 1 : 0.55)
         }
-        .padding(.horizontal, 18)
-        .padding(.vertical, 12)
-        .background(hovering ? Color.primary.opacity(0.025) : Color.clear)
-        .onHover { hovering = $0 }
+        .padding(.horizontal, 12)
+        .frame(height: 52)
+        .siftRowBackground()
+        .help(item.program ?? item.sourceURL.path)
+        .contextMenu {
+            Button("Reveal plist in Finder", action: onReveal)
+        }
+        .onTapGesture(count: 2, perform: onReveal)
+    }
+
+    private var statusColor: Color {
+        switch item.status {
+        case .loaded: return SiftColor.success
+        case .notLoaded: return SiftColor.warning
+        case .disabled: return SiftColor.faint
+        case nil: return SiftColor.textTertiary
+        }
+    }
+
+    private var statusText: LocalizedStringKey {
+        switch item.status {
+        case .loaded: return "loaded by launchd"
+        case .notLoaded: return "plist present, not loaded"
+        case .disabled: return "disabled"
+        case nil: return item.domain == .userAgent ? "user agent" : "system item"
+        }
     }
 }
 
 private struct SnapshotRow: View {
     let snapshot: PerformanceSnapshot
+    /// The newest snapshot carries the warning-tinted button, as in the design.
+    let emphasized: Bool
     let isDeleting: Bool
     let deletionInProgress: Bool
     let onDelete: () -> Void
 
     var body: some View {
-        HStack(alignment: .top, spacing: 12) {
-            IconTile(
-                systemName: snapshot.kind == .systemUpdate ? "macbook.and.iphone" : "clock.arrow.circlepath",
-                tint: snapshot.kind == .systemUpdate ? Tint.orange : Tint.purple,
-                size: 28,
-                corner: 8
-            )
-
-            VStack(alignment: .leading, spacing: 4) {
-                HStack(spacing: 7) {
-                    Text(snapshot.kind.title)
-                        .font(.system(size: 13, weight: .medium))
-                    if let date = snapshot.date {
-                        Text(date.formatted(date: .abbreviated, time: .shortened))
-                            .font(.system(size: 11.5))
-                            .foregroundStyle(.secondary)
-                    }
-                }
-                Text(snapshot.identifier)
-                    .font(.system(size: 10.5, design: .monospaced))
-                    .foregroundStyle(.tertiary)
+        HStack(spacing: 12) {
+            VStack(alignment: .leading, spacing: 3) {
+                Text(verbatim: displayName)
+                    .font(.siftMono(12))
+                    .foregroundStyle(SiftColor.textPrimary)
                     .lineLimit(1)
                     .truncationMode(.middle)
                     .textSelection(.enabled)
+                Text(verbatim: relativeDate)
+                    .font(.sift(11))
+                    .foregroundStyle(SiftColor.textTertiary)
+                    .lineLimit(1)
             }
-            Spacer()
-            VStack(alignment: .trailing, spacing: 7) {
-                Text("Size unavailable")
-                    .font(.system(size: 11))
-                    .foregroundStyle(.secondary)
-                if PerformanceInspector.deletionTimestamp(for: snapshot) != nil {
-                    Button(role: .destructive, action: onDelete) {
+            .help(snapshot.identifier)
+            Spacer(minLength: 8)
+            if PerformanceInspector.deletionTimestamp(for: snapshot) != nil {
+                Button(action: onDelete) {
+                    HStack(spacing: 6) {
                         if isDeleting {
-                            ProgressView()
-                                .controlSize(.small)
+                            ProgressView().controlSize(.mini)
                         } else {
-                            Label("Delete", systemImage: "trash")
+                            SiftIcon.trash2.image(13)
+                                .foregroundStyle(emphasized ? SiftColor.warning : SiftColor.textSecondary)
                         }
+                        Text("Delete")
                     }
-                    .buttonStyle(.bordered)
-                    .controlSize(.small)
-                    .disabled(deletionInProgress)
                 }
+                .buttonStyle(.sift(emphasized ? .destructive : .secondary, compact: true))
+                .disabled(deletionInProgress)
             }
         }
-        .padding(.horizontal, 18)
-        .padding(.vertical, 12)
+        .padding(.leading, 14)
+        .padding(.trailing, 10)
+        .frame(height: 58)
+        .background(RoundedRectangle(cornerRadius: 16, style: .continuous).fill(SiftColor.control))
     }
-}
 
-private struct EmptyInspectionRow: View {
-    let systemImage: String
-    let title: LocalizedStringKey
-    let detail: LocalizedStringKey
+    /// The identifier without its ".local" suffix; the time stays because
+    /// Time Machine keeps several snapshots a day.
+    private var displayName: String {
+        snapshot.identifier.hasSuffix(".local")
+            ? String(snapshot.identifier.dropLast(".local".count))
+            : snapshot.identifier
+    }
 
-    var body: some View {
-        HStack(spacing: 12) {
-            Image(systemName: systemImage)
-                .font(.system(size: 22))
-                .foregroundStyle(Tint.green)
-                .frame(width: 30)
-            VStack(alignment: .leading, spacing: 3) {
-                Text(title)
-                    .font(.system(size: 13, weight: .medium))
-                Text(detail)
-                    .font(.system(size: 11.5))
-                    .foregroundStyle(.secondary)
-            }
-            Spacer()
+    /// "today, 08:15", "yesterday, 21:00", "1 week ago, 10:30". No size:
+    /// macOS does not report a reliable per-snapshot size.
+    private var relativeDate: String {
+        guard let date = snapshot.date else { return snapshot.kind.title }
+        return "\(relativeDay(date)), \(date.formatted(date: .omitted, time: .shortened))"
+    }
+
+    private func relativeDay(_ date: Date) -> String {
+        let calendar = Calendar.current
+        let days = calendar.dateComponents([.day], from: calendar.startOfDay(for: date), to: calendar.startOfDay(for: Date())).day ?? 0
+        let formatter = RelativeDateTimeFormatter()
+        formatter.dateTimeStyle = .named
+        formatter.unitsStyle = .full
+        var components = DateComponents()
+        if days >= 7 {
+            components.weekOfMonth = -(days / 7)
+        } else {
+            components.day = -max(days, 0)
         }
-        .padding(18)
+        return formatter.localizedString(from: components)
     }
 }
