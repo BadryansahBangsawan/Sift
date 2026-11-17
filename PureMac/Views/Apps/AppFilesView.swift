@@ -1,3 +1,4 @@
+import AppKit
 import SwiftUI
 
 /// View-side grouping of discovered leftovers into CleanMyMac-style buckets.
@@ -15,29 +16,17 @@ enum LeftoverGroup: String, CaseIterable, Identifiable {
 
     var id: String { rawValue }
 
-    var icon: String {
+    /// The short kind label on a leftover row ("Support", "LaunchAgents").
+    var shortLabel: LocalizedStringKey {
         switch self {
-        case .application: return "app.fill"
-        case .caches: return "internaldrive.fill"
-        case .appSupport: return "shippingbox.fill"
-        case .preferences: return "gearshape.fill"
-        case .logs: return "doc.text.fill"
-        case .containers: return "cube.box.fill"
-        case .launchAgents: return "bolt.fill"
-        case .other: return "doc.fill"
-        }
-    }
-
-    var tint: Color {
-        switch self {
-        case .application: return Tint.blue
-        case .caches: return Tint.orange
-        case .appSupport: return Tint.purple
-        case .preferences: return Tint.cyan
-        case .logs: return Tint.yellow
-        case .containers: return Tint.pink
-        case .launchAgents: return Tint.red
-        case .other: return Tint.green
+        case .application: return "Application"
+        case .caches: return "Caches"
+        case .appSupport: return "Support"
+        case .preferences: return "Preferences"
+        case .logs: return "Logs"
+        case .containers: return "Containers"
+        case .launchAgents: return "LaunchAgents"
+        case .other: return "Other"
         }
     }
 
@@ -58,56 +47,63 @@ struct AppFilesView: View {
     @EnvironmentObject var appState: AppState
     let app: InstalledApp
 
-    @State private var collapsedGroups: Set<LeftoverGroup> = []
-    @State private var iconHovering = false
     @State private var showBulkConfirmation = false
     @State private var pendingRemoval: Set<URL> = []
-    /// One-pass size cache so group headers and the selected-size counter
-    /// don't re-stat the disk on every render.
+    @State private var dryRunPlan: UninstallPlan?
+    @State private var appIsRunning = false
+    /// One-pass size cache so the totals and rows don't re-stat the disk on
+    /// every render.
     @State private var sizeCache: [URL: Int64] = [:]
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
+    private static let rowHeight: CGFloat = 48
+    private static let rowSpacing: CGFloat = 4
+
+    private var appGuard: RunningAppGuard { RunningAppGuard(app: app) }
+
     private var totalSelectedSize: Int64 {
-        appState.selectedFiles.reduce(Int64(0)) { total, url in
-            total + (cachedSize(url) ?? 0)
-        }
+        appState.selectedFiles.reduce(Int64(0)) { $0 + (sizeCache[$1] ?? 0) }
     }
 
-    /// Discovered files bucketed for display, preserving the sorted order
-    /// inside each bucket. Only non-empty groups are shown.
-    private var groupedFiles: [(group: LeftoverGroup, urls: [URL])] {
-        let buckets = Dictionary(grouping: appState.discoveredFiles, by: LeftoverGroup.categorize)
-        return LeftoverGroup.allCases.compactMap { group in
-            guard let urls = buckets[group], !urls.isEmpty else { return nil }
-            return (group, urls)
-        }
+    private var totalDiscoveredSize: Int64 {
+        appState.discoveredFiles.reduce(Int64(0)) { $0 + (sizeCache[$1] ?? 0) }
+    }
+
+    /// Discovered files ordered by kind, then path.
+    private var orderedFiles: [(url: URL, group: LeftoverGroup)] {
+        let order = Dictionary(uniqueKeysWithValues: LeftoverGroup.allCases.enumerated().map { ($1, $0) })
+        return appState.discoveredFiles
+            .map { ($0, LeftoverGroup.categorize($0)) }
+            .sorted { lhs, rhs in
+                let left = order[lhs.1, default: 0], right = order[rhs.1, default: 0]
+                return left != right ? left < right : lhs.0.path < rhs.0.path
+            }
     }
 
     var body: some View {
-        VStack(spacing: 0) {
+        VStack(alignment: .leading, spacing: 18) {
             header
-                .padding(.horizontal, 16)
-                .padding(.top, 14)
-                .padding(.bottom, 10)
+            Rectangle().fill(SiftColor.stroke).frame(height: 1)
 
-            // Content
             if appState.isScanningAppFiles {
                 scanningState
             } else if appState.discoveredFiles.isEmpty {
-                EmptyStateView(
-                    "No Related Files",
-                    systemImage: "checkmark.circle",
-                    description: LocalizedStringKey(
-                        String(format: String(localized: "No additional files found for %@."), app.appName)
-                    ),
-                    tint: Tint.green
-                )
+                emptyState
             } else {
-                fileGroupsList
-
+                leftoversHeading
+                leftoversList
+                    .layoutPriority(1)
+                if appIsRunning {
+                    runningBanner
+                        .transition(.opacity)
+                }
+                Spacer(minLength: 0)
                 actionBar
             }
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+        .siftSurface(.card, padding: 24)
+        .animation(reduceMotion ? nil : SiftMotion.quick, value: appIsRunning)
         .task(id: appState.discoveredFiles) {
             let urls = appState.discoveredFiles
             let task = Task.detached(priority: .utility) {
@@ -122,6 +118,13 @@ struct AppFilesView: View {
             guard !Task.isCancelled else { return }
             sizeCache = sizes
         }
+        .onAppear { appIsRunning = appGuard.isRunning }
+        .onReceive(NSWorkspace.shared.notificationCenter.publisher(for: NSWorkspace.didLaunchApplicationNotification)) { _ in
+            appIsRunning = appGuard.isRunning
+        }
+        .onReceive(NSWorkspace.shared.notificationCenter.publisher(for: NSWorkspace.didTerminateApplicationNotification)) { _ in
+            appIsRunning = appGuard.isRunning
+        }
         .disabled(appState.isRemovingAppFiles)
         .confirmationDialog("Remove selected app files?", isPresented: $showBulkConfirmation, titleVisibility: .visible) {
             Button("Remove \(pendingRemoval.count) files", role: .destructive) {
@@ -131,6 +134,14 @@ struct AppFilesView: View {
             Button("Cancel", role: .cancel) { pendingRemoval = [] }
         } message: {
             Text("PureMac will move the selected app and related files to the Trash. Items requiring administrator authorization may be permanently deleted. Review the selection before continuing.")
+        }
+        .sheet(isPresented: Binding(
+            get: { dryRunPlan != nil },
+            set: { if !$0 { dryRunPlan = nil } }
+        )) {
+            if let plan = dryRunPlan {
+                DryRunSheet(appName: app.appName, plan: plan) { dryRunPlan = nil }
+            }
         }
         .onChange(of: appState.removalNeedsFullDiskAccess) { needs in
             // FDA-fixable removals jump straight into the rich sheet, the
@@ -170,217 +181,216 @@ struct AppFilesView: View {
     // MARK: - Header
 
     private var header: some View {
-        CardSurface(padding: 16, tint: Tint.purple) {
-            HStack(spacing: 14) {
-                Image(nsImage: app.icon)
-                    .resizable()
-                    .frame(width: 52, height: 52)
-                    .shadow(color: .black.opacity(0.18), radius: 6, y: 3)
-                    .scaleEffect(iconHovering && !reduceMotion ? 1.06 : 1)
-                    .animation(reduceMotion ? nil : MotionTokens.snappy, value: iconHovering)
-                    .onHover { iconHovering = $0 }
-
-                VStack(alignment: .leading, spacing: 3) {
-                    Text(app.appName)
-                        .font(.system(size: 17, weight: .bold))
-                    Text(app.bundleIdentifier)
-                        .font(.system(size: 11.5))
-                        .foregroundStyle(.secondary)
+        HStack(spacing: 18) {
+            AppIconTile(app: app, size: 72)
+            VStack(alignment: .leading, spacing: 5) {
+                Text(verbatim: app.appName)
+                    .font(.siftDisplay(30))
+                    .tracking(-0.6)
+                    .foregroundStyle(SiftColor.textPrimary)
+                    .lineLimit(1)
+                Text(verbatim: identityLine)
+                    .font(.siftMono(11.5))
+                    .foregroundStyle(SiftColor.textSecondary)
+                    .lineLimit(1)
+                    .truncationMode(.middle)
+                    .textSelection(.enabled)
+                locationLine
+                    .font(.sift(11.5))
+                    .foregroundStyle(SiftColor.textTertiary)
+                    .lineLimit(1)
+                    .truncationMode(.middle)
+            }
+            Spacer(minLength: 12)
+            if !appState.discoveredFiles.isEmpty {
+                VStack(alignment: .trailing, spacing: 2) {
+                    Text(verbatim: ByteCountFormatter.string(fromByteCount: totalDiscoveredSize, countStyle: .file))
+                        .font(.siftDisplay(40))
+                        .tracking(-1)
+                        .foregroundStyle(SiftColor.textPrimary)
+                        .lineLimit(1)
+                        .contentTransition(.numericText())
+                    Text("app and leftovers")
+                        .font(.sift(11.5))
+                        .foregroundStyle(SiftColor.textTertiary)
                 }
-
-                Spacer()
-
-                if !appState.discoveredFiles.isEmpty {
-                    VStack(alignment: .trailing, spacing: 2) {
-                        CountUpBytes(bytes: totalSelectedSize)
-                            .font(.system(size: 18, weight: .bold))
-                        Text(filesCountText(count: appState.discoveredFiles.count))
-                            .font(.system(size: 11))
-                            .foregroundStyle(.secondary)
-                            .monospacedDigit()
-                            .contentTransition(.numericText())
-                    }
-                    .animation(reduceMotion ? nil : .spring(response: 0.4, dampingFraction: 0.9),
-                               value: appState.discoveredFiles.count)
-                }
+                .fixedSize()
             }
         }
     }
 
-    // MARK: - Scanning state
+    /// "com.docker.docker, version 4.39.0".
+    private var identityLine: String {
+        guard let version = app.version else { return app.bundleIdentifier }
+        return String(localized: "\(app.bundleIdentifier), version \(version)")
+    }
+
+    /// "/Applications/Docker.app, last opened 2 days ago".
+    private var locationLine: Text {
+        let path = (app.path.path as NSString).abbreviatingWithTildeInPath
+        guard let lastOpened = app.lastOpened else { return Text(verbatim: path) }
+        let formatter = RelativeDateTimeFormatter()
+        formatter.dateTimeStyle = .named
+        formatter.unitsStyle = .full
+        let relative = formatter.localizedString(for: lastOpened, relativeTo: Date())
+        return Text("\(path), last opened \(relative)")
+    }
+
+    // MARK: - States
 
     private var scanningState: some View {
-        VStack(spacing: 14) {
-            Spacer()
-            if reduceMotion {
-                ProgressView(LocalizedStringKey("Scanning for related files..."))
-            } else {
-                SearchPulse()
-                Text("Scanning for related files...")
-                    .font(.system(size: 13, weight: .medium))
-            }
-            Text(checkingLocationsText(count: appState.currentAppFileSearchLocationCount))
-                .font(.caption)
-                .foregroundStyle(.secondary)
-                .monospacedDigit()
+        VStack(spacing: 12) {
+            ProgressView().controlSize(.small)
+            Text("Scanning for related files...").siftStyle(.bodyStrong)
+            Text(String(format: String(localized: "Checking %lld locations..."), Int64(appState.currentAppFileSearchLocationCount)))
+                .siftStyle(.mono)
                 .contentTransition(.numericText())
-            Spacer()
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 
-    // MARK: - Grouped list
-
-    private var fileGroupsList: some View {
-        List {
-            ForEach(groupedFiles, id: \.group) { entry in
-                DisclosureGroup(isExpanded: groupExpansionBinding(entry.group)) {
-                    // No .staggered() inside the lazy List — a delayed reveal
-                    // would blank rows as they scroll in. The removal
-                    // transition still sweeps deleted rows out.
-                    ForEach(entry.urls, id: \.self) { fileURL in
-                        FileRow(
-                            fileURL: fileURL,
-                            isSelected: fileSelectionBinding(for: fileURL),
-                            fileSize: cachedSize(fileURL),
-                            onRemove: { removeSingleFile(fileURL) }
-                        )
-                        .transition(
-                            reduceMotion
-                                ? .opacity
-                                : .asymmetric(
-                                    insertion: .opacity,
-                                    removal: .move(edge: .leading).combined(with: .opacity)
-                                )
-                        )
-                    }
-                } label: {
-                    groupHeader(entry.group, urls: entry.urls)
-                }
-            }
+    private var emptyState: some View {
+        VStack(spacing: 12) {
+            SiftIconTile(icon: .check, tone: .success, size: 44)
+            Text("No Related Files").siftStyle(.bodyStrong)
+            Text(String(format: String(localized: "No additional files found for %@."), app.appName))
+                .siftStyle(.label)
         }
-        .id(app.id)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 
-    private func groupHeader(_ group: LeftoverGroup, urls: [URL]) -> some View {
-        let groupSize = urls.reduce(Int64(0)) { $0 + (cachedSize($1) ?? 0) }
-        let allSelected = urls.allSatisfy { appState.selectedFiles.contains($0) }
+    // MARK: - Leftovers
 
+    private var leftoversHeading: some View {
+        let allSelected = appState.selectedFiles.isSuperset(of: appState.discoveredFiles)
         return HStack(spacing: 10) {
-            Toggle(isOn: Binding(
-                get: { allSelected },
-                set: { selected in
-                    if selected {
-                        appState.selectedFiles.formUnion(urls)
-                    } else {
-                        appState.selectedFiles.subtract(urls)
-                    }
+            Text("Matched leftovers")
+                .siftStyle(.cardTitle)
+            Spacer(minLength: 8)
+            Text("Matched by bundle identifier and app name")
+                .font(.sift(11))
+                .foregroundStyle(SiftColor.textTertiary)
+                .lineLimit(1)
+            Button(allSelected ? "Deselect All" : "Select All") {
+                if allSelected {
+                    appState.selectedFiles.removeAll()
+                } else {
+                    appState.selectedFiles = Set(appState.discoveredFiles)
                 }
-            )) {
-                EmptyView()
             }
-            .toggleStyle(AnimatedCheckboxStyle())
-            .labelsHidden()
-
-            IconTile(systemName: group.icon, tint: group.tint, size: 22, corner: 6)
-            Text(LocalizedStringKey(group.rawValue))
-                .font(.system(size: 12.5, weight: .semibold))
-            Text("\(urls.count)")
-                .font(.system(size: 11, weight: .semibold))
-                .monospacedDigit()
-                .foregroundStyle(.secondary)
-                .padding(.horizontal, 6)
-                .padding(.vertical, 1)
-                .background(Capsule().fill(Color.primary.opacity(0.06)))
-            Spacer()
-            Text(ByteCountFormatter.string(fromByteCount: groupSize, countStyle: .file))
-                .font(.system(size: 12, weight: .semibold))
-                .monospacedDigit()
-                .foregroundStyle(.secondary)
+            .buttonStyle(.siftQuiet)
         }
-        .padding(.vertical, 2)
     }
 
-    private func groupExpansionBinding(_ group: LeftoverGroup) -> Binding<Bool> {
-        Binding(
-            get: { !collapsedGroups.contains(group) },
-            set: { expanded in
-                let change = {
-                    if expanded {
-                        collapsedGroups.remove(group)
-                    } else {
-                        collapsedGroups.insert(group)
-                    }
-                }
-                if reduceMotion {
-                    change()
-                } else {
-                    withAnimation(.spring(response: 0.4, dampingFraction: 0.85)) { change() }
+    /// Sized to its rows so the banner sits right under the list; scrolls
+    /// once the rows outgrow the card.
+    private var leftoversList: some View {
+        let files = orderedFiles
+        let contentHeight = CGFloat(files.count) * Self.rowHeight + CGFloat(max(files.count - 1, 0)) * Self.rowSpacing
+        return ScrollView {
+            VStack(spacing: Self.rowSpacing) {
+                ForEach(files, id: \.url) { file in
+                    LeftoverRow(
+                        url: file.url,
+                        group: file.group,
+                        isSelected: fileSelectionBinding(for: file.url),
+                        size: sizeCache[file.url],
+                        onRemove: { removeSingleFile(file.url) }
+                    )
+                    .frame(height: Self.rowHeight)
+                    .transition(reduceMotion ? .opacity : .move(edge: .leading).combined(with: .opacity))
                 }
             }
-        )
+        }
+        .scrollIndicators(.automatic)
+        .frame(minHeight: min(contentHeight, Self.rowHeight * 2), maxHeight: contentHeight)
+    }
+
+    private var runningBanner: some View {
+        HStack(spacing: 12) {
+            SiftIcon.triangleAlert.image(16).foregroundStyle(SiftColor.warning)
+            Text("Quit \(app.appName) before removing. Files move to the Trash.")
+                .font(.sift(12.5))
+                .foregroundStyle(SiftColor.cautionText)
+                .frame(maxWidth: .infinity, alignment: .leading)
+            Button {
+                appGuard.requestQuit()
+            } label: {
+                Text("Quit \(app.appName)")
+                    .font(.sift(12, weight: 500))
+                    .foregroundStyle(SiftColor.warning)
+                    .lineLimit(1)
+                    .padding(.horizontal, 14)
+                    .frame(height: 30)
+                    .background(Capsule(style: .continuous).fill(SiftColor.cautionButton))
+                    .contentShape(Capsule(style: .continuous))
+            }
+            .buttonStyle(.plain)
+            .accessibilityIdentifier("uninstaller.quitApp")
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 12)
+        .background(RoundedRectangle(cornerRadius: 16, style: .continuous).fill(SiftColor.cautionBackground))
+        .overlay(RoundedRectangle(cornerRadius: 16, style: .continuous).strokeBorder(SiftColor.cautionStroke, lineWidth: 1))
     }
 
     // MARK: - Action bar
 
     private var actionBar: some View {
-        HStack(spacing: 12) {
-            Button("Select All") {
-                appState.selectedFiles = Set(appState.discoveredFiles)
+        HStack(spacing: 8) {
+            Button {
+                NSWorkspace.shared.activateFileViewerSelecting([app.path])
+            } label: {
+                barButtonLabel("Show in Finder", icon: .folderOpen)
             }
-            .buttonStyle(.bordered)
-            .controlSize(.small)
+            .buttonStyle(.siftSecondary)
 
-            Button("Deselect All") {
-                appState.selectedFiles.removeAll()
+            Button {
+                dryRunPlan = UninstallPlan(files: appState.selectedFiles, sizeOf: { sizeCache[$0] })
+            } label: {
+                barButtonLabel("Dry run", icon: .flaskConical)
             }
-            .buttonStyle(.bordered)
-            .controlSize(.small)
+            .buttonStyle(.siftSecondary)
+            .disabled(appState.selectedFiles.isEmpty)
+            .help("List what would be removed without removing anything")
+            .accessibilityIdentifier("uninstaller.dryRun")
 
-            Spacer()
+            Spacer(minLength: 8)
 
-            if !appState.selectedFiles.isEmpty {
-                Button(role: .destructive) {
-                    pendingRemoval = appState.selectedFiles
-                    showBulkConfirmation = true
-                } label: {
-                    Text(removeFilesLabel)
+            Text("\(appState.selectedFiles.count) items, \(ByteCountFormatter.string(fromByteCount: totalSelectedSize, countStyle: .file))")
+                .font(.siftMono(12))
+                .foregroundStyle(SiftColor.textTertiary)
+                .lineLimit(1)
+                .contentTransition(.numericText())
+
+            Button {
+                pendingRemoval = appState.selectedFiles
+                showBulkConfirmation = true
+            } label: {
+                HStack(spacing: 8) {
+                    SiftIcon.trash2.image(15)
+                    Text("Review removal").font(.sift(13))
+                    SiftKeyHint("⏎", onAccent: true)
                 }
-                .buttonStyle(GlowProminentButtonStyle(tint: Tint.red, gradient: TintGradient.destructive))
-                .transition(
-                    reduceMotion
-                        ? .opacity
-                        : .move(edge: .trailing).combined(with: .opacity)
-                )
+                .fixedSize()
             }
+            .buttonStyle(.siftPrimary)
+            .keyboardShortcut(.defaultAction)
+            .disabled(appState.selectedFiles.isEmpty || appIsRunning)
+            .help(appIsRunning ? Text("Quit \(app.appName) before removing.") : Text("Review the selected files before they move to the Trash"))
+            .accessibilityIdentifier("uninstaller.reviewRemoval")
         }
-        .animation(reduceMotion ? nil : .spring(response: 0.35, dampingFraction: 0.8),
-                   value: appState.selectedFiles.isEmpty)
-        .padding(.horizontal, 16)
-        .padding(.vertical, 12)
-        .background(.bar)
-        .overlay(alignment: .top) {
-            Divider().opacity(0.6)
+    }
+
+    private func barButtonLabel(_ title: LocalizedStringKey, icon: SiftIcon) -> some View {
+        HStack(spacing: 8) {
+            icon.image(15).foregroundStyle(SiftColor.textSecondary)
+            Text(title)
         }
+        .fixedSize()
     }
 
     // MARK: - Helpers
-
-    private func filesCountText(count: Int) -> String {
-        String(format: String(localized: "%lld files"), Int64(count))
-    }
-
-    private func checkingLocationsText(count: Int) -> String {
-        String(format: String(localized: "Checking %lld locations..."), Int64(count))
-    }
-
-    private var removeFilesLabel: String {
-        String(
-            format: String(localized: "Remove %lld files (%@)"),
-            Int64(appState.selectedFiles.count),
-            ByteCountFormatter.string(fromByteCount: totalSelectedSize, countStyle: .file)
-        )
-    }
 
     private func fileSelectionBinding(for url: URL) -> Binding<Bool> {
         Binding(
@@ -395,134 +405,120 @@ struct AppFilesView: View {
         )
     }
 
-    private func cachedSize(_ url: URL) -> Int64? {
-        sizeCache[url]
-    }
-
     private func removeSingleFile(_ url: URL) {
         appState.selectedFiles = [url]
         appState.removeSelectedFiles()
     }
 }
 
-/// Magnifier over expanding sonar rings — the "actively searching" beat for
-/// the related-files scan. Only built when Reduce Motion is off.
-private struct SearchPulse: View {
-    @State private var pulse = false
+// MARK: - Leftover row
 
-    var body: some View {
-        ZStack {
-            ForEach(0..<2, id: \.self) { i in
-                Circle()
-                    .stroke(Tint.blue.opacity(0.35), lineWidth: 1.5)
-                    .frame(width: 44, height: 44)
-                    .scaleEffect(pulse ? 1.8 : 1.0)
-                    .opacity(pulse ? 0 : 0.7)
-                    .animation(
-                        .easeOut(duration: 1.4)
-                            .repeatForever(autoreverses: false)
-                            .delay(Double(i) * 0.7),
-                        value: pulse
-                    )
-            }
-            Circle()
-                .fill(Tint.blue.opacity(0.12))
-                .frame(width: 44, height: 44)
-            Image(systemName: "magnifyingglass")
-                .font(.system(size: 18, weight: .semibold))
-                .foregroundStyle(Tint.blue)
-        }
-        .frame(width: 56, height: 56)
-        .onAppear { pulse = true }
-    }
-}
-
-// MARK: - File Row with hover-to-reveal actions
-
-struct FileRow: View {
-    let fileURL: URL
+private struct LeftoverRow: View {
+    let url: URL
+    let group: LeftoverGroup
     @Binding var isSelected: Bool
-    let fileSize: Int64?
+    let size: Int64?
     let onRemove: () -> Void
 
-    @State private var isHovering = false
     @State private var showConfirmation = false
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
-        Toggle(isOn: $isSelected) {
-            HStack {
-                Image(nsImage: NSWorkspace.shared.icon(forFile: fileURL.path))
-                    .resizable()
-                    .frame(width: 16, height: 16)
-
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(fileURL.lastPathComponent)
-                        .lineLimit(1)
-                    Text(fileURL.path)
-                        .font(.caption)
-                        .foregroundStyle(.tertiary)
-                        .lineLimit(1)
-                        .truncationMode(.middle)
-                }
-
-                Spacer()
-
-                // Buttons stay in the layout permanently and fade with
-                // hover, so the trailing size badge never jumps sideways.
-                Button {
-                    NSWorkspace.shared.selectFile(fileURL.path, inFileViewerRootedAtPath: "")
-                } label: {
-                    Image(systemName: "folder")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                }
-                .buttonStyle(.plain)
-                .help("Reveal in Finder")
-                .opacity(isHovering ? 1 : 0)
-                .scaleEffect(reduceMotion ? 1 : (isHovering ? 1 : 0.8))
-                .allowsHitTesting(isHovering)
-
-                Button {
-                    showConfirmation = true
-                } label: {
-                    Image(systemName: "trash")
-                        .font(.caption)
-                        .foregroundStyle(.red)
-                }
-                .buttonStyle(.plain)
-                .help("Remove this file")
-                .opacity(isHovering ? 1 : 0)
-                .scaleEffect(reduceMotion ? 1 : (isHovering ? 1 : 0.8))
-                .allowsHitTesting(isHovering)
-
-                if let size = fileSize {
-                    Text(ByteCountFormatter.string(fromByteCount: size, countStyle: .file))
-                        .monospacedDigit()
-                        .foregroundStyle(.secondary)
-                }
-            }
+        HStack(spacing: 14) {
+            Toggle(isOn: $isSelected) { EmptyView() }
+                .toggleStyle(.siftCheckbox)
+                .labelsHidden()
+                .accessibilityLabel(Text(verbatim: url.lastPathComponent))
+            SiftTag(text: Text(group.shortLabel), accented: group == .application)
+                .frame(width: 120, alignment: .leading)
+            Text(verbatim: (url.path as NSString).abbreviatingWithTildeInPath)
+                .font(.siftMono(11.5))
+                .foregroundStyle(SiftColor.textPrimary)
+                .lineLimit(1)
+                .truncationMode(.middle)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .help(url.path)
+            Text(verbatim: size.map { ByteCountFormatter.string(fromByteCount: $0, countStyle: .file) } ?? "…")
+                .font(.siftMono(12))
+                .foregroundStyle(SiftColor.textSecondary)
+                .lineLimit(1)
+                .frame(width: 72, alignment: .trailing)
         }
-        .toggleStyle(AnimatedCheckboxStyle())
-        .padding(.vertical, 2)
-        .padding(.horizontal, 4)
-        .background(
-            RoundedRectangle(cornerRadius: 6)
-                .fill(isHovering ? Color.primary.opacity(0.06) : Color.clear)
-        )
-        .scaleEffect(isHovering && !reduceMotion ? 1.01 : 1)
-        .animation(reduceMotion ? nil : MotionTokens.snappy, value: isHovering)
-        .onHover { isHovering = $0 }
+        .padding(.horizontal, 12)
+        .frame(maxHeight: .infinity)
+        .siftRowBackground()
+        .onTapGesture { isSelected.toggle() }
+        .contextMenu {
+            Button("Reveal in Finder") {
+                NSWorkspace.shared.selectFile(url.path, inFileViewerRootedAtPath: "")
+            }
+            Button("Remove this file") { showConfirmation = true }
+        }
         .alert(
-            Text(
-                String(format: String(localized: "Remove %@?"), fileURL.lastPathComponent)
-            ),
+            Text(String(format: String(localized: "Remove %@?"), url.lastPathComponent)),
             isPresented: $showConfirmation
         ) {
             Button("Cancel", role: .cancel) {}
             Button("Remove", role: .destructive) { onRemove() }
         } message: {
-            Text("This will permanently delete this file. This action cannot be undone.")
+            Text("The file moves to the Trash. Items that need administrator authorization are deleted permanently.")
         }
+    }
+}
+
+// MARK: - Dry run
+
+private struct DryRunSheet: View {
+    let appName: String
+    let plan: UninstallPlan
+    let dismiss: () -> Void
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            VStack(alignment: .leading, spacing: 4) {
+                Text("Dry run").siftStyle(.label)
+                Text("What removing \(appName) would touch")
+                    .font(.siftDisplay(26))
+                    .tracking(-0.5)
+                    .foregroundStyle(SiftColor.textPrimary)
+            }
+            ScrollView {
+                VStack(spacing: 4) {
+                    ForEach(plan.entries) { entry in
+                        HStack(spacing: 14) {
+                            SiftTag(text: Text(entry.group.shortLabel), accented: entry.group == .application)
+                                .frame(width: 120, alignment: .leading)
+                            Text(verbatim: (entry.url.path as NSString).abbreviatingWithTildeInPath)
+                                .font(.siftMono(11.5))
+                                .foregroundStyle(SiftColor.textPrimary)
+                                .lineLimit(1)
+                                .truncationMode(.middle)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .textSelection(.enabled)
+                            Text(verbatim: ByteCountFormatter.string(fromByteCount: entry.size, countStyle: .file))
+                                .font(.siftMono(12))
+                                .foregroundStyle(SiftColor.textSecondary)
+                                .frame(width: 72, alignment: .trailing)
+                        }
+                        .padding(.horizontal, 12)
+                        .frame(height: 40)
+                        .siftRowBackground()
+                    }
+                }
+            }
+            .frame(minHeight: 160, maxHeight: 360)
+            HStack(spacing: 12) {
+                SiftFootnote(Text("Nothing has been removed."))
+                Spacer()
+                Text("\(plan.entries.count) items, \(ByteCountFormatter.string(fromByteCount: plan.totalSize, countStyle: .file))")
+                    .font(.siftMono(12))
+                    .foregroundStyle(SiftColor.textTertiary)
+                Button("Done", action: dismiss)
+                    .buttonStyle(.siftPrimary)
+                    .keyboardShortcut(.defaultAction)
+            }
+        }
+        .padding(24)
+        .frame(width: 640)
+        .background(SiftColor.card)
     }
 }
