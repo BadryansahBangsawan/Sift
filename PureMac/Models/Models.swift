@@ -61,26 +61,6 @@ enum CleaningCategory: String, CaseIterable, Identifiable, Codable {
         }
     }
 
-    var color: Color {
-        switch self {
-        case .smartScan: return .accentColor
-        case .systemJunk: return .purple
-        case .userCache: return .blue
-        case .aiApps: return .teal
-        case .mailAttachments: return .orange
-        case .largeFiles: return .yellow
-        case .installers: return .red
-        case .trash: return .gray
-        case .purgeableSpace: return .green
-        case .xcodeJunk: return .cyan
-        case .brewCache: return .mint
-        case .nodeCache: return .pink
-        case .dockerCache: return .indigo
-        case .universalBinaries: return .brown
-        case .languageFiles: return .gray
-        }
-    }
-
     // Categories to scan in Smart Scan mode.
     //
     // `purgeableSpace` is deliberately excluded: APFS purgeable space is
