@@ -45,14 +45,7 @@ struct Dupes: ParsableCommand {
         }
 
         let candidates = Self.candidates(in: root, minSize: minSize)
-        let hashed = candidates.map { candidate in
-            DupesCandidate(
-                path: candidate.path,
-                size: candidate.size,
-                identity: candidate.identity,
-                hash: Self.contentHash(of: candidate.path)
-            )
-        }
+        let hashed = Self.hashCandidates(candidates, announce: !json)
         let groups = Self.group(hashed)
 
         if json {
@@ -133,6 +126,45 @@ struct Dupes: ParsableCommand {
             hasher.update(data: chunk)
         }
         return Data(hasher.finalize())
+    }
+
+    // MARK: - Hashing
+
+    /// Hashes only the files that could possibly have a duplicate.
+    ///
+    /// Reading every multi-megabyte file in a home folder would take minutes;
+    /// a file whose size is unique in the scan cannot be a duplicate at all, so
+    /// it is skipped without being read. One path per inode is kept first —
+    /// hard links share bytes and can never free space.
+    static func hashCandidates(_ candidates: [Candidate], announce: Bool = false) -> [DupesCandidate] {
+        var seenIdentities: Set<FileIdentity> = []
+        let unique = candidates.filter { seenIdentities.insert($0.identity).inserted }
+
+        var bySize: [Int64: [Candidate]] = [:]
+        for candidate in unique {
+            bySize[candidate.size, default: []].append(candidate)
+        }
+        let toHash = bySize.values.filter { $0.count >= 2 }.flatMap { $0 }
+
+        var results: [DupesCandidate] = []
+        results.reserveCapacity(toHash.count)
+        for (index, candidate) in toHash.enumerated() {
+            if announce, index % 100 == 0 {
+                Term.err(Term.dim("  hashing \(index + 1)/\(toHash.count) …\r"))
+            }
+            results.append(
+                DupesCandidate(
+                    path: candidate.path,
+                    size: candidate.size,
+                    identity: candidate.identity,
+                    hash: contentHash(of: candidate.path)
+                )
+            )
+        }
+        if announce, !toHash.isEmpty {
+            Term.err(String(repeating: " ", count: 32) + "\r")
+        }
+        return results
     }
 
     // MARK: - Grouping
