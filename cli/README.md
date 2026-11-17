@@ -85,6 +85,7 @@ puremac analyze ~/Projects --json
 | `puremac ignore list` | List protected paths |
 | `puremac doctor` | Report disk, memory, SMART status, launch agents, and Trash size |
 | `puremac dupes [path]` | Find files with identical contents, read-only |
+| `puremac uninstall <app>` | Remove an app bundle and the files named after its bundle identifier |
 | `puremac config` | Show settings and their storage locations |
 
 Run `puremac <command> --help` for every option.
@@ -96,6 +97,8 @@ Run `puremac <command> --help` for every option.
 ```bash
 puremac clean dev --dry-run
 puremac purge ~/Projects --json
+puremac dupes ~/Downloads --json
+puremac uninstall /Applications/Some.app --dry-run
 ```
 
 `--force` is an explicit unattended cleanup option. It skips selection and confirmation and permanently removes the scanner's default selection. Preview first. For project artifacts, the default selection uses the age threshold, seven days unless configured otherwise; recent artifacts remain excluded.
