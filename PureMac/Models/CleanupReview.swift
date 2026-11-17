@@ -39,6 +39,7 @@ enum CleanupAgeFilter: String, CaseIterable, Identifiable, Codable {
 enum CleanupSortOrder: String, CaseIterable, Identifiable, Codable {
     case largest = "Largest first"
     case smallest = "Smallest first"
+    case newest = "Newest first"
     case oldest = "Oldest first"
     case name = "Name"
 
@@ -65,6 +66,8 @@ struct CleanupReviewFilter: Codable, Equatable {
             switch order {
             case .largest where left.size != right.size: return left.size > right.size
             case .smallest where left.size != right.size: return left.size < right.size
+            case .newest where left.lastModified != right.lastModified:
+                return (left.lastModified ?? .distantPast) > (right.lastModified ?? .distantPast)
             case .oldest where left.lastModified != right.lastModified:
                 return (left.lastModified ?? .distantFuture) < (right.lastModified ?? .distantFuture)
             default:

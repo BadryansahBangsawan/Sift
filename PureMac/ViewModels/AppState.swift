@@ -66,6 +66,8 @@ final class AppState: ObservableObject {
         _ urls: [URL],
         _ completion: @escaping ([URL], Bool, [URL], [URL]) -> Void
     ) -> Void
+    /// Empties the Trash and returns a user-facing error, or nil on success.
+    typealias TrashEmptier = @MainActor () async -> String?
 
     // MARK: - Scan / Clean State
 
@@ -78,10 +80,19 @@ final class AppState: ObservableObject {
     /// Completed cleanups, newest first. Persisted by `CleanupHistoryStore`
     /// outside the app bundle so the dashboard survives relaunches.
     @Published var cleanupHistory: [CleanupRecord] = []
-    private let historyStore = CleanupHistoryStore()
+    private let historyStore: CleanupHistoryStore
+    /// True while Finder is emptying the Trash on our behalf.
+    @Published private(set) var isEmptyingTrash = false
+    /// Size of ~/Library/Containers, measured at the end of each Smart Scan.
+    /// nil until a Smart Scan finishes (or when it was cancelled).
+    @Published private(set) var containersSize: Int64?
     @Published var scanProgress: Double = 0
     @Published var scanWasCancelled = false
-    @Published var lastScanDate: Date?
+    /// Persisted so "Last scan" on the dashboard survives relaunches.
+    @Published var lastScanDate: Date? {
+        didSet { UserDefaults.standard.set(lastScanDate, forKey: Self.lastScanDateKey) }
+    }
+    nonisolated static let lastScanDateKey = "PureMac.LastScanDate"
     private var scanTask: Task<Void, Never>?
     private var scanGeneration = UUID()
     private var cleanupGeneration = UUID()
@@ -140,16 +151,26 @@ final class AppState: ObservableObject {
     // MARK: - Services
 
     var scheduler = SchedulerService()
-    private let scanEngine = ScanEngine()
+    private let scanEngine: ScanEngine
     private let cleaningEngine = CleaningEngine()
     private let locationsProvider: () -> Locations
     private let appFileScanner: AppFileScanner
     private let appFileTrasher: AppFileTrasher
+    private let trashEmptier: TrashEmptier
 
     // MARK: - Computed
 
     var totalItemCount: Int {
         categoryResults.values.reduce(0) { $0 + $1.itemCount }
+    }
+
+    /// Dashboard "Caches" figure. Taken from the User Cache result rather
+    /// than a second walk of ~/Library/Caches: it is what the User Cache
+    /// category would clean (~/Library/Caches entries, sandboxed app caches,
+    /// pip, HTTP storage), minus caches owned by the developer categories,
+    /// so the chip and the category it opens always agree. nil until scanned.
+    var cachesSize: Int64? {
+        categoryResults[.userCache]?.totalSize
     }
 
     var currentCategoryResult: CategoryResult? {
@@ -164,11 +185,46 @@ final class AppState: ObservableObject {
         allResults.flatMap { $0.items }.filter { isItemSelected($0) }.reduce(0) { $0 + $1.size }
     }
 
+    /// The largest individual rows across every scanned category, largest
+    /// first. Trash rows are left out (they can only be emptied through
+    /// Finder), as are action rows such as Docker prune that have no file.
+    func biggestItems(limit: Int) -> [CleanableItem] {
+        let items = allResults.flatMap(\.items).filter { !$0.isActionItem }
+        return Array(items.sorted { left, right in
+            if left.size != right.size { return left.size > right.size }
+            return left.name.localizedStandardCompare(right.name) == .orderedAscending
+        }.prefix(max(0, limit)))
+    }
+
+    /// Merged results for a category group such as
+    /// `CleaningCategory.developerCaches` or `.systemJunkGroup`.
+    func groupResult(for categories: [CleaningCategory]) -> CategoryGroupResult {
+        CategoryGroupResult(categories: categories, results: categoryResults)
+    }
+
+    /// Cleanups recorded in the current calendar month, newest first.
+    var cleanupsThisMonth: [CleanupRecord] {
+        CleanupRecord.thisMonth(cleanupHistory)
+    }
+
+    var freedThisMonth: Int64 {
+        CleanupRecord.totalFreed(cleanupsThisMonth)
+    }
+
     var currentAppFileSearchLocationCount: Int {
         if isScanningAppFiles && appFileScanLocationCount > 0 {
             return appFileScanLocationCount
         }
         return discoveredFiles.count
+    }
+
+    nonisolated static let confirmBeforeDeleteKey = "settings.general.confirmBeforeDelete"
+
+    /// Settings > General "Confirm before deleting files". When false the UI
+    /// may skip the review sheet. Read live so a toggle applies immediately.
+    /// Defaults to true, matching the Settings toggle.
+    var confirmBeforeDelete: Bool {
+        UserDefaults.standard.object(forKey: Self.confirmBeforeDeleteKey) as? Bool ?? true
     }
 
     // MARK: - Init
@@ -177,12 +233,19 @@ final class AppState: ObservableObject {
         performStartupTasks: Bool = true,
         locationsProvider: @escaping () -> Locations = Locations.init,
         appFileScanner: @escaping AppFileScanner = AppState.defaultAppFileScanner,
-        appFileTrasher: @escaping AppFileTrasher = AppState.defaultAppFileTrasher
+        appFileTrasher: @escaping AppFileTrasher = AppState.defaultAppFileTrasher,
+        scanEngine: ScanEngine = ScanEngine(),
+        historyStore: CleanupHistoryStore = CleanupHistoryStore(),
+        trashEmptier: @escaping TrashEmptier = AppState.finderEmptyTrash
     ) {
         self.locationsProvider = locationsProvider
         self.appFileScanner = appFileScanner
         self.appFileTrasher = appFileTrasher
+        self.scanEngine = scanEngine
+        self.historyStore = historyStore
+        self.trashEmptier = trashEmptier
         cleanupHistory = historyStore.load()
+        lastScanDate = UserDefaults.standard.object(forKey: Self.lastScanDateKey) as? Date
 
         // Listen for right-click "Uninstall with PureMac" hand-offs from the
         // Finder Services handler in AppDelegate.
@@ -843,7 +906,7 @@ final class AppState: ObservableObject {
 
         totalFreedSpace = result.freedSpace
         if result.freedSpace > 0 {
-            cleanupHistory = historyStore.record(freedBytes: result.freedSpace, source: .manual)
+            recordCleanup(of: items, result: result, source: .manual)
         }
         if result.itemsCleaned > 0 { lastCleanedDate = Date() }
 
@@ -889,12 +952,12 @@ final class AppState: ObservableObject {
 
     func startSmartScan() {
         guard !scanState.isActive, !deviceBackupRemovalInProgress else { return }
-        beginScan(categories: CleaningCategory.scannable, replacingResults: true)
+        beginScan(categories: CleaningCategory.smartScanCategories, replacingResults: true)
     }
 
     func scanSingleCategory(_ category: CleaningCategory) {
         guard !scanState.isActive, !deviceBackupRemovalInProgress,
-              CleaningCategory.scannable.contains(category) else { return }
+              CleaningCategory.smartScanCategories.contains(category) else { return }
         beginScan(categories: [category], replacingResults: false)
     }
 
@@ -918,6 +981,7 @@ final class AppState: ObservableObject {
         if replacingResults {
             categoryResults = [:]
             totalJunkSize = 0
+            containersSize = nil
             clearSelectionState()
         }
         scanTask = Task {
@@ -937,6 +1001,16 @@ final class AppState: ObservableObject {
                 guard !Task.isCancelled, scanGeneration == generation else { return }
                 categoryResults[category] = applyingCleanupExclusions(to: result)
                 totalJunkSize = categoryResults.values.reduce(0) { $0 + $1.totalSize }
+            }
+            if replacingResults {
+                let containers = await scanEngine.containersSize { [weak self] path in
+                    Task { @MainActor [weak self] in
+                        guard let self, self.scanGeneration == generation else { return }
+                        self.scanTicker.path = path
+                    }
+                }
+                guard !Task.isCancelled, scanGeneration == generation else { return }
+                containersSize = containers
             }
             scanProgress = 1
             scanTicker.path = ""
@@ -991,10 +1065,7 @@ final class AppState: ObservableObject {
 
             totalFreedSpace = result.freedSpace
             if result.freedSpace > 0 {
-                cleanupHistory = historyStore.record(
-                    freedBytes: result.freedSpace,
-                    source: scheduled ? .scheduled : .manual
-                )
+                recordCleanup(of: itemsToClean, result: result, source: scheduled ? .scheduled : .manual)
             }
             if result.itemsCleaned > 0 { lastCleanedDate = Date() }
             if result.itemsCleaned > 0 { Haptics.successWithSound() }
@@ -1028,7 +1099,8 @@ final class AppState: ObservableObject {
     }
 
     func cleanCategory(_ category: CleaningCategory, itemIDs: Set<UUID>? = nil) {
-        guard let result = categoryResults[category], !scanState.isActive,
+        // The Trash is emptied only through `emptyTrash()`.
+        guard category != .trash, let result = categoryResults[category], !scanState.isActive,
               !deviceBackupRemovalInProgress else { return }
 
         let selectedItems = result.items.filter { isItemSelected($0) && (itemIDs?.contains($0.id) ?? true) }
@@ -1059,7 +1131,7 @@ final class AppState: ObservableObject {
 
             totalFreedSpace = cleanResult.freedSpace
             if cleanResult.freedSpace > 0 {
-                cleanupHistory = historyStore.record(freedBytes: cleanResult.freedSpace, source: .manual)
+                recordCleanup(of: selectedItems, result: cleanResult, source: .manual)
             }
             if cleanResult.itemsCleaned > 0 { lastCleanedDate = Date() }
 
@@ -1088,6 +1160,31 @@ final class AppState: ObservableObject {
             scanState = cleanResult.itemsCleaned > 0 ? .cleaned : .completed
             loadDiskInfo()
         }
+    }
+
+    /// Appends a history row. A cleanup confined to one category is labelled
+    /// with it; a mixed batch gets a generic title and no category.
+    private func recordCleanup(
+        of items: [CleanableItem],
+        result: CleaningEngine.CleaningResult,
+        source: CleanupSource
+    ) {
+        let categories = Set(items.filter { result.cleanedPaths.contains($0.path) }.map(\.category))
+        let category = categories.count == 1 ? categories.first : nil
+        let title: String
+        if let category {
+            title = String(localized: String.LocalizationValue(category.rawValue))
+        } else if source == .scheduled {
+            title = String(localized: "Scheduled cleanup")
+        } else {
+            title = String(localized: "Smart Scan cleanup")
+        }
+        cleanupHistory = historyStore.record(
+            freedBytes: result.freedSpace,
+            source: source,
+            title: title,
+            category: category
+        )
     }
 
     /// Items that neither got cleaned nor were skipped as SIP-protected.
@@ -1142,6 +1239,70 @@ final class AppState: ObservableObject {
             )
         } else if let first = errors.first {
             cleanError = first
+        }
+    }
+
+    // MARK: - Trash
+
+    /// Empties the Trash by asking Finder. Call only after the user confirmed:
+    /// this is the one cleanup in the app that is not recoverable. Items in
+    /// the Trash are never unlinked by PureMac itself (CleaningEngine refuses
+    /// `.trash` items). Errors land in `cleanError`.
+    func emptyTrash() async {
+        guard !scanState.isActive, !isEmptyingTrash, !deviceBackupRemovalInProgress else { return }
+        isEmptyingTrash = true
+        defer { isEmptyingTrash = false }
+
+        // Measure before and after rather than trusting the last scan: the
+        // Trash may have changed since, and Finder reports no byte count.
+        let before = await scanEngine.scanCategory(.trash).totalSize
+        let error = await trashEmptier()
+        let after = applyingCleanupExclusions(to: await scanEngine.scanCategory(.trash))
+
+        categoryResults[.trash] = after.items.isEmpty ? nil : after
+        totalJunkSize = categoryResults.values.reduce(0) { $0 + $1.totalSize }
+
+        let freed = max(0, before - after.totalSize)
+        if freed > 0 {
+            cleanupHistory = historyStore.record(
+                freedBytes: freed,
+                source: .manual,
+                title: String(localized: "Emptied Trash"),
+                category: .trash
+            )
+            lastCleanedDate = Date()
+        }
+        cleanErrorIsFDAFixable = false
+        cleanError = error
+        loadDiskInfo()
+    }
+
+    /// Finder performs the delete, so the Trash is emptied exactly as if the
+    /// user chose Finder > Empty Trash. The first call triggers the macOS
+    /// Automation consent prompt for controlling Finder.
+    nonisolated static func finderEmptyTrash() async -> String? {
+        await withCheckedContinuation { continuation in
+            DispatchQueue.global(qos: .userInitiated).async {
+                var errorInfo: NSDictionary?
+                NSAppleScript(source: "tell application \"Finder\" to empty trash")?
+                    .executeAndReturnError(&errorInfo)
+                guard let errorInfo else {
+                    continuation.resume(returning: nil)
+                    return
+                }
+                let code = errorInfo[NSAppleScript.errorNumber] as? Int
+                let message = errorInfo[NSAppleScript.errorMessage] as? String ?? "\(errorInfo)"
+                Logger.shared.log("Finder could not empty the Trash (\(code ?? 0)): \(message)", level: .warning)
+                switch code {
+                case -128:
+                    // User cancelled a Finder prompt; nothing to report.
+                    continuation.resume(returning: nil)
+                case -1743:
+                    continuation.resume(returning: String(localized: "PureMac isn't allowed to control Finder. Allow it in System Settings > Privacy & Security > Automation, then try again."))
+                default:
+                    continuation.resume(returning: String(localized: "Finder couldn't empty the Trash: \(message)"))
+                }
+            }
         }
     }
 
