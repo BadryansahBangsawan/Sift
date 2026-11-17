@@ -35,18 +35,14 @@ struct DuplicateFinderView: View {
     }
 
     var body: some View {
-        ZStack {
-            Color(nsColor: .windowBackgroundColor)
-                .ignoresSafeArea()
-            VStack(spacing: 14) {
-                header
-                content
-                if result?.groups.isEmpty == false {
-                    selectionBar
-                }
+        VStack(spacing: SiftSpacing.gutter) {
+            header
+            content
+            if result?.groups.isEmpty == false {
+                selectionBar
             }
-            .padding(24)
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .confirmationDialog(
             "Move selected duplicates to Trash?",
             isPresented: $showsTrashConfirmation,
@@ -74,37 +70,27 @@ struct DuplicateFinderView: View {
     }
 
     private var header: some View {
-        CardSurface(padding: 18, elevation: .flat, tint: Tint.accent) {
-            HStack(spacing: 14) {
-                IconTile(systemName: "square.on.square", tint: Tint.accent, size: 42, corner: 11)
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("Duplicate Finder")
-                        .font(.system(size: 22, weight: .bold, design: .rounded))
-                    Text(headerSubtitle)
-                        .font(.callout)
-                        .foregroundStyle(.secondary)
-                        .lineLimit(1)
-                        .truncationMode(.middle)
+        SiftToolHeader(
+            Text("Duplicate Finder"),
+            eyebrow: Text("Tools"),
+            subtitle: Text(verbatim: headerSubtitle)
+        ) {
+            if state == .scanning {
+                Button("Cancel", role: .cancel) {
+                    scanTask?.cancel()
                 }
-                Spacer(minLength: 16)
-                if state == .scanning {
-                    Button("Cancel", role: .cancel) {
-                        scanTask?.cancel()
-                    }
-                    .buttonStyle(.bordered)
-                    .keyboardShortcut(.cancelAction)
-                    .accessibilityHint("Stops scanning without changing any files")
-                } else {
-                    Button {
-                        chooseFolder()
-                    } label: {
-                        Label(result == nil ? "Choose Folder" : "Scan Another Folder", systemImage: "folder.badge.plus")
-                    }
-                    .buttonStyle(.borderedProminent)
-                    .tint(Tint.accent)
-                    .disabled(isMovingToTrash)
-                    .accessibilityHint("Opens a folder picker")
+                .buttonStyle(.siftSecondary)
+                .keyboardShortcut(.cancelAction)
+                .accessibilityHint("Stops scanning without changing any files")
+            } else {
+                Button {
+                    chooseFolder()
+                } label: {
+                    Label(result == nil ? "Choose Folder" : "Scan Another Folder", systemImage: "folder.badge.plus")
                 }
+                .buttonStyle(SiftButtonStyle(kind: result == nil ? .primary : .secondary))
+                .disabled(isMovingToTrash)
+                .accessibilityHint("Opens a folder picker")
             }
         }
     }
@@ -130,145 +116,69 @@ struct DuplicateFinderView: View {
     }
 
     private var idleState: some View {
-        CardSurface(padding: 0, elevation: .flat) {
-            VStack(spacing: 15) {
-                Spacer()
-                ZStack {
-                    RoundedRectangle(cornerRadius: 24, style: .continuous)
-                        .fill(Tint.accent.opacity(0.09))
-                        .frame(width: 116, height: 100)
-                    Image(systemName: "doc.on.doc")
-                        .font(.system(size: 44, weight: .light))
-                        .symbolRenderingMode(.hierarchical)
-                        .foregroundStyle(Tint.accent)
-                }
-                Text("Find copies that are exactly the same")
-                    .font(.system(size: 18, weight: .semibold))
-                Text("Choose a folder. PureMac compares file sizes and SHA-256 content hashes. Nothing is selected or removed automatically.")
-                    .font(.callout)
-                    .foregroundStyle(.secondary)
-                    .multilineTextAlignment(.center)
-                    .frame(maxWidth: 480)
-                Button {
-                    chooseFolder()
-                } label: {
-                    Label("Choose a Folder", systemImage: "folder")
-                }
-                .buttonStyle(.borderedProminent)
-                .tint(Tint.accent)
-                .controlSize(.large)
-                .disabled(isMovingToTrash)
-                .padding(.top, 3)
-                Spacer()
+        SiftEmptyState(
+            icon: .copy,
+            title: Text("Find copies that are exactly the same"),
+            message: Text("Choose a folder. Sift compares file sizes and SHA-256 content hashes. Nothing is selected or removed automatically.")
+        ) {
+            Button {
+                chooseFolder()
+            } label: {
+                Label("Choose a Folder", systemImage: "folder")
             }
-            .padding(24)
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .buttonStyle(.siftSecondary)
+            .disabled(isMovingToTrash)
         }
     }
 
     private var scanningState: some View {
-        CardSurface(padding: 28, elevation: .flat, tint: Tint.accent) {
-            VStack(spacing: 20) {
-                Spacer()
-                ZStack {
-                    Circle()
-                        .stroke(Tint.accent.opacity(0.14), lineWidth: 9)
-                        .frame(width: 104, height: 104)
-                    if let fraction = progress.fractionCompleted {
-                        Circle()
-                            .trim(from: 0, to: fraction)
-                            .stroke(Tint.accent, style: StrokeStyle(lineWidth: 9, lineCap: .round))
-                            .rotationEffect(.degrees(-90))
-                            .frame(width: 104, height: 104)
-                    } else {
-                        ProgressView()
-                            .controlSize(.large)
-                            .tint(Tint.accent)
-                    }
-                    Image(systemName: progress.phase == .discovering ? "folder" : "number")
-                        .font(.system(size: 25, weight: .medium))
-                        .foregroundStyle(Tint.accent)
-                }
-                VStack(spacing: 7) {
-                    Text(progress.phase == .discovering ? "Looking through files" : "Verifying possible matches")
-                        .font(.system(size: 18, weight: .semibold))
-                    Text(progressSummary)
-                        .font(.callout.monospacedDigit())
-                        .foregroundStyle(.secondary)
-                    if let currentURL = progress.currentURL {
-                        Text(currentURL.path)
-                            .font(.caption)
-                            .foregroundStyle(.tertiary)
-                            .lineLimit(1)
-                            .truncationMode(.middle)
-                            .frame(maxWidth: 520)
-                    }
-                }
-                Spacer()
-            }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .accessibilityElement(children: .combine)
-            .accessibilityLabel(progressSummary)
+        SiftScanningCard(
+            title: Text(progress.phase == .discovering ? "Looking through files" : "Verifying possible matches"),
+            detail: Text(verbatim: progress.currentURL?.path ?? ""),
+            fraction: progress.fractionCompleted
+        ) {
+            SiftCountPill(progressSummary)
         }
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel(progressSummary)
     }
 
     private func failureState(_ message: String) -> some View {
-        CardSurface(padding: 0, elevation: .flat, tint: Tint.red) {
-            VStack(spacing: 14) {
-                Spacer()
-                IconTile(systemName: "exclamationmark.triangle.fill", tint: Tint.red, size: 54, corner: 14)
-                Text("Scan could not finish")
-                    .font(.system(size: 18, weight: .semibold))
-                Text(message)
-                    .font(.callout)
-                    .foregroundStyle(.secondary)
-                    .multilineTextAlignment(.center)
-                    .frame(maxWidth: 480)
-                HStack {
-                    if let folder = selectedFolder {
-                        Button("Try Again") { startScan(folder) }
-                            .buttonStyle(.borderedProminent)
-                            .tint(Tint.accent)
-                            .disabled(isMovingToTrash)
-                    }
-                    Button("Choose Another Folder") { chooseFolder() }
-                        .buttonStyle(.bordered)
-                        .disabled(isMovingToTrash)
-                }
-                Spacer()
+        SiftEmptyState(
+            icon: .triangleAlert,
+            tone: .warning,
+            title: Text("Scan could not finish"),
+            message: Text(message)
+        ) {
+            if let folder = selectedFolder {
+                Button("Try Again") { startScan(folder) }
+                    .buttonStyle(.siftSecondary)
+                    .disabled(isMovingToTrash)
             }
-            .padding(24)
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            Button("Choose Another Folder") { chooseFolder() }
+                .buttonStyle(.siftSecondary)
+                .disabled(isMovingToTrash)
         }
     }
 
     private func emptyResult(_ result: DuplicateScanResult) -> some View {
-        CardSurface(padding: 0, elevation: .flat, tint: Tint.green) {
-            VStack(spacing: 14) {
-                Spacer()
-                IconTile(systemName: "checkmark.seal.fill", tint: Tint.green, size: 58, corner: 16)
-                Text("No exact duplicates found")
-                    .font(.system(size: 19, weight: .semibold))
-                Text("Inspected \(result.filesInspected.formatted()) files in \(result.folder.lastPathComponent). \(skippedSummary(result.skippedFiles))")
-                    .font(.callout)
-                    .foregroundStyle(.secondary)
-                    .multilineTextAlignment(.center)
-                    .frame(maxWidth: 500)
-                Button("Scan Again") { startScan(result.folder) }
-                    .buttonStyle(.bordered)
-                    .disabled(isMovingToTrash)
-                Spacer()
-            }
-            .padding(24)
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
+        SiftEmptyState(
+            icon: .check,
+            tone: .success,
+            title: Text("No exact duplicates found"),
+            message: Text("Inspected \(result.filesInspected.formatted()) files in \(result.folder.lastPathComponent). \(skippedSummary(result.skippedFiles))")
+        ) {
+            Button("Scan Again") { startScan(result.folder) }
+                .buttonStyle(.siftSecondary)
+                .disabled(isMovingToTrash)
         }
     }
 
     private func resultContent(_ result: DuplicateScanResult) -> some View {
-        VStack(spacing: 14) {
+        VStack(spacing: SiftSpacing.gutter) {
             summaryCard(result)
             ScrollView {
-                LazyVStack(spacing: 14) {
+                LazyVStack(spacing: SiftSpacing.gutter) {
                     ForEach(result.groups) { group in
                         groupCard(group)
                     }
@@ -283,218 +193,235 @@ struct DuplicateFinderView: View {
     }
 
     private func summaryCard(_ result: DuplicateScanResult) -> some View {
-        CardSurface(padding: 14, elevation: .flat) {
-            HStack(spacing: 0) {
-                summaryMetric(value: result.groups.count.formatted(), label: "Duplicate groups", icon: "square.stack.3d.up", tint: Tint.accent)
-                Divider().frame(height: 38)
-                summaryMetric(value: result.duplicateFileCount.formatted(), label: "Matching files", icon: "doc.on.doc", tint: Tint.purple)
-                Divider().frame(height: 38)
-                summaryMetric(value: format(result.reclaimableSize), label: "Available to review", icon: "internaldrive", tint: Tint.green)
-                Spacer(minLength: 10)
-                Button("Rescan") { startScan(result.folder) }
-                    .buttonStyle(.bordered)
-                    .disabled(isMovingToTrash)
-            }
+        HStack(spacing: 0) {
+            summaryMetric(value: result.groups.count.formatted(), label: "Duplicate groups", icon: .copy, tone: .neutral)
+            metricDivider
+            summaryMetric(value: result.duplicateFileCount.formatted(), label: "Matching files", icon: .file, tone: .neutral)
+            metricDivider
+            summaryMetric(value: format(result.reclaimableSize), label: "Available to review", icon: .hardDrive, tone: .accent)
+            Spacer(minLength: 10)
+            Button("Rescan") { startScan(result.folder) }
+                .buttonStyle(.siftSecondary)
+                .disabled(isMovingToTrash)
         }
+        .siftSurface(.card)
     }
 
-    private func summaryMetric(value: String, label: LocalizedStringKey, icon: String, tint: Color) -> some View {
-        HStack(spacing: 9) {
-            IconTile(systemName: icon, tint: tint, size: 30, corner: 8)
-            VStack(alignment: .leading, spacing: 1) {
+    private var metricDivider: some View {
+        Rectangle()
+            .fill(SiftColor.stroke)
+            .frame(width: 1, height: 44)
+            .padding(.horizontal, 20)
+    }
+
+    private func summaryMetric(value: String, label: LocalizedStringKey, icon: SiftIcon, tone: SiftTone) -> some View {
+        HStack(spacing: 12) {
+            SiftIconTile(icon: icon, tone: tone)
+            VStack(alignment: .leading, spacing: 0) {
                 Text(value)
-                    .font(.system(size: 15, weight: .semibold).monospacedDigit())
+                    .siftStyle(.metricSmall)
+                    .foregroundStyle(tone == .accent ? SiftColor.accent : SiftColor.textPrimary)
+                    .lineLimit(1)
                 Text(label)
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
+                    .siftStyle(.label)
             }
         }
-        .padding(.horizontal, 14)
         .accessibilityElement(children: .combine)
     }
 
     private func groupCard(_ group: DuplicateGroup) -> some View {
-        CardSurface(padding: 0, elevation: .flat, tint: Tint.accent) {
-            VStack(spacing: 0) {
-                HStack(spacing: 12) {
-                    IconTile(systemName: "doc.on.doc.fill", tint: Tint.accent, size: 34, corner: 9)
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text(group.keeper.url.lastPathComponent)
-                            .font(.system(size: 14, weight: .semibold))
-                            .lineLimit(1)
-                        Text("\(group.files.count) exact copies · \(format(group.fileSize)) each")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                    }
-                    Spacer()
-                    StatusChip(label: String(localized: "\(format(group.reclaimableSize)) reviewable"), systemImage: "arrow.down.circle", tint: Tint.green)
-                    Button(groupCandidatesSelected(group) ? "Clear" : "Select copies") {
-                        toggleGroupSelection(group)
-                    }
-                    .buttonStyle(.bordered)
-                    .disabled(isMovingToTrash)
-                    Button {
-                        toggleExpanded(group)
-                    } label: {
-                        Image(systemName: expandedGroupIDs.contains(group.id) ? "chevron.up" : "chevron.down")
-                            .frame(width: 16, height: 16)
-                    }
-                    .buttonStyle(.plain)
-                    .accessibilityLabel(expandedGroupIDs.contains(group.id) ? "Collapse duplicate group" : "Expand duplicate group")
+        VStack(spacing: 0) {
+            HStack(spacing: 12) {
+                SiftIconTile(icon: .copy, tone: .accent)
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(group.keeper.url.lastPathComponent)
+                        .siftStyle(.cardTitle)
+                        .lineLimit(1)
+                    Text("\(group.files.count) exact copies · \(format(group.fileSize)) each")
+                        .siftStyle(.monoSmall)
                 }
-                .padding(14)
+                Spacer()
+                SiftStatusPill(Text(verbatim: String(localized: "\(format(group.reclaimableSize)) reviewable")), tone: .accent)
+                Button(groupCandidatesSelected(group) ? "Clear" : "Select copies") {
+                    toggleGroupSelection(group)
+                }
+                .buttonStyle(.sift(.secondary, compact: true))
+                .disabled(isMovingToTrash)
+                Button {
+                    toggleExpanded(group)
+                } label: {
+                    SiftIcon.chevronDown.image(14)
+                        .foregroundStyle(SiftColor.textSecondary)
+                        .rotationEffect(.degrees(expandedGroupIDs.contains(group.id) ? 180 : 0))
+                }
+                .buttonStyle(.siftQuiet)
+                .accessibilityLabel(expandedGroupIDs.contains(group.id) ? "Collapse duplicate group" : "Expand duplicate group")
+            }
 
-                if expandedGroupIDs.contains(group.id) {
-                    Divider()
-                    VStack(spacing: 0) {
-                        ForEach(Array(group.files.enumerated()), id: \.element.id) { index, file in
-                            fileRow(file, keeper: index == 0)
-                            if index < group.files.count - 1 {
-                                Divider().padding(.leading, 49)
-                            }
-                        }
+            if expandedGroupIDs.contains(group.id) {
+                VStack(spacing: 2) {
+                    ForEach(Array(group.files.enumerated()), id: \.element.id) { index, file in
+                        fileRow(file, keeper: index == 0)
                     }
-                    .transition(.opacity.combined(with: .move(edge: .top)))
                 }
+                .padding(.top, 14)
+                .transition(.opacity)
             }
         }
+        .siftSurface(.card)
     }
 
+    /// The Installers row: checkbox, icon tile, name over a mono path, date, reveal.
     private func fileRow(_ file: DuplicateFile, keeper: Bool) -> some View {
-        HStack(spacing: 11) {
+        HStack(spacing: 14) {
             if keeper {
-                Image(systemName: "checkmark.shield.fill")
-                    .font(.system(size: 16, weight: .semibold))
-                    .foregroundStyle(Tint.green)
-                    .frame(width: 18)
+                SiftIcon.shieldCheck.image(17)
+                    .foregroundStyle(SiftColor.success)
+                    .frame(width: 20)
                     .accessibilityLabel("Protected copy")
             } else {
                 Toggle("", isOn: selectionBinding(for: file.url))
                     .labelsHidden()
-                    .toggleStyle(AnimatedCheckboxStyle(tint: Tint.accent))
+                    .toggleStyle(.siftCheckbox)
+                    .frame(width: 20, alignment: .leading)
                     .disabled(isMovingToTrash)
+                    .allowsHitTesting(!isMovingToTrash)
                     .accessibilityLabel("Select \(file.url.lastPathComponent)")
             }
             Image(nsImage: NSWorkspace.shared.icon(forFile: file.url.path))
                 .resizable()
                 .interpolation(.high)
-                .frame(width: 24, height: 24)
+                .frame(width: 22, height: 22)
+                .frame(width: 36, height: 36)
+                .background(RoundedRectangle(cornerRadius: 11, style: .continuous).fill(SiftColor.control))
                 .accessibilityHidden(true)
-            VStack(alignment: .leading, spacing: 2) {
-                HStack(spacing: 7) {
+            VStack(alignment: .leading, spacing: 3) {
+                HStack(spacing: 8) {
                     Text(file.url.lastPathComponent)
-                        .font(.system(size: 13, weight: keeper ? .semibold : .regular))
+                        .font(.sift(13.5, weight: keeper ? 500 : 400))
+                        .foregroundStyle(SiftColor.textPrimary)
                         .lineLimit(1)
                     if keeper {
-                        StatusChip(label: String(localized: "Keep"), systemImage: "lock.fill", tint: Tint.green)
+                        SiftStatusPill(Text("Keep"), tone: .success)
                     }
                 }
                 Text(file.url.deletingLastPathComponent().path)
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
+                    .siftStyle(.monoSmall)
                     .lineLimit(1)
                     .truncationMode(.middle)
             }
             Spacer()
             if let modifiedAt = file.modifiedAt {
                 Text(modifiedAt, style: .date)
-                    .font(.caption)
-                    .foregroundStyle(.tertiary)
+                    .siftStyle(.label)
             }
             Button {
                 NSWorkspace.shared.activateFileViewerSelecting([file.url])
             } label: {
-                Image(systemName: "arrow.forward.square")
-                    .frame(width: 18, height: 18)
+                SiftIcon.folderOpen.image(13)
+                    .foregroundStyle(SiftColor.textSecondary)
+                    .frame(width: 28, height: 28)
+                    .background(Circle().fill(SiftColor.track))
             }
             .buttonStyle(.plain)
             .accessibilityLabel("Reveal \(file.url.lastPathComponent) in Finder")
             .help("Reveal in Finder")
         }
         .padding(.horizontal, 14)
-        .padding(.vertical, 10)
-        .contentShape(Rectangle())
+        .frame(minHeight: 58)
+        .siftRowBackground(accented: selectedIDs.contains(file.url), radius: 16)
         .accessibilityElement(children: .contain)
     }
 
     private func skippedCard(_ skippedFiles: [DuplicateSkippedFile]) -> some View {
-        CardSurface(padding: 14, elevation: .flat, tint: Tint.orange) {
-            DisclosureGroup {
-                VStack(spacing: 8) {
-                    ForEach(skippedFiles) { file in
-                        HStack(spacing: 10) {
-                            Image(systemName: "exclamationmark.circle")
-                                .foregroundStyle(Tint.orange)
-                                .frame(width: 16)
-                            VStack(alignment: .leading, spacing: 2) {
-                                Text(file.url.path)
-                                    .font(.caption)
-                                    .lineLimit(1)
-                                    .truncationMode(.middle)
-                                Text(file.detail.map { "\(file.reason.label): \($0)" } ?? file.reason.label)
-                                    .font(.caption2)
-                                    .foregroundStyle(.secondary)
-                            }
-                            Spacer()
-                            Button {
-                                NSWorkspace.shared.activateFileViewerSelecting([file.url])
-                            } label: {
-                                Image(systemName: "arrow.forward.square")
-                            }
-                            .buttonStyle(.plain)
-                            .accessibilityLabel("Reveal skipped item in Finder")
+        DisclosureGroup {
+            VStack(spacing: 2) {
+                ForEach(skippedFiles) { file in
+                    HStack(spacing: 12) {
+                        SiftIcon.triangleAlert.image(14)
+                            .foregroundStyle(SiftColor.warning)
+                            .frame(width: 16)
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(file.url.path)
+                                .font(.siftMono(11))
+                                .foregroundStyle(SiftColor.textPrimary)
+                                .lineLimit(1)
+                                .truncationMode(.middle)
+                            Text(file.detail.map { "\(file.reason.label): \($0)" } ?? file.reason.label)
+                                .siftStyle(.caption)
                         }
+                        Spacer()
+                        Button {
+                            NSWorkspace.shared.activateFileViewerSelecting([file.url])
+                        } label: {
+                            SiftIcon.folderOpen.image(13)
+                                .foregroundStyle(SiftColor.textTertiary)
+                        }
+                        .buttonStyle(.siftQuiet)
+                        .accessibilityLabel("Reveal skipped item in Finder")
                     }
+                    .padding(.horizontal, 10)
+                    .frame(minHeight: 44)
+                    .siftRowBackground()
                 }
-                .padding(.top, 10)
-            } label: {
-                HStack {
-                    IconTile(systemName: "exclamationmark.triangle", tint: Tint.orange, size: 30, corner: 8)
-                    VStack(alignment: .leading, spacing: 1) {
-                        Text("Skipped items")
-                            .font(.system(size: 14, weight: .semibold))
-                        Text("\(skippedFiles.count) unsafe or unavailable items were not scanned")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                    }
+            }
+            .padding(.top, 14)
+        } label: {
+            HStack(spacing: 10) {
+                SiftIconTile(icon: .triangleAlert, tone: .warning, size: 30)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Skipped items")
+                        .siftStyle(.cardTitle)
+                    Text("\(skippedFiles.count) unsafe or unavailable items were not scanned")
+                        .siftStyle(.label)
                 }
             }
         }
+        .disclosureGroupStyle(.sift)
+        .siftSurface(.card)
     }
 
+    /// The Installers action bar, pinned below the list.
     private var selectionBar: some View {
-        CardSurface(padding: 14, elevation: .raised, tint: selectedIDs.isEmpty ? nil : Tint.accent) {
-            HStack(spacing: 12) {
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(selectedIDs.isEmpty ? "Nothing selected" : "\(selectedIDs.count) selected")
-                        .font(.system(size: 14, weight: .semibold).monospacedDigit())
-                    Text(selectedIDs.isEmpty ? "Select the extra copies you want to review" : "\(format(selectedSize)) will move to Trash")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                }
-                Spacer()
-                if !selectedIDs.isEmpty {
-                    Button("Clear Selection") { selectedIDs.removeAll() }
-                        .buttonStyle(.borderless)
-                        .disabled(isMovingToTrash)
-                }
-                Button {
-                    showsTrashConfirmation = true
-                } label: {
-                    if isMovingToTrash {
-                        ProgressView()
-                            .controlSize(.small)
-                            .frame(minWidth: 100)
-                    } else {
-                        Label("Move to Trash", systemImage: "trash")
-                    }
-                }
-                .buttonStyle(.borderedProminent)
-                .tint(Tint.red)
-                .disabled(selectedIDs.isEmpty || isMovingToTrash || state == .scanning)
-                .accessibilityHint("Shows a confirmation before moving the selected copies")
+        HStack(spacing: 14) {
+            SiftIcon.trash2.image(14)
+                .foregroundStyle(selectedIDs.isEmpty ? SiftColor.textTertiary : SiftColor.onAccent)
+                .frame(width: 28, height: 28)
+                .background(Circle().fill(selectedIDs.isEmpty ? SiftColor.track : SiftColor.accent))
+                .accessibilityHidden(true)
+            VStack(alignment: .leading, spacing: 2) {
+                Text(selectedIDs.isEmpty ? "Nothing selected" : "\(selectedIDs.count) selected")
+                    .font(.sift(13.5, weight: 500).monospacedDigit())
+                    .foregroundStyle(SiftColor.textPrimary)
+                Text(selectedIDs.isEmpty ? "Select the extra copies you want to review" : "\(format(selectedSize)) will move to Trash")
+                    .siftStyle(.label)
             }
+            Spacer()
+            if !selectedIDs.isEmpty {
+                Button("Clear Selection") { selectedIDs.removeAll() }
+                    .buttonStyle(.sift(.quiet))
+                    .disabled(isMovingToTrash)
+            }
+            Button {
+                showsTrashConfirmation = true
+            } label: {
+                if isMovingToTrash {
+                    ProgressView()
+                        .controlSize(.small)
+                        .frame(minWidth: 100)
+                } else {
+                    Label("Move to Trash", systemImage: "trash")
+                }
+            }
+            .buttonStyle(.siftPrimary)
+            .disabled(selectedIDs.isEmpty || isMovingToTrash || state == .scanning)
+            .accessibilityHint("Shows a confirmation before moving the selected copies")
         }
+        .padding(.leading, 18)
+        .padding(.trailing, 12)
+        .frame(height: 64)
+        .background(Capsule(style: .continuous).fill(SiftColor.control))
+        .overlay(Capsule(style: .continuous).strokeBorder(SiftColor.controlStroke, lineWidth: 1))
     }
 
     private var headerSubtitle: String {
@@ -548,7 +475,7 @@ struct DuplicateFinderView: View {
     }
 
     private func toggleExpanded(_ group: DuplicateGroup) {
-        withAnimation(MotionTokens.gentle) {
+        withAnimation(SiftMotion.snappy) {
             if expandedGroupIDs.contains(group.id) {
                 expandedGroupIDs.remove(group.id)
             } else {
@@ -562,7 +489,7 @@ struct DuplicateFinderView: View {
         let panel = NSOpenPanel()
         panel.title = String(localized: "Choose a folder to check for duplicate files")
         panel.prompt = String(localized: "Scan Folder")
-        panel.message = String(localized: "PureMac reads the selected folder and does not change anything during a scan.")
+        panel.message = String(localized: "Sift reads the selected folder and does not change anything during a scan.")
         panel.canChooseFiles = false
         panel.canChooseDirectories = true
         panel.allowsMultipleSelection = false

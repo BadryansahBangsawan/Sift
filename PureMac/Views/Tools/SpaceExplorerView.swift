@@ -34,7 +34,7 @@ final class SpaceExplorerViewModel: ObservableObject {
     func chooseFolder() {
         let panel = NSOpenPanel()
         panel.title = String(localized: "Choose a folder to inspect")
-        panel.message = String(localized: "PureMac measures allocated disk space without changing files.")
+        panel.message = String(localized: "Sift measures allocated disk space without changing files.")
         panel.prompt = String(localized: "Inspect")
         panel.canChooseFiles = false
         panel.canChooseDirectories = true
@@ -120,7 +120,7 @@ struct SpaceExplorerView: View {
     @StateObject private var model = SpaceExplorerViewModel()
 
     var body: some View {
-        VStack(spacing: 14) {
+        VStack(spacing: SiftSpacing.gutter) {
             header
 
             if let currentURL = model.currentURL {
@@ -129,9 +129,7 @@ struct SpaceExplorerView: View {
 
             content
         }
-        .padding(24)
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Color(nsColor: .windowBackgroundColor))
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .navigationTitle("Space Explorer")
         .onDisappear {
             model.cancel()
@@ -139,70 +137,49 @@ struct SpaceExplorerView: View {
     }
 
     private var header: some View {
-        HStack(alignment: .center, spacing: 14) {
-            IconTile(systemName: "internaldrive", tint: Tint.accent, size: 44, corner: 12)
-
-            VStack(alignment: .leading, spacing: 3) {
-                Text("Space Explorer")
-                    .font(.system(size: 24, weight: .bold))
-                Text("Inspect a folder by allocated disk space. Your files are never changed.")
-                    .font(.system(size: 12.5))
-                    .foregroundStyle(.secondary)
-            }
-
-            Spacer()
-
+        SiftToolHeader(
+            Text("Space Explorer"),
+            eyebrow: Text("Tools"),
+            subtitle: Text("Inspect a folder by allocated disk space. Your files are never changed.")
+        ) {
             Button {
                 model.chooseFolder()
             } label: {
                 Label(model.currentURL == nil ? "Choose Folder" : "Choose Another Folder", systemImage: "folder.badge.plus")
             }
-            .buttonStyle(.borderedProminent)
-            .tint(Tint.accent)
-            .controlSize(.large)
+            .buttonStyle(.siftPrimary)
             .disabled(model.isScanning)
         }
     }
 
     private func locationBar(_ url: URL) -> some View {
-        CardSurface(padding: 10, elevation: .flat, tint: Tint.accent) {
-            HStack(spacing: 10) {
-                Button {
-                    model.goBack()
-                } label: {
-                    Image(systemName: "chevron.left")
-                        .frame(width: 20, height: 20)
-                }
-                .buttonStyle(.borderless)
-                .disabled(!model.canGoBack)
-                .help("Back")
-
-                Image(systemName: "folder.fill")
-                    .foregroundStyle(Tint.accent)
-
-                Text(url.path)
-                    .font(.system(size: 12, weight: .medium, design: .monospaced))
-                    .lineLimit(1)
-                    .truncationMode(.middle)
-                    .textSelection(.enabled)
-
-                Spacer(minLength: 8)
-
-                Button {
-                    model.reveal(url)
-                } label: {
-                    Label("Show in Finder", systemImage: "arrow.forward.square")
-                }
-                .buttonStyle(.borderless)
-
-                Button {
-                    model.rescan()
-                } label: {
-                    Label("Rescan", systemImage: "arrow.clockwise")
-                }
-                .buttonStyle(.borderless)
-                .disabled(model.isScanning)
+        SiftPathBar(path: url.path) {
+            Button {
+                model.goBack()
+            } label: {
+                Image(systemName: "chevron.left")
+                    .font(.system(size: 13, weight: .medium))
+                    .foregroundStyle(SiftColor.textSecondary)
             }
+            .buttonStyle(.siftQuiet)
+            .disabled(!model.canGoBack)
+            .help("Back")
+            .accessibilityLabel(Text("Back"))
+        } actions: {
+            Button {
+                model.reveal(url)
+            } label: {
+                Label("Show in Finder", systemImage: "folder")
+            }
+            .buttonStyle(.sift(.secondary, compact: true))
+
+            Button {
+                model.rescan()
+            } label: {
+                Label("Rescan", systemImage: "arrow.clockwise")
+            }
+            .buttonStyle(.sift(.secondary, compact: true))
+            .disabled(model.isScanning)
         }
     }
 
@@ -223,116 +200,78 @@ struct SpaceExplorerView: View {
             messageState(
                 title: "Folder could not be inspected",
                 message: message,
-                systemImage: "exclamationmark.folder",
-                tint: Tint.orange
+                icon: .triangleAlert,
+                tone: .warning
             )
         case .cancelled:
             messageState(
                 title: "Scan stopped",
                 message: String(localized: "No files were changed. Rescan this folder when you are ready."),
-                systemImage: "stop.circle",
-                tint: .secondary
+                icon: .info,
+                tone: .neutral
             )
         }
     }
 
     private var idleState: some View {
-        CardSurface(padding: 28, elevation: .standard, tint: Tint.accent) {
-            VStack(spacing: 12) {
-                IconTile(systemName: "folder", tint: Tint.accent, size: 58, corner: 16)
-                Text("Choose where to look")
-                    .font(.system(size: 18, weight: .semibold))
-                Text("Select any folder to see which files and subfolders occupy the most disk space.")
-                    .font(.system(size: 13))
-                    .foregroundStyle(.secondary)
-                    .multilineTextAlignment(.center)
-                    .frame(maxWidth: 420)
-                Text("Symbolic links and cloud-only items are excluded.")
-                    .font(.system(size: 11.5))
-                    .foregroundStyle(.tertiary)
-            }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-        }
+        SiftEmptyState(
+            icon: .chartPie,
+            title: Text("Choose where to look"),
+            message: Text("Select any folder to see which files and subfolders occupy the most disk space."),
+            footnote: Text("Symbolic links and cloud-only items are excluded.")
+        )
     }
 
     private var scanningState: some View {
-        CardSurface(padding: 24, elevation: .standard, tint: Tint.accent) {
-            VStack(alignment: .leading, spacing: 16) {
-                HStack(spacing: 12) {
-                    ProgressView()
-                        .controlSize(.small)
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text("Measuring allocated space")
-                            .font(.system(size: 16, weight: .semibold))
-                        Text(model.progress?.currentURL.lastPathComponent ?? String(localized: "Preparing scan"))
-                            .font(.system(size: 12))
-                            .foregroundStyle(.secondary)
-                            .lineLimit(1)
-                            .truncationMode(.middle)
-                    }
-                    Spacer()
-                    Button("Stop") {
-                        model.cancel()
-                    }
-                    .buttonStyle(.bordered)
-                }
-
-                ProgressView()
-                    .progressViewStyle(.linear)
-                    .tint(Tint.accent)
-
-                HStack(spacing: 8) {
-                    StatusChip(
-                        label: String(localized: "\(model.progress?.scannedItemCount ?? 0) items"),
-                        systemImage: "doc.on.doc",
-                        tint: Tint.accent
-                    )
-                    StatusChip(
-                        label: Self.format(model.progress?.allocatedSize ?? 0),
-                        systemImage: "internaldrive",
-                        tint: Tint.accent
-                    )
-                    if let progress = model.progress, progress.skippedCount > 0 {
-                        StatusChip(label: String(localized: "\(progress.skippedCount) skipped"), systemImage: "forward", tint: Tint.orange)
-                    }
-                    if let progress = model.progress, progress.inaccessibleCount > 0 {
-                        StatusChip(label: String(localized: "\(progress.inaccessibleCount) inaccessible"), systemImage: "lock", tint: Tint.orange)
-                    }
-                }
+        SiftScanningCard(
+            title: Text("Measuring allocated space"),
+            detail: Text(verbatim: model.progress?.currentURL.lastPathComponent ?? String(localized: "Preparing scan")),
+            stop: { model.cancel() }
+        ) {
+            SiftCountPill(String(localized: "\(model.progress?.scannedItemCount ?? 0) items"))
+            SiftCountPill(Self.format(model.progress?.allocatedSize ?? 0))
+            if let progress = model.progress, progress.skippedCount > 0 {
+                SiftCountPill(String(localized: "\(progress.skippedCount) skipped"), tone: .warning)
             }
-            .frame(maxWidth: .infinity)
+            if let progress = model.progress, progress.inaccessibleCount > 0 {
+                SiftCountPill(String(localized: "\(progress.inaccessibleCount) inaccessible"), tone: .warning)
+            }
         }
     }
 
     private func resultView(_ result: StorageScanResult) -> some View {
         ScrollView {
-            LazyVStack(alignment: .leading, spacing: 14) {
+            VStack(alignment: .leading, spacing: SiftSpacing.gutter) {
                 summaryCard(result)
 
                 if result.entries.isEmpty {
-                    CardSurface(padding: 24, elevation: .flat) {
-                        HStack(spacing: 12) {
-                            IconTile(systemName: "folder", tint: Tint.accent, size: 36, corner: 10)
-                            VStack(alignment: .leading, spacing: 3) {
-                                Text("No measurable items")
-                                    .font(.system(size: 14, weight: .semibold))
-                                Text("This folder is empty or its contents were excluded from the scan.")
-                                    .font(.system(size: 12))
-                                    .foregroundStyle(.secondary)
+                    HStack(spacing: 12) {
+                        SiftIconTile(icon: .folder)
+                        VStack(alignment: .leading, spacing: 3) {
+                            Text("No measurable items")
+                                .siftStyle(.bodyStrong)
+                            Text("This folder is empty or its contents were excluded from the scan.")
+                                .siftStyle(.label)
+                        }
+                        Spacer(minLength: 0)
+                    }
+                    .siftSurface(.card)
+                } else {
+                    VStack(alignment: .leading, spacing: 14) {
+                        SiftCardHeader(Text("Largest items"))
+                        LazyVStack(spacing: 2) {
+                            ForEach(Array(result.entries.enumerated()), id: \.element.id) { index, entry in
+                                StorageEntryRow(
+                                    entry: entry,
+                                    totalSize: result.totalAllocatedSize,
+                                    emphasized: index == 0,
+                                    onOpen: { model.open(entry) },
+                                    onReveal: { model.reveal(entry.url) }
+                                )
                             }
                         }
-                        .frame(maxWidth: .infinity, alignment: .leading)
                     }
-                } else {
-                    SectionHeader("Largest items")
-                    ForEach(result.entries) { entry in
-                        StorageEntryRow(
-                            entry: entry,
-                            totalSize: result.totalAllocatedSize,
-                            onOpen: { model.open(entry) },
-                            onReveal: { model.reveal(entry.url) }
-                        )
-                    }
+                    .siftSurface(.card)
                 }
             }
             .padding(.bottom, 2)
@@ -340,59 +279,31 @@ struct SpaceExplorerView: View {
     }
 
     private func summaryCard(_ result: StorageScanResult) -> some View {
-        CardSurface(padding: 16, elevation: .flat) {
-            HStack(alignment: .center, spacing: 20) {
-                VStack(alignment: .leading, spacing: 3) {
-                    Text(Self.format(result.totalAllocatedSize))
-                        .font(.system(size: 21, weight: .semibold))
-                        .monospacedDigit()
-                    Text("allocated in this folder")
-                        .font(.system(size: 12.5))
-                        .foregroundStyle(.secondary)
+        HStack(alignment: .center, spacing: 16) {
+            VStack(alignment: .leading, spacing: 12) {
+                SiftStat(Self.format(result.totalAllocatedSize), label: Text("allocated in this folder"))
+                HStack(spacing: 8) {
+                    SiftCountPill(StorageEntryRow.fileCountLabel(result.fileCount))
+                    SiftCountPill(StorageEntryRow.folderCountLabel(result.directoryCount))
+                    SiftCountPill(String(localized: "\(result.skippedCount) skipped · \(result.inaccessibleCount) inaccessible"))
                 }
+            }
 
-                Divider()
-                    .frame(height: 38)
+            Spacer()
 
-                VStack(alignment: .leading, spacing: 5) {
-                    HStack(spacing: 12) {
-                        Text(StorageEntryRow.fileCountLabel(result.fileCount))
-                        Text(StorageEntryRow.folderCountLabel(result.directoryCount))
-                    }
-                    .font(.system(size: 13, weight: .medium))
-                    Text("\(result.skippedCount) skipped · \(result.inaccessibleCount) inaccessible")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                }
-                .monospacedDigit()
-
-                Spacer()
-
-                if result.isPartial {
-                    StatusChip(label: String(localized: "Partial result"), systemImage: "exclamationmark.triangle", tint: Tint.orange)
-                }
+            if result.isPartial {
+                SiftStatusPill(Text("Partial result"), tone: .warning)
             }
         }
+        .siftSurface(.card)
     }
 
-    private func messageState(title: LocalizedStringKey, message: String, systemImage: String, tint: Color) -> some View {
-        CardSurface(padding: 28, elevation: .standard, tint: tint) {
-            VStack(spacing: 12) {
-                IconTile(systemName: systemImage, tint: tint, size: 54, corner: 15)
-                Text(title)
-                    .font(.system(size: 18, weight: .semibold))
-                Text(message)
-                    .font(.system(size: 13))
-                    .foregroundStyle(.secondary)
-                    .multilineTextAlignment(.center)
-                    .frame(maxWidth: 460)
-                Button("Rescan") {
-                    model.rescan()
-                }
-                .buttonStyle(.borderedProminent)
-                .tint(Tint.accent)
+    private func messageState(title: LocalizedStringKey, message: String, icon: SiftIcon, tone: SiftTone) -> some View {
+        SiftEmptyState(icon: icon, tone: tone, title: Text(title), message: Text(message)) {
+            Button("Rescan") {
+                model.rescan()
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .buttonStyle(.siftSecondary)
         }
     }
 
@@ -401,36 +312,40 @@ struct SpaceExplorerView: View {
     }
 }
 
+/// A "Where it sits" row: icon tile, name and counts, share bar, size, chevron.
 private struct StorageEntryRow: View {
     let entry: StorageEntry
     let totalSize: Int64
+    let emphasized: Bool
     let onOpen: () -> Void
     let onReveal: () -> Void
 
     var body: some View {
-        CardSurface(padding: 12, elevation: .flat) {
-            HStack(spacing: 12) {
-                Group {
-                    if entry.isDirectory {
-                        Button(action: onOpen) {
-                            entryContent
-                        }
-                        .buttonStyle(.plain)
-                    } else {
+        HStack(spacing: 6) {
+            Group {
+                if entry.isDirectory {
+                    Button(action: onOpen) {
                         entryContent
                     }
+                    .buttonStyle(.plain)
+                } else {
+                    entryContent
                 }
-                .frame(maxWidth: .infinity)
-
-                Button(action: onReveal) {
-                    Image(systemName: "arrow.forward.square")
-                        .frame(width: 24, height: 24)
-                }
-                .buttonStyle(.borderless)
-                .help("Show in Finder")
-                .accessibilityLabel("Show \(entry.name) in Finder")
             }
+            .frame(maxWidth: .infinity)
+
+            Button(action: onReveal) {
+                SiftIcon.folderOpen.image(14)
+                    .foregroundStyle(SiftColor.textTertiary)
+            }
+            .buttonStyle(.siftQuiet)
+            .help("Show in Finder")
+            .accessibilityLabel("Show \(entry.name) in Finder")
         }
+        .padding(.leading, 10)
+        .padding(.trailing, 4)
+        .frame(minHeight: 48)
+        .siftRowBackground()
         .contextMenu {
             if entry.isDirectory {
                 Button("Open Folder", action: onOpen)
@@ -440,58 +355,55 @@ private struct StorageEntryRow: View {
     }
 
     private var entryContent: some View {
-        HStack(spacing: 12) {
-            IconTile(
-                systemName: entry.isDirectory ? "folder.fill" : (entry.isPackage ? "app.fill" : "doc.fill"),
-                tint: Tint.accent,
-                size: 34,
-                corner: 9
+        HStack(spacing: 14) {
+            SiftIconTile(
+                icon: entry.isDirectory ? .folder : (entry.isPackage ? .package : .file),
+                tone: emphasized ? .accent : .neutral
             )
 
-            VStack(alignment: .leading, spacing: 6) {
-                HStack(spacing: 7) {
+            VStack(alignment: .leading, spacing: 2) {
+                HStack(spacing: 6) {
                     Text(entry.name)
-                        .font(.system(size: 13.5, weight: .semibold))
+                        .siftStyle(.bodyStrong)
                         .lineLimit(1)
                         .truncationMode(.middle)
                     if entry.isPartial {
-                        Image(systemName: "exclamationmark.triangle.fill")
-                            .font(.system(size: 10))
-                            .foregroundStyle(Tint.orange)
+                        SiftIcon.triangleAlert.image(11)
+                            .foregroundStyle(SiftColor.warning)
                             .help("Some contents were skipped or inaccessible")
                     }
                 }
 
                 HStack(spacing: 8) {
                     Text(detailText)
-                        .font(.system(size: 11.5))
-                        .foregroundStyle(.secondary)
                     if entry.skippedCount > 0 {
                         Text("\(entry.skippedCount) skipped")
-                            .foregroundStyle(Tint.orange)
+                            .foregroundStyle(SiftColor.warning)
                     }
                     if entry.inaccessibleCount > 0 {
                         Text("\(entry.inaccessibleCount) inaccessible")
-                            .foregroundStyle(Tint.orange)
+                            .foregroundStyle(SiftColor.warning)
                     }
                 }
-                .font(.system(size: 11.5))
-
-                StorageUsageBar(value: entry.allocatedSize, total: totalSize)
+                .font(.siftMono(10.5))
+                .foregroundStyle(SiftColor.textTertiary)
+                .lineLimit(1)
             }
+            .frame(width: 250, alignment: .leading)
+
+            StorageUsageBar(value: entry.allocatedSize, total: totalSize, emphasized: emphasized)
 
             Text(Self.format(entry.allocatedSize))
-                .font(.system(size: 13, weight: .semibold, design: .rounded))
-                .monospacedDigit()
-                .foregroundStyle(.secondary)
+                .siftStyle(.rowValue)
+                .foregroundStyle(emphasized ? SiftColor.accent : SiftColor.textPrimary)
+                .lineLimit(1)
                 .frame(minWidth: 76, alignment: .trailing)
 
-            if entry.isDirectory {
-                Image(systemName: "chevron.right")
-                    .font(.system(size: 11, weight: .semibold))
-                    .foregroundStyle(.tertiary)
-            }
+            SiftIcon.chevronRight.image(16)
+                .foregroundStyle(emphasized ? SiftColor.accent : SiftColor.faint)
+                .opacity(entry.isDirectory ? 1 : 0)
         }
+        .padding(.vertical, 8)
         .contentShape(Rectangle())
         .accessibilityElement(children: .combine)
         .accessibilityLabel("\(entry.name), \(Self.format(entry.allocatedSize))")
@@ -525,6 +437,7 @@ private struct StorageEntryRow: View {
 private struct StorageUsageBar: View {
     let value: Int64
     let total: Int64
+    let emphasized: Bool
 
     private var ratio: Double {
         guard total > 0 else { return 0 }
@@ -532,18 +445,8 @@ private struct StorageUsageBar: View {
     }
 
     var body: some View {
-        GeometryReader { proxy in
-            ZStack(alignment: .leading) {
-                Capsule()
-                    .fill(Color.secondary.opacity(0.12))
-                Capsule()
-                    .fill(Tint.accent)
-                    .frame(width: proxy.size.width * ratio)
-            }
-        }
-        .frame(height: 5)
-        .accessibilityElement()
-        .accessibilityLabel("Share of scanned space")
-        .accessibilityValue("\(Int((ratio * 100).rounded())) percent")
+        SiftMeterBar(fraction: ratio, fill: emphasized ? SiftColor.accent : SiftColor.accentDim)
+            .accessibilityLabel("Share of scanned space")
+            .accessibilityValue("\(Int((ratio * 100).rounded())) percent")
     }
 }

@@ -32,7 +32,7 @@ final class SimilarPhotosViewModel: ObservableObject {
     func chooseFolder() {
         let panel = NSOpenPanel()
         panel.title = String(localized: "Choose a photo folder")
-        panel.message = String(localized: "PureMac compares local image thumbnails without changing your photos.")
+        panel.message = String(localized: "Sift compares local image thumbnails without changing your photos.")
         panel.prompt = String(localized: "Scan Photos")
         panel.canChooseFiles = false
         panel.canChooseDirectories = true
@@ -111,23 +111,14 @@ struct SimilarPhotosView: View {
     }
 
     var body: some View {
-        ZStack {
-            Color(nsColor: .windowBackgroundColor)
-                .ignoresSafeArea()
-
-            ScrollView {
-                LazyVStack(alignment: .leading, spacing: 14) {
-                    header
-                    if let folder = model.folder {
-                        locationCard(folder)
-                    }
-                    content
-                }
-                .padding(24)
-                .frame(maxWidth: 1040, alignment: .leading)
-                .frame(maxWidth: .infinity)
+        VStack(spacing: SiftSpacing.gutter) {
+            header
+            if let folder = model.folder {
+                locationBar(folder)
             }
+            content
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .navigationTitle("Similar Photos")
         .onDisappear {
             model.cancel()
@@ -135,56 +126,36 @@ struct SimilarPhotosView: View {
     }
 
     private var header: some View {
-        HStack(alignment: .center, spacing: 16) {
-            IconTile(systemName: "photo.stack.fill", tint: Tint.pink, size: 48, corner: 13, vivid: true)
-
-            VStack(alignment: .leading, spacing: 4) {
-                Text("Similar Photos")
-                    .font(.system(size: 25, weight: .bold))
-                Text("Find visually related shots in a folder and review them side by side.")
-                    .font(.callout)
-                    .foregroundStyle(.secondary)
-            }
-
-            Spacer()
-
+        SiftToolHeader(
+            Text("Similar Photos"),
+            eyebrow: Text("Tools"),
+            subtitle: Text("Find visually related shots in a folder and review them side by side.")
+        ) {
             Button {
                 model.chooseFolder()
             } label: {
                 Label(model.folder == nil ? "Choose Folder" : "Choose Another Folder", systemImage: "folder.badge.plus")
             }
-            .buttonStyle(.borderedProminent)
-            .tint(Tint.pink)
-            .controlSize(.large)
+            .buttonStyle(.siftPrimary)
             .disabled(model.isScanning)
         }
     }
 
-    private func locationCard(_ folder: URL) -> some View {
-        CardSurface(padding: 11, elevation: .flat, tint: Tint.pink) {
-            HStack(spacing: 10) {
-                Image(systemName: "folder.fill")
-                    .foregroundStyle(Tint.pink)
-                Text(folder.path)
-                    .font(.system(size: 12, weight: .medium, design: .monospaced))
-                    .lineLimit(1)
-                    .truncationMode(.middle)
-                    .textSelection(.enabled)
-                Spacer(minLength: 8)
-                Button {
-                    model.reveal(folder)
-                } label: {
-                    Label("Show in Finder", systemImage: "arrow.forward.square")
-                }
-                .buttonStyle(.borderless)
-                Button {
-                    model.rescan()
-                } label: {
-                    Label("Rescan", systemImage: "arrow.clockwise")
-                }
-                .buttonStyle(.borderless)
-                .disabled(model.isScanning)
+    private func locationBar(_ folder: URL) -> some View {
+        SiftPathBar(path: folder.path) {
+            Button {
+                model.reveal(folder)
+            } label: {
+                Label("Show in Finder", systemImage: "folder")
             }
+            .buttonStyle(.sift(.secondary, compact: true))
+            Button {
+                model.rescan()
+            } label: {
+                Label("Rescan", systemImage: "arrow.clockwise")
+            }
+            .buttonStyle(.sift(.secondary, compact: true))
+            .disabled(model.isScanning)
         }
     }
 
@@ -205,82 +176,38 @@ struct SimilarPhotosView: View {
             messageState(
                 title: "Photos could not be compared",
                 message: message,
-                systemImage: "exclamationmark.triangle.fill",
-                tint: Tint.orange
+                icon: .triangleAlert,
+                tone: .warning
             )
         case .cancelled:
             messageState(
                 title: "Scan stopped",
                 message: String(localized: "No photos were changed. You can scan the folder again at any time."),
-                systemImage: "stop.circle",
-                tint: .secondary
+                icon: .info,
+                tone: .neutral
             )
         }
     }
 
     private var idleState: some View {
-        CardSurface(padding: 20, elevation: .flat) {
-            VStack(alignment: .leading, spacing: 10) {
-                Text("Choose a folder of photos")
-                    .font(.system(size: 16, weight: .semibold))
-                Text("Compare local photos by appearance and review likely matches side by side. Photos are never uploaded or deleted.")
-                    .font(.system(size: 13))
-                    .foregroundStyle(.secondary)
-                    .fixedSize(horizontal: false, vertical: true)
-                Text("Up to 500 photos and 10,000 directory entries per scan. Symbolic links, packages, hidden files, and cloud-only items are skipped.")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                    .fixedSize(horizontal: false, vertical: true)
-            }
-            .frame(maxWidth: .infinity, alignment: .leading)
-        }
+        SiftEmptyState(
+            icon: .images,
+            title: Text("Choose a folder of photos"),
+            message: Text("Compare local photos by appearance and review likely matches side by side. Photos are never uploaded or deleted."),
+            footnote: Text("Up to 500 photos and 10,000 directory entries per scan. Symbolic links, packages, hidden files, and cloud-only items are skipped.")
+        )
     }
 
     private var scanningState: some View {
-        CardSurface(padding: 24, elevation: .standard, tint: Tint.pink) {
-            VStack(alignment: .leading, spacing: 16) {
-                HStack(spacing: 13) {
-                    ProgressView()
-                        .controlSize(.small)
-                    VStack(alignment: .leading, spacing: 3) {
-                        Text(progressTitle)
-                            .font(.system(size: 16, weight: .semibold))
-                        Text(model.progress?.currentURL?.lastPathComponent ?? String(localized: "Preparing visual comparison"))
-                            .font(.system(size: 12))
-                            .foregroundStyle(.secondary)
-                            .lineLimit(1)
-                            .truncationMode(.middle)
-                    }
-                    Spacer()
-                    Button("Stop") {
-                        model.cancel()
-                    }
-                    .buttonStyle(.bordered)
-                }
-
-                ProgressView()
-                    .progressViewStyle(.linear)
-                    .tint(Tint.pink)
-
-                HStack(spacing: 8) {
-                    StatusChip(
-                        label: String(localized: "\(model.progress?.entriesVisited ?? 0) items"),
-                        systemImage: "doc.on.doc",
-                        tint: Tint.pink
-                    )
-                    StatusChip(
-                        label: String(localized: "\(model.progress?.candidatesFound ?? 0) photos"),
-                        systemImage: "photo",
-                        tint: Tint.pink
-                    )
-                    if let progress = model.progress, progress.photosAnalyzed > 0 {
-                        StatusChip(
-                            label: String(localized: "\(progress.photosAnalyzed) compared"),
-                            systemImage: "viewfinder",
-                            tint: Tint.blue
-                        )
-                    }
-                }
+        SiftScanningCard(
+            title: Text(verbatim: progressTitle),
+            detail: Text(verbatim: model.progress?.currentURL?.lastPathComponent ?? String(localized: "Preparing visual comparison")),
+            stop: { model.cancel() }
+        ) {
+            SiftCountPill(String(localized: "\(model.progress?.entriesVisited ?? 0) items"))
+            SiftCountPill(String(localized: "\(model.progress?.candidatesFound ?? 0) photos"))
+            if let progress = model.progress, progress.photosAnalyzed > 0 {
+                SiftCountPill(String(localized: "\(progress.photosAnalyzed) compared"), tone: .accent)
             }
         }
     }
@@ -297,97 +224,67 @@ struct SimilarPhotosView: View {
     }
 
     private func resultView(_ result: SimilarPhotoScanResult) -> some View {
-        VStack(alignment: .leading, spacing: 14) {
-            summaryCard(result)
+        ScrollView {
+            LazyVStack(alignment: .leading, spacing: SiftSpacing.gutter) {
+                summaryCard(result)
 
-            CardSurface(padding: 14, elevation: .flat, tint: Tint.blue) {
-                HStack(alignment: .top, spacing: 11) {
-                    IconTile(systemName: "eye.fill", tint: Tint.blue, size: 30, corner: 8)
-                    VStack(alignment: .leading, spacing: 3) {
-                        Text("Review the groups before acting")
-                            .font(.system(size: 13.5, weight: .semibold))
-                        Text("Similarity is a visual estimate, not proof that two files are identical. Use Show in Finder to compare originals at full quality.")
-                            .font(.system(size: 11.5))
-                            .foregroundStyle(.secondary)
-                            .fixedSize(horizontal: false, vertical: true)
+                SiftNotice(
+                    icon: .scanSearch,
+                    tone: .info,
+                    title: Text("Review the groups before acting"),
+                    message: Text("Similarity is a visual estimate, not proof that two files are identical. Use Show in Finder to compare originals at full quality.")
+                )
+
+                if result.groups.isEmpty {
+                    SiftEmptyState(
+                        icon: .check,
+                        tone: .success,
+                        title: Text("No similar groups found"),
+                        message: Text("The analyzed photos did not meet Sift's visual similarity threshold.")
+                    )
+                } else {
+                    Text("Suggested groups")
+                        .font(.sift(12.5))
+                        .foregroundStyle(SiftColor.textSecondary)
+                        .padding(.horizontal, 4)
+                        .padding(.top, 4)
+                        .accessibilityAddTraits(.isHeader)
+                    ForEach(Array(result.groups.enumerated()), id: \.element.id) { index, group in
+                        SimilarPhotoGroupCard(index: index + 1, group: group, onReveal: model.reveal)
                     }
                 }
             }
-
-            if result.groups.isEmpty {
-                CardSurface(padding: 28, elevation: .standard) {
-                    VStack(spacing: 12) {
-                        IconTile(systemName: "checkmark.circle.fill", tint: Tint.green, size: 52, corner: 14)
-                        Text("No similar groups found")
-                            .font(.system(size: 18, weight: .semibold))
-                        Text("The analyzed photos did not meet PureMac's visual similarity threshold.")
-                            .font(.system(size: 13))
-                            .foregroundStyle(.secondary)
-                    }
-                    .frame(maxWidth: .infinity, minHeight: 180)
-                }
-            } else {
-                SectionHeader("Suggested groups")
-                ForEach(Array(result.groups.enumerated()), id: \.element.id) { index, group in
-                    SimilarPhotoGroupCard(index: index + 1, group: group, onReveal: model.reveal)
-                }
-            }
+            .padding(.bottom, 2)
         }
     }
 
     private func summaryCard(_ result: SimilarPhotoScanResult) -> some View {
-        CardSurface(padding: 16, elevation: .flat) {
-            HStack(spacing: 20) {
-                VStack(alignment: .leading, spacing: 3) {
-                    Text("\(result.groups.count)")
-                        .font(.system(size: 21, weight: .semibold))
-                        .monospacedDigit()
-                    Text(result.groups.count == 1 ? "similar group" : "similar groups")
-                        .font(.system(size: 12.5))
-                        .foregroundStyle(.secondary)
+        HStack(alignment: .center, spacing: 16) {
+            VStack(alignment: .leading, spacing: 12) {
+                SiftStat("\(result.groups.count)", label: Text(result.groups.count == 1 ? "similar group" : "similar groups"))
+                HStack(spacing: 8) {
+                    SiftCountPill(String(localized: "\(result.photosAnalyzed) analyzed · \(result.matchedPhotoCount) matched"))
+                    SiftCountPill(String(localized: "\(Self.format(result.matchedPhotoSize)) in matched photos · \(result.skippedItems) skipped"))
                 }
+            }
 
-                Divider()
-                    .frame(height: 38)
+            Spacer()
 
-                VStack(alignment: .leading, spacing: 5) {
-                    Text("\(result.photosAnalyzed) analyzed · \(result.matchedPhotoCount) matched")
-                        .font(.system(size: 13, weight: .medium))
-                    Text("\(Self.format(result.matchedPhotoSize)) in matched photos · \(result.skippedItems) skipped")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                }
-                .monospacedDigit()
-
-                Spacer()
-
-                if result.isPartial {
-                    StatusChip(label: String(localized: "Sample limit reached"), systemImage: "exclamationmark.triangle", tint: Tint.orange)
-                }
+            if result.isPartial {
+                SiftStatusPill(Text("Sample limit reached"), tone: .warning)
             }
         }
+        .siftSurface(.card)
     }
 
-    private func messageState(title: LocalizedStringKey, message: String, systemImage: String, tint: Color) -> some View {
-        CardSurface(padding: 30, elevation: .standard, tint: tint) {
-            VStack(spacing: 13) {
-                IconTile(systemName: systemImage, tint: tint, size: 54, corner: 15)
-                Text(title)
-                    .font(.system(size: 18, weight: .semibold))
-                Text(message)
-                    .font(.system(size: 13))
-                    .foregroundStyle(.secondary)
-                    .multilineTextAlignment(.center)
-                    .frame(maxWidth: 480)
-                if model.folder != nil {
-                    Button("Scan Again") {
-                        model.rescan()
-                    }
-                    .buttonStyle(.borderedProminent)
-                    .tint(Tint.pink)
+    private func messageState(title: LocalizedStringKey, message: String, icon: SiftIcon, tone: SiftTone) -> some View {
+        SiftEmptyState(icon: icon, tone: tone, title: Text(title), message: Text(message)) {
+            if model.folder != nil {
+                Button("Scan Again") {
+                    model.rescan()
                 }
+                .buttonStyle(.siftSecondary)
             }
-            .frame(maxWidth: .infinity, minHeight: 220)
         }
     }
 
@@ -404,36 +301,29 @@ private struct SimilarPhotoGroupCard: View {
     private let columns = [GridItem(.adaptive(minimum: 190, maximum: 250), spacing: 12)]
 
     var body: some View {
-        CardSurface(padding: 0, elevation: .standard) {
-            VStack(alignment: .leading, spacing: 0) {
-                HStack(spacing: 10) {
-                    IconTile(systemName: "photo.stack.fill", tint: Tint.pink, size: 32, corner: 9)
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text("Group \(index)")
-                            .font(.system(size: 15, weight: .semibold))
-                        Text("\(group.photos.count) photos · \(Self.format(group.totalSize))")
-                            .font(.system(size: 11.5))
-                            .foregroundStyle(.secondary)
-                    }
-                    Spacer()
-                    StatusChip(
-                        label: String(localized: "\(Int((group.similarity * 100).rounded()))% visual score"),
-                        systemImage: "viewfinder",
-                        tint: Tint.pink
-                    )
+        VStack(alignment: .leading, spacing: 14) {
+            HStack(spacing: 10) {
+                SiftIconTile(icon: .images, tone: .accent)
+                VStack(alignment: .leading, spacing: 3) {
+                    Text("Group \(index)")
+                        .siftStyle(.cardTitle)
+                    Text("\(group.photos.count) photos · \(Self.format(group.totalSize))")
+                        .siftStyle(.monoSmall)
                 }
-                .padding(16)
+                Spacer()
+                SiftStatusPill(
+                    Text(verbatim: String(localized: "\(Int((group.similarity * 100).rounded()))% visual score")),
+                    tone: .accent
+                )
+            }
 
-                Divider()
-
-                LazyVGrid(columns: columns, alignment: .leading, spacing: 12) {
-                    ForEach(group.photos) { photo in
-                        SimilarPhotoTile(photo: photo, onReveal: { onReveal(photo.url) })
-                    }
+            LazyVGrid(columns: columns, alignment: .leading, spacing: 12) {
+                ForEach(group.photos) { photo in
+                    SimilarPhotoTile(photo: photo, onReveal: { onReveal(photo.url) })
                 }
-                .padding(14)
             }
         }
+        .siftSurface(.card)
     }
 
     private static func format(_ bytes: Int64) -> String {
@@ -446,59 +336,48 @@ private struct SimilarPhotoTile: View {
     let onReveal: () -> Void
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 9) {
+        VStack(alignment: .leading, spacing: 10) {
             ZStack {
-                RoundedRectangle(cornerRadius: 10, style: .continuous)
-                    .fill(Color.secondary.opacity(0.08))
+                RoundedRectangle(cornerRadius: 12, style: .continuous)
+                    .fill(SiftColor.track)
                 if let image = NSImage(data: photo.thumbnailData) {
                     Image(nsImage: image)
                         .resizable()
                         .scaledToFill()
                 } else {
-                    Image(systemName: "photo")
-                        .font(.system(size: 28))
-                        .foregroundStyle(.tertiary)
+                    SiftIcon.photo.image(28)
+                        .foregroundStyle(SiftColor.textTertiary)
                 }
             }
             .frame(height: 132)
-            .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
-            .overlay {
-                RoundedRectangle(cornerRadius: 10, style: .continuous)
-                    .strokeBorder(Color.primary.opacity(0.08), lineWidth: 0.5)
-            }
+            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
 
-            Text(photo.url.lastPathComponent)
-                .font(.system(size: 12.5, weight: .semibold))
-                .lineLimit(1)
-                .truncationMode(.middle)
-                .help(photo.url.path)
+            VStack(alignment: .leading, spacing: 3) {
+                Text(photo.url.lastPathComponent)
+                    .font(.sift(12.5, weight: 500))
+                    .foregroundStyle(SiftColor.textPrimary)
+                    .lineLimit(1)
+                    .truncationMode(.middle)
+                    .help(photo.url.path)
 
-            HStack(spacing: 5) {
-                Text("\(photo.pixelWidth) × \(photo.pixelHeight)")
-                Text("·")
-                Text(Self.format(photo.size))
-                Spacer(minLength: 0)
+                HStack(spacing: 5) {
+                    Text("\(photo.pixelWidth) × \(photo.pixelHeight)")
+                    Text("·")
+                    Text(Self.format(photo.size))
+                    Spacer(minLength: 0)
+                }
+                .siftStyle(.monoSmall)
             }
-            .font(.system(size: 10.5, design: .monospaced))
-            .foregroundStyle(.secondary)
 
             Button(action: onReveal) {
-                Label("Show in Finder", systemImage: "arrow.forward.square")
+                Label("Show in Finder", systemImage: "folder")
                     .frame(maxWidth: .infinity)
             }
-            .buttonStyle(.bordered)
-            .controlSize(.small)
+            .buttonStyle(.sift(.secondary, compact: true))
             .accessibilityLabel("Show \(photo.url.lastPathComponent) in Finder")
         }
         .padding(10)
-        .background {
-            RoundedRectangle(cornerRadius: 12, style: .continuous)
-                .fill(Color(nsColor: .controlBackgroundColor).opacity(0.7))
-        }
-        .overlay {
-            RoundedRectangle(cornerRadius: 12, style: .continuous)
-                .strokeBorder(Color.primary.opacity(0.07), lineWidth: 0.5)
-        }
+        .siftSurface(.inset, padding: 0)
         .contextMenu {
             Button("Show in Finder", action: onReveal)
         }
