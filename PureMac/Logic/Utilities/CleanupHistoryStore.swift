@@ -12,8 +12,50 @@ struct CleanupRecord: Codable, Identifiable, Equatable {
     let date: Date
     let freedBytes: Int64
     let source: CleanupSource
+    /// Short label for the history row, e.g. a category name or "Emptied
+    /// Trash". Absent in records written before titles existed.
+    let title: String?
+    /// Stored as the raw value rather than the enum: a category withdrawn in a
+    /// later build must read back as nil, not fail the whole history decode.
+    private let categoryRawValue: String?
 
     var id: Date { date }
+
+    var category: CleaningCategory? {
+        categoryRawValue.flatMap(CleaningCategory.init(rawValue:))
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case date, freedBytes, source, title
+        case categoryRawValue = "category"
+    }
+
+    init(
+        date: Date,
+        freedBytes: Int64,
+        source: CleanupSource,
+        title: String? = nil,
+        category: CleaningCategory? = nil
+    ) {
+        self.date = date
+        self.freedBytes = freedBytes
+        self.source = source
+        self.title = title
+        self.categoryRawValue = category?.rawValue
+    }
+
+    /// Records dated in the same calendar month as `now`.
+    static func thisMonth(
+        _ records: [CleanupRecord],
+        now: Date = Date(),
+        calendar: Calendar = .current
+    ) -> [CleanupRecord] {
+        records.filter { calendar.isDate($0.date, equalTo: now, toGranularity: .month) }
+    }
+
+    static func totalFreed(_ records: [CleanupRecord]) -> Int64 {
+        records.reduce(0) { $0.saturatedSum($1.freedBytes) }
+    }
 }
 
 /// Append-only log of how much space each cleanup reclaimed, kept small enough
@@ -50,9 +92,18 @@ final class CleanupHistoryStore {
     /// Appends one record and returns the trimmed list, newest first, so the
     /// caller can publish it without a second disk read.
     @discardableResult
-    func record(freedBytes: Int64, source: CleanupSource, date: Date = Date()) -> [CleanupRecord] {
+    func record(
+        freedBytes: Int64,
+        source: CleanupSource,
+        title: String? = nil,
+        category: CleaningCategory? = nil,
+        date: Date = Date()
+    ) -> [CleanupRecord] {
         var records = load()
-        records.insert(CleanupRecord(date: date, freedBytes: freedBytes, source: source), at: 0)
+        records.insert(
+            CleanupRecord(date: date, freedBytes: freedBytes, source: source, title: title, category: category),
+            at: 0
+        )
         if records.count > Self.maxRecords {
             records.removeLast(records.count - Self.maxRecords)
         }

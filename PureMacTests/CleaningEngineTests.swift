@@ -133,6 +133,35 @@ final class CleaningEngineTests: XCTestCase {
         XCTAssertEqual(result.errors.count, 2)
     }
 
+    func testTrashItemsAreNeverDeletedByTheGenericCleanPath() async throws {
+        // Sits under ~/Library/Caches, an allow-listed root, so only the
+        // category refusal can keep it alive.
+        let file = fixtureRoot.appendingPathComponent("trashed.bin")
+        try Data(repeating: 5, count: 4096).write(to: file)
+
+        let result = await CleaningEngine().cleanItems([makeItem(path: file.path, size: 4096, category: .trash)]) { _ in }
+
+        XCTAssertTrue(fileManager.fileExists(atPath: file.path))
+        XCTAssertFalse(result.cleanedPaths.contains(file.path))
+        XCTAssertEqual(result.itemsCleaned, 0)
+        XCTAssertEqual(result.freedSpace, 0)
+        XCTAssertTrue(result.requiresAdmin.isEmpty)
+        XCTAssertTrue(result.errors.contains { $0.contains("Trash") })
+    }
+
+    func testAdminPassRefusesTrashItemsBeforeEscalating() async throws {
+        let file = fixtureRoot.appendingPathComponent("trashed-admin.bin")
+        try Data(repeating: 6, count: 4096).write(to: file)
+
+        let result = await CleaningEngine().cleanWithAdminPrivileges(
+            items: [makeItem(path: file.path, size: 4096, category: .trash)]
+        )
+
+        XCTAssertTrue(fileManager.fileExists(atPath: file.path))
+        XCTAssertEqual(result.itemsCleaned, 0)
+        XCTAssertTrue(result.errors.contains { $0.contains("Trash") })
+    }
+
     private func makeItem(
         path: String,
         size: Int64,

@@ -10,6 +10,7 @@ enum CleaningCategory: String, CaseIterable, Identifiable, Codable {
     case mailAttachments = "Mail Files"
     case largeFiles = "Large & Old Files"
     case installers = "Installers"
+    case trash = "Trash"
     case purgeableSpace = "Purgeable Space"
     case xcodeJunk = "Xcode Junk"
     case brewCache = "Brew Cache"
@@ -29,6 +30,7 @@ enum CleaningCategory: String, CaseIterable, Identifiable, Codable {
         case .mailAttachments: return "envelope.fill"
         case .largeFiles: return "doc.fill"
         case .installers: return "archivebox.fill"
+        case .trash: return "trash.fill"
         case .purgeableSpace: return "arrow.3.trianglepath"
         case .xcodeJunk: return "hammer.fill"
         case .brewCache: return "mug.fill"
@@ -48,6 +50,7 @@ enum CleaningCategory: String, CaseIterable, Identifiable, Codable {
         case .mailAttachments: return "Downloaded mail attachments"
         case .largeFiles: return "Files over 100 MB or older than 1 year"
         case .installers: return "Installer disk images and packages older than two weeks"
+        case .trash: return "Files in your Trash, emptied through Finder"
         case .purgeableSpace: return "Reserved by macOS - freed automatically when space is needed"
         case .xcodeJunk: return "Derived data, archives, and simulator runtimes"
         case .brewCache: return "Homebrew download cache"
@@ -67,6 +70,7 @@ enum CleaningCategory: String, CaseIterable, Identifiable, Codable {
         case .mailAttachments: return .orange
         case .largeFiles: return .yellow
         case .installers: return .red
+        case .trash: return .gray
         case .purgeableSpace: return .green
         case .xcodeJunk: return .cyan
         case .brewCache: return .mint
@@ -88,11 +92,29 @@ enum CleaningCategory: String, CaseIterable, Identifiable, Codable {
     // `appModifying` is excluded too — see the note on that property. Both of
     // those categories are withdrawn as of 2.9.5 and must not be scanned,
     // surfaced, or selectable anywhere in the UI.
+    //
+    // `trash` is excluded as well. Its items are never unlinked by the
+    // generic clean path (see CleaningEngine) and never belong to a scheduled
+    // auto-clean; the Trash is emptied only by asking Finder, after the user
+    // confirms. Smart Scan still measures it via `smartScanCategories`.
     static var scannable: [CleaningCategory] {
         allCases.filter {
-            $0 != .smartScan && $0 != .purgeableSpace && !appModifying.contains($0)
+            $0 != .smartScan && $0 != .purgeableSpace && $0 != .trash && !appModifying.contains($0)
         }
     }
+
+    /// What Smart Scan measures: every scannable category plus the Trash, which
+    /// is shown for its size but whose items start unselected and can only be
+    /// removed by `AppState.emptyTrash()`.
+    static var smartScanCategories: [CleaningCategory] {
+        scannable + [.trash]
+    }
+
+    /// Sidebar and dashboard group for developer tool caches.
+    static let developerCaches: [CleaningCategory] = [.xcodeJunk, .brewCache, .nodeCache, .dockerCache]
+
+    /// Sidebar and dashboard group for general system and app junk.
+    static let systemJunkGroup: [CleaningCategory] = [.systemJunk, .userCache, .aiApps]
 
     // Categories that rewrite app bundles in place (binary thinning,
     // localization stripping) instead of deleting junk.
@@ -189,6 +211,31 @@ struct CategoryResult: Identifiable {
     }
 
     var itemCount: Int { items.count }
+}
+
+// MARK: - Category Group Result
+
+/// Several categories' scan results merged for one sidebar or dashboard row.
+/// Items keep their own `category`, so cleaning still routes per category.
+struct CategoryGroupResult {
+    let categories: [CleaningCategory]
+    let items: [CleanableItem]
+    let totalSize: Int64
+
+    /// Categories without a result (not scanned yet, or emptied by a clean)
+    /// contribute nothing.
+    init(categories: [CleaningCategory], results: [CleaningCategory: CategoryResult]) {
+        self.categories = categories
+        let members = categories.compactMap { results[$0] }
+        items = members.flatMap(\.items)
+        totalSize = members.reduce(Int64(0)) { $0.saturatedSum($1.totalSize) }
+    }
+
+    var itemCount: Int { items.count }
+
+    var formattedSize: String {
+        ByteCountFormatter.string(fromByteCount: totalSize, countStyle: .file)
+    }
 }
 
 // MARK: - Schedule Settings

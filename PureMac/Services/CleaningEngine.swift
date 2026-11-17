@@ -47,6 +47,14 @@ actor CleaningEngine {
                 continue
             }
 
+            // The Trash is emptied only by Finder, after the user confirms
+            // (AppState.emptyTrash). Unlinking its contents here would make
+            // them unrecoverable with no Finder confirmation at all.
+            if item.category == .trash {
+                result.errors.append("Trash items are emptied through Finder, not deleted: \(item.name)")
+                continue
+            }
+
             if item.category == .aiApps, !isSupportedAIAppPath(item.path) {
                 result.errors.append("Unsupported AI app cleanup path: \(item.path)")
                 continue
@@ -285,6 +293,10 @@ actor CleaningEngine {
         // refuses to escalate.
         let exclusions = CleanupExclusions.paths()
         let validated: [(item: CleanableItem, resolved: String)] = items.compactMap { item in
+            guard item.category != .trash else {
+                result.errors.append("Trash items are emptied through Finder, not deleted: \(item.name)")
+                return nil
+            }
             guard item.category != .aiApps else {
                 result.errors.append("Administrator cleanup is unavailable for AI app data: \(item.name)")
                 return nil
@@ -641,7 +653,6 @@ actor CleaningEngine {
             "\(home)/Library/Developer/Xcode/UserData/Previews",
             "\(home)/Library/org.swift.swiftpm",
             "\(home)/Library/pnpm/store",
-            "\(home)/.Trash",
             "\(home)/.npm",
             "\(home)/.pnpm-store",
             "\(home)/.cache",

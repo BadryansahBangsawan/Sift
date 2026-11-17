@@ -67,6 +67,8 @@ actor ScanEngine {
             return scanLargeFiles()
         case .installers:
             return scanInstallers()
+        case .trash:
+            return scanTrash()
         case .purgeableSpace:
             return scanPurgeableSpace()
         case .xcodeJunk:
@@ -82,6 +84,16 @@ actor ScanEngine {
         case .languageFiles:
             return scanLanguageFiles()
         }
+    }
+
+    /// Total allocated size of ~/Library/Containers, for the dashboard's
+    /// "Containers" figure. Informational only: nothing here becomes a
+    /// cleanup item. Unreadable containers are skipped, and the walk stops
+    /// early when the calling task is cancelled.
+    func containersSize(onPath: (@Sendable (String) -> Void)? = nil) -> Int64 {
+        self.onPath = onPath
+        defer { self.onPath = nil }
+        return directorySize(path: "\(home)/Library/Containers")
     }
 
     func getDiskInfo() -> DiskInfo {
@@ -330,6 +342,7 @@ actor ScanEngine {
         // control until now (no scanner read it). Default true preserves the
         // previous always-skip behavior.
         let skipHidden = defaults.object(forKey: "settings.cleaning.skipHiddenFiles") as? Bool ?? true
+        let treatPlaceholdersAsFiles = defaults.bool(forKey: Self.treatICloudPlaceholdersAsFilesKey)
         var enumerationOptions: FileManager.DirectoryEnumerationOptions = [.skipsPackageDescendants]
         if skipHidden { enumerationOptions.insert(.skipsHiddenFiles) }
 
@@ -378,7 +391,8 @@ actor ScanEngine {
                 let isInstaller = InstallerScan.extensions.contains(fileURL.pathExtension.lowercased())
 
                 if !isInstaller,
-                   size > minSize || (modDate != nil && modDate! < oldCutoff && size > 10 * 1024 * 1024) {
+                   size > minSize || (modDate != nil && modDate! < oldCutoff && size > 10 * 1024 * 1024),
+                   includesFile(fileURL, treatICloudPlaceholdersAsFiles: treatPlaceholdersAsFiles) {
                     items.append(CleanableItem(
                         name: fileURL.lastPathComponent,
                         path: fileURL.path,
@@ -414,6 +428,7 @@ actor ScanEngine {
             .map(normalizePath)
             .filter { !$0.isEmpty }
         let skipHidden = defaults.object(forKey: "settings.cleaning.skipHiddenFiles") as? Bool ?? true
+        let treatPlaceholdersAsFiles = defaults.bool(forKey: Self.treatICloudPlaceholdersAsFilesKey)
 
         var enumerationOptions: FileManager.DirectoryEnumerationOptions = [.skipsPackageDescendants]
         if skipHidden { enumerationOptions.insert(.skipsHiddenFiles) }
@@ -451,7 +466,8 @@ actor ScanEngine {
                 let size = Int64(fileSize)
                 let modDate = resourceValues.contentModificationDate
                 guard size > 0,
-                      InstallerScan.isCandidate(extension: fileURL.pathExtension, modified: modDate, now: now)
+                      InstallerScan.isCandidate(extension: fileURL.pathExtension, modified: modDate, now: now),
+                      includesFile(fileURL, treatICloudPlaceholdersAsFiles: treatPlaceholdersAsFiles)
                 else { continue }
 
                 items.append(CleanableItem(
@@ -468,6 +484,51 @@ actor ScanEngine {
         items.sort { $0.size > $1.size }
         let totalSize = items.reduce(0) { $0 + $1.size }
         return CategoryResult(category: .installers, items: items, totalSize: totalSize)
+    }
+
+    /// Measures ~/.Trash only: one row per top-level entry, none selected.
+    ///
+    /// These rows are for display. Nothing here is ever unlinked — the Trash
+    /// is emptied by asking Finder (`AppState.emptyTrash()`), and
+    /// CleaningEngine refuses `.trash` items outright. Reading ~/.Trash needs
+    /// Full Disk Access; without it the listing fails and the category reads
+    /// as empty, like any other unreadable location.
+    private func scanTrash() -> CategoryResult {
+        let trashURL = URL(fileURLWithPath: "\(home)/.Trash", isDirectory: true)
+        let keys: [URLResourceKey] = [
+            .isDirectoryKey, .isSymbolicLinkKey, .totalFileAllocatedSizeKey,
+            .fileSizeKey, .contentModificationDateKey,
+        ]
+        let entries: [URL]
+        do {
+            entries = try fileManager.contentsOfDirectory(at: trashURL, includingPropertiesForKeys: keys)
+        } catch {
+            Logger.shared.log("Cannot read Trash: \(error.localizedDescription)", level: .warning)
+            return CategoryResult(category: .trash, items: [], totalSize: 0)
+        }
+
+        var items: [CleanableItem] = []
+        for entry in entries where entry.lastPathComponent != ".DS_Store" {
+            if Task.isCancelled { break }
+            report(entry.path)
+            let values = try? entry.resourceValues(forKeys: Set(keys))
+            let isDirectory = values?.isDirectory == true && values?.isSymbolicLink != true
+            let size = isDirectory
+                ? directorySize(path: entry.path)
+                : Int64(values?.totalFileAllocatedSize ?? values?.fileSize ?? 0)
+            items.append(CleanableItem(
+                name: entry.lastPathComponent,
+                path: entry.path,
+                size: size,
+                category: .trash,
+                isSelected: false,
+                lastModified: values?.contentModificationDate
+            ))
+        }
+
+        items.sort { $0.size > $1.size }
+        let totalSize = items.reduce(Int64(0)) { $0.saturatedSum($1.size) }
+        return CategoryResult(category: .trash, items: items, totalSize: totalSize)
     }
 
     private func scanPurgeableSpace() -> CategoryResult {
@@ -1068,6 +1129,35 @@ actor ScanEngine {
         return nil
     }
     // MARK: - Helpers
+
+    /// Settings key for counting iCloud Drive files that are not downloaded.
+    /// Default false: such a placeholder occupies no local space, and deleting
+    /// it removes the file from iCloud on every device.
+    nonisolated static let treatICloudPlaceholdersAsFilesKey = "settings.cleaning.treatICloudPlaceholdersAsFiles"
+
+    /// Whether a file found by the large-file or installer sweep is listed.
+    /// Only a not-downloaded iCloud item is a placeholder; local files and
+    /// downloaded iCloud copies always count.
+    nonisolated static func includesFile(
+        isUbiquitous: Bool?,
+        downloadingStatus: URLUbiquitousItemDownloadingStatus?,
+        treatICloudPlaceholdersAsFiles: Bool
+    ) -> Bool {
+        if treatICloudPlaceholdersAsFiles { return true }
+        return !(isUbiquitous == true && downloadingStatus == .notDownloaded)
+    }
+
+    /// Asked only for files that already passed the size and age checks, so
+    /// the iCloud lookup stays off the hot path of the folder walk.
+    private func includesFile(_ url: URL, treatICloudPlaceholdersAsFiles: Bool) -> Bool {
+        if treatICloudPlaceholdersAsFiles { return true }
+        let values = try? url.resourceValues(forKeys: [.isUbiquitousItemKey, .ubiquitousItemDownloadingStatusKey])
+        return Self.includesFile(
+            isUbiquitous: values?.isUbiquitousItem,
+            downloadingStatus: values?.ubiquitousItemDownloadingStatus,
+            treatICloudPlaceholdersAsFiles: false
+        )
+    }
 
     private func scanDirectory(
         path: String,
