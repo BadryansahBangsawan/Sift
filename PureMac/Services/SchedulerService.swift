@@ -133,13 +133,22 @@ class SchedulerService: ObservableObject {
         </plist>
         """
 
-        try? plistContent.write(to: plistPath, atomically: true, encoding: .utf8)
+        do {
+            try plistContent.write(to: plistPath, atomically: true, encoding: .utf8)
+        } catch {
+            Logger.shared.log("LaunchAgent plist write failed: \(error.localizedDescription)", level: .error)
+            return
+        }
 
         let task = Process()
         task.executableURL = URL(fileURLWithPath: "/bin/launchctl")
         task.arguments = ["load", plistPath.path]
-        try? task.run()
-        task.waitUntilExit()
+        do {
+            try task.run()
+            task.waitUntilExit()
+        } catch {
+            Logger.shared.log("launchctl load failed: \(error.localizedDescription)", level: .error)
+        }
     }
 
     func uninstallLaunchAgent() {
@@ -150,9 +159,17 @@ class SchedulerService: ObservableObject {
         let task = Process()
         task.executableURL = URL(fileURLWithPath: "/bin/launchctl")
         task.arguments = ["unload", plistPath.path]
-        try? task.run()
-        task.waitUntilExit()
+        do {
+            try task.run()
+            task.waitUntilExit()
+        } catch {
+            Logger.shared.log("launchctl unload failed: \(error.localizedDescription)", level: .error)
+        }
 
-        try? FileManager.default.removeItem(at: plistPath)
+        do {
+            try FileManager.default.removeItem(at: plistPath)
+        } catch {
+            Logger.shared.log("LaunchAgent plist removal failed: \(error.localizedDescription)", level: .warning)
+        }
     }
 }
