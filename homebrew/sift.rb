@@ -2,12 +2,10 @@ cask "sift" do
   version "3.2.0"
   sha256 "5ba35fde0b60a645d61edacc8a8b8f198625ea91ac3750c60d41efe22a240a50"
 
-  # TODO: point at the Sift release repository
-  url "https://github.com/momenbasel/PureMac/releases/download/v#{version}/Sift-#{version}.zip"
+  url "https://github.com/BadryansahBangsawan/Sift/releases/download/v#{version}/Sift-#{version}.zip"
   name "Sift"
   desc "Free, open-source macOS app manager and system cleaner"
-  # TODO: point at the Sift release repository
-  homepage "https://github.com/momenbasel/PureMac"
+  homepage "https://github.com/BadryansahBangsawan/Sift"
 
   depends_on macos: :ventura
 

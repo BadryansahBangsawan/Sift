@@ -23,13 +23,13 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/momenbasel/PureMac/releases/latest"><img src="https://img.shields.io/github/v/release/momenbasel/PureMac?style=flat-square&label=%E3%83%80%E3%82%A6%E3%83%B3%E3%83%AD%E3%83%BC%E3%83%89" alt="最新リリース"></a>
-  <a href="https://github.com/momenbasel/PureMac/actions/workflows/build.yml"><img src="https://img.shields.io/github/actions/workflow/status/momenbasel/PureMac/build.yml?style=flat-square&label=Build" alt="ビルド状況"></a>
+  <a href="https://github.com/BadryansahBangsawan/Sift/releases/latest"><img src="https://img.shields.io/github/v/release/BadryansahBangsawan/Sift?style=flat-square&label=%E3%83%80%E3%82%A6%E3%83%B3%E3%83%AD%E3%83%BC%E3%83%89" alt="最新リリース"></a>
+  <a href="https://github.com/BadryansahBangsawan/Sift/actions/workflows/build.yml"><img src="https://img.shields.io/github/actions/workflow/status/BadryansahBangsawan/Sift/build.yml?style=flat-square&label=Build" alt="ビルド状況"></a>
   <img src="https://img.shields.io/badge/macOS-13.0+-blue?style=flat-square" alt="macOS 13.0+">
   <img src="https://img.shields.io/badge/Swift-5.9-orange?style=flat-square" alt="Swift 5.9">
-  <a href="../LICENSE"><img src="https://img.shields.io/github/license/momenbasel/PureMac?style=flat-square" alt="MIT License"></a>
-  <a href="https://github.com/momenbasel/PureMac/stargazers"><img src="https://img.shields.io/github/stars/momenbasel/PureMac?style=flat-square" alt="スター数"></a>
-  <a href="https://github.com/momenbasel/PureMac/releases"><img src="https://img.shields.io/github/downloads/momenbasel/PureMac/total?style=flat-square&label=%E3%83%80%E3%82%A6%E3%83%B3%E3%83%AD%E3%83%BC%E3%83%89%E6%95%B0" alt="ダウンロード数"></a>
+  <a href="../LICENSE"><img src="https://img.shields.io/github/license/BadryansahBangsawan/Sift?style=flat-square" alt="MIT License"></a>
+  <a href="https://github.com/BadryansahBangsawan/Sift/stargazers"><img src="https://img.shields.io/github/stars/BadryansahBangsawan/Sift?style=flat-square" alt="スター数"></a>
+  <a href="https://github.com/BadryansahBangsawan/Sift/releases"><img src="https://img.shields.io/github/downloads/BadryansahBangsawan/Sift/total?style=flat-square&label=%E3%83%80%E3%82%A6%E3%83%B3%E3%83%AD%E3%83%BC%E3%83%89%E6%95%B0" alt="ダウンロード数"></a>
 </p>
 
 <p align="center">
@@ -52,7 +52,7 @@ brew install --cask sift
 
 ### 直接ダウンロード
 
-[Releases](https://github.com/momenbasel/PureMac/releases/latest) から最新の `.dmg` をダウンロードし、開いて Sift を `/Applications` にドラッグします。
+[Releases](https://github.com/BadryansahBangsawan/Sift/releases/latest) から最新の `.dmg` をダウンロードし、開いて Sift を `/Applications` にドラッグします。
 
 > Apple Developer ID で署名・公証済み — Gatekeeper の警告なしでインストールできます。
 
@@ -60,8 +60,8 @@ brew install --cask sift
 
 ```bash
 brew install xcodegen
-git clone https://github.com/momenbasel/PureMac.git
-cd PureMac
+git clone https://github.com/BadryansahBangsawan/Sift.git
+cd Sift
 xcodegen generate
 xcodebuild -project Sift.xcodeproj -scheme Sift -configuration Release -derivedDataPath build build
 open build/Build/Products/Release/Sift.app

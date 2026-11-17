@@ -14,11 +14,12 @@ final class UpdateServiceTests: XCTestCase {
     func testSelectsNewestStableAppReleaseAndRejectsCLIAndUntrustedLinks() throws {
         let data = Data("""
         [
-          {"tag_name":"cli-v99.0.0","html_url":"https://github.com/momenbasel/PureMac/releases/tag/cli-v99.0.0","draft":false,"prerelease":false,"assets":[{"name":"puremac-cli.zip"}]},
-          {"tag_name":"v4.0.0","html_url":"https://github.com/momenbasel/PureMac/releases/tag/v4.0.0","draft":false,"prerelease":true,"assets":[{"name":"PureMac-4.0.0.zip"}]},
-          {"tag_name":"v3.10.0","html_url":"https://github.com/momenbasel/PureMac/releases/tag/v3.10.0","draft":false,"prerelease":false,"assets":[{"name":"PureMac-3.10.0.zip"}]},
-          {"tag_name":"v3.9.0","html_url":"https://github.com/momenbasel/PureMac/releases/tag/v3.9.0","draft":false,"prerelease":false,"assets":[{"name":"PureMac-3.9.0.dmg"}]},
-          {"tag_name":"v99.0.0","html_url":"https://example.com/malware","draft":false,"prerelease":false,"assets":[{"name":"PureMac-99.0.0.zip"}]}
+          {"tag_name":"cli-v99.0.0","html_url":"https://github.com/BadryansahBangsawan/Sift/releases/tag/cli-v99.0.0","draft":false,"prerelease":false,"assets":[{"name":"sift-cli.zip"}]},
+          {"tag_name":"v4.0.0","html_url":"https://github.com/BadryansahBangsawan/Sift/releases/tag/v4.0.0","draft":false,"prerelease":true,"assets":[{"name":"Sift-4.0.0.zip"}]},
+          {"tag_name":"v3.10.0","html_url":"https://github.com/BadryansahBangsawan/Sift/releases/tag/v3.10.0","draft":false,"prerelease":false,"assets":[{"name":"Sift-3.10.0.zip"}]},
+          {"tag_name":"v3.9.0","html_url":"https://github.com/BadryansahBangsawan/Sift/releases/tag/v3.9.0","draft":false,"prerelease":false,"assets":[{"name":"Sift-3.9.0.dmg"}]},
+          {"tag_name":"v50.0.0","html_url":"https://github.com/momenbasel/PureMac/releases/tag/v50.0.0","draft":false,"prerelease":false,"assets":[{"name":"PureMac-50.0.0.zip"}]},
+          {"tag_name":"v99.0.0","html_url":"https://example.com/malware","draft":false,"prerelease":false,"assets":[{"name":"Sift-99.0.0.zip"}]}
         ]
         """.utf8)
         XCTAssertEqual(try UpdateService.latestAppRelease(in: data).tagName, "v3.10.0")
@@ -44,7 +45,7 @@ final class UpdateServiceTests: XCTestCase {
             let service = UpdateService(currentVersion: installed) { request in
                 XCTAssertEqual(request.url?.host, "api.github.com")
                 let data = Data("""
-                [{"tag_name":"v3.0.0","html_url":"https://github.com/momenbasel/PureMac/releases/tag/v3.0.0","draft":false,"prerelease":false,"assets":[{"name":"PureMac-3.0.0.zip"}]}]
+                [{"tag_name":"v3.0.0","html_url":"https://github.com/BadryansahBangsawan/Sift/releases/tag/v3.0.0","draft":false,"prerelease":false,"assets":[{"name":"Sift-3.0.0.zip"}]}]
                 """.utf8)
                 return (data, HTTPURLResponse(url: request.url!, statusCode: 200, httpVersion: nil, headerFields: nil)!)
             }

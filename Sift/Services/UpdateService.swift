@@ -53,10 +53,10 @@ struct AppRelease: Decodable, Equatable {
         guard !draft, !prerelease, let version, version.prerelease == nil,
               htmlURL.scheme == "https", htmlURL.host == "github.com",
               htmlURL.user == nil, htmlURL.password == nil, htmlURL.port == nil,
-              htmlURL.path.hasPrefix("/momenbasel/PureMac/releases/tag/") else { return false }
+              htmlURL.path.hasPrefix("/BadryansahBangsawan/Sift/releases/tag/") else { return false }
         return assets.contains {
             let name = $0.name.lowercased()
-            return (name.hasPrefix("puremac-") || name == "puremac.zip" || name == "puremac.dmg")
+            return (name.hasPrefix("sift-") || name == "sift.zip" || name == "sift.dmg")
                 && !name.contains("cli") && (name.hasSuffix(".zip") || name.hasSuffix(".dmg"))
         }
     }
@@ -67,7 +67,7 @@ final class UpdateService: ObservableObject {
     static let shared = UpdateService()
     nonisolated static let installedVersion = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "—"
     nonisolated static let installedBuild = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? "—"
-    nonisolated static let releasesURL = URL(string: "https://github.com/momenbasel/PureMac/releases")!
+    nonisolated static let releasesURL = URL(string: "https://github.com/BadryansahBangsawan/Sift/releases")!
 
     enum State: Equatable {
         case idle, checking
@@ -110,7 +110,7 @@ final class UpdateService: ObservableObject {
         do {
             guard let installed = AppReleaseVersion(currentVersion) else { throw CheckError.invalidVersion }
             // Fetch a page rather than /latest: the latest release may be CLI.
-            var request = URLRequest(url: URL(string: "https://api.github.com/repos/momenbasel/PureMac/releases?per_page=100")!)
+            var request = URLRequest(url: URL(string: "https://api.github.com/repos/BadryansahBangsawan/Sift/releases?per_page=100")!)
             request.timeoutInterval = 20
             request.cachePolicy = .reloadIgnoringLocalCacheData
             request.setValue("application/vnd.github+json", forHTTPHeaderField: "Accept")

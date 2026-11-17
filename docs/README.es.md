@@ -23,13 +23,13 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/momenbasel/PureMac/releases/latest"><img src="https://img.shields.io/github/v/release/momenbasel/PureMac?style=flat-square&label=Descargar" alt="Última versión"></a>
-  <a href="https://github.com/momenbasel/PureMac/actions/workflows/build.yml"><img src="https://img.shields.io/github/actions/workflow/status/momenbasel/PureMac/build.yml?style=flat-square&label=Build" alt="Estado de build"></a>
+  <a href="https://github.com/BadryansahBangsawan/Sift/releases/latest"><img src="https://img.shields.io/github/v/release/BadryansahBangsawan/Sift?style=flat-square&label=Descargar" alt="Última versión"></a>
+  <a href="https://github.com/BadryansahBangsawan/Sift/actions/workflows/build.yml"><img src="https://img.shields.io/github/actions/workflow/status/BadryansahBangsawan/Sift/build.yml?style=flat-square&label=Build" alt="Estado de build"></a>
   <img src="https://img.shields.io/badge/macOS-13.0+-blue?style=flat-square" alt="macOS 13.0+">
   <img src="https://img.shields.io/badge/Swift-5.9-orange?style=flat-square" alt="Swift 5.9">
-  <a href="../LICENSE"><img src="https://img.shields.io/github/license/momenbasel/PureMac?style=flat-square" alt="Licencia MIT"></a>
-  <a href="https://github.com/momenbasel/PureMac/stargazers"><img src="https://img.shields.io/github/stars/momenbasel/PureMac?style=flat-square" alt="Estrellas"></a>
-  <a href="https://github.com/momenbasel/PureMac/releases"><img src="https://img.shields.io/github/downloads/momenbasel/PureMac/total?style=flat-square&label=Descargas" alt="Descargas"></a>
+  <a href="../LICENSE"><img src="https://img.shields.io/github/license/BadryansahBangsawan/Sift?style=flat-square" alt="Licencia MIT"></a>
+  <a href="https://github.com/BadryansahBangsawan/Sift/stargazers"><img src="https://img.shields.io/github/stars/BadryansahBangsawan/Sift?style=flat-square" alt="Estrellas"></a>
+  <a href="https://github.com/BadryansahBangsawan/Sift/releases"><img src="https://img.shields.io/github/downloads/BadryansahBangsawan/Sift/total?style=flat-square&label=Descargas" alt="Descargas"></a>
 </p>
 
 <p align="center">
@@ -52,7 +52,7 @@ brew install --cask sift
 
 ### Descarga directa
 
-Descarga el `.dmg` más reciente desde [Releases](https://github.com/momenbasel/PureMac/releases/latest), ábrelo y arrastra Sift a `/Applications`.
+Descarga el `.dmg` más reciente desde [Releases](https://github.com/BadryansahBangsawan/Sift/releases/latest), ábrelo y arrastra Sift a `/Applications`.
 
 > Firmado y notarizado con Apple Developer ID — se instala sin advertencias de Gatekeeper.
 
@@ -60,8 +60,8 @@ Descarga el `.dmg` más reciente desde [Releases](https://github.com/momenbasel/
 
 ```bash
 brew install xcodegen
-git clone https://github.com/momenbasel/PureMac.git
-cd PureMac
+git clone https://github.com/BadryansahBangsawan/Sift.git
+cd Sift
 xcodegen generate
 xcodebuild -project Sift.xcodeproj -scheme Sift -configuration Release -derivedDataPath build build
 open build/Build/Products/Release/Sift.app

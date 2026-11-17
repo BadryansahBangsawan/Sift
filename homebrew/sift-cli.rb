@@ -1,10 +1,8 @@
 # Named sift-cli because Homebrew core already has an unrelated `sift` formula.
 class SiftCli < Formula
   desc "Clean developer caches, project artifacts, and disk clutter from the terminal"
-  # TODO: point at the Sift release repository
-  homepage "https://github.com/momenbasel/PureMac"
-  # TODO: point at the Sift release repository
-  url "https://github.com/momenbasel/PureMac/releases/download/cli-v1.1.1/sift-cli-1.1.1.tar.gz"
+  homepage "https://github.com/BadryansahBangsawan/Sift"
+  url "https://github.com/BadryansahBangsawan/Sift/releases/download/cli-v1.1.1/sift-cli-1.1.1.tar.gz"
   sha256 "c4ae4ae7fb04a7d02b73d9f95a578ebf4c2f3636985d4966581818d3d8d5bcb2"
   license "MIT"
 

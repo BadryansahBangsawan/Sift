@@ -1,7 +1,7 @@
 # Release pipeline secrets
 
 `.github/workflows/release.yml` requires the following GitHub Actions secrets
-on `momenbasel/PureMac`. All must be set before the next tag push or the
+on `BadryansahBangsawan/Sift`. All must be set before the next tag push or the
 notarize/staple steps will fail and ship a broken signature (the cause of #86).
 
 The pipeline uses an **App Store Connect API key** for notarization (modern,
@@ -92,18 +92,18 @@ the runner).
 P12_PWD=$(cat ~/Desktop/Sift-secrets/P12_PASSWORD.txt)
 KC_PWD=$(cat ~/Desktop/Sift-secrets/KEYCHAIN_PASSWORD.txt)
 
-gh secret set BUILD_CERTIFICATE_BASE64       --repo momenbasel/PureMac < ~/Desktop/Sift-secrets/Sift-DeveloperID.p12.b64
-gh secret set P12_PASSWORD                   --repo momenbasel/PureMac --body "$P12_PWD"
-gh secret set KEYCHAIN_PASSWORD              --repo momenbasel/PureMac --body "$KC_PWD"
-gh secret set APP_STORE_CONNECT_KEY_ID       --repo momenbasel/PureMac --body "5G7R52L8RK"
-gh secret set APP_STORE_CONNECT_ISSUER_ID    --repo momenbasel/PureMac --body "5de3898a-cd31-4061-850f-ae17b389e46a"
-gh secret set APP_STORE_CONNECT_PRIVATE_KEY  --repo momenbasel/PureMac < ~/.appstoreconnect/private_keys/AuthKey_5G7R52L8RK.p8
+gh secret set BUILD_CERTIFICATE_BASE64       --repo BadryansahBangsawan/Sift < ~/Desktop/Sift-secrets/Sift-DeveloperID.p12.b64
+gh secret set P12_PASSWORD                   --repo BadryansahBangsawan/Sift --body "$P12_PWD"
+gh secret set KEYCHAIN_PASSWORD              --repo BadryansahBangsawan/Sift --body "$KC_PWD"
+gh secret set APP_STORE_CONNECT_KEY_ID       --repo BadryansahBangsawan/Sift --body "5G7R52L8RK"
+gh secret set APP_STORE_CONNECT_ISSUER_ID    --repo BadryansahBangsawan/Sift --body "5de3898a-cd31-4061-850f-ae17b389e46a"
+gh secret set APP_STORE_CONNECT_PRIVATE_KEY  --repo BadryansahBangsawan/Sift < ~/.appstoreconnect/private_keys/AuthKey_5G7R52L8RK.p8
 
 # Required tap deploy key:
-gh secret set HOMEBREW_TAP_DEPLOY_KEY        --repo momenbasel/PureMac < /path/to/tap-deploy-key
+gh secret set HOMEBREW_TAP_DEPLOY_KEY        --repo BadryansahBangsawan/Sift < /path/to/tap-deploy-key
 
 # Verify:
-gh secret list --repo momenbasel/PureMac
+gh secret list --repo BadryansahBangsawan/Sift
 ```
 
 After upload:
@@ -119,8 +119,8 @@ rm -P ~/Desktop/Sift-secrets/Sift-DeveloperID.p12* \
 Dry run first (build + sign + notarize, no upload, no homebrew bump):
 
 ```bash
-gh workflow run release.yml --repo momenbasel/PureMac -f version=3.0.0 -f dry_run=true
-gh run watch --repo momenbasel/PureMac
+gh workflow run release.yml --repo BadryansahBangsawan/Sift -f version=3.0.0 -f dry_run=true
+gh run watch --repo BadryansahBangsawan/Sift
 ```
 
 Real release (after dry run is green):

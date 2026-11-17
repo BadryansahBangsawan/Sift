@@ -748,8 +748,8 @@ struct PermissionsSettingsView: View {
 // MARK: - About
 
 struct AboutSettingsView: View {
-    private static let repositoryURL = URL(string: "https://github.com/momenbasel/PureMac")!
-    private static let issuesURL = URL(string: "https://github.com/momenbasel/PureMac/issues")!
+    private static let repositoryURL = URL(string: "https://github.com/BadryansahBangsawan/Sift")!
+    private static let issuesURL = URL(string: "https://github.com/BadryansahBangsawan/Sift/issues")!
 
     var body: some View {
         SiftSettingsLabel(title: Text("About"), note: Text("MIT License"))

@@ -26,13 +26,13 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/momenbasel/PureMac/releases/latest"><img src="https://img.shields.io/github/v/release/momenbasel/PureMac?style=flat-square&label=Baixar" alt="Última versão"></a>
+  <a href="https://github.com/BadryansahBangsawan/Sift/releases/latest"><img src="https://img.shields.io/github/v/release/BadryansahBangsawan/Sift?style=flat-square&label=Baixar" alt="Última versão"></a>
   <img src="https://img.shields.io/badge/macOS-13.0+-blue?style=flat-square" alt="macOS 13.0+">
   <img src="https://img.shields.io/badge/Signed%20%26%20Notarized-Apple-success?style=flat-square" alt="Assinado e notarizado pela Apple">
   <img src="https://img.shields.io/badge/telemetry-none-success?style=flat-square" alt="Sem telemetria">
-  <a href="../LICENSE"><img src="https://img.shields.io/github/license/momenbasel/PureMac?style=flat-square" alt="Licença MIT"></a>
-  <a href="https://github.com/momenbasel/PureMac/stargazers"><img src="https://img.shields.io/github/stars/momenbasel/PureMac?style=flat-square" alt="Estrelas"></a>
-  <a href="https://github.com/momenbasel/PureMac/releases"><img src="https://img.shields.io/github/downloads/momenbasel/PureMac/total?style=flat-square&label=Downloads" alt="Downloads"></a>
+  <a href="../LICENSE"><img src="https://img.shields.io/github/license/BadryansahBangsawan/Sift?style=flat-square" alt="Licença MIT"></a>
+  <a href="https://github.com/BadryansahBangsawan/Sift/stargazers"><img src="https://img.shields.io/github/stars/BadryansahBangsawan/Sift?style=flat-square" alt="Estrelas"></a>
+  <a href="https://github.com/BadryansahBangsawan/Sift/releases"><img src="https://img.shields.io/github/downloads/BadryansahBangsawan/Sift/total?style=flat-square&label=Downloads" alt="Downloads"></a>
 </p>
 
 <p align="center">
@@ -57,14 +57,14 @@
 brew install --cask sift
 ```
 
-Ou baixe o `.dmg` assinado e notarizado em [Releases](https://github.com/momenbasel/PureMac/releases/latest) e arraste o Sift para `/Applications`. Sem avisos do Gatekeeper, sem gambiarra de quarentena.
+Ou baixe o `.dmg` assinado e notarizado em [Releases](https://github.com/BadryansahBangsawan/Sift/releases/latest) e arraste o Sift para `/Applications`. Sem avisos do Gatekeeper, sem gambiarra de quarentena.
 
 ### Compilar do código-fonte
 
 ```bash
 brew install xcodegen
-git clone https://github.com/momenbasel/PureMac.git
-cd PureMac
+git clone https://github.com/BadryansahBangsawan/Sift.git
+cd Sift
 xcodegen generate
 xcodebuild -project Sift.xcodeproj -scheme Sift -configuration Release \
   -derivedDataPath build build
@@ -257,11 +257,11 @@ Especialmente bem-vindos:
 
 Se o Sift liberou espaço no seu disco, uma estrela ajuda outras pessoas a encontrá-lo.
 
-<a href="https://star-history.com/#momenbasel/PureMac&Date">
+<a href="https://star-history.com/#BadryansahBangsawan/Sift&Date">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=momenbasel/PureMac&type=Date&theme=dark" />
-    <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=momenbasel/PureMac&type=Date" />
-    <img alt="Gráfico do histórico de estrelas do Sift" src="https://api.star-history.com/svg?repos=momenbasel/PureMac&type=Date" width="720" />
+    <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=BadryansahBangsawan/Sift&type=Date&theme=dark" />
+    <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=BadryansahBangsawan/Sift&type=Date" />
+    <img alt="Gráfico do histórico de estrelas do Sift" src="https://api.star-history.com/svg?repos=BadryansahBangsawan/Sift&type=Date" width="720" />
   </picture>
 </a>
 

@@ -24,13 +24,13 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/momenbasel/PureMac/releases/latest"><img src="https://img.shields.io/github/v/release/momenbasel/PureMac?style=flat-square&label=Download" alt="Latest Release"></a>
+  <a href="https://github.com/BadryansahBangsawan/Sift/releases/latest"><img src="https://img.shields.io/github/v/release/BadryansahBangsawan/Sift?style=flat-square&label=Download" alt="Latest Release"></a>
   <img src="https://img.shields.io/badge/macOS-13.0+-blue?style=flat-square" alt="macOS 13.0+">
   <img src="https://img.shields.io/badge/Signed%20%26%20Notarized-Apple-success?style=flat-square" alt="Signed & Notarized by Apple">
   <img src="https://img.shields.io/badge/telemetry-none-success?style=flat-square" alt="No telemetry">
-  <a href="LICENSE"><img src="https://img.shields.io/github/license/momenbasel/PureMac?style=flat-square" alt="MIT License"></a>
-  <a href="https://github.com/momenbasel/PureMac/stargazers"><img src="https://img.shields.io/github/stars/momenbasel/PureMac?style=flat-square" alt="Stars"></a>
-  <a href="https://github.com/momenbasel/PureMac/releases"><img src="https://img.shields.io/github/downloads/momenbasel/PureMac/total?style=flat-square&label=Downloads" alt="Downloads"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/github/license/BadryansahBangsawan/Sift?style=flat-square" alt="MIT License"></a>
+  <a href="https://github.com/BadryansahBangsawan/Sift/stargazers"><img src="https://img.shields.io/github/stars/BadryansahBangsawan/Sift?style=flat-square" alt="Stars"></a>
+  <a href="https://github.com/BadryansahBangsawan/Sift/releases"><img src="https://img.shields.io/github/downloads/BadryansahBangsawan/Sift/total?style=flat-square&label=Downloads" alt="Downloads"></a>
 </p>
 
 <p align="center">
@@ -67,8 +67,8 @@ Sift has no published release yet. Until one exists, [build it from source](#bui
 
 ```bash
 brew install xcodegen
-git clone https://github.com/momenbasel/PureMac.git
-cd PureMac
+git clone https://github.com/BadryansahBangsawan/Sift.git
+cd Sift
 xcodegen generate
 xcodebuild -project Sift.xcodeproj -scheme Sift -configuration Release \
   -derivedDataPath build build
@@ -300,7 +300,7 @@ Especially welcome:
 
 If Sift saved you some disk space, a star helps other people find it.
 
-<a href="https://github.com/momenbasel/PureMac/stargazers">
+<a href="https://github.com/BadryansahBangsawan/Sift/stargazers">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="assets/star-history-dark.svg" />
     <source media="(prefers-color-scheme: light)" srcset="assets/star-history.svg" />
