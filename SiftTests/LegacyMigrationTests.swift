@@ -19,7 +19,7 @@ final class LegacyMigrationTests: XCTestCase {
         try? FileManager.default.removeItem(at: root)
     }
 
-    private func run() throws {
+    private func migrate() throws {
         let old = try XCTUnwrap(UserDefaults(suiteName: oldSuite))
         let new = try XCTUnwrap(UserDefaults(suiteName: newSuite))
         LegacyMigration.run(
@@ -38,7 +38,7 @@ final class LegacyMigrationTests: XCTestCase {
         let new = try XCTUnwrap(UserDefaults(suiteName: newSuite))
         new.set("light", forKey: "PureMac.Appearance")
 
-        try run()
+        try migrate()
 
         XCTAssertEqual(new.string(forKey: "PureMac.Appearance"), "light")
         XCTAssertTrue(new.bool(forKey: "PureMac.OnboardingComplete"))
@@ -50,10 +50,10 @@ final class LegacyMigrationTests: XCTestCase {
         let old = try XCTUnwrap(UserDefaults(suiteName: oldSuite))
         let new = try XCTUnwrap(UserDefaults(suiteName: newSuite))
         old.set("blue", forKey: "PureMac.Accent")
-        try run()
+        try migrate()
         new.removeObject(forKey: "PureMac.Accent")
 
-        try run()
+        try migrate()
 
         XCTAssertNil(new.string(forKey: "PureMac.Accent"), "a second launch must not re-import")
     }
@@ -63,7 +63,7 @@ final class LegacyMigrationTests: XCTestCase {
         try FileManager.default.createDirectory(at: oldFolder, withIntermediateDirectories: true)
         try Data("history".utf8).write(to: oldFolder.appendingPathComponent("cleanup-history.json"))
 
-        try run()
+        try migrate()
 
         let copied = root.appendingPathComponent("Sift/cleanup-history.json")
         XCTAssertEqual(try String(contentsOf: copied, encoding: .utf8), "history")
@@ -78,13 +78,13 @@ final class LegacyMigrationTests: XCTestCase {
         try Data("old".utf8).write(to: oldFolder.appendingPathComponent("a.json"))
         try Data("new".utf8).write(to: newFolder.appendingPathComponent("a.json"))
 
-        try run()
+        try migrate()
 
         XCTAssertEqual(try String(contentsOf: newFolder.appendingPathComponent("a.json"), encoding: .utf8), "new")
     }
 
     func testNothingToMigrateIsHarmless() throws {
-        try run()
+        try migrate()
         XCTAssertFalse(FileManager.default.fileExists(atPath: root.appendingPathComponent("Sift").path))
     }
 }
