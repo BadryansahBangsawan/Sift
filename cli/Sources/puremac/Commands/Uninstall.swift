@@ -73,6 +73,11 @@ struct Uninstall: ParsableCommand {
         if bundleID.hasPrefix("com.apple.") || appPath.hasPrefix("/System") || appPath.hasPrefix("/Library/Apple") {
             throw ValidationError("System apps cannot be uninstalled.")
         }
+        if let pid = Self.runningProcessID(forAppAt: appPath) {
+            throw ValidationError(
+                "Quit \(((appPath as NSString).lastPathComponent)) first — it is running as PID \(pid)."
+            )
+        }
 
         let mode = CleanupCommandPolicy.mode(
             force: force,
@@ -107,7 +112,7 @@ struct Uninstall: ParsableCommand {
 
         if dryRun {
             let selected = scan.selectedItems
-            let out = Cleaner.remove(selected, ignore: ignore, dryRun: true)
+            let out = Cleaner.remove(selected, ignore: ignore, dryRun: true, allowingAppBundles: true)
             Render.cleanupSummary(out, dryRun: true)
             return
         }
@@ -147,7 +152,7 @@ struct Uninstall: ParsableCommand {
             }
         }
 
-        let out = Cleaner.remove(selected, ignore: ignore, dryRun: false)
+        let out = Cleaner.remove(selected, ignore: ignore, dryRun: false, allowingAppBundles: true)
         Render.cleanupSummary(out, dryRun: false)
         if out.hadFailures { throw ExitCode.failure }
     }
@@ -166,6 +171,20 @@ struct Uninstall: ParsableCommand {
             throw ValidationError("Not an app bundle or no bundle identifier: \(path)")
         }
         return identifier
+    }
+
+    /// PID of a process whose executable lives inside this bundle. Deleting a
+    /// running app leaves macOS pointing at a vanished bundle and can corrupt
+    /// the app's own saved state, so this refuses instead of racing.
+    static func runningProcessID(forAppAt path: String) -> Int? {
+        let prefix = path.hasSuffix("/") ? path : path + "/"
+        let result = Shell.run("/usr/bin/pgrep", ["-f", prefix], timeout: 5)
+        guard result.status == 0 else { return nil }
+        let pids = result.out
+            .split(whereSeparator: { $0.isWhitespace })
+            .compactMap { Int($0) }
+            .filter { $0 > 0 && $0 != Int(getpid()) }
+        return pids.first
     }
 
     // MARK: - Matching

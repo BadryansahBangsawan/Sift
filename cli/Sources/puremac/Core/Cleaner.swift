@@ -9,7 +9,12 @@ struct CleanOutcome {
 }
 
 enum Cleaner {
-    static func remove(_ items: [ScanItem], ignore: IgnoreStore, dryRun: Bool) -> CleanOutcome {
+    static func remove(
+        _ items: [ScanItem],
+        ignore: IgnoreStore,
+        dryRun: Bool,
+        allowingAppBundles: Bool = false
+    ) -> CleanOutcome {
         var out = CleanOutcome()
         let fm = FileManager.default
         for item in items {
@@ -17,7 +22,7 @@ enum Cleaner {
                 out.skipped.append((item.path, "symlink"))
                 continue
             }
-            let verdict = Safety.canRemove(item.path, ignore: ignore)
+            let verdict = Safety.canRemove(item.path, ignore: ignore, allowingAppBundles: allowingAppBundles)
             guard verdict.ok else {
                 out.skipped.append((item.path, verdict.reason ?? "protected"))
                 continue

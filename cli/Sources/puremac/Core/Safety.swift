@@ -124,14 +124,36 @@ enum Safety {
         return FileIdentity(device: device, inode: inode)
     }
 
-    static func canRemove(_ path: String, ignore: IgnoreStore) -> (ok: Bool, reason: String?) {
+    /// A top-level application bundle in one of the two Applications folders.
+    ///
+    /// Deliberately narrow: exactly `<Applications>/<Name>.app`, nothing
+    /// nested. This is the only thing `uninstall` is allowed to delete from a
+    /// path the rest of the tool treats as protected.
+    static func isTopLevelAppBundle(_ path: String) -> Bool {
+        let std = (path as NSString).standardizingPath
+        guard std.hasSuffix(".app") else { return false }
+        let parent = (std as NSString).deletingLastPathComponent
+        guard parent == "/Applications" || parent == home + "/Applications" else { return false }
+        let name = (std as NSString).lastPathComponent
+        return !name.isEmpty && name != ".app" && !name.contains("/")
+    }
+
+    /// `allowingAppBundles` is set only by `puremac uninstall`. It relaxes the
+    /// `/Applications` tree denial for one top-level bundle the user named on
+    /// the command line; every other guard still applies.
+    static func canRemove(
+        _ path: String,
+        ignore: IgnoreStore,
+        allowingAppBundles: Bool = false
+    ) -> (ok: Bool, reason: String?) {
         let std = (path as NSString).standardizingPath
         let resolved = URL(fileURLWithPath: std).resolvingSymlinksInPath().path
         if std.isEmpty || !std.hasPrefix("/") || std == "/" || resolved == "/" { return (false, "root path") }
         if hasSymlinkComponent(std) { return (false, "symlink") }
         if criticalRoots.contains(std) || criticalRoots.contains(resolved) { return (false, "protected root") }
+        let appBundleAllowed = allowingAppBundles && isTopLevelAppBundle(std) && std == resolved
         let deniedTrees = ["/System", "/Library", "/Applications", "/usr", "/bin", "/sbin", "/etc", "/private/etc", "/cores"]
-        if deniedTrees.contains(where: { resolved == $0 || resolved.hasPrefix($0 + "/") }) {
+        if !appBundleAllowed, deniedTrees.contains(where: { resolved == $0 || resolved.hasPrefix($0 + "/") }) {
             return (false, "protected system path")
         }
         if resolved.hasPrefix("/Users/"), resolved != home, !resolved.hasPrefix(home + "/") {
