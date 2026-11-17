@@ -41,51 +41,47 @@ struct AppleFeaturesView: View {
     }
 
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 20) {
-                VStack(alignment: .leading, spacing: 6) {
-                    Text("Apple Features")
-                        .font(.system(size: 24, weight: .semibold))
-                        .accessibilityAddTraits(.isHeader)
-                    Text("Review optional features and the storage used by Apple downloads.")
-                        .font(.system(size: 13))
-                        .foregroundStyle(.secondary)
-                }
-
-                Picker("Apple Features section", selection: $page) {
-                    ForEach(Page.allCases, id: \.self) { page in
-                        Text(LocalizedStringKey(page.rawValue)).tag(page)
-                    }
-                }
-                .pickerStyle(.segmented)
-                .labelsHidden()
-                .frame(maxWidth: 280)
+        VStack(spacing: SiftSpacing.gutter) {
+            SiftToolHeader(
+                Text("Apple Features"),
+                eyebrow: Text("Tools"),
+                subtitle: Text("Review optional features and the storage used by Apple downloads.")
+            ) {
+                SiftSegmented(
+                    selection: $page,
+                    options: Page.allCases.map { (value: $0, label: Text(LocalizedStringKey($0.rawValue))) }
+                )
                 .disabled(removalRunning)
-
-                if removalRunning {
-                    HStack(spacing: 10) {
-                        ProgressView().controlSize(.small)
-                        Text("Finishing backup removal. New scans are available when it stops.")
-                            .font(.system(size: 12))
-                            .foregroundStyle(.secondary)
-                    }
-                }
-                if let result = appState.deviceBackupRemovalResult {
-                    DeviceBackupRemovalReport(result: result) {
-                        appState.deviceBackupRemovalResult = nil
-                    }
-                }
-
-                if page == .features {
-                    featuresContent
-                } else {
-                    storageContent
-                }
+                .accessibilityElement(children: .contain)
+                .accessibilityLabel(Text("Apple Features section"))
             }
-            .frame(maxWidth: 960, alignment: .leading)
-            .padding(24)
-            .frame(maxWidth: .infinity, alignment: .top)
+
+            ScrollView {
+                VStack(alignment: .leading, spacing: SiftSpacing.gutter) {
+                    if removalRunning {
+                        HStack(spacing: 10) {
+                            ProgressView().controlSize(.small)
+                            Text("Finishing backup removal. New scans are available when it stops.")
+                                .siftStyle(.label)
+                        }
+                        .padding(.horizontal, 12)
+                    }
+                    if let result = appState.deviceBackupRemovalResult {
+                        DeviceBackupRemovalReport(result: result) {
+                            appState.deviceBackupRemovalResult = nil
+                        }
+                    }
+
+                    if page == .features {
+                        featuresContent
+                    } else {
+                        storageContent
+                    }
+                }
+                .padding(.bottom, 2)
+            }
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .navigationTitle("Apple Features")
         .alert("Couldn't complete the action", isPresented: Binding(
             get: { errorMessage != nil },
@@ -109,128 +105,110 @@ struct AppleFeaturesView: View {
     }
 
     private var featuresContent: some View {
-        VStack(alignment: .leading, spacing: 14) {
-            Text("Changes are made in Apple's settings. PureMac does not detect or verify whether a feature is enabled.")
-                .font(.system(size: 12))
-                .foregroundStyle(.secondary)
-                .fixedSize(horizontal: false, vertical: true)
+        VStack(alignment: .leading, spacing: SiftSpacing.gutter) {
+            SiftSearchField(text: $search, prompt: Text("Find a feature"))
+                .accessibilityIdentifier("appleFeatures.search")
 
-            HStack(spacing: 8) {
-                Image(systemName: "magnifyingglass")
-                    .foregroundStyle(.secondary)
-                TextField("Find a feature", text: $search)
-                    .textFieldStyle(.plain)
-                    .accessibilityIdentifier("appleFeatures.search")
-                if !search.isEmpty {
-                    Button {
-                        search = ""
-                    } label: {
-                        Image(systemName: "xmark.circle.fill")
-                    }
-                    .buttonStyle(.plain)
-                    .foregroundStyle(.secondary)
-                    .accessibilityLabel("Clear search")
-                }
-            }
-            .padding(9)
-            .background(Color(nsColor: .controlBackgroundColor), in: RoundedRectangle(cornerRadius: 7))
-            .overlay(RoundedRectangle(cornerRadius: 7).strokeBorder(Color.primary.opacity(0.12), lineWidth: 0.5))
+            VStack(alignment: .leading, spacing: 14) {
+                SiftFootnote(
+                    Text("Changes are made in Apple's settings. Sift does not detect or verify whether a feature is enabled."),
+                    icon: .info
+                )
 
-            if features.isEmpty {
-                Text("No features match your search.")
-                    .font(.system(size: 13))
-                    .foregroundStyle(.secondary)
-                    .padding(.vertical, 20)
-            } else {
-                CardSurface(padding: 0, elevation: .flat) {
+                if features.isEmpty {
+                    Text("No features match your search.")
+                        .siftStyle(.body)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 20)
+                } else {
                     VStack(spacing: 0) {
                         ForEach(Array(features.enumerated()), id: \.element.id) { index, feature in
                             AppleFeatureRow(feature: feature, version: version, openDestination: openDestination, openGuide: openURL)
-                            if index < features.count - 1 { Divider() }
+                            if index < features.count - 1 { SiftRowDivider() }
                         }
                     }
+                    .siftSurface(.inset, padding: 0)
                 }
-            }
 
-            Text("Availability also depends on your Mac model, language, region, account, and device management. Apple Intelligence requires a supported Mac with Apple silicon. Setting names can vary between macOS versions.")
-                .font(.system(size: 11))
-                .foregroundStyle(.secondary)
-                .fixedSize(horizontal: false, vertical: true)
+                Text("Availability also depends on your Mac model, language, region, account, and device management. Apple Intelligence requires a supported Mac with Apple silicon. Setting names can vary between macOS versions.")
+                    .siftStyle(.caption)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            .siftSurface(.card)
         }
     }
 
     private var storageContent: some View {
-        VStack(alignment: .leading, spacing: 20) {
-            HStack(alignment: .top, spacing: 16) {
-                VStack(alignment: .leading, spacing: 5) {
-                    Text("Apple downloads")
-                        .font(.system(size: 16, weight: .semibold))
-                        .accessibilityAddTraits(.isHeader)
-                    Text("Measure known locations without deleting files. These sizes are not a recoverable-space estimate.")
-                        .font(.system(size: 12))
-                        .foregroundStyle(.secondary)
-                        .fixedSize(horizontal: false, vertical: true)
+        VStack(alignment: .leading, spacing: SiftSpacing.gutter) {
+            VStack(alignment: .leading, spacing: 14) {
+                HStack(alignment: .top, spacing: 10) {
+                    SiftIconTile(icon: .download, size: 30)
+                    VStack(alignment: .leading, spacing: 3) {
+                        Text("Apple downloads")
+                            .siftStyle(.cardTitle)
+                            .accessibilityAddTraits(.isHeader)
+                        Text("Measure known locations without deleting files. These sizes are not a recoverable-space estimate.")
+                            .siftStyle(.label)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                    Spacer(minLength: 8)
+                    Button(inventory == nil ? "Measure storage" : "Measure again", action: scanInventory)
+                        .buttonStyle(.sift(.secondary, compact: true))
+                        .disabled(inventoryRunning || removalRunning)
+                        .accessibilityIdentifier("appleFeatures.measureStorage")
                 }
-                Spacer(minLength: 8)
-                Button(inventory == nil ? "Measure storage" : "Measure again", action: scanInventory)
-                    .buttonStyle(.bordered)
-                    .disabled(inventoryRunning || removalRunning)
-                    .accessibilityIdentifier("appleFeatures.measureStorage")
-            }
 
-            if inventoryRunning {
-                HStack(spacing: 10) {
-                    ProgressView().controlSize(.small)
-                    Text("Measuring Apple storage…")
-                        .font(.system(size: 12))
-                    Spacer()
-                    Button("Stop") { inventoryTask?.cancel() }
-                        .buttonStyle(.borderless)
+                if inventoryRunning {
+                    HStack(spacing: 10) {
+                        ProgressView().controlSize(.small)
+                        Text("Measuring Apple storage…")
+                            .siftStyle(.label)
+                        Spacer()
+                        Button("Stop") { inventoryTask?.cancel() }
+                            .buttonStyle(.siftQuiet)
+                    }
                 }
-            }
-            if let inventoryNotice {
-                Text(inventoryNotice)
-                    .font(.system(size: 12))
-                    .foregroundStyle(.secondary)
-            }
-            if let inventory {
-                CardSurface(padding: 0, elevation: .flat) {
+                if let inventoryNotice {
+                    Text(inventoryNotice)
+                        .siftStyle(.label)
+                }
+                if let inventory {
                     VStack(spacing: 0) {
                         ForEach(Array(inventory.enumerated()), id: \.element.id) { index, item in
                             AppleStorageRow(item: item, reveal: reveal, openDestination: openDestination)
-                            if index < inventory.count - 1 { Divider() }
+                            if index < inventory.count - 1 { SiftRowDivider() }
                         }
                     }
+                    .siftSurface(.inset, padding: 0)
                 }
-            }
 
-            HStack(spacing: 14) {
-                Button("Storage settings") { openDestination("com.apple.settings.Storage") }
-                Button("Wallpaper settings") { openDestination("com.apple.Wallpaper-Settings.extension") }
+                HStack(spacing: 8) {
+                    Button("Storage settings") { openDestination("com.apple.settings.Storage") }
+                    Button("Wallpaper settings") { openDestination("com.apple.Wallpaper-Settings.extension") }
+                }
+                .buttonStyle(.sift(.quiet, compact: true))
             }
-            .buttonStyle(.borderless)
-            .font(.system(size: 12))
+            .siftSurface(.card)
 
-            Divider()
             backupContent
         }
     }
 
     private var backupContent: some View {
         VStack(alignment: .leading, spacing: 14) {
-            HStack(alignment: .top, spacing: 16) {
-                VStack(alignment: .leading, spacing: 5) {
+            HStack(alignment: .top, spacing: 10) {
+                SiftIconTile(icon: .history, size: 30)
+                VStack(alignment: .leading, spacing: 3) {
                     Text("iPhone and iPad backups")
-                        .font(.system(size: 16, weight: .semibold))
+                        .siftStyle(.cardTitle)
                         .accessibilityAddTraits(.isHeader)
                     Text("Review complete local backups individually. Selected backups move to the Trash after confirmation.")
-                        .font(.system(size: 12))
-                        .foregroundStyle(.secondary)
+                        .siftStyle(.label)
                         .fixedSize(horizontal: false, vertical: true)
                 }
                 Spacer(minLength: 8)
                 Button(backupsScanned ? "Scan again" : "Find backups", action: scanBackups)
-                    .buttonStyle(.bordered)
+                    .buttonStyle(.sift(.secondary, compact: true))
                     .disabled(backupsRunning || removalRunning)
                     .accessibilityIdentifier("appleFeatures.findBackups")
             }
@@ -238,71 +216,77 @@ struct AppleFeaturesView: View {
                 HStack(spacing: 10) {
                     ProgressView().controlSize(.small)
                     Text(removalRunning ? "Checking and moving selected backups to the Trash…" : "Checking local backups…")
-                        .font(.system(size: 12))
+                        .siftStyle(.label)
                     Spacer()
                     if backupsRunning {
                         Button("Stop") { backupTask?.cancel() }
-                            .buttonStyle(.borderless)
+                            .buttonStyle(.siftQuiet)
                     }
                 }
             }
             if let removalNotice {
                 Text(removalNotice)
-                    .font(.system(size: 12))
-                    .foregroundStyle(.secondary)
+                    .siftStyle(.label)
             }
             if appState.scanState.isActive {
-                Text("Backup removal is available after the current scan or cleanup finishes.")
-                    .font(.system(size: 12))
-                    .foregroundStyle(.secondary)
+                SiftNotice(
+                    icon: .info,
+                    tone: .info,
+                    message: Text("Backup removal is available after the current scan or cleanup finishes.")
+                )
             }
             if !backupIssues.isEmpty {
-                DisclosureGroup("\(backupIssues.count) backup locations could not be included") {
+                DisclosureGroup {
                     VStack(alignment: .leading, spacing: 6) {
                         ForEach(Array(backupIssues.enumerated()), id: \.offset) { _, issue in
                             Text(issue).textSelection(.enabled)
                         }
                     }
-                    .font(.system(size: 11))
-                    .foregroundStyle(.secondary)
-                    .padding(.top, 6)
+                    .font(.siftMono(10.5))
+                    .foregroundStyle(SiftColor.textTertiary)
+                    .padding(.top, 8)
+                } label: {
+                    HStack(spacing: 8) {
+                        SiftIcon.triangleAlert.image(14).foregroundStyle(SiftColor.warning)
+                        Text("\(backupIssues.count) backup locations could not be included")
+                            .font(.sift(12))
+                            .foregroundStyle(SiftColor.textSecondary)
+                    }
                 }
-                .font(.system(size: 12))
+                .disclosureGroupStyle(.sift)
             }
             if backupsScanned && backups.isEmpty && !backupsRunning {
                 Text(backupIssues.isEmpty ? "No complete local device backups were found." : "No backups are available to select. Review the scan issues above.")
-                    .font(.system(size: 12))
-                    .foregroundStyle(.secondary)
+                    .siftStyle(.label)
             }
             if !backups.isEmpty {
-                CardSurface(padding: 0, elevation: .flat) {
-                    VStack(spacing: 0) {
-                        ForEach(Array(backups.enumerated()), id: \.element.id) { index, backup in
-                            backupRow(backup)
-                            if index < backups.count - 1 { Divider().padding(.leading, 40) }
-                        }
+                VStack(spacing: 0) {
+                    ForEach(Array(backups.enumerated()), id: \.element.id) { index, backup in
+                        backupRow(backup)
+                        if index < backups.count - 1 { SiftRowDivider() }
                     }
                 }
+                .siftSurface(.inset, padding: 0)
                 .disabled(backupsRunning || removalRunning)
 
-                HStack {
+                HStack(spacing: 12) {
                     Text("\(backupSelection.count) selected")
-                        .font(.system(size: 12))
-                        .foregroundStyle(.secondary)
+                        .siftStyle(.label)
                     Spacer()
                     Button("Review selected backups") {
                         let selection = backups.filter { backupSelection.contains($0.id) }
                         if !selection.isEmpty { pendingRemoval = BackupSelection(backups: selection) }
                     }
-                    .buttonStyle(.bordered)
+                    .buttonStyle(.siftPrimary)
                     .disabled(backupSelection.isEmpty || backupsRunning || !appState.canRemoveDeviceBackups)
                 }
             }
         }
+        .siftSurface(.card)
     }
 
     private func backupRow(_ backup: DeviceBackup) -> some View {
-        HStack(alignment: .top, spacing: 12) {
+        HStack(alignment: .top, spacing: 14) {
             Toggle("Select backup \(backup.name)", isOn: Binding(
                 get: { backupSelection.contains(backup.id) },
                 set: { selected in
@@ -311,32 +295,31 @@ struct AppleFeaturesView: View {
                 }
             ))
             .labelsHidden()
-            .toggleStyle(.checkbox)
-            .padding(.top, 2)
-            VStack(alignment: .leading, spacing: 4) {
+            .toggleStyle(.siftCheckbox)
+            .frame(width: 20, alignment: .leading)
+            .allowsHitTesting(!(backupsRunning || removalRunning))
+            VStack(alignment: .leading, spacing: 3) {
                 Text(backup.name)
-                    .font(.system(size: 12, weight: .medium))
+                    .font(.sift(13.5, weight: 500))
+                    .foregroundStyle(SiftColor.textPrimary)
                     .textSelection(.enabled)
                 Text(backup.url.path)
-                    .font(.system(size: 10.5, design: .monospaced))
-                    .foregroundStyle(.secondary)
+                    .siftStyle(.monoSmall)
                     .textSelection(.enabled)
                     .fixedSize(horizontal: false, vertical: true)
                 Text("Modified \(backup.modifiedAt.formatted(date: .abbreviated, time: .shortened))")
-                    .font(.system(size: 11))
-                    .foregroundStyle(.secondary)
+                    .siftStyle(.caption)
             }
             Spacer(minLength: 8)
             VStack(alignment: .trailing, spacing: 6) {
                 Text(ByteCountFormatter.string(fromByteCount: backup.allocatedSize, countStyle: .file))
-                    .font(.system(size: 12, weight: .medium))
-                    .monospacedDigit()
+                    .siftStyle(.rowValue)
                 Button("Show in Finder") { reveal(backup.url) }
-                    .buttonStyle(.borderless)
-                    .font(.system(size: 11))
+                    .buttonStyle(.sift(.secondary, compact: true))
             }
         }
-        .padding(14)
+        .padding(.horizontal, 18)
+        .padding(.vertical, 14)
     }
 
     @MainActor
@@ -453,6 +436,7 @@ struct AppleFeaturesView: View {
     }
 }
 
+/// A Settings-style grouped row that expands to show the steps.
 private struct AppleFeatureRow: View {
     let feature: AppleFeature
     let version: OperatingSystemVersion
@@ -466,43 +450,44 @@ private struct AppleFeatureRow: View {
         DisclosureGroup(isExpanded: $expanded) {
             VStack(alignment: .leading, spacing: 12) {
                 Text(feature.steps)
-                    .font(.system(size: 12))
-                    .foregroundStyle(.secondary)
+                    .siftStyle(.body)
                     .fixedSize(horizontal: false, vertical: true)
                     .textSelection(.enabled)
-                HStack(spacing: 16) {
+                HStack(spacing: 8) {
                     Button(feature.destination.hasPrefix("application:") ? "Open Mail" : "Open Settings") {
                         openDestination(feature.destination)
                     }
-                    .buttonStyle(.bordered)
+                    .buttonStyle(.sift(.secondary, compact: true))
                     .disabled(!available)
                     Button("Apple guide") { openGuide(feature.guide) }
-                        .buttonStyle(.borderless)
+                        .buttonStyle(.sift(.quiet, compact: true))
                 }
-                .font(.system(size: 12))
             }
-            .padding(.top, 10)
-            .padding(.leading, 2)
+            .padding(.top, 12)
         } label: {
-            VStack(alignment: .leading, spacing: 5) {
-                HStack {
+            VStack(alignment: .leading, spacing: 3) {
+                HStack(spacing: 8) {
                     Text(feature.title)
-                        .font(.system(size: 13, weight: .medium))
-                        .foregroundStyle(.primary)
+                        .font(.sift(13.5, weight: 500))
+                        .foregroundStyle(SiftColor.textPrimary)
                     Spacer()
                     if !available {
-                        Text("Requires macOS \(feature.minimumVersion.majorVersion).\(feature.minimumVersion.minorVersion)")
-                            .font(.system(size: 10.5))
-                            .foregroundStyle(.secondary)
+                        SiftStatusPill(
+                            Text("Requires macOS \(feature.minimumVersion.majorVersion).\(feature.minimumVersion.minorVersion)"),
+                            tone: .neutral,
+                            showsDot: false
+                        )
                     }
                 }
                 Text(feature.summary)
-                    .font(.system(size: 12))
-                    .foregroundStyle(.secondary)
+                    .siftStyle(.label)
+                    .multilineTextAlignment(.leading)
                     .fixedSize(horizontal: false, vertical: true)
             }
         }
-        .padding(16)
+        .disclosureGroupStyle(.sift)
+        .padding(.horizontal, 18)
+        .padding(.vertical, 16)
         .accessibilityIdentifier("appleFeatures.feature.\(feature.id)")
     }
 }
@@ -527,34 +512,31 @@ private struct AppleStorageRow: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: 6) {
             HStack(alignment: .firstTextBaseline) {
                 Text(item.title)
-                    .font(.system(size: 13, weight: .medium))
+                    .font(.sift(13.5, weight: 500))
+                    .foregroundStyle(SiftColor.textPrimary)
                 Spacer()
                 Text(sizeDescription)
-                    .font(.system(size: 12, weight: .medium))
-                    .monospacedDigit()
+                    .siftStyle(.rowValue)
             }
             Text(item.detail)
-                .font(.system(size: 12))
-                .foregroundStyle(.secondary)
+                .siftStyle(.label)
                 .fixedSize(horizontal: false, vertical: true)
             Text(item.path)
-                .font(.system(size: 10.5, design: .monospaced))
-                .foregroundStyle(.secondary)
+                .siftStyle(.monoSmall)
                 .textSelection(.enabled)
                 .fixedSize(horizontal: false, vertical: true)
             if item.status == .partial {
                 Text("Partial measurement: \(item.skippedCount) skipped, \(item.inaccessibleCount) inaccessible.\(item.reachedLimit ? " Entry limit reached." : "")")
-                    .font(.system(size: 11))
-                    .foregroundStyle(Tint.orange)
+                    .font(.sift(11.5))
+                    .foregroundStyle(SiftColor.warning)
             } else if item.status == .unavailable {
                 Text("This location could not be measured. Permissions or protected system storage may prevent access.")
-                    .font(.system(size: 11))
-                    .foregroundStyle(.secondary)
+                    .siftStyle(.caption)
             }
-            HStack(spacing: 16) {
+            HStack(spacing: 8) {
                 Button("Show in Finder") { reveal(item.url) }
                     .disabled(item.status == .notPresent || item.status == .unavailable)
                 if item.kind == .screenSavers {
@@ -563,10 +545,11 @@ private struct AppleStorageRow: View {
                     Button("Storage settings") { openDestination("com.apple.settings.Storage") }
                 }
             }
-            .font(.system(size: 11))
-            .buttonStyle(.borderless)
+            .buttonStyle(.sift(.secondary, compact: true))
+            .padding(.top, 4)
         }
-        .padding(16)
+        .padding(.horizontal, 18)
+        .padding(.vertical, 16)
     }
 }
 
@@ -575,41 +558,43 @@ private struct DeviceBackupRemovalReport: View {
     let dismiss: () -> Void
 
     var body: some View {
-        CardSurface(padding: 16, elevation: .flat) {
-            VStack(alignment: .leading, spacing: 10) {
-                HStack {
-                    Text("\(result.removedPaths.count) backups moved to the Trash")
-                        .font(.system(size: 13, weight: .medium))
-                    Spacer()
-                    Button("Dismiss report", action: dismiss)
-                        .buttonStyle(.borderless)
-                        .font(.system(size: 11))
-                }
-                Text("Moving backups to the Trash does not free disk space. Emptying the Trash is a separate action.")
-                    .font(.system(size: 11))
-                    .foregroundStyle(.secondary)
-                ForEach(Array(result.errors.enumerated()), id: \.offset) { _, error in
-                    Text(error)
-                        .font(.system(size: 12))
-                        .foregroundStyle(.secondary)
-                        .textSelection(.enabled)
-                }
-                if !result.removedPaths.isEmpty {
-                    DisclosureGroup("Moved paths") {
-                        VStack(alignment: .leading, spacing: 6) {
-                            ForEach(result.removedPaths, id: \.self) { path in
-                                Text(path)
-                                    .font(.system(size: 10.5, design: .monospaced))
-                                    .textSelection(.enabled)
-                                    .fixedSize(horizontal: false, vertical: true)
-                            }
+        VStack(alignment: .leading, spacing: 10) {
+            HStack(spacing: 10) {
+                SiftIconTile(icon: .trash2, tone: result.errors.isEmpty ? .success : .warning, size: 30)
+                Text("\(result.removedPaths.count) backups moved to the Trash")
+                    .siftStyle(.cardTitle)
+                Spacer()
+                Button("Dismiss report", action: dismiss)
+                    .buttonStyle(.sift(.quiet, compact: true))
+            }
+            Text("Moving backups to the Trash does not free disk space. Emptying the Trash is a separate action.")
+                .siftStyle(.label)
+            ForEach(Array(result.errors.enumerated()), id: \.offset) { _, error in
+                Text(error)
+                    .font(.sift(12))
+                    .foregroundStyle(SiftColor.warning)
+                    .textSelection(.enabled)
+            }
+            if !result.removedPaths.isEmpty {
+                DisclosureGroup {
+                    VStack(alignment: .leading, spacing: 6) {
+                        ForEach(result.removedPaths, id: \.self) { path in
+                            Text(path)
+                                .siftStyle(.monoSmall)
+                                .textSelection(.enabled)
+                                .fixedSize(horizontal: false, vertical: true)
                         }
-                        .padding(.top, 6)
                     }
-                    .font(.system(size: 11))
+                    .padding(.top, 8)
+                } label: {
+                    Text("Moved paths")
+                        .font(.sift(12))
+                        .foregroundStyle(SiftColor.textSecondary)
                 }
+                .disclosureGroupStyle(.sift)
             }
         }
+        .siftSurface(.card)
     }
 }
 
@@ -621,47 +606,56 @@ private struct DeviceBackupConfirmation: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            Text("Move \(backups.count) backups to the Trash?")
-                .font(.system(size: 19, weight: .semibold))
+            HStack(spacing: 12) {
+                SiftIconTile(icon: .trash2, tone: .warning, size: 40)
+                Text("Move \(backups.count) backups to the Trash?")
+                    .font(.siftDisplay(26))
+                    .tracking(-0.4)
+                    .foregroundStyle(SiftColor.textPrimary)
+            }
             Text("Removing your only backup prevents you from restoring that device from this Mac. Disconnect devices and stop any active backups before continuing.")
-                .font(.system(size: 12))
-                .foregroundStyle(.secondary)
+                .siftStyle(.body)
                 .fixedSize(horizontal: false, vertical: true)
             ScrollView {
                 VStack(alignment: .leading, spacing: 12) {
                     ForEach(backups) { backup in
                         VStack(alignment: .leading, spacing: 4) {
                             Text(backup.url.path)
-                                .font(.system(size: 11, design: .monospaced))
+                                .font(.siftMono(11))
+                                .foregroundStyle(SiftColor.textPrimary)
                                 .textSelection(.enabled)
                                 .fixedSize(horizontal: false, vertical: true)
                             Text(ByteCountFormatter.string(fromByteCount: backup.allocatedSize, countStyle: .file))
-                                .font(.system(size: 11))
-                                .foregroundStyle(.secondary)
+                                .siftStyle(.mono)
                         }
                     }
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(14)
             }
             .frame(maxHeight: 220)
-            Text("PureMac rechecks each selected backup before moving it. Emptying the Trash is a separate action.")
-                .font(.system(size: 11))
-                .foregroundStyle(.secondary)
+            .siftSurface(.inset, padding: 0)
+            Text("Sift rechecks each selected backup before moving it. Emptying the Trash is a separate action.")
+                .siftStyle(.label)
             if !canRemove {
-                Text("Wait for the current scan or cleanup to finish before moving backups.")
-                    .font(.system(size: 12))
-                    .foregroundStyle(.secondary)
+                SiftNotice(
+                    icon: .triangleAlert,
+                    message: Text("Wait for the current scan or cleanup to finish before moving backups.")
+                )
             }
-            HStack {
+            HStack(spacing: 8) {
                 Spacer()
                 Button("Cancel", role: .cancel) { dismiss() }
                     .keyboardShortcut(.cancelAction)
+                    .buttonStyle(.siftSecondary)
                 Button("Move to Trash", role: .destructive, action: confirm)
                     .keyboardShortcut(.defaultAction)
                     .disabled(!canRemove)
+                    .buttonStyle(.siftPrimary)
             }
         }
         .padding(24)
         .frame(width: 560)
+        .background(SiftColor.card)
     }
 }
