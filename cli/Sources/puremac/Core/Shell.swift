@@ -16,6 +16,9 @@ enum Shell {
         _ args: [String],
         timeout: TimeInterval = 15
     ) -> Result {
+        guard launchPath.hasPrefix("/") else {
+            return Result(status: 127, out: "", err: "not an absolute path: \(launchPath)")
+        }
         guard FileManager.default.isExecutableFile(atPath: launchPath) else {
             return Result(status: 127, out: "", err: "not found: \(launchPath)")
         }

@@ -407,6 +407,7 @@ struct Analyze: ParsableCommand {
     }
 
     private static func revealInFinder(_ path: String) {
+        guard path.hasPrefix("/"), FileManager.default.fileExists(atPath: path) else { return }
         let process = Process()
         process.executableURL = URL(fileURLWithPath: "/usr/bin/open")
         process.arguments = ["-R", path]
