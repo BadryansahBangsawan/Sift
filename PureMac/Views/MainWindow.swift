@@ -324,7 +324,7 @@ struct SiftRail: View {
     }
 
     private var scheduleCard: some View {
-        HStack(spacing: 10) {
+        HStack(spacing: 8) {
             SiftIcon.calendarClock.image(16)
                 .foregroundStyle(SiftColor.accent)
                 .frame(width: 32, height: 32)
@@ -334,13 +334,14 @@ struct SiftRail: View {
                     .font(.sift(10.5))
                     .foregroundStyle(SiftColor.textTertiary)
                     .lineLimit(1)
-                    .minimumScaleFactor(0.85)
+                    .minimumScaleFactor(0.75)
+                    .fixedSize(horizontal: false, vertical: true)
                 scheduleSummary
                     .font(.sift(12.5, weight: 500))
                     .foregroundStyle(SiftColor.textPrimary)
                     .lineLimit(1)
             }
-            Spacer(minLength: 4)
+            Spacer(minLength: 0)
             Toggle(isOn: Binding(
                 get: { scheduler.config.isEnabled },
                 set: { scheduler.toggleEnabled($0) }
