@@ -14,7 +14,7 @@ struct PureMac: ParsableCommand {
         Use --help on any command for script-friendly options.
         """,
         version: puremacVersion,
-        subcommands: [Clean.self, Purge.self, Analyze.self, Optimize.self, Doctor.self, Ignore.self, Config.self]
+        subcommands: [Clean.self, Purge.self, Analyze.self, Optimize.self, Doctor.self, Dupes.self, Ignore.self, Config.self]
     )
 
     func run() throws {
@@ -41,7 +41,8 @@ enum HomeMenu {
             ("System status", "Inspect memory and available disk space"),
             ("Preferences", "View cleanup settings and configuration paths"),
             ("Protected paths", "View folders excluded from cleanup"),
-            ("Doctor", "Check disk, memory, SMART, and launch agents")
+            ("Doctor", "Check disk, memory, SMART, and launch agents"),
+            ("Dupes", "Find files with identical contents")
         ]
         while let choice = try TerminalMenu.choose(
             title: "PureMac",
@@ -69,6 +70,9 @@ enum HomeMenu {
             case 4: try Config.parse([]).run()
             case 5: try Ignore.List.parse([]).run()
             case 6: try Doctor.parse(["--json"]).run()
+            case 7:
+                let folder = promptPath("Folder to scan", fallback: NSHomeDirectory())
+                try Dupes.parse([folder]).run()
             default: return
             }
             print(Term.dim("\nPress Return to return to PureMac."), terminator: " ")

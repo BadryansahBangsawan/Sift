@@ -84,6 +84,7 @@ puremac analyze ~/Projects --json
 | `puremac ignore remove <path>` | Remove that protection |
 | `puremac ignore list` | List protected paths |
 | `puremac doctor` | Report disk, memory, SMART status, launch agents, and Trash size |
+| `puremac dupes [path]` | Find files with identical contents, read-only |
 | `puremac config` | Show settings and their storage locations |
 
 Run `puremac <command> --help` for every option.
