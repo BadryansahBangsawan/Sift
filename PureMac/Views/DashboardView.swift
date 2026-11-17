@@ -217,6 +217,11 @@ struct DashboardView: View {
                 }
                 .frame(maxWidth: .infinity, alignment: .topLeading)
             }
+
+            if !appState.cleanupHistory.isEmpty {
+                dashboardSection("History")
+                CleanupHistoryCard(records: appState.cleanupHistory)
+            }
         }
     }
 
@@ -566,6 +571,15 @@ struct DashboardView: View {
     }
 
     private var cleanedContent: some View {
+        VStack(alignment: .leading, spacing: 20) {
+            cleanupSummaryCard
+            if !appState.cleanupHistory.isEmpty {
+                CleanupHistoryCard(records: appState.cleanupHistory)
+            }
+        }
+    }
+
+    private var cleanupSummaryCard: some View {
         CardSurface(padding: 24, elevation: .flat) {
             HStack(alignment: .top, spacing: 16) {
                 Image(systemName: appState.lastCleanupHadFailures ? "exclamationmark.circle" : "checkmark.circle")

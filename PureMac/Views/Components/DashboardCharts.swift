@@ -387,3 +387,73 @@ struct ScanningGauge: View {
         .accessibilityValue("\(Int((clamped * 100).rounded())) percent")
     }
 }
+
+/// Space reclaimed over the last few cleanups. Deliberately a bar chart over
+/// time rather than a running total: the total only ever grows, so it says
+/// nothing about whether the last runs actually did anything.
+struct CleanupHistoryCard: View {
+    let records: [CleanupRecord]
+
+    /// Twelve bars keeps the axis readable in the card width; older runs still
+    /// count towards the total shown in the chip.
+    private static let visibleLimit = 12
+
+    private var totalFreed: Int64 {
+        records.reduce(0) { $0 + $1.freedBytes }
+    }
+
+    private var plotted: [CleanupRecord] {
+        Array(records.prefix(Self.visibleLimit).reversed())
+    }
+
+    private var lastCleanupText: String? {
+        guard let last = records.first else { return nil }
+        let formatter = RelativeDateTimeFormatter()
+        formatter.unitsStyle = .full
+        return formatter.localizedString(for: last.date, relativeTo: Date())
+    }
+
+    var body: some View {
+        CardSurface(padding: 18, elevation: .standard) {
+            VStack(alignment: .leading, spacing: 12) {
+                HStack(alignment: .firstTextBaseline) {
+                    Text("Space reclaimed")
+                        .font(.system(size: 15, weight: .semibold))
+                    Spacer()
+                    StatusChip(
+                        label: ByteCountFormatter.string(fromByteCount: totalFreed, countStyle: .file),
+                        systemImage: "arrow.down.circle",
+                        tint: Tint.accent
+                    )
+                }
+
+                if records.isEmpty {
+                    Text("No cleanups recorded yet.")
+                        .font(.system(size: 12))
+                        .foregroundStyle(.secondary)
+                } else {
+                    Chart(plotted) { record in
+                        BarMark(
+                            x: .value("Date", record.date),
+                            y: .value("Freed", record.freedBytes)
+                        )
+                        .foregroundStyle(Tint.accent)
+                        .cornerRadius(3)
+                    }
+                    .chartXAxis(.hidden)
+                    .chartYAxis(.hidden)
+                    .chartLegend(.hidden)
+                    .frame(height: 88)
+                    .accessibilityLabel(Text("Space reclaimed per cleanup"))
+
+                    if let lastCleanupText {
+                        Text("Last cleanup \(lastCleanupText)")
+                            .font(.system(size: 10.5))
+                            .foregroundStyle(.tertiary)
+                    }
+                }
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+        }
+    }
+}

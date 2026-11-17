@@ -75,6 +75,10 @@ final class AppState: ObservableObject {
     @Published var diskInfo = DiskInfo()
     @Published var totalJunkSize: Int64 = 0
     @Published var totalFreedSpace: Int64 = 0
+    /// Completed cleanups, newest first. Persisted by `CleanupHistoryStore`
+    /// outside the app bundle so the dashboard survives relaunches.
+    @Published var cleanupHistory: [CleanupRecord] = []
+    private let historyStore = CleanupHistoryStore()
     @Published var scanProgress: Double = 0
     @Published var scanWasCancelled = false
     @Published var lastScanDate: Date?
@@ -178,6 +182,7 @@ final class AppState: ObservableObject {
         self.locationsProvider = locationsProvider
         self.appFileScanner = appFileScanner
         self.appFileTrasher = appFileTrasher
+        cleanupHistory = historyStore.load()
 
         // Listen for right-click "Uninstall with PureMac" hand-offs from the
         // Finder Services handler in AppDelegate.
@@ -837,6 +842,9 @@ final class AppState: ObservableObject {
         }
 
         totalFreedSpace = result.freedSpace
+        if result.freedSpace > 0 {
+            cleanupHistory = historyStore.record(freedBytes: result.freedSpace, source: .manual)
+        }
         if result.itemsCleaned > 0 { lastCleanedDate = Date() }
 
         for (cat, catResult) in categoryResults {
@@ -982,6 +990,12 @@ final class AppState: ObservableObject {
             }
 
             totalFreedSpace = result.freedSpace
+            if result.freedSpace > 0 {
+                cleanupHistory = historyStore.record(
+                    freedBytes: result.freedSpace,
+                    source: scheduled ? .scheduled : .manual
+                )
+            }
             if result.itemsCleaned > 0 { lastCleanedDate = Date() }
             if result.itemsCleaned > 0 { Haptics.successWithSound() }
 
@@ -1044,6 +1058,9 @@ final class AppState: ObservableObject {
             }
 
             totalFreedSpace = cleanResult.freedSpace
+            if cleanResult.freedSpace > 0 {
+                cleanupHistory = historyStore.record(freedBytes: cleanResult.freedSpace, source: .manual)
+            }
             if cleanResult.itemsCleaned > 0 { lastCleanedDate = Date() }
 
             if let existing = categoryResults[category] {
