@@ -84,7 +84,7 @@ enum SiftAccent: String, CaseIterable, Identifiable {
 @MainActor
 final class AccentStore: ObservableObject {
     static let shared = AccentStore()
-    static let defaultsKey = "PureMac.Accent"
+    nonisolated static let defaultsKey = "PureMac.Accent"
 
     @Published var accent: SiftAccent {
         didSet { UserDefaults.standard.set(accent.rawValue, forKey: Self.defaultsKey) }
