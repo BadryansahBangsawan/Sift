@@ -93,6 +93,11 @@ struct PureMacApp: App {
            CLI.isKnownCommand(first) {
             CLI.run()
         }
+        // Bring settings and history over from a PureMac install before any
+        // store reads its defaults. Runs once; never under XCTest.
+        if NSClassFromString("XCTestCase") == nil {
+            LegacyMigration.runIfNeeded()
+        }
     }
 
     var body: some Scene {
