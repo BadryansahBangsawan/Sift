@@ -1,5 +1,6 @@
 import Foundation
 import AppKit
+import CoreServices
 
 struct InstalledApp: Identifiable, Hashable {
     let id: UUID
@@ -8,6 +9,13 @@ struct InstalledApp: Identifiable, Hashable {
     let path: URL
     let icon: NSImage
     let size: Int64
+    /// `CFBundleShortVersionString`, e.g. "4.2.1".
+    var version: String? = nil
+    /// Short label from `LSApplicationCategoryType`; see
+    /// `AppInfoFetcher.categoryLabel(for:)`.
+    var category: String? = nil
+    /// Spotlight's `kMDItemLastUsedDate`; nil when Spotlight has no record.
+    var lastOpened: Date? = nil
 
     var formattedSize: String {
         ByteCountFormatter.string(fromByteCount: size, countStyle: .file)
@@ -111,6 +119,7 @@ final class AppInfoFetcher {
 
     private func loadAppInfo(from url: URL) -> InstalledApp? {
         guard let bundle = Bundle(url: url) else { return nil }
+        let info = bundle.infoDictionary ?? [:]
 
         let bundleID = bundle.bundleIdentifier ?? url.deletingPathExtension().lastPathComponent
         let appName = (bundle.object(forInfoDictionaryKey: "CFBundleDisplayName") as? String)
@@ -128,11 +137,49 @@ final class AppInfoFetcher {
             bundleIdentifier: bundleID,
             path: url,
             icon: icon,
-            size: size
+            size: size,
+            version: info["CFBundleShortVersionString"] as? String,
+            category: Self.categoryLabel(for: info["LSApplicationCategoryType"] as? String),
+            lastOpened: Self.lastUsedDate(of: url)
         )
+    }
+
+    /// Spotlight's last-used date for the bundle, or nil when the volume isn't
+    /// indexed or the app was never opened.
+    private static func lastUsedDate(of url: URL) -> Date? {
+        guard let item = MDItemCreateWithURL(kCFAllocatorDefault, url as CFURL) else { return nil }
+        return MDItemCopyAttribute(item, kMDItemLastUsedDate) as? Date
     }
 
     private func appSize(at url: URL) -> Int64 {
         FileSizeCalculator.size(of: url) ?? 0
+    }
+
+    // MARK: - Category
+
+    private static let categoryPrefix = "public.app-category."
+
+    /// Short labels for the `LSApplicationCategoryType` values the UI groups
+    /// by. Anything not listed falls back to the type's suffix.
+    private static let categoryLabels: [String: String] = [
+        "developer-tools": "developer",
+        "graphics-design": "design",
+        "productivity": "productivity",
+        "utilities": "utility",
+        "social-networking": "communication",
+        "business": "business",
+    ]
+
+    /// Human label for an `LSApplicationCategoryType` value, e.g.
+    /// "public.app-category.developer-tools" -> "developer". Unmapped types
+    /// use their suffix with dashes as spaces ("role-playing-games" ->
+    /// "role playing games"). Returns nil for a missing or empty type.
+    static func categoryLabel(for categoryType: String?) -> String? {
+        guard let categoryType else { return nil }
+        let suffix = categoryType.hasPrefix(categoryPrefix)
+            ? String(categoryType.dropFirst(categoryPrefix.count))
+            : categoryType
+        guard !suffix.isEmpty else { return nil }
+        return categoryLabels[suffix] ?? suffix.replacingOccurrences(of: "-", with: " ")
     }
 }
