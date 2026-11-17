@@ -13,10 +13,61 @@ import Darwin
 final class SystemMonitor: ObservableObject {
     static let shared = SystemMonitor()
 
+    /// Raw CPU tick counters as `host_statistics(HOST_CPU_LOAD_INFO)` reports them.
+    struct CPUTicks: Equatable, Sendable {
+        var user: UInt64
+        var system: UInt64
+        var idle: UInt64
+        var nice: UInt64
+
+        var total: UInt64 { user &+ system &+ idle &+ nice }
+    }
+
+    /// Share of CPU time between two samples, each 0.0 - 1.0. Nice time is
+    /// counted as user time, as Activity Monitor does.
+    struct CPULoad: Equatable, Sendable {
+        var user: Double
+        var system: Double
+        var idle: Double
+
+        var total: Double { min(1, user + system) }
+    }
+
+    /// Memory split in bytes, from `host_statistics64(HOST_VM_INFO64)`.
+    struct MemoryBreakdown: Equatable, Sendable {
+        var wired: Int64
+        var active: Int64
+        var compressed: Int64
+        var free: Int64
+
+        /// Active + wired + compressed: what `memoryUsed` reports.
+        var used: Int64 { active + wired + compressed }
+    }
+
+    /// Number of samples `cpuHistory` keeps.
+    nonisolated static let cpuHistoryLimit = 30
+
     /// 0.0 - 1.0 fraction of total CPU time spent non-idle since the last sample.
     @Published private(set) var cpuUsage: Double = 0
+    /// 0.0 - 1.0 fraction of CPU time spent in user code (including nice) since the last sample.
+    @Published private(set) var cpuUser: Double = 0
+    /// 0.0 - 1.0 fraction of CPU time spent in the kernel since the last sample.
+    @Published private(set) var cpuSystem: Double = 0
+    /// 0.0 - 1.0 fraction of CPU time spent idle since the last sample.
+    @Published private(set) var cpuIdle: Double = 0
+    /// The last `cpuHistoryLimit` values of `cpuUsage`, oldest first. Kept
+    /// across pauses; it only grows while sampling.
+    @Published private(set) var cpuHistory: [Double] = []
     @Published private(set) var memoryUsed: Int64 = 0
     @Published private(set) var memoryTotal: Int64 = 0
+    /// Wired memory in bytes: kernel memory that cannot be paged out.
+    @Published private(set) var memoryWired: Int64 = 0
+    /// Active memory in bytes: pages in recent use.
+    @Published private(set) var memoryActive: Int64 = 0
+    /// Compressed memory in bytes: pages the compressor holds.
+    @Published private(set) var memoryCompressed: Int64 = 0
+    /// Free memory in bytes: pages not in use at all.
+    @Published private(set) var memoryFree: Int64 = 0
     @Published private(set) var diskUsed: Int64 = 0
     @Published private(set) var diskTotal: Int64 = 0
 
@@ -33,8 +84,7 @@ final class SystemMonitor: ObservableObject {
     private var timer: Timer?
     /// Previous CPU tick counters, kept to turn the kernel's monotonically
     /// increasing totals into a per-interval delta.
-    private var previousBusy: UInt64 = 0
-    private var previousTotal: UInt64 = 0
+    private var previousTicks: CPUTicks?
     // Idempotent subscriptions prevent repeated view activation from leaking a
     // timer. Each consumer releases only its own request.
     private var requests: [UUID: TimeInterval] = [:]
@@ -66,13 +116,15 @@ final class SystemMonitor: ObservableObject {
         timerGeneration = UUID()
         samplingInterval = interval
         guard let interval else {
-            previousBusy = 0
-            previousTotal = 0
+            previousTicks = nil
             return
         }
         if wasStopped {
             memoryTotal = Int64(ProcessInfo.processInfo.physicalMemory)
             cpuUsage = 0
+            cpuUser = 0
+            cpuSystem = 0
+            cpuIdle = 0
             sample()
         }
         let generation = timerGeneration
@@ -112,21 +164,43 @@ final class SystemMonitor: ObservableObject {
         }
         guard result == KERN_SUCCESS else { return }
 
-        let user = UInt64(info.cpu_ticks.0)
-        let system = UInt64(info.cpu_ticks.1)
-        let idle = UInt64(info.cpu_ticks.2)
-        let nice = UInt64(info.cpu_ticks.3)
-        let busy = user &+ system &+ nice
-        let total = busy &+ idle
+        let ticks = CPUTicks(
+            user: UInt64(info.cpu_ticks.0),
+            system: UInt64(info.cpu_ticks.1),
+            idle: UInt64(info.cpu_ticks.2),
+            nice: UInt64(info.cpu_ticks.3)
+        )
+        defer { previousTicks = ticks }
+        guard let previousTicks, let load = Self.cpuLoad(from: previousTicks, to: ticks) else { return }
+        cpuUser = load.user
+        cpuSystem = load.system
+        cpuIdle = load.idle
+        cpuUsage = load.total
+        cpuHistory = Self.appendingHistory(load.total, to: cpuHistory)
+    }
 
-        defer { previousBusy = busy; previousTotal = total }
-        // First sample has no prior baseline to diff against.
-        guard previousTotal != 0, total > previousTotal else { return }
+    /// CPU share between two tick samples. Nil when there is no baseline yet
+    /// (`previous` is all zeros) or no ticks elapsed.
+    nonisolated static func cpuLoad(from previous: CPUTicks, to current: CPUTicks) -> CPULoad? {
+        guard previous.total != 0, current.total > previous.total else { return nil }
+        let totalDelta = Double(current.total &- previous.total)
+        func share(_ now: UInt64, _ before: UInt64) -> Double {
+            min(1, max(0, Double(now &- before) / totalDelta))
+        }
+        return CPULoad(
+            user: share(current.user &+ current.nice, previous.user &+ previous.nice),
+            system: share(current.system, previous.system),
+            idle: share(current.idle, previous.idle)
+        )
+    }
 
-        let busyDelta = Double(busy &- previousBusy)
-        let totalDelta = Double(total &- previousTotal)
-        guard totalDelta > 0 else { return }
-        cpuUsage = min(1, max(0, busyDelta / totalDelta))
+    /// `history` plus `value`, trimmed to the newest `limit` entries.
+    nonisolated static func appendingHistory(
+        _ value: Double,
+        to history: [Double],
+        limit: Int = cpuHistoryLimit
+    ) -> [Double] {
+        Array((history + [value]).suffix(limit))
     }
 
     // MARK: - Memory
@@ -143,14 +217,36 @@ final class SystemMonitor: ObservableObject {
         }
         guard result == KERN_SUCCESS else { return }
 
-        let pageSize = Int64(vm_kernel_page_size)
-        // "App Memory" + wired + compressed mirrors what Activity Monitor counts
-        // as memory pressure; free + purgeable + most file-backed pages are not
-        // pressure, so they're excluded.
-        let used = (Int64(stats.active_count)
-            + Int64(stats.wire_count)
-            + Int64(stats.compressor_page_count)) * pageSize
-        memoryUsed = used
+        let breakdown = Self.memoryBreakdown(
+            wireCount: UInt64(stats.wire_count),
+            activeCount: UInt64(stats.active_count),
+            compressorPageCount: UInt64(stats.compressor_page_count),
+            freeCount: UInt64(stats.free_count),
+            pageSize: UInt64(vm_kernel_page_size)
+        )
+        memoryWired = breakdown.wired
+        memoryActive = breakdown.active
+        memoryCompressed = breakdown.compressed
+        memoryFree = breakdown.free
+        memoryUsed = breakdown.used
+    }
+
+    /// Page counts times page size. "App Memory" + wired + compressed mirrors
+    /// what Activity Monitor counts as memory pressure; free + purgeable + most
+    /// file-backed pages are not pressure, so `used` excludes them.
+    nonisolated static func memoryBreakdown(
+        wireCount: UInt64,
+        activeCount: UInt64,
+        compressorPageCount: UInt64,
+        freeCount: UInt64,
+        pageSize: UInt64
+    ) -> MemoryBreakdown {
+        MemoryBreakdown(
+            wired: Int64(wireCount * pageSize),
+            active: Int64(activeCount * pageSize),
+            compressed: Int64(compressorPageCount * pageSize),
+            free: Int64(freeCount * pageSize)
+        )
     }
 
     // MARK: - Disk

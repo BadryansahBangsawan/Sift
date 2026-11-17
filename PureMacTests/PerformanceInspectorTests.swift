@@ -135,4 +135,84 @@ final class PerformanceInspectorTests: XCTestCase {
         XCTAssertNil(PerformanceInspector.deletionTimestamp(for: injected))
         XCTAssertNil(PerformanceInspector.deletionTimestamp(for: invalidDate))
     }
+
+    func testParseLoadedLabelsReadsOnlyTheServicesBlockOfLaunchctlPrint() {
+        let output = """
+        gui/501 = {
+        	type = user
+        	services = {
+        		   85645   (pe) 	com.apple.syncdefaultsd
+        		       0      - 	Engineer.Badry.Sync
+        		     410      - 	com.example.helper
+        	}
+
+        	attractive services = {
+        		com.apple.MessagesBlastDoorService
+        	}
+
+        	disabled services = {
+        		"com.example.off" => disabled
+        	}
+        }
+        """
+
+        XCTAssertEqual(
+            PerformanceInspector.parseLoadedLabels(output),
+            ["com.apple.syncdefaultsd", "engineer.badry.sync", "com.example.helper"]
+        )
+    }
+
+    func testParseLoadedLabelsIsNilWithoutAServicesBlock() {
+        XCTAssertNil(PerformanceInspector.parseLoadedLabels("Could not find domain for"))
+    }
+
+    func testStartupStatusPrefersDisabledThenLoadedState() throws {
+        let data = try PropertyListSerialization.data(
+            fromPropertyList: ["Label": "com.example.agent", "Program": "/usr/bin/true"],
+            format: .xml,
+            options: 0
+        )
+        var item = try PerformanceInspector.parseLaunchItem(
+            data: data,
+            sourceURL: URL(fileURLWithPath: "/Library/LaunchAgents/com.example.agent.plist"),
+            domain: .systemAgent
+        )
+        XCTAssertNil(item.status, "Unknown until launchd has been asked")
+
+        item.isLoaded = true
+        XCTAssertEqual(item.status, .loaded)
+        item.isLoaded = false
+        XCTAssertEqual(item.status, .notLoaded)
+        item.isDisabled = true
+        XCTAssertEqual(item.status, .disabled)
+        item.isLoaded = true
+        XCTAssertEqual(item.status, .disabled, "Disabled wins over loaded")
+    }
+
+    func testLoadedStateLooksUpAgentsInTheGUIDomainAndDaemonsInTheSystemDomain() {
+        let gui: Set<String> = ["com.example.agent"]
+        let system: Set<String> = ["com.example.daemon"]
+
+        XCTAssertEqual(
+            PerformanceInspector.isLoaded("com.example.agent", domain: .userAgent, guiLabels: gui, systemLabels: system),
+            true
+        )
+        XCTAssertEqual(
+            PerformanceInspector.isLoaded("COM.Example.Agent", domain: .systemAgent, guiLabels: gui, systemLabels: system),
+            true,
+            "launchd compares labels case-insensitively"
+        )
+        XCTAssertEqual(
+            PerformanceInspector.isLoaded("com.example.agent", domain: .systemDaemon, guiLabels: gui, systemLabels: system),
+            false
+        )
+        XCTAssertEqual(
+            PerformanceInspector.isLoaded("com.example.daemon", domain: .systemDaemon, guiLabels: gui, systemLabels: system),
+            true
+        )
+        XCTAssertNil(
+            PerformanceInspector.isLoaded("com.example.agent", domain: .userAgent, guiLabels: nil, systemLabels: system),
+            "A failed launchctl query leaves the state unknown"
+        )
+    }
 }
