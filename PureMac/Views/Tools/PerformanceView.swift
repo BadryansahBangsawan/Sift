@@ -81,6 +81,9 @@ struct PerformanceView: View {
         .onReceive(NotificationCenter.default.publisher(for: NSApplication.didBecomeActiveNotification)) { _ in
             appIsActive = true
             synchronizeMonitoring()
+            // The battery card has no live feed: re-read it whenever the user
+            // comes back, otherwise it shows whatever it said at first paint.
+            Task { await refreshBattery() }
         }
         .onReceive(NotificationCenter.default.publisher(for: NSApplication.didResignActiveNotification)) { _ in
             appIsActive = false
