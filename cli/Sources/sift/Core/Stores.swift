@@ -39,7 +39,6 @@ enum StoreError: LocalizedError {
     case unknownConfigKey(String)
     case invalidConfigValue(key: String, value: String)
     case invalidIgnorePath
-    case invalidIgnoreFile(String)
 
     var errorDescription: String? {
         switch self {
@@ -51,8 +50,6 @@ enum StoreError: LocalizedError {
             return "Invalid value '\(value)' for \(key). Use a whole number from 1 to 3650."
         case .invalidIgnorePath:
             return "Protected paths cannot be empty, the filesystem root, or contain newline or NUL characters."
-        case .invalidIgnoreFile(let path):
-            return "Ignore file contains an invalid or relative path: \(path)"
         }
     }
 }
@@ -177,9 +174,8 @@ struct IgnoreStore {
                 let root = try standardized(line, relativeTo: "/", allowRelative: false)
                 if seen.insert(root).inserted { roots.append(root) }
             } catch {
-                // Refuse the file rather than silently dropping a protection the
-                // user added; the caller reports the path to the user.
-                throw StoreError.invalidIgnoreFile(fileURL.path)
+                // One hand-edited bad line must not discard the whole list.
+                Term.err(Term.yellow("Skipping invalid ignore entry '\(line)' in \(fileURL.path)"))
             }
         }
         return roots
