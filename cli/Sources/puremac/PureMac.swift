@@ -14,7 +14,7 @@ struct PureMac: ParsableCommand {
         Use --help on any command for script-friendly options.
         """,
         version: puremacVersion,
-        subcommands: [Clean.self, Purge.self, Analyze.self, Optimize.self, Ignore.self, Config.self]
+        subcommands: [Clean.self, Purge.self, Analyze.self, Optimize.self, Doctor.self, Ignore.self, Config.self]
     )
 
     func run() throws {
@@ -27,6 +27,12 @@ struct PureMac: ParsableCommand {
 }
 
 enum HomeMenu {
+    private static func promptPath(_ label: String, fallback: String) -> String {
+        print(Term.dim("\(label) (\(fallback)): "), terminator: "")
+        let line = readLine()?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        return line.isEmpty ? fallback : line
+    }
+
     static func run() throws {
         let options: [(title: String, detail: String)] = [
             ("Clean caches", "Choose tools and individual paths to remove"),
@@ -34,7 +40,8 @@ enum HomeMenu {
             ("Explore storage", "Browse folders and find what takes up space"),
             ("System status", "Inspect memory and available disk space"),
             ("Preferences", "View cleanup settings and configuration paths"),
-            ("Protected paths", "View folders excluded from cleanup")
+            ("Protected paths", "View folders excluded from cleanup"),
+            ("Doctor", "Check disk, memory, SMART, and launch agents")
         ]
         while let choice = try TerminalMenu.choose(
             title: "PureMac",
@@ -61,6 +68,7 @@ enum HomeMenu {
             case 3: try Optimize.parse([]).run()
             case 4: try Config.parse([]).run()
             case 5: try Ignore.List.parse([]).run()
+            case 6: try Doctor.parse(["--json"]).run()
             default: return
             }
             print(Term.dim("\nPress Return to return to PureMac."), terminator: " ")
