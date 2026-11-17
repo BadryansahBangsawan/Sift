@@ -15,7 +15,8 @@ struct MainWindow: View {
         .systemJunk,
         .userCache,
         .mailAttachments,
-        .largeFiles
+        .largeFiles,
+        .installers
     ]
 
     private static let advancedCategories: [CleaningCategory] = [

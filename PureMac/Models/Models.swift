@@ -9,6 +9,7 @@ enum CleaningCategory: String, CaseIterable, Identifiable, Codable {
     case aiApps = "AI Apps"
     case mailAttachments = "Mail Files"
     case largeFiles = "Large & Old Files"
+    case installers = "Installers"
     case purgeableSpace = "Purgeable Space"
     case xcodeJunk = "Xcode Junk"
     case brewCache = "Brew Cache"
@@ -27,6 +28,7 @@ enum CleaningCategory: String, CaseIterable, Identifiable, Codable {
         case .aiApps: return "cpu.fill"
         case .mailAttachments: return "envelope.fill"
         case .largeFiles: return "doc.fill"
+        case .installers: return "archivebox.fill"
         case .purgeableSpace: return "arrow.3.trianglepath"
         case .xcodeJunk: return "hammer.fill"
         case .brewCache: return "mug.fill"
@@ -45,6 +47,7 @@ enum CleaningCategory: String, CaseIterable, Identifiable, Codable {
         case .aiApps: return "Local AI app logs, caches, and optional history"
         case .mailAttachments: return "Downloaded mail attachments"
         case .largeFiles: return "Files over 100 MB or older than 1 year"
+        case .installers: return "Installer disk images and packages older than two weeks"
         case .purgeableSpace: return "Reserved by macOS - freed automatically when space is needed"
         case .xcodeJunk: return "Derived data, archives, and simulator runtimes"
         case .brewCache: return "Homebrew download cache"
@@ -63,6 +66,7 @@ enum CleaningCategory: String, CaseIterable, Identifiable, Codable {
         case .aiApps: return .teal
         case .mailAttachments: return .orange
         case .largeFiles: return .yellow
+        case .installers: return .red
         case .purgeableSpace: return .green
         case .xcodeJunk: return .cyan
         case .brewCache: return .mint

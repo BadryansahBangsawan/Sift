@@ -574,7 +574,10 @@ actor CleaningEngine {
             let resolved = (resolvedPath as NSString).standardizingPath
             return originalIsManaged && resolvedIsManaged && original == resolved
         }
-        if item.category == .largeFiles {
+        // Installers, like large files, are arbitrary single files inside the
+        // user's own folders — the category-scoped allow-lists below do not
+        // cover them, so they ride the same per-file rule.
+        if item.category == .largeFiles || item.category == .installers {
             return isExplicitSingleFileDeletable(resolvedPath: resolvedPath)
         }
         return isSafeToDelete(resolvedPath: resolvedPath)

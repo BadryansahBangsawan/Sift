@@ -65,6 +65,8 @@ actor ScanEngine {
             return scanMailAttachments()
         case .largeFiles:
             return scanLargeFiles()
+        case .installers:
+            return scanInstallers()
         case .purgeableSpace:
             return scanPurgeableSpace()
         case .xcodeJunk:
@@ -370,7 +372,13 @@ actor ScanEngine {
                 let size = Int64(fileSize)
                 let modDate = resourceValues.contentModificationDate
 
-                if size > minSize || (modDate != nil && modDate! < oldCutoff && size > 10 * 1024 * 1024) {
+                // Installers get their own category, so a `.dmg` or `.pkg` must
+                // not show up here too — otherwise the same bytes are counted
+                // twice and one listing goes stale when the other is cleaned.
+                let isInstaller = InstallerScan.extensions.contains(fileURL.pathExtension.lowercased())
+
+                if !isInstaller,
+                   size > minSize || (modDate != nil && modDate! < oldCutoff && size > 10 * 1024 * 1024) {
                     items.append(CleanableItem(
                         name: fileURL.lastPathComponent,
                         path: fileURL.path,
@@ -386,6 +394,80 @@ actor ScanEngine {
         items.sort { $0.size > $1.size }
         let totalSize = items.reduce(0) { $0 + $1.size }
         return CategoryResult(category: .largeFiles, items: items, totalSize: totalSize)
+    }
+
+    /// Disk images and flat packages the user downloaded and never deleted.
+    ///
+    /// Scoped to the same three user folders as `scanLargeFiles()` so the two
+    /// categories agree about what "the user's own files" means. Nothing is
+    /// auto-selected: an installer is a deliberate download, and deleting one
+    /// the user still means to run is not recoverable from here.
+    private func scanInstallers() -> CategoryResult {
+        var items: [CleanableItem] = []
+
+        let defaults = UserDefaults.standard
+
+        // Same folder exclusions and hidden-file toggle as the large-file
+        // sweep: a folder the user opted out of must stay opted out no matter
+        // which category is looking at it.
+        let excludedFolders = (defaults.stringArray(forKey: "settings.cleaning.largeFileExcludedFolders") ?? [])
+            .map(normalizePath)
+            .filter { !$0.isEmpty }
+        let skipHidden = defaults.object(forKey: "settings.cleaning.skipHiddenFiles") as? Bool ?? true
+
+        var enumerationOptions: FileManager.DirectoryEnumerationOptions = [.skipsPackageDescendants]
+        if skipHidden { enumerationOptions.insert(.skipsHiddenFiles) }
+
+        func isExcluded(_ path: String) -> Bool {
+            let normalized = normalizePath(path)
+            return excludedFolders.contains { normalized == $0 || normalized.hasPrefix($0 + "/") }
+        }
+
+        let searchPaths = [
+            "\(home)/Downloads",
+            "\(home)/Documents",
+            "\(home)/Desktop",
+        ]
+        let now = Date()
+
+        for basePath in searchPaths {
+            guard let enumerator = fileManager.enumerator(
+                at: URL(fileURLWithPath: basePath),
+                includingPropertiesForKeys: [.fileSizeKey, .contentModificationDateKey, .isRegularFileKey],
+                options: enumerationOptions
+            ) else { continue }
+
+            for case let fileURL as URL in enumerator {
+                if !excludedFolders.isEmpty, isExcluded(fileURL.path) {
+                    enumerator.skipDescendants()
+                    continue
+                }
+                report(fileURL.path)
+                guard let resourceValues = try? fileURL.resourceValues(forKeys: [.fileSizeKey, .contentModificationDateKey, .isRegularFileKey]),
+                      let isFile = resourceValues.isRegularFile, isFile,
+                      let fileSize = resourceValues.fileSize
+                else { continue }
+
+                let size = Int64(fileSize)
+                let modDate = resourceValues.contentModificationDate
+                guard size > 0,
+                      InstallerScan.isCandidate(extension: fileURL.pathExtension, modified: modDate, now: now)
+                else { continue }
+
+                items.append(CleanableItem(
+                    name: fileURL.lastPathComponent,
+                    path: fileURL.path,
+                    size: size,
+                    category: .installers,
+                    isSelected: false,
+                    lastModified: modDate
+                ))
+            }
+        }
+
+        items.sort { $0.size > $1.size }
+        let totalSize = items.reduce(0) { $0 + $1.size }
+        return CategoryResult(category: .installers, items: items, totalSize: totalSize)
     }
 
     private func scanPurgeableSpace() -> CategoryResult {
