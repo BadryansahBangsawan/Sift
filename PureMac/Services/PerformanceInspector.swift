@@ -21,7 +21,7 @@ struct PerformanceStartupItem: Identifiable, Hashable, Sendable {
     let arguments: [String]
     let sourceURL: URL
     let domain: PerformanceStartupDomain
-    let isDisabled: Bool
+    var isDisabled: Bool
     let triggers: [String]
 
     var id: String { sourceURL.path }
@@ -67,6 +67,7 @@ enum PerformanceInspectorError: LocalizedError, Equatable {
     case invalidSnapshotIdentifier
     case timedOut(String)
     case commandFailed(String, Int32, String)
+    case unsupportedDomain(String)
 
     var errorDescription: String? {
         switch self {
@@ -79,6 +80,8 @@ enum PerformanceInspectorError: LocalizedError, Equatable {
         case .commandFailed(let command, let status, let detail):
             let suffix = detail.isEmpty ? "" : ": \(detail)"
             return String(localized: "\(command) exited with status \(status)\(suffix)")
+        case .unsupportedDomain(let label):
+            return String(localized: "\(label) cannot be enabled or disabled here. Only your own launch agents can be toggled.")
         }
     }
 }
@@ -132,6 +135,34 @@ final class PerformanceInspector {
         guard result.status == 0 else {
             throw PerformanceInspectorError.commandFailed(
                 "tmutil deletelocalsnapshots",
+                result.status,
+                result.standardError.trimmingCharacters(in: .whitespacesAndNewlines)
+            )
+        }
+    }
+
+    /// Enables or disables one launch agent in the user's GUI session.
+    ///
+    /// `launchctl` manages a per-user override database, so this needs no
+    /// administrator rights — and it deliberately refuses anything outside
+    /// `~/Library/LaunchAgents`: system agents and daemons belong to macOS or
+    /// to packages that manage their own lifecycle.
+    func setStartupItem(_ item: PerformanceStartupItem, disabled: Bool) async throws {
+        guard item.domain == .userAgent else {
+            throw PerformanceInspectorError.unsupportedDomain(item.label)
+        }
+        guard !item.label.isEmpty, !item.label.contains("/") else {
+            throw PerformanceInspectorError.unsupportedDomain(item.label)
+        }
+        let verb = disabled ? "disable" : "enable"
+        let result = try await Self.runCommand(
+            executable: URL(fileURLWithPath: "/bin/launchctl"),
+            arguments: [verb, "gui/\(Darwin.getuid())/\(item.label)"],
+            timeout: 15
+        )
+        guard result.status == 0 else {
+            throw PerformanceInspectorError.commandFailed(
+                "launchctl \(verb)",
                 result.status,
                 result.standardError.trimmingCharacters(in: .whitespacesAndNewlines)
             )
@@ -250,6 +281,9 @@ final class PerformanceInspector {
             let fileManager = FileManager()
             var items: [PerformanceStartupItem] = []
             var issues: [PerformanceInspectionIssue] = []
+            // launchctl keeps the enabled/disabled state in its own database;
+            // a plist that says nothing is enabled unless it appears here.
+            let disabledLabels = await Self.readDisabledLabels()
 
             for (directory, domain) in startupDirectories {
                 try Task.checkCancellation()
@@ -290,6 +324,17 @@ final class PerformanceInspector {
                 }
             }
 
+            if !disabledLabels.isEmpty {
+                items = items.map { item in
+                    guard item.domain == .userAgent,
+                          disabledLabels.contains(item.label.lowercased())
+                    else { return item }
+                    var updated = item
+                    updated.isDisabled = true
+                    return updated
+                }
+            }
+
             return StartupScanResult(
                 items: items.sorted {
                     if $0.domain != $1.domain {
@@ -300,6 +345,51 @@ final class PerformanceInspector {
                 issues: issues
             )
         }.value
+    }
+
+    /// Labels `launchctl` reports as disabled for this GUI session.
+    ///
+    /// A failed or unparseable command returns an empty set so callers keep the
+    /// plist's own `Disabled` flag — the toggle itself always validates via the
+    /// command's exit status, so a miss here only affects the initial display.
+    static func readDisabledLabels() async -> Set<String> {
+        do {
+            let result = try await runCommand(
+                executable: URL(fileURLWithPath: "/bin/launchctl"),
+                arguments: ["print-disabled", "gui/\(Darwin.getuid())"],
+                timeout: 10
+            )
+            guard result.status == 0 else { return [] }
+            return parseDisabledLabels(result.standardOutput)
+        } catch {
+            return []
+        }
+    }
+
+    /// Extracts the quoted labels inside the `disabled services = { ... }`
+    /// block of `launchctl print-disabled` output. Lowercased, because launchd
+    /// compares labels case-insensitively.
+    static func parseDisabledLabels(_ output: String) -> Set<String> {
+        guard let start = output.range(of: "disabled services = {") else { return [] }
+        let rest = output[start.upperBound...]
+        guard let end = rest.firstIndex(of: "}") else { return [] }
+        let body = rest[..<end]
+
+        var labels: Set<String> = []
+        for line in body.split(whereSeparator: \Character.isNewline) {
+            guard let open = line.firstIndex(of: "\""),
+                  let close = line.lastIndex(of: "\""),
+                  open < close
+            else { continue }
+            let label = line[line.index(after: open)..<close].trimmingCharacters(in: .whitespaces)
+            guard !label.isEmpty else { continue }
+            // Only entries marked "disabled" count; an enabled override is
+            // printed as false and must not be treated as disabled.
+            let trailing = line[line.index(after: close)...].trimmingCharacters(in: .whitespaces)
+            guard trailing.hasPrefix("=> disabled") || trailing == "disabled" else { continue }
+            labels.insert(label.lowercased())
+        }
+        return labels
     }
 
     private static func scanSnapshots() async throws -> (

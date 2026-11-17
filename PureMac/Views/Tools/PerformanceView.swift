@@ -23,6 +23,8 @@ struct PerformanceView: View {
     @State private var deletingSnapshotID: String?
     @State private var deletionError: String?
     @State private var batteryStatus: BatteryStatus?
+    @State private var togglingLabel: String?
+    @State private var startupToggleError: String?
     private let inspector = PerformanceInspector()
     private let batteryInspector = BatteryInspector()
 
@@ -122,6 +124,13 @@ struct PerformanceView: View {
             }
         } message: {
             Text(deletionError ?? String(localized: "Unknown error"))
+        }
+        .alert("Launch item could not be changed", isPresented: startupToggleErrorPresented) {
+            Button("OK", role: .cancel) {
+                startupToggleError = nil
+            }
+        } message: {
+            Text(startupToggleError ?? String(localized: "Unknown error"))
         }
     }
 
@@ -361,7 +370,15 @@ struct PerformanceView: View {
                     } else {
                         LazyVStack(spacing: 0) {
                             ForEach(Array(items.enumerated()), id: \.element.id) { index, item in
-                                StartupItemRow(item: item) { reveal(item.sourceURL) }
+                                StartupItemRow(
+                                    item: item,
+                                    isBusy: togglingLabel == item.label,
+                                    onToggle: item.domain == .userAgent
+                                        ? { toggleStartupItem(item) }
+                                        : nil
+                                ) {
+                                    reveal(item.sourceURL)
+                                }
                                 if index < items.count - 1 {
                                     Divider().padding(.leading, 58)
                                 }
@@ -478,6 +495,29 @@ struct PerformanceView: View {
     }
 
     @MainActor
+    private var startupToggleErrorPresented: Binding<Bool> {
+        Binding(
+            get: { startupToggleError != nil },
+            set: { presented in
+                if !presented { startupToggleError = nil }
+            }
+        )
+    }
+
+    private func toggleStartupItem(_ item: PerformanceStartupItem) {
+        guard togglingLabel == nil else { return }
+        togglingLabel = item.label
+        Task {
+            do {
+                try await inspector.setStartupItem(item, disabled: !item.isDisabled)
+                await refresh()
+            } catch {
+                startupToggleError = error.localizedDescription
+            }
+            togglingLabel = nil
+        }
+    }
+
     private func refresh() async {
         guard !isLoading else { return }
         state = .loading
@@ -554,6 +594,10 @@ private struct ResourceMeter: View {
 
 private struct StartupItemRow: View {
     let item: PerformanceStartupItem
+    var isBusy: Bool = false
+    /// nil for anything the app is not allowed to toggle (system agents and
+    /// daemons), which renders no switch at all.
+    var onToggle: (() -> Void)?
     let onReveal: () -> Void
     @State private var hovering = false
 
@@ -596,6 +640,21 @@ private struct StartupItemRow: View {
             }
 
             Spacer(minLength: 8)
+
+            if let onToggle {
+                Toggle(
+                    "",
+                    isOn: Binding(
+                        get: { !item.isDisabled },
+                        set: { _ in onToggle() }
+                    )
+                )
+                .labelsHidden()
+                .toggleStyle(.switch)
+                .controlSize(.mini)
+                .disabled(isBusy)
+                .help("Enable or disable this launch agent at login")
+            }
 
             Button(action: onReveal) {
                 Image(systemName: "folder")
