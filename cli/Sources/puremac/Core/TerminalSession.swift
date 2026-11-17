@@ -61,7 +61,16 @@ private func terminalRestore() {
     terminalHasSavedSpeeds = false
 }
 
-private func terminalSignalHandler(_ signalNumber: Int32) {
+// Set by the signal handler and consumed from the read loop. Only a
+// sig_atomic_t store happens inside the handler: tcsetattr/signal/kill are
+// not async-signal-safe and calling them from the handler could deadlock
+// against the allocation or stdio lock the interrupted code holds.
+private var terminalPendingSignal = sig_atomic_t(0)
+
+private func terminalHandlePendingSignal() {
+    let signalNumber = terminalPendingSignal
+    guard signalNumber != 0 else { return }
+    terminalPendingSignal = 0
     terminalRestore()
     Darwin.signal(signalNumber, SIG_DFL)
     var signals = sigset_t()
@@ -71,6 +80,15 @@ private func terminalSignalHandler(_ signalNumber: Int32) {
     _ = Darwin.kill(getpid(), signalNumber)
 }
 
+private func terminalSignalHandler(_ signalNumber: Int32) {
+    terminalPendingSignal = signalNumber
+}
+
+// SIGINT/SIGTERM/SIGHUP/SIGQUIT cannot be installed through sigaction here:
+// the C function is not importable into Swift because the struct of the same
+// name shadows it, and signal() sets SA_RESTART on Darwin, which makes a
+// blocked read() resume instead of returning EINTR. readByte therefore polls
+// with a short timeout so the pending flag is observed while it waits.
 private func terminalExitHandler() {
     terminalRestore()
 }
@@ -240,6 +258,14 @@ final class TerminalSession {
     private func readByte() -> UInt8? {
         var byte: UInt8 = 0
         while true {
+            terminalHandlePendingSignal()
+            var descriptor = pollfd(fd: STDIN_FILENO, events: Int16(POLLIN), revents: 0)
+            let ready = poll(&descriptor, 1, 100)
+            if ready == 0 { continue }
+            if ready < 0 {
+                if errno == EINTR { continue }
+                return nil
+            }
             let result = Darwin.read(STDIN_FILENO, &byte, 1)
             if result == 1 { return byte }
             if result == -1 && errno == EINTR { continue }
