@@ -22,7 +22,9 @@ struct PerformanceView: View {
     @State private var snapshotPendingDeletion: PerformanceSnapshot?
     @State private var deletingSnapshotID: String?
     @State private var deletionError: String?
+    @State private var batteryStatus: BatteryStatus?
     private let inspector = PerformanceInspector()
+    private let batteryInspector = BatteryInspector()
 
     var body: some View {
         ZStack {
@@ -33,6 +35,9 @@ struct PerformanceView: View {
                 // Only a few expandable cards: eager layout avoids unstable lazy height estimates.
                 VStack(alignment: .leading, spacing: 14) {
                     header
+                    if batteryStatus?.isInstalled == true {
+                        batteryCard
+                    }
                     liveResources
                     inspectionContent
                 }
@@ -45,7 +50,10 @@ struct PerformanceView: View {
         .toolbar {
             ToolbarItem {
                 Button {
-                    Task { await refresh() }
+                    Task {
+                        await refresh()
+                        await refreshBattery()
+                    }
                 } label: {
                     Label("Refresh", systemImage: "arrow.clockwise")
                 }
@@ -53,7 +61,10 @@ struct PerformanceView: View {
                 .help("Inspect startup items and local snapshots again")
             }
         }
-        .task { await refresh() }
+        .task {
+            await refresh()
+            await refreshBattery()
+        }
         .onAppear {
             pageIsVisible = true
             appIsActive = NSApplication.shared.isActive
@@ -131,6 +142,69 @@ struct PerformanceView: View {
             .buttonStyle(.bordered)
         }
         .padding(.bottom, 2)
+    }
+
+    /// Hidden entirely on Macs without a battery — a card that reads "no
+    /// battery" is noise on a desktop, not information.
+    private var batteryCard: some View {
+        CardSurface(padding: 18, elevation: .standard) {
+            HStack(alignment: .center, spacing: 14) {
+                IconTile(systemName: "battery.100percent", tint: Tint.accent, size: 34, corner: 9)
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Battery")
+                        .font(.system(size: 15, weight: .semibold))
+                    if let cycleCount = batteryStatus?.cycleCount, let health = batteryStatus?.healthPercent {
+                        Text("\(cycleCount) cycles · \(health)% health")
+                            .font(.system(size: 11.5))
+                            .foregroundStyle(.secondary)
+                            .monospacedDigit()
+                    } else if let cycles = batteryStatus?.cycleCount {
+                        Text("\(cycles) cycles")
+                            .font(.system(size: 11.5))
+                            .foregroundStyle(.secondary)
+                            .monospacedDigit()
+                    } else if let health = batteryStatus?.healthPercent {
+                        Text("\(health)% health")
+                            .font(.system(size: 11.5))
+                            .foregroundStyle(.secondary)
+                            .monospacedDigit()
+                    }
+                    if let health = batteryStatus?.healthPercent, health < 80 {
+                        Label("Service recommended", systemImage: "exclamationmark.triangle")
+                            .font(.system(size: 11, weight: .medium))
+                            .foregroundStyle(Tint.orange)
+                    }
+                }
+                Spacer()
+                VStack(alignment: .trailing, spacing: 6) {
+                    if let charge = batteryStatus?.chargePercent {
+                        Text("\(charge)%")
+                            .font(.system(size: 24, weight: .semibold, design: .rounded))
+                            .monospacedDigit()
+                    }
+                    if let chip = batteryStateChip {
+                        StatusChip(label: chip.label, systemImage: chip.icon, tint: chip.tint)
+                    }
+                }
+            }
+        }
+    }
+
+    private var batteryStateChip: (label: String, icon: String, tint: Color)? {
+        guard let charging = batteryStatus?.isCharging else { return nil }
+        if charging, let charge = batteryStatus?.chargePercent, charge >= 100 {
+            return (String(localized: "Fully charged"), "checkmark.circle.fill", Tint.green)
+        }
+        return charging
+            ? (String(localized: "Charging"), "bolt.fill", Tint.green)
+            : (String(localized: "On battery"), "battery.75percent", Tint.orange)
+    }
+
+    @MainActor
+    private func refreshBattery() async {
+        let status = await batteryInspector.inspect()
+        guard !Task.isCancelled else { return }
+        batteryStatus = status
     }
 
     private var resourcesAreActive: Bool {

@@ -89,7 +89,7 @@ final class PerformanceInspector {
         let issues: [PerformanceInspectionIssue]
     }
 
-    private struct CommandResult: Sendable {
+    struct CommandResult: Sendable {
         let status: Int32
         let standardOutput: String
         let standardError: String
@@ -344,7 +344,7 @@ final class PerformanceInspector {
         }
     }
 
-    private static func runCommand(
+    static func runCommand(
         executable: URL,
         arguments: [String],
         timeout: TimeInterval
