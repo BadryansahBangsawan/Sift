@@ -389,15 +389,17 @@ private struct RailRow: View {
     @State private var hovering = false
 
     var body: some View {
-        HStack(spacing: 10) {
+        HStack(spacing: 0) {
             item.icon.image(16)
                 .foregroundStyle(isSelected ? SiftColor.accent : SiftColor.icon)
+                .padding(.trailing, 10)
                 .accessibilityHidden(true)
             Text(item.label)
                 .font(.sift(13, weight: isSelected ? 500 : 400))
                 .foregroundStyle(isSelected || hovering ? SiftColor.textPrimary : SiftColor.textSecondary)
                 .lineLimit(1)
-            Spacer(minLength: 4)
+                .minimumScaleFactor(0.9)
+            Spacer(minLength: 6)
             if let badge {
                 SiftBadge(badge, highlighted: isSelected)
             } else if let shortcut {
