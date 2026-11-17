@@ -150,7 +150,7 @@ final class OptimizeConfigTests: XCTestCase {
         XCTAssertFalse(Safety.canRemove(candidate.path, ignore: store).ok)
     }
 
-    func testIgnoreStoreRejectsControlCharactersAndLegacyRelativeEntries() throws {
+    func testIgnoreStoreRejectsControlCharactersAndSkipsMalformedFileEntries() throws {
         let directory = try temporaryDirectory()
         defer { try? FileManager.default.removeItem(at: directory) }
         let file = directory.appendingPathComponent("ignore")
@@ -171,9 +171,19 @@ final class OptimizeConfigTests: XCTestCase {
         XCTAssertEqual(rootStore.roots, ["/tmp/sift-ignore-fixture"])
         XCTAssertTrue(try rootStore.remove("/tmp/sift-ignore-fixture"))
 
-        for contents in ["relative/path\n", "/.\n", "/tmp/..\n"] {
-            try Data(contents.utf8).write(to: file)
-            XCTAssertThrowsError(try IgnoreStore(fileURL: file))
+        // One bad hand-edited line must not drop the protections beside it: the
+        // loader warns and keeps every valid entry.
+        let validLine = "/tmp/./sift-ignore-fixture"
+        for invalidLine in [
+            "relative/path",
+            "/.",
+            "/tmp/..",
+            "/tmp/bad\u{0}path",
+            "/tmp/bad\rpath"
+        ] {
+            try Data("\(invalidLine)\n\(validLine)\n".utf8).write(to: file)
+            let loaded = try IgnoreStore(fileURL: file)
+            XCTAssertEqual(loaded.roots, ["/tmp/sift-ignore-fixture"])
         }
     }
 
