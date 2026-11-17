@@ -1,6 +1,6 @@
-name: PureMac
+name: Sift
 options:
-  bundleIdPrefix: com.puremac
+  bundleIdPrefix: com.sift
   deploymentTarget:
     macOS: "13.0"
   xcodeVersion: "16.4"
@@ -16,9 +16,9 @@ settings:
     CODE_SIGN_IDENTITY: "Apple Development"
     CODE_SIGN_STYLE: "Automatic"
     DEVELOPMENT_TEAM: "H3WXHVTP97"
-    CODE_SIGN_ENTITLEMENTS: "PureMac/PureMac.entitlements"
-    INFOPLIST_FILE: "PureMac/Info.plist"
-    PRODUCT_BUNDLE_IDENTIFIER: "com.puremac.app"
+    CODE_SIGN_ENTITLEMENTS: "Sift/Sift.entitlements"
+    INFOPLIST_FILE: "Sift/Info.plist"
+    PRODUCT_BUNDLE_IDENTIFIER: "com.sift.app"
     MARKETING_VERSION: "3.2.0"
     CURRENT_PROJECT_VERSION: "31"
     GENERATE_INFOPLIST_FILE: "NO"
@@ -26,14 +26,14 @@ settings:
     COMBINE_HIDPI_IMAGES: "YES"
 
 targets:
-  PureMac:
+  Sift:
     type: application
     platform: macOS
     sources:
-      - PureMac
+      - Sift
     settings:
       base:
-        PRODUCT_NAME: PureMac
+        PRODUCT_NAME: Sift
         SWIFT_EMIT_LOC_STRINGS: "YES"
         LD_RUNPATH_SEARCH_PATHS: "$(inherited) @executable_path/../Frameworks"
       configs:
@@ -41,24 +41,24 @@ targets:
           CODE_SIGNING_ALLOWED: "NO"
           CODE_SIGNING_REQUIRED: "NO"
 
-  PureMacTests:
+  SiftTests:
     type: bundle.unit-test
     platform: macOS
     sources:
-      - PureMacTests
+      - SiftTests
     dependencies:
-      - target: PureMac
+      - target: Sift
     settings:
       base:
         CODE_SIGNING_ALLOWED: "NO"
         CODE_SIGNING_REQUIRED: "NO"
 
 schemes:
-  PureMac:
+  Sift:
     build:
       targets:
-        PureMac: all
-        PureMacTests: [test]
+        Sift: all
+        SiftTests: [test]
     test:
       targets:
-        - name: PureMacTests
+        - name: SiftTests
