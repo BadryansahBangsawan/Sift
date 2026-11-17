@@ -281,9 +281,11 @@ final class PerformanceInspector {
             let fileManager = FileManager()
             var items: [PerformanceStartupItem] = []
             var issues: [PerformanceInspectionIssue] = []
-            // launchctl keeps the enabled/disabled state in its own database;
-            // a plist that says nothing is enabled unless it appears here.
-            let disabledLabels = await Self.readDisabledLabels()
+            // launchctl keeps the enabled/disabled state in its own database,
+            // and it wins over the plist: `launchctl enable` overrides a plist
+            // that says `Disabled: true`, and a `disable` overrides one that
+            // does not mention it at all.
+            let disabledStates = await Self.readDisabledStates()
 
             for (directory, domain) in startupDirectories {
                 try Task.checkCancellation()
@@ -324,13 +326,13 @@ final class PerformanceInspector {
                 }
             }
 
-            if !disabledLabels.isEmpty {
+            if !disabledStates.isEmpty {
                 items = items.map { item in
                     guard item.domain == .userAgent,
-                          disabledLabels.contains(item.label.lowercased())
+                          let disabled = disabledStates[item.label.lowercased()]
                     else { return item }
                     var updated = item
-                    updated.isDisabled = true
+                    updated.isDisabled = disabled
                     return updated
                 }
             }
@@ -347,35 +349,33 @@ final class PerformanceInspector {
         }.value
     }
 
-    /// Labels `launchctl` reports as disabled for this GUI session.
-    ///
-    /// A failed or unparseable command returns an empty set so callers keep the
-    /// plist's own `Disabled` flag — the toggle itself always validates via the
-    /// command's exit status, so a miss here only affects the initial display.
-    static func readDisabledLabels() async -> Set<String> {
+    /// Per-label override state for this GUI session, keyed by lowercased
+    /// label: `true` when launchd disables it, `false` when it was explicitly
+    /// re-enabled. A failed or unparseable command returns an empty map so
+    /// callers fall back to the plist's own `Disabled` flag.
+    static func readDisabledStates() async -> [String: Bool] {
         do {
             let result = try await runCommand(
                 executable: URL(fileURLWithPath: "/bin/launchctl"),
                 arguments: ["print-disabled", "gui/\(Darwin.getuid())"],
                 timeout: 10
             )
-            guard result.status == 0 else { return [] }
-            return parseDisabledLabels(result.standardOutput)
+            guard result.status == 0 else { return [:] }
+            return parseDisabledStates(result.standardOutput)
         } catch {
-            return []
+            return [:]
         }
     }
 
-    /// Extracts the quoted labels inside the `disabled services = { ... }`
-    /// block of `launchctl print-disabled` output. Lowercased, because launchd
-    /// compares labels case-insensitively.
-    static func parseDisabledLabels(_ output: String) -> Set<String> {
-        guard let start = output.range(of: "disabled services = {") else { return [] }
+    /// Parses the `disabled services = { ... }` block of
+    /// `launchctl print-disabled` into label -> isDisabled.
+    static func parseDisabledStates(_ output: String) -> [String: Bool] {
+        guard let start = output.range(of: "disabled services = {") else { return [:] }
         let rest = output[start.upperBound...]
-        guard let end = rest.firstIndex(of: "}") else { return [] }
+        guard let end = rest.firstIndex(of: "}") else { return [:] }
         let body = rest[..<end]
 
-        var labels: Set<String> = []
+        var states: [String: Bool] = [:]
         for line in body.split(whereSeparator: \Character.isNewline) {
             guard let open = line.firstIndex(of: "\""),
                   let close = line.lastIndex(of: "\""),
@@ -383,13 +383,20 @@ final class PerformanceInspector {
             else { continue }
             let label = line[line.index(after: open)..<close].trimmingCharacters(in: .whitespaces)
             guard !label.isEmpty else { continue }
-            // Only entries marked "disabled" count; an enabled override is
-            // printed as false and must not be treated as disabled.
             let trailing = line[line.index(after: close)...].trimmingCharacters(in: .whitespaces)
-            guard trailing.hasPrefix("=> disabled") || trailing == "disabled" else { continue }
-            labels.insert(label.lowercased())
+            if trailing.hasPrefix("=> disabled") || trailing == "disabled" {
+                states[label.lowercased()] = true
+            } else if trailing.hasPrefix("=> enabled") || trailing == "enabled" {
+                states[label.lowercased()] = false
+            }
         }
-        return labels
+        return states
+    }
+
+    /// Labels launchd reports as disabled. Lowercased, because launchd
+    /// compares labels case-insensitively.
+    static func parseDisabledLabels(_ output: String) -> Set<String> {
+        Set(parseDisabledStates(output).filter { $0.value }.keys)
     }
 
     private static func scanSnapshots() async throws -> (
