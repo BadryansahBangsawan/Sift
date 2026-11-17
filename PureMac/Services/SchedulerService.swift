@@ -12,30 +12,32 @@ class SchedulerService: ObservableObject {
     private var onTrigger: (() async -> Void)?
 
     init() {
-        if let data = UserDefaults.standard.data(forKey: configKey),
-           var saved = try? JSONDecoder().decode(ScheduleConfig.self, from: data) {
-            // Refuse to honor an already-past nextRunDate loaded from disk -
-            // otherwise an attacker who can write our plist (same-UID foothold)
-            // sets nextRunDate to a past timestamp and our first tick after
-            // launch triggers autoClean. Reset the schedule so the first run
-            // is always at least one full interval after launch.
-            if let next = saved.nextRunDate, next.timeIntervalSinceNow < 60 {
-                saved.nextRunDate = nil
-                saved.lastRunDate = nil
-            }
-            // A persisted ScheduleConfig decodes through CleaningCategory's
-            // raw values, which no longer include withdrawn cases such as
-            // Trash Bins. Decoding is all-or-nothing, so a profile written by
-            // an older build would otherwise fail the whole decode and silently
-            // reset the user's schedule. Fall back to the default scan set only
-            // for the unknown entries.
-            if saved.categoriesToScan.contains(where: { !CleaningCategory.scannable.contains($0) }) {
-                saved.categoriesToScan = CleaningCategory.scannable
-            }
-            self.config = saved
-        } else {
-            self.config = ScheduleConfig()
+        self.config = Self.restoredConfig(from: UserDefaults.standard.data(forKey: configKey))
+    }
+
+    /// The persisted config made safe to run, or the default config when
+    /// `data` is missing or unreadable.
+    nonisolated static func restoredConfig(from data: Data?, now: Date = Date()) -> ScheduleConfig {
+        guard let data, var saved = try? JSONDecoder().decode(ScheduleConfig.self, from: data) else {
+            return ScheduleConfig()
         }
+        // Refuse to honor an already-past nextRunDate loaded from disk -
+        // otherwise an attacker who can write our plist (same-UID foothold)
+        // sets nextRunDate to a past timestamp and our first tick after
+        // launch triggers autoClean. Reset the schedule so the first run
+        // is always at least one full interval after launch.
+        if let next = saved.nextRunDate, next.timeIntervalSince(now) < 60 {
+            saved.nextRunDate = nil
+            saved.lastRunDate = nil
+        }
+        // Categories this build no longer has (e.g. Trash Bins) are reset
+        // while decoding (see ScheduleConfig.init(from:)); withdrawn cases
+        // that still decode, such as the app-modifying ones, are reset here,
+        // so an older profile keeps its schedule with the default scan set.
+        if saved.categoriesToScan.contains(where: { !CleaningCategory.scannable.contains($0) }) {
+            saved.categoriesToScan = CleaningCategory.scannable
+        }
+        return saved
     }
 
     func setTrigger(_ handler: @escaping () async -> Void) {
@@ -68,6 +70,17 @@ class SchedulerService: ObservableObject {
         }
     }
 
+    /// Sets the day and hour a weekly schedule runs and reschedules.
+    /// `weekday` uses Calendar numbering (1 = Sunday ... 7 = Saturday).
+    func updateWeeklySchedule(weekday: Int, hour: Int) {
+        config.weekday = weekday
+        config.hour = hour
+        updateNextRunDate()
+        if config.isEnabled {
+            start()
+        }
+    }
+
     func toggleEnabled(_ enabled: Bool) {
         config.isEnabled = enabled
         if enabled {
@@ -93,8 +106,22 @@ class SchedulerService: ObservableObject {
     }
 
     private func updateNextRunDate() {
-        let base = config.lastRunDate ?? Date()
-        config.nextRunDate = base.addingTimeInterval(config.interval.seconds)
+        config.nextRunDate = Self.nextRunDate(for: config, now: Date())
+    }
+
+    /// When the schedule should run next. Weekly runs at the first
+    /// `weekday`/`hour` (on the hour) strictly after `now`; every other
+    /// interval runs one interval after the last run, or after `now` if it
+    /// never ran.
+    nonisolated static func nextRunDate(for config: ScheduleConfig, now: Date,
+                                        calendar: Calendar = .current) -> Date {
+        if config.interval == .weekly {
+            let slot = DateComponents(hour: config.hour, minute: 0, second: 0, weekday: config.weekday)
+            if let next = calendar.nextDate(after: now, matching: slot, matchingPolicy: .nextTime) {
+                return next
+            }
+        }
+        return (config.lastRunDate ?? now).addingTimeInterval(config.interval.seconds)
     }
 
     private func saveConfig() {
@@ -171,5 +198,14 @@ class SchedulerService: ObservableObject {
         } catch {
             Logger.shared.log("LaunchAgent plist removal failed: \(error.localizedDescription)", level: .warning)
         }
+    }
+}
+
+extension ScheduleConfig {
+    /// The calendar's standalone name for `weekday` ("Sunday" in English,
+    /// "dimanche" in French), for building "Every Sunday" in the UI.
+    func weekdaySymbol(calendar: Calendar = .current) -> String {
+        let symbols = calendar.standaloneWeekdaySymbols
+        return symbols[min(max(weekday, 1), symbols.count) - 1]
     }
 }

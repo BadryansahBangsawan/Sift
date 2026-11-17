@@ -222,6 +222,10 @@ enum ScheduleInterval: String, CaseIterable, Identifiable, Codable {
 struct ScheduleConfig: Codable {
     var isEnabled: Bool = false
     var interval: ScheduleInterval = .daily
+    /// Day a weekly schedule runs, Calendar numbering: 1 = Sunday ... 7 = Saturday.
+    var weekday: Int = 1
+    /// Local hour (0-23) a weekly schedule runs.
+    var hour: Int = 10
     var autoClean: Bool = false
     var autoPurge: Bool = false
     var categoriesToScan: [CleaningCategory] = CleaningCategory.scannable
@@ -242,6 +246,36 @@ struct ScheduleConfig: Codable {
         let formatter = RelativeDateTimeFormatter()
         formatter.unitsStyle = .abbreviated
         return formatter.localizedString(for: date, relativeTo: Date())
+    }
+}
+
+extension ScheduleConfig {
+    /// Reads configs written by older builds: missing or out-of-range
+    /// `weekday`/`hour` take the defaults, and a category list naming a case
+    /// this build no longer has (e.g. Trash Bins) falls back to the default
+    /// scan set instead of failing the whole decode.
+    init(from decoder: Decoder) throws {
+        self.init()
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        isEnabled = try container.decode(Bool.self, forKey: .isEnabled)
+        interval = try container.decode(ScheduleInterval.self, forKey: .interval)
+        if let day = try container.decodeIfPresent(Int.self, forKey: .weekday), (1...7).contains(day) {
+            weekday = day
+        }
+        if let value = try container.decodeIfPresent(Int.self, forKey: .hour), (0...23).contains(value) {
+            hour = value
+        }
+        autoClean = try container.decode(Bool.self, forKey: .autoClean)
+        autoPurge = try container.decode(Bool.self, forKey: .autoPurge)
+        let rawCategories = try container.decode([String].self, forKey: .categoriesToScan)
+        let categories = rawCategories.compactMap(CleaningCategory.init(rawValue:))
+        if categories.count == rawCategories.count {
+            categoriesToScan = categories
+        }
+        lastRunDate = try container.decodeIfPresent(Date.self, forKey: .lastRunDate)
+        nextRunDate = try container.decodeIfPresent(Date.self, forKey: .nextRunDate)
+        notifyOnCompletion = try container.decode(Bool.self, forKey: .notifyOnCompletion)
+        minimumCleanSize = try container.decode(Int64.self, forKey: .minimumCleanSize)
     }
 }
 
