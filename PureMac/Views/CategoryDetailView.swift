@@ -56,6 +56,7 @@ struct CategoryDetailView: View {
             }
         }
         .navigationTitle(Text(LocalizedStringKey(category.rawValue)))
+        .onAppear(perform: applySavedPresetIfUntouched)
         .sheet(item: $pendingReview) { selection in
             removalReview(items: selection.items)
         }
@@ -94,6 +95,40 @@ struct CategoryDetailView: View {
         .padding(28)
     }
 
+    private var presetsMenu: some View {
+        Menu {
+            ForEach(CleanupFilterPreset.builtIns) { preset in
+                Button(preset.name) { filter = preset.filter }
+            }
+            Divider()
+            Button("Save current filters") {
+                CleanupFilterPreset.savePreset(
+                    CleanupFilterPreset(name: String(localized: "Saved"), filter: filter),
+                    forCategory: category.rawValue
+                )
+            }
+            Button("Clear saved preset") {
+                CleanupFilterPreset.clearSavedPreset(forCategory: category.rawValue)
+            }
+            .disabled(CleanupFilterPreset.savedPreset(forCategory: category.rawValue) == nil)
+        } label: {
+            Label("Filters", systemImage: "line.3.horizontal.decrease.circle")
+        }
+        .menuStyle(.borderlessButton)
+        .fixedSize()
+        .help("Apply a filter preset")
+        .accessibilityIdentifier("category.filtersPreset")
+    }
+
+    /// A preset saved for this category applies once, when the view first
+    /// appears — never on top of filters the user is already adjusting.
+    private func applySavedPresetIfUntouched() {
+        guard filter == CleanupReviewFilter(),
+              let saved = CleanupFilterPreset.savedPreset(forCategory: category.rawValue)
+        else { return }
+        filter = saved.filter
+    }
+
     private var filters: some View {
         VStack(spacing: 12) {
             HStack(spacing: 10) {
@@ -125,6 +160,7 @@ struct CategoryDetailView: View {
                     ForEach(CleanupSortOrder.allCases) { Text(LocalizedStringKey($0.rawValue)).tag($0) }
                 }
                 .frame(maxWidth: 185)
+                presetsMenu
             }
             .controlSize(.small)
             HStack {

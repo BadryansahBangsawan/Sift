@@ -1,6 +1,6 @@
 import Foundation
 
-enum CleanupSizeFilter: String, CaseIterable, Identifiable {
+enum CleanupSizeFilter: String, CaseIterable, Identifiable, Codable {
     case any = "Any size"
     case megabytes100 = "Over 100 MB"
     case gigabyte1 = "Over 1 GB"
@@ -18,7 +18,7 @@ enum CleanupSizeFilter: String, CaseIterable, Identifiable {
     }
 }
 
-enum CleanupAgeFilter: String, CaseIterable, Identifiable {
+enum CleanupAgeFilter: String, CaseIterable, Identifiable, Codable {
     case any = "Any age"
     case month = "Older than 30 days"
     case sixMonths = "Older than 6 months"
@@ -36,7 +36,7 @@ enum CleanupAgeFilter: String, CaseIterable, Identifiable {
     }
 }
 
-enum CleanupSortOrder: String, CaseIterable, Identifiable {
+enum CleanupSortOrder: String, CaseIterable, Identifiable, Codable {
     case largest = "Largest first"
     case smallest = "Smallest first"
     case oldest = "Oldest first"
@@ -45,7 +45,7 @@ enum CleanupSortOrder: String, CaseIterable, Identifiable {
     var id: String { rawValue }
 }
 
-struct CleanupReviewFilter {
+struct CleanupReviewFilter: Codable, Equatable {
     var query = ""
     var size: CleanupSizeFilter = .any
     var age: CleanupAgeFilter = .any
@@ -73,5 +73,49 @@ struct CleanupReviewFilter {
                 return left.path < right.path
             }
         }
+    }
+}
+
+/// A named set of filters, either shipped with the app or saved by the user for
+/// one category.
+struct CleanupFilterPreset: Codable, Identifiable, Equatable {
+    let name: String
+    let filter: CleanupReviewFilter
+
+    var id: String { name }
+
+    /// Filter combinations people actually reach for: the three questions the
+    /// size and age filters exist to answer, without making them assemble it.
+    static let builtIns: [CleanupFilterPreset] = [
+        CleanupFilterPreset(
+            name: String(localized: "Bulky (over 1 GB)"),
+            filter: CleanupReviewFilter(query: "", size: .gigabyte1, age: .any, order: .largest)
+        ),
+        CleanupFilterPreset(
+            name: String(localized: "Old and large"),
+            filter: CleanupReviewFilter(query: "", size: .megabytes100, age: .year, order: .largest)
+        ),
+        CleanupFilterPreset(
+            name: String(localized: "Over 10 GB"),
+            filter: CleanupReviewFilter(query: "", size: .gigabytes10, age: .any, order: .largest)
+        ),
+    ]
+
+    private static func key(forCategory rawValue: String) -> String {
+        "settings.filters.preset.\(rawValue)"
+    }
+
+    static func savedPreset(forCategory rawValue: String) -> CleanupFilterPreset? {
+        guard let data = UserDefaults.standard.data(forKey: key(forCategory: rawValue)) else { return nil }
+        return try? JSONDecoder().decode(CleanupFilterPreset.self, from: data)
+    }
+
+    static func savePreset(_ preset: CleanupFilterPreset, forCategory rawValue: String) {
+        guard let data = try? JSONEncoder().encode(preset) else { return }
+        UserDefaults.standard.set(data, forKey: key(forCategory: rawValue))
+    }
+
+    static func clearSavedPreset(forCategory rawValue: String) {
+        UserDefaults.standard.removeObject(forKey: key(forCategory: rawValue))
     }
 }
