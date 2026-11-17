@@ -2,83 +2,83 @@ import AppKit
 import SwiftUI
 import ServiceManagement
 
+// MARK: - Pages
+
+enum SettingsPage: String, CaseIterable, Identifiable {
+    case general, cleaning, schedule, appearance, permissions, updates
+
+    /// Remembers the open page across accent changes (which rebuild the tree)
+    /// and relaunches.
+    static let storageKey = "PureMac.SettingsPage"
+
+    var id: String { rawValue }
+
+    var title: LocalizedStringKey {
+        switch self {
+        case .general: return "General"
+        case .cleaning: return "Cleaning"
+        case .schedule: return "Schedule"
+        case .appearance: return "Appearance"
+        case .permissions: return "Permissions"
+        case .updates: return "Updates"
+        }
+    }
+
+    var subtitle: LocalizedStringKey {
+        switch self {
+        case .general: return "Startup, language, the menu bar monitor and sound."
+        case .cleaning: return "What Sift looks for, and what it leaves alone."
+        case .schedule: return "Let Sift scan on its own, on a timetable you set."
+        case .appearance: return "Theme and accent color for every window."
+        case .permissions: return "What macOS lets Sift read and control."
+        case .updates: return "Your version, release checks and how to install updates."
+        }
+    }
+
+    var icon: SiftIcon {
+        switch self {
+        case .general: return .slidersHorizontal
+        case .cleaning: return .sparkles
+        case .schedule: return .calendarClock
+        case .appearance: return .palette
+        case .permissions: return .lockKeyhole
+        case .updates: return .download
+        }
+    }
+}
+
+// MARK: - Settings
+
 struct SettingsView: View {
     @EnvironmentObject private var appState: AppState
     /// The dedicated macOS Settings window owns its permission sheet. The main
     /// window already presents the shared coordinator's sheet for every page.
     var standalone = false
     @ObservedObject private var permission = PermissionCoordinator.shared
-    @State private var selectedTab = SettingsTab.general
+    @ObservedObject private var accentStore = AccentStore.shared
+    @AppStorage(SettingsPage.storageKey) private var pageRaw = SettingsPage.general.rawValue
 
-    private enum SettingsTab: String, CaseIterable, Identifiable {
-        case general = "General"
-        case cleaning = "Cleaning"
-        case schedule = "Schedule"
-        case about = "Updates"
-
-        var id: String { rawValue }
-        var icon: String {
-            switch self {
-            case .general: return "slider.horizontal.3"
-            case .cleaning: return "trash"
-            case .schedule: return "clock"
-            case .about: return "arrow.triangle.2.circlepath"
-            }
-        }
-    }
+    private var page: SettingsPage { SettingsPage(rawValue: pageRaw) ?? .general }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 18) {
+        VStack(spacing: 14) {
             // The standard Settings window already carries the title; only the
-            // sidebar page repeats it as a header.
+            // main-window page repeats it as a header.
             if !standalone {
-                HStack(spacing: 14) {
-                    IconTile(systemName: "gearshape.fill", tint: Tint.accent, size: 44, corner: 12)
-                    VStack(alignment: .leading, spacing: 3) {
-                        Text("Settings")
-                            .font(.system(size: 26, weight: .bold))
-                        Text("Make PureMac work your way.")
-                            .font(.system(size: 13))
-                            .foregroundStyle(.secondary)
-                    }
-                    Spacer()
-                    VStack(alignment: .trailing, spacing: 3) {
-                        Text(String(format: String(localized: "Version %@"), UpdateService.installedVersion))
-                        Text(String(format: String(localized: "Build %@"), UpdateService.installedBuild))
-                            .foregroundStyle(.tertiary)
-                    }
-                    .font(.system(size: 11))
-                    .foregroundStyle(.secondary)
-                    .textSelection(.enabled)
-                }
-                .padding(.horizontal, 4)
+                SiftPageHeader(Text("Settings"), eyebrow: Text("Preferences")) { supportFolderChip }
             }
-
-            Picker("Settings", selection: $selectedTab) {
-                ForEach(SettingsTab.allCases) { tab in
-                    Label(LocalizedStringKey(tab.rawValue), systemImage: tab.icon).tag(tab)
-                }
+            HStack(alignment: .top, spacing: SiftSpacing.gutter) {
+                SettingsNav(selection: Binding(get: { page }, set: { pageRaw = $0.rawValue }), width: standalone ? 208 : 248)
+                SettingsPanel(page: page, permissionPresentation: standalone ? .settingsWindow : .mainWindow)
             }
-            .pickerStyle(.segmented)
-            .labelsHidden()
-            .accessibilityIdentifier("settings.tabs")
-
-            Group {
-                switch selectedTab {
-                case .general: GeneralSettingsView(permissionPresentation: standalone ? .settingsWindow : .mainWindow)
-                case .cleaning: CleaningSettingsView()
-                case .schedule: ScheduleSettingsView()
-                case .about: AboutSettingsView()
-                }
-            }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .clipShape(RoundedRectangle(cornerRadius: 16))
         }
-        .padding(24)
-        .frame(maxWidth: 960)
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(AmbientBackdrop())
-        .tint(Tint.accent)
+        .padding(standalone ? SiftSpacing.gutter : 0)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+        .background(standalone ? SiftColor.window.ignoresSafeArea() : nil)
+        .tint(SiftColor.accent)
+        // The main window rebuilds its tree when the accent changes; the
+        // standalone Settings window has to do it itself.
+        .id(standalone ? accentStore.accent.rawValue : "main")
         .navigationTitle("Settings")
         .onAppear { showRequestedUpdates() }
         .onChange(of: appState.showUpdateSettings) { _ in showRequestedUpdates() }
@@ -88,10 +88,173 @@ struct SettingsView: View {
         )) { PermissionSheet() }
     }
 
+    /// Where Sift keeps its own files (cleanup history), shortened with `~`.
+    private var supportFolderChip: some View {
+        let folder = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
+            .appendingPathComponent("PureMac", isDirectory: true)
+        return HStack(spacing: 8) {
+            SiftIcon.hardDrive.image(13)
+            Text(verbatim: (folder.path as NSString).abbreviatingWithTildeInPath)
+                .font(.siftMono(11))
+                .lineLimit(1)
+                .truncationMode(.middle)
+        }
+        .foregroundStyle(SiftColor.textTertiary)
+        .padding(.horizontal, 14)
+        .frame(height: 32)
+        .background(Capsule(style: .continuous).fill(SiftColor.card))
+        .overlay(Capsule(style: .continuous).strokeBorder(SiftColor.stroke, lineWidth: 1))
+        .help(folder.path)
+        .textSelection(.enabled)
+    }
+
     private func showRequestedUpdates() {
         if !standalone && appState.showUpdateSettings {
-            selectedTab = .about
+            pageRaw = SettingsPage.updates.rawValue
             appState.showUpdateSettings = false
+        }
+    }
+}
+
+// MARK: - Navigation
+
+private struct SettingsNav: View {
+    @Binding var selection: SettingsPage
+    let width: CGFloat
+
+    private static var minimumSystem: String {
+        let raw = Bundle.main.object(forInfoDictionaryKey: "LSMinimumSystemVersion") as? String ?? "13"
+        return raw.split(separator: ".").first.map(String.init) ?? "13"
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 2) {
+            ForEach(SettingsPage.allCases) { page in
+                Button { selection = page } label: {
+                    SettingsNavRow(page: page, isSelected: page == selection)
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel(Text(page.title))
+                .accessibilityAddTraits(page == selection ? .isSelected : [])
+                .accessibilityIdentifier("settings.page.\(page.rawValue)")
+            }
+            Spacer(minLength: 12)
+            footer
+        }
+        .padding(10)
+        .frame(width: width)
+        .frame(maxHeight: .infinity)
+        .siftSurface(.card, padding: 0)
+        .accessibilityElement(children: .contain)
+        .accessibilityIdentifier("settings.tabs")
+    }
+
+    private var footer: some View {
+        HStack(spacing: 8) {
+            Text(verbatim: "S")
+                .font(.siftDisplay(12, weight: 700))
+                .foregroundStyle(SiftColor.onAccent)
+                .frame(width: 24, height: 24)
+                .background(RoundedRectangle(cornerRadius: 8, style: .continuous).fill(SiftColor.accent))
+                .accessibilityHidden(true)
+            VStack(alignment: .leading, spacing: 1) {
+                Text("Version \(UpdateService.installedVersion)")
+                    .font(.sift(12, weight: 500))
+                    .foregroundStyle(SiftColor.textPrimary)
+                Text("macOS \(Self.minimumSystem) or later")
+                    .font(.sift(10.5))
+                    .foregroundStyle(SiftColor.textTertiary)
+            }
+            .lineLimit(1)
+            Spacer(minLength: 0)
+        }
+        .padding(12)
+        .background(RoundedRectangle(cornerRadius: SiftRadius.row, style: .continuous).fill(SiftColor.control))
+        .accessibilityElement(children: .combine)
+        .textSelection(.enabled)
+    }
+}
+
+private struct SettingsNavRow: View {
+    let page: SettingsPage
+    let isSelected: Bool
+    @State private var hovering = false
+
+    var body: some View {
+        HStack(spacing: 10) {
+            page.icon.image(16)
+                .foregroundStyle(isSelected ? SiftColor.accent : SiftColor.icon)
+            Text(page.title)
+                .font(.sift(13, weight: isSelected ? 500 : 400))
+                .foregroundStyle(isSelected || hovering ? SiftColor.textPrimary : SiftColor.textSecondary)
+                .lineLimit(1)
+                .frame(maxWidth: .infinity, alignment: .leading)
+            if isSelected {
+                SiftIcon.chevronRight.image(14).foregroundStyle(SiftColor.textTertiary)
+            }
+        }
+        .padding(.horizontal, 12)
+        .frame(height: 40)
+        .background(
+            RoundedRectangle(cornerRadius: SiftRadius.row, style: .continuous)
+                .fill(isSelected ? SiftColor.selected : hovering ? SiftColor.selected.opacity(0.55) : .clear)
+        )
+        .contentShape(RoundedRectangle(cornerRadius: SiftRadius.row, style: .continuous))
+        .onHover { hovering = $0 }
+    }
+}
+
+// MARK: - Panel
+
+private struct SettingsPanel: View {
+    let page: SettingsPage
+    let permissionPresentation: PermissionCoordinator.Presentation
+    @EnvironmentObject private var appState: AppState
+
+    var body: some View {
+        ScrollView(.vertical) {
+            VStack(alignment: .leading, spacing: 14) {
+                header
+                content
+            }
+            .padding(24)
+            .frame(maxWidth: .infinity, alignment: .leading)
+        }
+        .id(page)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+        .siftSurface(.card, padding: 0)
+        .clipShape(RoundedRectangle(cornerRadius: SiftRadius.card, style: .continuous))
+    }
+
+    private var header: some View {
+        HStack(alignment: .center, spacing: 16) {
+            VStack(alignment: .leading, spacing: 4) {
+                Text(page.title)
+                    .font(.siftDisplay(24))
+                    .tracking(-0.4)
+                    .foregroundStyle(SiftColor.textPrimary)
+                    .accessibilityAddTraits(.isHeader)
+                Text(page.subtitle)
+                    .font(.sift(12.5))
+                    .foregroundStyle(SiftColor.textTertiary)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            SiftCheckPill(text: Text("Changes apply immediately"))
+        }
+        .padding(.bottom, 4)
+    }
+
+    @ViewBuilder
+    private var content: some View {
+        switch page {
+        case .general: GeneralSettingsView()
+        case .cleaning: CleaningSettingsView()
+        case .schedule: ScheduleSettingsView(scheduler: appState.scheduler)
+        case .appearance: AppearanceAccentSettings()
+        case .permissions: PermissionsSettingsView(presentation: permissionPresentation)
+        case .updates:
+            AppUpdateSettingsView()
+            AboutSettingsView()
         }
     }
 }
@@ -115,13 +278,9 @@ enum SearchSensitivity: String, CaseIterable, Identifiable, Codable {
 }
 
 struct GeneralSettingsView: View {
-    var permissionPresentation: PermissionCoordinator.Presentation = .mainWindow
     @EnvironmentObject private var appState: AppState
-    @EnvironmentObject private var theme: ThemeManager
-    @ObservedObject private var permission = PermissionCoordinator.shared
     @AppStorage("settings.general.launchAtLogin") private var launchAtLogin = false
     @AppStorage("settings.general.searchSensitivity") private var sensitivity: SearchSensitivity = .enhanced
-    @AppStorage("settings.general.confirmBeforeDelete") private var confirmBeforeDelete = true
     @AppStorage("settings.general.menuBarMonitor") private var menuBarMonitor = false
     @AppStorage(Haptics.soundEffectsKey) private var soundEffects = true
     @AppStorage(AppLanguage.preferenceKey) private var appLanguageRaw = AppLanguage.current.rawValue
@@ -129,105 +288,54 @@ struct GeneralSettingsView: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
-        Form {
-            Section("Appearance") {
-                Picker("Appearance", selection: $theme.appearance) {
-                    ForEach(AppearanceMode.allCases) { appearance in
-                        Label(LocalizedStringKey(appearance.label), systemImage: appearance.icon)
-                            .tag(appearance)
-                    }
+        SiftSettingsLabel(title: Text("Startup"))
+        SiftSettingsGroup {
+            SiftSettingsToggleRow(Text("Launch Sift at login"),
+                                  detail: Text("Opens quietly when you sign in to your Mac"),
+                                  isOn: launchAtLoginBinding)
+        }
+
+        SiftSettingsLabel(title: Text("Language"))
+        SiftSettingsGroup {
+            SiftSettingsRow(Text("Language"), detail: Text("A new language applies after Sift restarts")) {
+                SiftDropdown(selection: appLanguageBinding, options: AppLanguage.allCases) {
+                    String(localized: String.LocalizationValue($0.displayName))
                 }
-                .pickerStyle(.segmented)
+                .fixedSize()
             }
-
-            Section("Full Disk Access") {
-                HStack(spacing: 12) {
-                    IconTile(systemName: appState.hasFullDiskAccess ? "checkmark.shield.fill" : "lock.shield",
-                             tint: appState.hasFullDiskAccess ? Tint.green : Tint.orange, size: 32, corner: 9)
-                    VStack(alignment: .leading, spacing: 3) {
-                        Text(LocalizedStringKey(appState.hasFullDiskAccess ? "Full access" : "Limited access"))
-                            .font(.system(size: 13, weight: .semibold))
-                        Text(LocalizedStringKey(appState.hasFullDiskAccess ? "Ready for protected locations" : "Some locations are unavailable"))
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                    }
-                    Spacer()
-                    Button("Check access") { refreshAccess() }
-                    if !appState.hasFullDiskAccess {
-                        Button("Set up") {
-                            permission.requestAccess(context: .general, presentation: permissionPresentation) { refreshAccess() }
-                        }
-                        .tint(Tint.accent)
-                    }
+            if languageNeedsRelaunch {
+                SiftSettingsDivider()
+                SiftSettingsRow(Text("Restart Sift to apply the selected language.")) {
+                    Button("Relaunch Now") { relaunchApp() }
+                        .buttonStyle(.sift(.primary, compact: true))
                 }
-            }
-
-            Section("Language") {
-                Picker("Language", selection: appLanguageBinding) {
-                    ForEach(AppLanguage.allCases) { language in
-                        Text(LocalizedStringKey(language.displayName)).tag(language)
-                    }
-                }
-
-                if languageNeedsRelaunch {
-                    Text("Restart PureMac to apply the selected language.")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                        .transition(.opacity.combined(with: .move(edge: .top)))
-
-                    Button("Relaunch Now") {
-                        relaunchApp()
-                    }
-                    .transition(.opacity.combined(with: .move(edge: .top)))
-                }
-            }
-
-            Section("Startup") {
-                Toggle("Launch PureMac at login", isOn: launchAtLoginBinding)
-            }
-
-            Section("App Scanning") {
-                Picker("Search sensitivity", selection: $sensitivity) {
-                    ForEach(SearchSensitivity.allCases) { level in
-                        VStack(alignment: .leading) {
-                            Text(LocalizedStringKey(level.rawValue))
-                            Text(LocalizedStringKey(level.description))
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
-                        }
-                        .tag(level)
-                    }
-                }
-                .pickerStyle(.radioGroup)
-            }
-
-            Section("System Monitor") {
-                Toggle("Show system monitor in menu bar", isOn: menuBarMonitorBinding)
-                Text("Live CPU, memory, and disk meters in the menu bar. PureMac keeps running in the background while this is on.")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-            }
-
-            Section("Sound") {
-                Toggle("Play sound effects", isOn: $soundEffects)
-            }
-
-            Section("Safety") {
-                Toggle("Confirm before deleting files", isOn: $confirmBeforeDelete)
+                .transition(.opacity)
             }
         }
-        .formStyle(.grouped)
-        .onAppear { refreshAccess() }
-        .onReceive(NotificationCenter.default.publisher(for: NSApplication.didBecomeActiveNotification)) { _ in
-            refreshAccess()
-        }
-        .animation(reduceMotion ? nil : .spring(response: 0.35, dampingFraction: 0.85),
-                   value: languageNeedsRelaunch)
-    }
+        .animation(reduceMotion ? nil : SiftMotion.snappy, value: languageNeedsRelaunch)
 
-    private func refreshAccess() {
-        appState.checkFullDiskAccess()
-        permission.refreshStatus()
+        SiftSettingsLabel(title: Text("Menu bar and sound"))
+        SiftSettingsGroup {
+            SiftSettingsToggleRow(
+                Text("Show system monitor in menu bar"),
+                detail: Text("Live CPU, memory, and disk meters in the menu bar. Sift keeps running in the background while this is on."),
+                isOn: menuBarMonitorBinding
+            )
+            SiftSettingsDivider()
+            SiftSettingsToggleRow(Text("Play sound effects"),
+                                  detail: Text("A chime when a cleanup finishes, a tone when it fails"),
+                                  isOn: $soundEffects)
+        }
+
+        SiftSettingsLabel(title: Text("App scanning"))
+        SiftSettingsGroup {
+            SiftSettingsRow(Text("Search sensitivity"), detail: Text(LocalizedStringKey(sensitivity.description))) {
+                SiftSegmented(selection: $sensitivity, options: SearchSensitivity.allCases.map {
+                    (value: $0, label: Text(LocalizedStringKey($0.rawValue)))
+                })
+                .fixedSize()
+            }
+        }
     }
 
     private var menuBarMonitorBinding: Binding<Bool> {
@@ -305,103 +413,106 @@ struct CleaningSettingsView: View {
     @AppStorage("settings.cleaning.skipHiddenFiles") private var skipHiddenFiles = true
     @AppStorage("settings.cleaning.largeFileThreshold") private var largeFileThresholdMB: Int = 100
     @AppStorage("settings.cleaning.oldFileMonths") private var oldFileMonths: Int = 12
+    @AppStorage(AppState.confirmBeforeDeleteKey) private var confirmBeforeDelete = true
+    @AppStorage(ScanEngine.treatICloudPlaceholdersAsFilesKey) private var treatICloudPlaceholdersAsFiles = false
 
     private static let excludedFoldersKey = "settings.cleaning.largeFileExcludedFolders"
     @State private var excludedFolders: [String] = []
 
     var body: some View {
-        Form {
-            Section("File Discovery") {
-                Toggle("Skip hidden files during scan", isOn: $skipHiddenFiles)
-            }
-
-            Section("Large Files") {
-                Stepper(
-                    String(format: String(localized: "Minimum size: %lld MB"), Int64(largeFileThresholdMB)),
-                    value: $largeFileThresholdMB,
-                    in: 10...1000,
-                    step: 10
-                )
-                Stepper(
-                    String(format: String(localized: "Files older than: %lld months"), Int64(oldFileMonths)),
-                    value: $oldFileMonths,
-                    in: 1...60
-                )
-            }
-
-            Section("Excluded Folders") {
-                if excludedFolders.isEmpty {
-                    Text("Files inside these folders are skipped from the Large & Old Files scan (Downloads, Documents, Desktop).")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                } else {
-                    ForEach(excludedFolders, id: \.self) { folder in
-                        HStack(spacing: 8) {
-                            Image(systemName: "folder")
-                                .foregroundStyle(.secondary)
-                            Text((folder as NSString).abbreviatingWithTildeInPath)
-                                .lineLimit(1)
-                                .truncationMode(.middle)
-                                .help(folder)
-                            Spacer()
-                            Button {
-                                removeExcludedFolder(folder)
-                            } label: {
-                                Image(systemName: "minus.circle.fill")
-                                    .foregroundStyle(.secondary)
-                            }
-                            .buttonStyle(.borderless)
-                            .help(String(localized: "Remove from exclusions"))
-                        }
-                    }
-                }
-                Button("Add Folder…") { addExcludedFolder() }
-            }
-
-            Section("Cleanup Exclusions") {
-                Text("Excluded paths and folders containing them stay out of manual and scheduled cleanup. Right-click a cleanup result to exclude it.")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                if appState.excludedCleanupPaths.isEmpty {
-                    Text("No excluded paths").foregroundStyle(.secondary)
-                }
-                ForEach(appState.excludedCleanupPaths, id: \.self) { path in
-                    HStack {
-                        Text((path as NSString).abbreviatingWithTildeInPath)
-                            .lineLimit(1)
-                            .truncationMode(.middle)
-                            .help(path)
-                        Spacer()
-                        Button("Remove") { appState.removeCleanupExclusion(path) }
-                            .disabled(appState.scanState.isActive)
-                    }
+        SiftSettingsLabel(title: Text("Large file sweep"))
+        SiftSettingsGroup {
+            SiftSettingsRow(Text("Flag files larger than"), detail: Text("Older files over 10 MB are also flagged")) {
+                HStack(spacing: 14) {
+                    SiftSlider(value: thresholdBinding, range: 10...1000, step: 10)
+                        .frame(minWidth: 140, maxWidth: 320)
+                        .accessibilityLabel(Text("Flag files larger than"))
+                    SiftValueBox(value: "\(largeFileThresholdMB)", unit: Text("MB"))
+                        .accessibilityHidden(true)
                 }
             }
-
-            Section("Orphan Finder") {
-                HStack {
-                    // Read the live count directly (it's a UserDefaults-backed
-                    // computed property on AppState) so it stays correct when
-                    // orphans are ignored from the Orphans view while this tab
-                    // is open. AppState fires objectWillChange on both ignore
-                    // (via @Published orphanedFiles) and clear, re-rendering this.
-                    Text(String(format: String(localized: "Ignored orphans: %lld"), Int64(appState.ignoredOrphanCount)))
-                        .foregroundStyle(.secondary)
-                    Spacer()
-                    Button("Forget Ignored") {
-                        appState.clearIgnoredOrphans()
-                    }
-                    .disabled(appState.ignoredOrphanCount == 0)
-                }
-                Text("Ignored files won't appear in future orphan scans.")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
+            SiftSettingsDivider()
+            SiftSettingsRow(Text("Count files as old after"), detail: Text("Untouched this long, a file over 10 MB is flagged")) {
+                SiftStepper(value: $oldFileMonths, range: 1...60, unit: Text("months"))
             }
         }
-        .formStyle(.grouped)
+
+        SiftSettingsLabel(title: Text("Safety"))
+        SiftSettingsGroup {
+            SiftSettingsToggleRow(Text("Skip hidden files"),
+                                  detail: Text("Dotfiles stay out of the large file and installer sweeps"),
+                                  isOn: $skipHiddenFiles)
+            SiftSettingsDivider()
+            SiftSettingsToggleRow(Text("Confirm before deleting"),
+                                  detail: Text("The review sheet appears before anything is touched"),
+                                  isOn: $confirmBeforeDelete)
+            SiftSettingsDivider()
+            SiftSettingsToggleRow(Text("Treat iCloud placeholders as files"),
+                                  detail: Text("Off keeps bytes that were never downloaded out of the total"),
+                                  isOn: $treatICloudPlaceholdersAsFiles)
+        }
+
+        SiftSettingsLabel(title: Text("Excluded folders"), note: Text("Never scanned"))
+        SiftSettingsGroup {
+            SiftFlowLayout {
+                ForEach(excludedFolders, id: \.self) { folder in
+                    SiftPathChip(path: folder, removeLabel: Text("Remove from exclusions")) {
+                        removeExcludedFolder(folder)
+                    }
+                }
+                SiftDashedAddButton(title: Text("Add folder")) { addExcludedFolder() }
+            }
+            .padding(14)
+        }
+
+        AppearanceAccentSettings()
+
+        SiftSettingsLabel(title: Text("Cleanup exclusions"), note: Text("Right-click a cleanup result to exclude it"))
+        SiftSettingsGroup {
+            if appState.excludedCleanupPaths.isEmpty {
+                SiftSettingsRow(Text("No excluded paths"),
+                                detail: Text("Excluded paths and folders containing them stay out of manual and scheduled cleanup."))
+            } else {
+                SiftFlowLayout {
+                    ForEach(appState.excludedCleanupPaths, id: \.self) { path in
+                        SiftPathChip(path: path, removeLabel: Text("Remove")) {
+                            appState.removeCleanupExclusion(path)
+                        }
+                        .disabled(appState.scanState.isActive)
+                    }
+                }
+                .padding(14)
+            }
+        }
+
+        SiftSettingsLabel(title: Text("Leftovers"))
+        SiftSettingsGroup {
+            // Read the live count directly (it's a UserDefaults-backed
+            // computed property on AppState) so it stays correct when
+            // orphans are ignored from the Leftovers view while this page is
+            // open. AppState fires objectWillChange on both ignore (via
+            // @Published orphanedFiles) and clear, re-rendering this.
+            SiftSettingsRow(Text("Ignored leftovers"), detail: Text("Ignored files won't appear in future orphan scans.")) {
+                HStack(spacing: 12) {
+                    Text(verbatim: "\(appState.ignoredOrphanCount)")
+                        .font(.siftMono(13))
+                        .foregroundStyle(SiftColor.textSecondary)
+                    Button("Forget Ignored") { appState.clearIgnoredOrphans() }
+                        .buttonStyle(.sift(.secondary, compact: true))
+                        .disabled(appState.ignoredOrphanCount == 0)
+                }
+            }
+        }
         .onAppear {
             excludedFolders = UserDefaults.standard.stringArray(forKey: Self.excludedFoldersKey) ?? []
         }
+    }
+
+    private var thresholdBinding: Binding<Double> {
+        Binding(
+            get: { Double(largeFileThresholdMB) },
+            set: { largeFileThresholdMB = Int($0) }
+        )
     }
 
     private func persistExcludedFolders() {
@@ -427,88 +538,231 @@ struct CleaningSettingsView: View {
     }
 }
 
+// MARK: - Appearance
+
+/// Theme and accent, side by side; stacked when the panel is narrow.
+struct AppearanceAccentSettings: View {
+    @EnvironmentObject private var theme: ThemeManager
+    @ObservedObject private var accentStore = AccentStore.shared
+
+    var body: some View {
+        ViewThatFits(in: .horizontal) {
+            HStack(alignment: .top, spacing: 12) {
+                appearanceColumn.frame(minWidth: 330)
+                accentColumn.frame(minWidth: 330)
+            }
+            VStack(alignment: .leading, spacing: 14) {
+                appearanceColumn
+                accentColumn
+            }
+        }
+    }
+
+    private var appearanceColumn: some View {
+        column(Text("Appearance")) {
+            SiftSegmented(selection: $theme.appearance, options: [
+                (value: AppearanceMode.dark, label: Text("Dark")),
+                (value: AppearanceMode.light, label: Text("Light")),
+                (value: AppearanceMode.system, label: Text("System"))
+            ])
+            .fixedSize()
+            Text("Accent follows the brass palette across the whole app")
+        }
+    }
+
+    private var accentColumn: some View {
+        column(Text("Accent")) {
+            SiftAccentPicker(selection: $accentStore.accent)
+            Text("Brass is the shipped accent; everything else derives from it")
+        }
+    }
+
+    private func column<Content: View>(_ title: Text, @ViewBuilder content: () -> Content) -> some View {
+        VStack(alignment: .leading, spacing: 10) {
+            SiftSettingsLabel(title: title)
+            VStack(alignment: .leading, spacing: 12) { content() }
+                .font(.sift(12))
+                .foregroundStyle(SiftColor.textTertiary)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .siftSurface(.inset)
+        }
+        .frame(maxWidth: .infinity)
+    }
+}
+
 // MARK: - Schedule
 
 struct ScheduleSettingsView: View {
-    @EnvironmentObject var appState: AppState
+    @ObservedObject var scheduler: SchedulerService
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
+    private static let minimumSizes: [Int64] = [10, 50, 100, 250, 500, 1024, 2048, 5120].map { $0 * 1024 * 1024 }
+
     var body: some View {
-        Form {
-            Section("Automatic Scanning") {
-                Toggle("Enable scheduled scanning", isOn: $appState.scheduler.config.isEnabled)
-
-                if appState.scheduler.config.isEnabled {
-                    Group {
-                        Picker("Scan interval", selection: $appState.scheduler.config.interval) {
-                            ForEach(ScheduleInterval.allCases) { interval in
-                                Text(LocalizedStringKey(interval.rawValue)).tag(interval)
+        SiftSettingsLabel(title: Text("Automatic scanning"))
+        SiftSettingsGroup {
+            SiftSettingsToggleRow(Text("Enable scheduled scanning"),
+                                  detail: Text("Sift scans on its own while it is open or in the menu bar"),
+                                  isOn: Binding(get: { scheduler.config.isEnabled }, set: { scheduler.toggleEnabled($0) }))
+            if scheduler.config.isEnabled {
+                SiftSettingsDivider()
+                SiftSettingsRow(Text("Scan interval")) {
+                    SiftDropdown(
+                        selection: Binding(get: { scheduler.config.interval }, set: { scheduler.updateSchedule(interval: $0) }),
+                        options: ScheduleInterval.allCases
+                    ) { String(localized: String.LocalizationValue($0.rawValue)) }
+                    .fixedSize()
+                }
+                if scheduler.config.interval == .weekly {
+                    SiftSettingsDivider()
+                    SiftSettingsRow(Text("Day and time"), detail: Text("Runs on the hour, local time")) {
+                        HStack(spacing: 8) {
+                            SiftDropdown(
+                                selection: Binding(
+                                    get: { scheduler.config.weekday },
+                                    set: { scheduler.updateWeeklySchedule(weekday: $0, hour: scheduler.config.hour) }
+                                ),
+                                options: Array(1...7)
+                            ) { weekday in
+                                let symbols = Calendar.current.standaloneWeekdaySymbols
+                                return symbols[min(max(weekday, 1), symbols.count) - 1]
                             }
-                        }
-
-                        Toggle("Auto-clean after scan", isOn: $appState.scheduler.config.autoClean)
-                        Toggle("Notify on completion", isOn: $appState.scheduler.config.notifyOnCompletion)
-
-                        HStack {
-                            Text("Last run")
-                            Spacer()
-                            Text(appState.scheduler.config.formattedLastRun)
-                                .foregroundStyle(.secondary)
+                            .fixedSize()
+                            .accessibilityLabel(Text("Day"))
+                            SiftDropdown(
+                                selection: Binding(
+                                    get: { scheduler.config.hour },
+                                    set: { scheduler.updateWeeklySchedule(weekday: scheduler.config.weekday, hour: $0) }
+                                ),
+                                options: Array(0...23),
+                                title: Self.hourTitle
+                            )
+                            .fixedSize()
+                            .accessibilityLabel(Text("Time"))
                         }
                     }
-                    .transition(.opacity.combined(with: .move(edge: .top)))
                 }
             }
         }
-        .formStyle(.grouped)
-        .animation(reduceMotion ? nil : .spring(response: 0.35, dampingFraction: 0.85),
-                   value: appState.scheduler.config.isEnabled)
+        .animation(reduceMotion ? nil : SiftMotion.snappy, value: scheduler.config.isEnabled)
+        .animation(reduceMotion ? nil : SiftMotion.snappy, value: scheduler.config.interval)
+
+        if scheduler.config.isEnabled {
+            SiftSettingsLabel(title: Text("After each scan"))
+            SiftSettingsGroup {
+                SiftSettingsToggleRow(Text("Auto-clean after scan"),
+                                      detail: Text("Moves what the scan selected to the Trash without asking"),
+                                      isOn: $scheduler.config.autoClean)
+                SiftSettingsDivider()
+                SiftSettingsRow(Text("Minimum size"), detail: Text("Auto-clean skips scans that would free less than this")) {
+                    SiftDropdown(selection: $scheduler.config.minimumCleanSize, options: minimumSizeOptions) {
+                        ByteCountFormatter.string(fromByteCount: $0, countStyle: .memory)
+                    }
+                    .fixedSize()
+                    .disabled(!scheduler.config.autoClean)
+                    .opacity(scheduler.config.autoClean ? 1 : 0.45)
+                }
+                SiftSettingsDivider()
+                SiftSettingsToggleRow(Text("Notify on completion"),
+                                      detail: Text("A notification with what was found or cleaned"),
+                                      isOn: $scheduler.config.notifyOnCompletion)
+            }
+
+            SiftSettingsLabel(title: Text("Runs"))
+            SiftSettingsGroup {
+                SiftSettingsRow(Text("Last run")) { runValue(scheduler.config.formattedLastRun) }
+                SiftSettingsDivider()
+                SiftSettingsRow(Text("Next run")) { runValue(scheduler.config.formattedNextRun) }
+            }
+        }
+    }
+
+    private var minimumSizeOptions: [Int64] {
+        let current = scheduler.config.minimumCleanSize
+        return Self.minimumSizes.contains(current) ? Self.minimumSizes : (Self.minimumSizes + [current]).sorted()
+    }
+
+    private func runValue(_ text: String) -> some View {
+        Text(verbatim: text)
+            .font(.siftMono(12))
+            .foregroundStyle(SiftColor.textSecondary)
+    }
+
+    private static func hourTitle(_ hour: Int) -> String {
+        let date = Calendar.current.date(bySettingHour: hour, minute: 0, second: 0, of: Date()) ?? Date()
+        return date.formatted(date: .omitted, time: .shortened)
+    }
+}
+
+// MARK: - Permissions
+
+struct PermissionsSettingsView: View {
+    var presentation: PermissionCoordinator.Presentation = .mainWindow
+    @EnvironmentObject private var appState: AppState
+    @ObservedObject private var permission = PermissionCoordinator.shared
+
+    private static let automationSettingsURL = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Automation")!
+
+    var body: some View {
+        SiftSettingsLabel(title: Text("Full Disk Access"))
+        SiftSettingsGroup {
+            SiftSettingsRow(
+                Text(LocalizedStringKey(appState.hasFullDiskAccess ? "Full access" : "Limited access")),
+                detail: Text(LocalizedStringKey(appState.hasFullDiskAccess ? "Ready for protected locations" : "Some locations are unavailable"))
+            ) {
+                HStack(spacing: 8) {
+                    SiftStatusPill(Text(appState.hasFullDiskAccess ? "On" : "Off"),
+                                   tone: appState.hasFullDiskAccess ? .success : .warning)
+                    Button("Check access") { refreshAccess() }
+                        .buttonStyle(.sift(.secondary, compact: true))
+                    if !appState.hasFullDiskAccess {
+                        Button("Set up") {
+                            permission.requestAccess(context: .general, presentation: presentation) { refreshAccess() }
+                        }
+                        .buttonStyle(.sift(.primary, compact: true))
+                    }
+                }
+            }
+        }
+
+        SiftSettingsLabel(title: Text("Automation"), note: Text("macOS asks the first time"))
+        SiftSettingsGroup {
+            SiftSettingsRow(Text("Finder"),
+                            detail: Text("Sift asks Finder to reveal files and to empty the Trash. Turn it on or off in Privacy & Security > Automation.")) {
+                Button("Open Automation settings") { NSWorkspace.shared.open(Self.automationSettingsURL) }
+                    .buttonStyle(.sift(.secondary, compact: true))
+            }
+        }
+        .onAppear { refreshAccess() }
+        .onReceive(NotificationCenter.default.publisher(for: NSApplication.didBecomeActiveNotification)) { _ in
+            refreshAccess()
+        }
+    }
+
+    private func refreshAccess() {
+        appState.checkFullDiskAccess()
+        permission.refreshStatus()
     }
 }
 
 // MARK: - About
 
 struct AboutSettingsView: View {
+    private static let repositoryURL = URL(string: "https://github.com/momenbasel/PureMac")!
+    private static let issuesURL = URL(string: "https://github.com/momenbasel/PureMac/issues")!
+
     var body: some View {
-        Form {
-            Section {
-                HStack {
-                    if let appIcon = NSImage(named: "AppIcon") {
-                        Image(nsImage: appIcon)
-                            .resizable()
-                            .frame(width: 64, height: 64)
-                    }
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text("PureMac")
-                            .font(.title2.bold())
-                        Text(
-                            String(
-                                format: String(localized: "Version %@"),
-                                UpdateService.installedVersion
-                            )
-                        )
-                            .foregroundStyle(.secondary)
-                        Text("Free, open-source macOS app manager.")
-                            .foregroundStyle(.secondary)
-                            .font(.caption)
-                    }
-                }
+        SiftSettingsLabel(title: Text("About"), note: Text("MIT License"))
+        SiftSettingsGroup {
+            SiftSettingsRow(Text("Source code"), detail: Text("Free, open-source macOS app manager.")) {
+                Button("GitHub Repository") { NSWorkspace.shared.open(Self.repositoryURL) }
+                    .buttonStyle(.sift(.secondary, compact: true))
             }
-
-            Section("Updates") {
-                AppUpdateSettingsView()
-            }
-
-            Section {
-                Link("GitHub Repository", destination: URL(string: "https://github.com/momenbasel/PureMac")!)
-                Link("Report an Issue", destination: URL(string: "https://github.com/momenbasel/PureMac/issues")!)
-            }
-
-            Section {
-                Text("MIT License")
-                    .foregroundStyle(.secondary)
+            SiftSettingsDivider()
+            SiftSettingsRow(Text("Found a problem?"), detail: Text("Issues are tracked on GitHub")) {
+                Button("Report an Issue") { NSWorkspace.shared.open(Self.issuesURL) }
+                    .buttonStyle(.sift(.secondary, compact: true))
             }
         }
-        .formStyle(.grouped)
     }
 }
