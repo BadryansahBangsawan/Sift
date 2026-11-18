@@ -53,6 +53,30 @@ final class ScanModifiedDateTests: XCTestCase {
         XCTAssertTrue(purgeable.items.allSatisfy { $0.lastModified == nil }, "Nothing on disk to date")
     }
 
+    func testTheDateIsTheFolderOwnNotItsParents() async throws {
+        let appStamp = Date(timeIntervalSince1970: 1_700_000_000)
+        let parentStamp = Date(timeIntervalSince1970: 1_600_000_000)
+        _ = try makeFolder("Library/Developer/Xcode/DerivedData/App-hash", modified: appStamp)
+        try fileManager.setAttributes(
+            [.modificationDate: appStamp],
+            ofItemAtPath: homeDirectory.appendingPathComponent("Library/Developer/Xcode/DerivedData").path
+        )
+        let parent = homeDirectory.appendingPathComponent("Library/Developer/Xcode")
+        try fileManager.setAttributes([.modificationDate: parentStamp], ofItemAtPath: parent.path)
+
+        let engine = ScanEngine(homeDirectory: homeDirectory, tmpRoots: [], isAppRunning: { _ in false })
+        let result = await engine.scanCategory(.xcodeJunk)
+        let row = try XCTUnwrap(result.items.first { $0.path == parent.appendingPathComponent("DerivedData").path })
+        let date = try XCTUnwrap(row.lastModified)
+
+        XCTAssertEqual(
+            date.timeIntervalSince1970,
+            appStamp.timeIntervalSince1970,
+            accuracy: 2,
+            "The row reports its own folder's date, not the parent's"
+        )
+    }
+
     // MARK: - Fixtures
 
     private func makeFolder(_ relative: String, modified: Date) throws -> URL {
