@@ -1,3 +1,4 @@
+import CryptoKit
 import Foundation
 import XCTest
 @testable import sift
@@ -52,6 +53,40 @@ final class DupesTests: XCTestCase {
         let groups = Dupes.group([try candidate(for: single), try candidate(for: twin)])
         XCTAssertEqual(groups.first?.size, 16)
         XCTAssertEqual(groups.first?.wastedBytes, 16)
+    }
+
+    /// A file that fails part-way through must not be hashed from its prefix:
+    /// two files with the same size and a shared prefix would otherwise be
+    /// reported as duplicates and one of them offered for removal.
+    func testHashStreamReturnsNilWhenAReadFails() {
+        var reads = 0
+        let hash = Dupes.hashStream {
+            reads += 1
+            if reads == 1 { return Data(repeating: 0xAB, count: 64) }
+            throw CocoaError(.fileReadUnknown)
+        }
+        XCTAssertNil(hash, "an incomplete read must not produce a hash")
+    }
+
+    func testHashStreamMatchesTheWholeContent() {
+        let chunks = [
+            Data(repeating: 0x01, count: 32),
+            Data(repeating: 0x02, count: 32),
+            Data(),
+        ]
+        var index = 0
+        let hash = Dupes.hashStream {
+            defer { index += 1 }
+            return chunks[index]
+        }
+
+        let expected = SHA256.hash(data: chunks.dropLast().reduce(into: Data()) { $0.append($1) })
+        XCTAssertEqual(hash, Data(expected))
+    }
+
+    func testHashStreamOfEmptyContentIsTheEmptyHash() {
+        let hash = Dupes.hashStream { Data() }
+        XCTAssertEqual(hash, Data(SHA256.hash(data: Data())))
     }
 
     func testUnreadableFilesAreSkipped() {
