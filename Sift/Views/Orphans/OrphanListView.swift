@@ -33,7 +33,7 @@ struct OrphanListView: View {
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .siftSurface(.card)
                 } else if appState.orphanedFiles.isEmpty {
-                    EmptyStateView("No Orphaned Files", systemImage: "checkmark.circle", description: "No leftover files from uninstalled apps were found.", action: { appState.findOrphans() }, actionLabel: "Scan for Orphans", tint: SiftColor.success)
+                    EmptyStateView("No Leftovers", systemImage: "checkmark.circle", description: "No leftover files from uninstalled apps were found.", action: { appState.findOrphans() }, actionLabel: "Scan for leftover files", tint: SiftColor.success)
                         .siftSurface(.card)
                 } else {
                     table
@@ -94,7 +94,7 @@ struct OrphanListView: View {
                     appState.findOrphans()
                 } label: {
                     Label {
-                        Text("Scan for Orphans")
+                        Text("Scan for leftover files")
                     } icon: {
                         SiftIcon.rotateCw.image(15).foregroundStyle(SiftColor.textSecondary)
                     }

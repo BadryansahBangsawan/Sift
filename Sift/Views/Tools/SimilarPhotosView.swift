@@ -119,7 +119,7 @@ struct SimilarPhotosView: View {
             content
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-        .navigationTitle("Similar Photos")
+        .navigationTitle("Similar photos")
         .onDisappear {
             model.cancel()
         }
@@ -127,7 +127,7 @@ struct SimilarPhotosView: View {
 
     private var header: some View {
         SiftToolHeader(
-            Text("Similar Photos"),
+            Text("Similar photos"),
             eyebrow: Text("Tools"),
             subtitle: Text("Find visually related shots in a folder and review them side by side.")
         ) {

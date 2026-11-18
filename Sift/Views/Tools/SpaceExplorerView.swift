@@ -130,7 +130,7 @@ struct SpaceExplorerView: View {
             content
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-        .navigationTitle("Space Explorer")
+        .navigationTitle("Space explorer")
         .onDisappear {
             model.cancel()
         }
@@ -138,7 +138,7 @@ struct SpaceExplorerView: View {
 
     private var header: some View {
         SiftToolHeader(
-            Text("Space Explorer"),
+            Text("Space explorer"),
             eyebrow: Text("Tools"),
             subtitle: Text("Inspect a folder by allocated disk space. Your files are never changed.")
         ) {

@@ -69,7 +69,7 @@ struct AppUpdatesView: View {
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-        .navigationTitle("App Updates")
+        .navigationTitle("App updates")
         .alert("Upgrade selected apps?", isPresented: $showingUpgradeConfirmation) {
             Button("Cancel", role: .cancel) {}
             Button(upgradeConfirmationLabel(count: confirmationSelection.count)) {
@@ -90,7 +90,7 @@ struct AppUpdatesView: View {
         // to tick every second because it rendered a live duration.
         TimelineView(.periodic(from: .now, by: 60)) { timeline in
             SiftScreenHeader(
-                Text("App Updates"),
+                Text("App updates"),
                 eyebrow: eyebrow(now: timeline.date),
                 subtitle: Text("Review and update apps installed as Homebrew casks.")
             ) {

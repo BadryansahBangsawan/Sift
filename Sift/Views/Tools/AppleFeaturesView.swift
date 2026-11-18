@@ -51,7 +51,7 @@ struct AppleFeaturesView: View {
     var body: some View {
         VStack(spacing: SiftSpacing.gutter) {
             SiftToolHeader(
-                Text("Apple Features"),
+                Text("Apple features"),
                 eyebrow: Text("Tools"),
                 subtitle: Text("Review optional features and the storage used by Apple downloads.")
             ) {
@@ -90,7 +90,7 @@ struct AppleFeaturesView: View {
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-        .navigationTitle("Apple Features")
+        .navigationTitle("Apple features")
         .alert("Couldn't complete the action", isPresented: Binding(
             get: { errorMessage != nil },
             set: { if !$0 { errorMessage = nil } }

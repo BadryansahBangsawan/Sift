@@ -71,7 +71,7 @@ struct DuplicateFinderView: View {
 
     private var header: some View {
         SiftToolHeader(
-            Text("Duplicate Finder"),
+            Text("Duplicates"),
             eyebrow: Text("Tools"),
             subtitle: Text(verbatim: headerSubtitle)
         ) {
