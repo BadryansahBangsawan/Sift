@@ -22,6 +22,9 @@ All notable user-facing changes to Sift. Sift was called PureMac before 4.0.0.
   files that merely shared a prefix could be paired and one listed for removal.
 - `sift-cli` now prints an empty size as "0 KB" (as the app does) and a single
   byte as "1 byte" instead of "1 bytes".
+- Settings no longer claims every change applies immediately next to a language
+  row that needs a restart; the header chip now says "Most changes apply
+  immediately".
 - Performance no longer prints "service below 80%" under a battery health
   reading that is above 80%; the note appears only when the reading is under
   the threshold, and the caption no longer truncates at the minimum window
