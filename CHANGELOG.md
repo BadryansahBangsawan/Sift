@@ -6,6 +6,9 @@ All notable user-facing changes to Sift. Sift was called PureMac before 4.0.0.
 
 ### Fixed
 
+- VoiceOver hears the cleanup search field and its clear button as two
+  controls: the field is named by its prompt and the × is "Clear search", not
+  both "Filter cleanup files".
 - The rail's schedule card says "Scheduled scan" — matching Settings' "Enable
   scheduled scanning" — until auto-clean is on, when it says "Scheduled
   cleanup". It used to promise a cleanup for a schedule that only scans.
