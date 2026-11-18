@@ -64,6 +64,34 @@ final class AppStateSummaryTests: XCTestCase {
         XCTAssertEqual(state.biggestItems(limit: 3).map(\.name), ["cache"])
     }
 
+    func testBiggestItemsBreaksSizeTiesWithoutLocaleCollation() {
+        let state = makeState()
+        let lower = item("a", size: 300, category: .userCache)
+        let upper = item("B", size: 300, category: .userCache)
+        state.categoryResults = [.userCache: result(.userCache, [lower, upper])]
+
+        XCTAssertEqual(
+            state.biggestItems(limit: 2).map(\.name),
+            ["B", "a"],
+            "Equal sizes break by name bytes, not locale collation, so the order is deterministic"
+        )
+    }
+
+    func testBiggestItemsBreaksEqualNameTiesByPath() {
+        let state = makeState()
+        let first = CleanableItem(
+            name: "same", path: "/private/tmp/a", size: 300, category: .userCache,
+            isSelected: true, lastModified: nil
+        )
+        let second = CleanableItem(
+            name: "same", path: "/private/tmp/b", size: 300, category: .userCache,
+            isSelected: true, lastModified: nil
+        )
+        state.categoryResults = [.userCache: result(.userCache, [second, first])]
+
+        XCTAssertEqual(state.biggestItems(limit: 2).map(\.path), ["/private/tmp/a", "/private/tmp/b"])
+    }
+
     func testCategoryGroupsMergeTheirMembers() {
         XCTAssertEqual(CleaningCategory.developerCaches, [.xcodeJunk, .brewCache, .nodeCache, .dockerCache])
         XCTAssertEqual(CleaningCategory.systemJunkGroup, [.systemJunk, .userCache])
