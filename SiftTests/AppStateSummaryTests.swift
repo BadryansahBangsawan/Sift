@@ -92,6 +92,30 @@ final class AppStateSummaryTests: XCTestCase {
         XCTAssertEqual(state.biggestItems(limit: 2).map(\.path), ["/private/tmp/a", "/private/tmp/b"])
     }
 
+    func testBiggestItemsHandlesEmptyAndOutOfRangeLimits() {
+        let state = makeState()
+        XCTAssertTrue(state.biggestItems(limit: 3).isEmpty)
+
+        state.categoryResults = [.userCache: result(.userCache, [item("only", size: 1, category: .userCache)])]
+        XCTAssertTrue(state.biggestItems(limit: 0).isEmpty)
+        XCTAssertEqual(state.biggestItems(limit: -4).count, 0)
+        XCTAssertEqual(state.biggestItems(limit: 50).map(\.name), ["only"])
+    }
+
+    func testBiggestItemsOrdersBySizeDescendingAcrossCategories() {
+        let state = makeState()
+        let small = item("small", size: 10, category: .userCache)
+        let large = item("large", size: 1_000, category: .systemJunk)
+        let medium = item("medium", size: 100, category: .xcodeJunk)
+        state.categoryResults = [
+            .userCache: result(.userCache, [small]),
+            .systemJunk: result(.systemJunk, [large]),
+            .xcodeJunk: result(.xcodeJunk, [medium]),
+        ]
+
+        XCTAssertEqual(state.biggestItems(limit: 3).map(\.name), ["large", "medium", "small"])
+    }
+
     func testCategoryGroupsMergeTheirMembers() {
         XCTAssertEqual(CleaningCategory.developerCaches, [.xcodeJunk, .brewCache, .nodeCache, .dockerCache])
         XCTAssertEqual(CleaningCategory.systemJunkGroup, [.systemJunk, .userCache])
