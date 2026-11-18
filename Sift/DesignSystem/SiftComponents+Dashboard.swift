@@ -352,7 +352,7 @@ extension CleaningCategory {
     var isCleanupGroup: Bool { cleanupMembers.count > 1 }
 
     /// Sentence-case screen title, matching the rail.
-    var cleanupTitle: LocalizedStringKey {
+    var cleanupTitleKey: String {
         switch cleanupLead {
         case .systemJunk: return "System junk"
         case .xcodeJunk: return "Developer caches"
@@ -361,8 +361,12 @@ extension CleaningCategory {
         case .mailAttachments: return "Mail files"
         case .trash: return "Trash"
         case .aiApps: return "AI tools"
-        default: return LocalizedStringKey(rawValue)
+        default: return rawValue
         }
+    }
+
+    var cleanupTitle: LocalizedStringKey {
+        LocalizedStringKey(cleanupTitleKey)
     }
 
     var cleanupDescription: LocalizedStringKey {

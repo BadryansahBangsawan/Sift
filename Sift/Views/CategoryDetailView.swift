@@ -690,7 +690,7 @@ private struct CleanupFileRow: View {
                         .lineLimit(1)
                         .truncationMode(.middle)
                     if showsCategory {
-                        Text(LocalizedStringKey(item.category.rawValue))
+                        Text(item.category.cleanupTitle)
                             .font(.sift(10.5, weight: 500))
                             .foregroundStyle(SiftColor.textTertiary)
                             .lineLimit(1)

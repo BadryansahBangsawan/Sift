@@ -1148,13 +1148,15 @@ final class AppState: ObservableObject {
     ) {
         let categories = Set(items.filter { result.cleanedPaths.contains($0.path) }.map(\.category))
         let category = categories.count == 1 ? categories.first : nil
+        // The stored title is a key, not a translation: the row resolves it in
+        // the language on screen when it is drawn (see CleanupHistoryTitle).
         let title: String
         if let category {
-            title = String(localized: String.LocalizationValue(category.rawValue))
+            title = category.rawValue
         } else if source == .scheduled {
-            title = String(localized: "Scheduled cleanup")
+            title = "Scheduled cleanup"
         } else {
-            title = String(localized: "Smart Scan cleanup")
+            title = "Smart Scan cleanup"
         }
         cleanupHistory = historyStore.record(
             freedBytes: result.freedSpace,
@@ -1247,7 +1249,7 @@ final class AppState: ObservableObject {
             cleanupHistory = historyStore.record(
                 freedBytes: freed,
                 source: .manual,
-                title: String(localized: "Emptied Trash"),
+                title: "Emptied Trash",
                 category: .trash
             )
             lastCleanedDate = Date()
