@@ -43,6 +43,9 @@ All notable user-facing changes to Sift. Sift was called PureMac before 4.0.0.
   files that merely shared a prefix could be paired and one listed for removal.
 - `sift-cli` now prints an empty size as "0 KB" (as the app does) and a single
   byte as "1 byte" instead of "1 bytes".
+- `sift-cli` now keeps its settings and ignore list under the `HOME` it is run
+  with (`$HOME/.config/sift`), as the XDG spec defines, instead of always the
+  login user's home; `XDG_CONFIG_HOME` still wins when it is an absolute path.
 - The selected-count badge in a category keeps four- and five-digit counts on
   one line instead of wrapping into a tall oval.
 - Cleaning a category with thousands of rows no longer freezes the window while
