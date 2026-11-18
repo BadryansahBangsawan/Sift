@@ -6,6 +6,12 @@ All notable user-facing changes to Sift. Sift was called PureMac before 4.0.0.
 
 ### Fixed
 
+- The Leftovers empty state and its button are translated: twelve languages
+  showed the English "No Leftovers" and "Scan for leftover files". The
+  scanning line in eight languages also said "orphaned files" next to a screen
+  called Reste/Restos/残存ファイル, and now says the same thing the screen
+  does. A test reads every literal the UI shows and fails when one is missing
+  from any of the 13 tables.
 - Labels no longer truncate in other languages at the 1080 pt minimum window:
   the storage capsules fit their label and value (the label moves to a second
   line when the slice is narrow) and rail rows wrap instead of clipping, in all
