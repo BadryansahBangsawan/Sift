@@ -46,4 +46,34 @@ final class CleanupSelectionOrderTests: XCTestCase {
             name: name, path: "/fixture/\(name)", size: size, category: .systemJunk,
             isSelected: true, lastModified: date)
     }
+
+    // MARK: - Edges
+
+    /// Equal sizes fall back to the name, and a row with no date sorts last
+    /// under both date orders — the list's own tie rules, since the sheet must
+    /// not reshuffle them.
+    func testTiesFollowTheListsOwnRules() {
+        let sameSize = [item("Charlie", size: 10, date: nil),
+                        item("Alpha", size: 10, date: nil),
+                        item("Bravo", size: 10, date: nil)]
+        XCTAssertEqual(
+            CleanupReviewFilter(order: .largest).ordered(sameSize).map(\.name),
+            ["Alpha", "Bravo", "Charlie"])
+
+        let dated = [item("Zed", size: 10, date: nil),
+                     item("Amy", size: 10, date: Date(timeIntervalSince1970: 5))]
+        XCTAssertEqual(CleanupReviewFilter(order: .newest).ordered(dated).map(\.name), ["Amy", "Zed"])
+        XCTAssertEqual(CleanupReviewFilter(order: .oldest).ordered(dated).map(\.name), ["Amy", "Zed"],
+                       "A row with no date is not the oldest one")
+    }
+
+    /// Ordering is a view of the rows, not a rewrite of them: same rows, same
+    /// selection, nothing dropped or duplicated.
+    func testOrderingKeepsEveryRowExactlyOnce() {
+        let rows = items()
+        let ordered = CleanupReviewFilter(order: .smallest).ordered(rows)
+        XCTAssertEqual(Set(ordered.map(\.id)), Set(rows.map(\.id)))
+        XCTAssertEqual(ordered.count, rows.count)
+        XCTAssertTrue(ordered.allSatisfy(\.isSelected))
+    }
 }
