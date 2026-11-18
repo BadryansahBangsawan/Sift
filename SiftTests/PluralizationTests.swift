@@ -34,3 +34,41 @@ final class PluralizationTests: XCTestCase {
         return try XCTUnwrap(Bundle(path: path))
     }
 }
+
+extension PluralizationTests {
+    func testPolishCoversFewAndMany() throws {
+        let pl = try localizationBundle(for: "pl")
+        let locale = Locale(identifier: "pl")
+
+        XCTAssertEqual(String(localized: "\(1) files", bundle: pl, locale: locale), "1 plik")
+        XCTAssertEqual(String(localized: "\(3) files", bundle: pl, locale: locale), "3 pliki")
+        XCTAssertEqual(String(localized: "\(12) files", bundle: pl, locale: locale), "12 plików")
+    }
+
+    func testArabicCoversTheDualForm() throws {
+        let ar = try localizationBundle(for: "ar")
+        let locale = Locale(identifier: "ar")
+
+        XCTAssertEqual(String(localized: "\(1) photos", bundle: ar, locale: locale), "صورة واحدة")
+        XCTAssertEqual(String(localized: "\(2) photos", bundle: ar, locale: locale), "صورتان")
+        XCTAssertEqual(String(localized: "\(5) photos", bundle: ar, locale: locale), "5 صور")
+    }
+
+    /// Languages without plural inflection still resolve the count.
+    func testJapaneseHasOneFormForEveryNumber() throws {
+        let ja = try localizationBundle(for: "ja")
+        let locale = Locale(identifier: "ja")
+
+        XCTAssertEqual(String(localized: "\(1) items", bundle: ja, locale: locale), "1件の項目")
+        XCTAssertEqual(String(localized: "\(45) items", bundle: ja, locale: locale), "45件の項目")
+    }
+
+    /// The composed labels keep their size suffix and pluralise the noun.
+    func testComposedLabelsKeepTheSizeSuffix() throws {
+        let ru = try localizationBundle(for: "ru")
+        let locale = Locale(identifier: "ru")
+
+        XCTAssertEqual(String(localized: "\(2) items · \("1.5 MB")", bundle: ru, locale: locale), "2 объекта · 1.5 MB")
+        XCTAssertEqual(String(localized: "Remove \(5) files", bundle: ru, locale: locale), "Удалить 5 файлов")
+    }
+}
