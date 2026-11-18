@@ -434,7 +434,7 @@ struct DuplicateFinderView: View {
     private var progressSummary: String {
         switch progress.phase {
         case .discovering:
-            return String(localized: "\(progress.filesInspected.formatted()) files inspected")
+            return String(localized: "\(progress.filesInspected) files inspected")
         case .hashing:
             return String(localized: "\(progress.filesHashed.formatted()) of \(progress.filesToHash.formatted()) candidates · \(format(progress.bytesHashed)) verified")
         }

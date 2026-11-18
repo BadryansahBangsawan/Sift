@@ -436,7 +436,7 @@ private struct WhereItSitsCard: View {
         VStack(alignment: .leading, spacing: 14) {
             SiftCardHeader(Text("Where it sits")) {
                 if rows.contains(where: \.measured) {
-                    Text("\(SiftFormat.count(rows.reduce(0) { $0 + $1.count })) items")
+                    Text("\(rows.reduce(0) { $0 + $1.count }) items")
                         .siftStyle(.mono)
                 }
             }
@@ -502,7 +502,7 @@ private struct WhereRow: View {
                         .lineLimit(1)
                     Group {
                         if row.measured {
-                            Text("\(SiftFormat.count(row.count)) items")
+                            Text("\(row.count) items")
                         } else {
                             Text("not scanned")
                         }
