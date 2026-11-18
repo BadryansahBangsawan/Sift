@@ -2,19 +2,6 @@
 
 All notable user-facing changes to Sift. Sift was called PureMac before 4.0.0.
 
-## Unreleased
-
-### Apple Intelligence
-
-- The Apple features screen can turn Apple Intelligence off per feature, delete
-  its on-device model sets through Apple's asset service, and block them from
-  downloading again with a configuration profile you approve in System Settings.
-- Optional privacy and pop-up tweaks, with a Recommended preset and an undo
-  journal that restores the values Sift changed.
-- Ported from [RemoveMacAI](https://github.com/omlahore/RemoveMacAI), which builds
-  on [pared](https://github.com/4evy/pared). Both are MIT; their notices are in
-  [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md).
-
 ## 4.0.0
 
 PureMac is now Sift. The app, the command-line tool and the release artifacts use
@@ -43,6 +30,18 @@ the new name, and the interface has been rebuilt around a new design system.
   when git tracks anything inside it); hidden tool folders such as agent
   worktrees are left alone. Folders are checked again and moved to the Trash.
   Never part of Smart Scan or scheduled cleanup.
+- Apple Intelligence: turn it off feature by feature (keep the ones you use),
+  ask macOS's asset service to delete the on-device models, and block them
+  from downloading again with a configuration profile you approve in System
+  Settings. Optional switches for Mac Analytics, personalized ads, Siri and
+  search improvement sharing, Spotlight web results and a few macOS pop-ups.
+  Every change is listed for review first and can be undone. Ported from
+  RemoveMacAI and pared (both MIT); requires Apple silicon and macOS 15.1+.
+- AI tools: its own cleanup row for caches and logs of Claude, Claude Code,
+  omp, ChatGPT, Cursor, Codex, Ollama, LM Studio and similar tools. Chat and
+  session history and the Claude VM image are listed but never preselected,
+  and go to the Trash; memory folders, settings and credentials are never
+  touched.
 - Trash category: Sift measures `~/.Trash` and empties it through Finder after a
   confirmation. It is read-only inside Sift, never bulk-selected, scheduled or
   auto-cleaned.
@@ -70,6 +69,9 @@ the new name, and the interface has been rebuilt around a new design system.
 
 ### Fixed
 
+- System junk no longer offers everything in `/tmp`: only entries you own
+  that have been untouched for three days and hold no repository or socket,
+  and never preselected.
 - Sift no longer offers its own `.lproj` language files for removal.
 - A malformed line in the CLI ignore file is skipped with a warning instead of
   dropping every protected path.

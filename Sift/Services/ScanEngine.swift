@@ -8,15 +8,22 @@ actor ScanEngine {
     private let tmpRoots: [String]
     /// Clock for the tmp staleness check, injected by tests.
     private let now: () -> Date
+    /// Whether an app with this bundle identifier is running. Injected so the
+    /// Claude VM bundle guard can be tested without Claude installed.
+    private let isAppRunning: (String) -> Bool
 
     init(
         homeDirectory: URL = FileManager.default.homeDirectoryForCurrentUser,
         tmpRoots: [String] = TmpJunkPolicy.roots,
-        now: @escaping () -> Date = Date.init
+        now: @escaping () -> Date = Date.init,
+        isAppRunning: @escaping (String) -> Bool = { bundleID in
+            RunningAppGuard.systemIsRunning(bundleIdentifier: bundleID, appURL: nil)
+        }
     ) {
         home = XcodeBuildMCPDerivedDataSupport.canonicalHomeDirectory(homeDirectory).path
         self.tmpRoots = tmpRoots
         self.now = now
+        self.isAppRunning = isAppRunning
     }
 
     /// Live path reporter for the dashboard's scanning ticker. Throttled so
@@ -291,56 +298,92 @@ actor ScanEngine {
     }
 
     private func scanAIApps() -> CategoryResult {
-        let targets = [
-            CleanupTarget(
-                name: String(localized: "Ollama Logs"),
-                path: "\(home)/.ollama/logs"
-            ),
-            CleanupTarget(
-                name: String(localized: "Ollama Cache"),
-                path: "\(home)/Library/Caches/ollama"
-            ),
-            CleanupTarget(
-                name: String(localized: "Ollama Electron Cache"),
-                path: "\(home)/Library/Caches/com.electron.ollama"
-            ),
-            CleanupTarget(
-                name: String(localized: "Ollama WebKit Data"),
-                path: "\(home)/Library/WebKit/com.electron.ollama"
-            ),
-            CleanupTarget(
-                name: String(localized: "Ollama Saved State"),
-                path: "\(home)/Library/Saved Application State/com.electron.ollama.savedState"
-            ),
-            CleanupTarget(
-                name: String(localized: "Ollama CLI Prompt History (Optional)"),
-                path: "\(home)/.ollama/history",
-                isSelected: false,
-                minimumSize: 0
-            ),
-            CleanupTarget(
-                name: String(localized: "LM Studio Server Logs"),
-                path: "\(home)/.lmstudio/server-logs"
-            ),
-            CleanupTarget(
-                name: String(localized: "LM Studio Conversations (Optional)"),
-                path: "\(home)/.lmstudio/conversations",
-                isSelected: false,
-                minimumSize: 0
-            ),
-        ]
+        var entries: [(item: CleanableItem, tool: AIToolCleanupCatalog.AITool)] = []
 
-        let items = deduplicatedItems(targets.compactMap { target in
-            makeCleanupItem(
-                name: target.name,
-                path: target.path,
+        for spec in AIToolCleanupCatalog.specs(home: home) {
+            var note = spec.note
+            if let bundleID = spec.requiresQuitBundleID, isAppRunning(bundleID) {
+                // Still offered (it is opt-in either way) but says why it is
+                // currently skipped; the cleaner re-checks the guard.
+                note = String(localized: "Quit Claude to remove this.")
+            }
+            guard let item = makeCleanupItem(
+                name: spec.name,
+                path: spec.path,
                 category: .aiApps,
-                isSelected: target.isSelected,
-                minimumSize: target.minimumSize
-            )
-        })
+                isSelected: !spec.isOptIn,
+                minimumSize: spec.isOptIn ? 0 : 1024,
+                companionPaths: spec.companionPaths,
+                note: note,
+                movesToTrash: spec.isOptIn
+            ) else { continue }
+            entries.append((item, spec.tool))
+        }
+
+        entries.append(contentsOf: scanAISessions())
+
+        // Group by tool in the rail's order, largest first inside a tool.
+        let items = entries.sorted { left, right in
+            if left.tool.order != right.tool.order { return left.tool.order < right.tool.order }
+            if left.item.size != right.item.size { return left.item.size > right.item.size }
+            return left.item.name.localizedStandardCompare(right.item.name) == .orderedAscending
+        }.map { $0.item }
         let totalSize = items.reduce(0) { $0 + $1.size }
-        return CategoryResult(category: .aiApps, items: items.sorted { $0.size > $1.size }, totalSize: totalSize)
+        return CategoryResult(category: .aiApps, items: items, totalSize: totalSize)
+    }
+
+    /// One item per Claude Code and omp transcript, with its companion folder
+    /// folded into the same item. A session modified within the last ten
+    /// minutes is treated as open and not offered at all.
+    private func scanAISessions() -> [(item: CleanableItem, tool: AIToolCleanupCatalog.AITool)] {
+        var results: [(item: CleanableItem, tool: AIToolCleanupCatalog.AITool)] = []
+        let timestamp = now()
+
+        for location in AIToolCleanupCatalog.sessionLocations(home: home) {
+            let projects = (try? fileManager.contentsOfDirectory(atPath: location.root)) ?? []
+            for project in projects.sorted() where !project.hasPrefix(".") && project != "memory" {
+                let projectPath = location.root + "/" + project
+                let names = (try? fileManager.contentsOfDirectory(atPath: projectPath)) ?? []
+                for name in names.sorted() where name.hasSuffix(".jsonl") {
+                    let path = projectPath + "/" + name
+                    guard let spec = AIToolCleanupCatalog.sessionSpec(for: path, home: home),
+                          let modified = fileModDate(path: path),
+                          timestamp.timeIntervalSince(modified) > AIToolCleanupCatalog.openSessionWindow,
+                          let fileSize = fileSize(path: path)
+                    else { continue }
+
+                    let companionSize = spec.companionPaths.reduce(Int64(0)) { total, companion in
+                        total.saturatedSum(itemSize(atPath: companion))
+                    }
+                    let display = AIToolCleanupCatalog.projectDisplayName(fromEncodedDirectory: project)
+                    let name = "\(display) — \(AIToolCleanupCatalog.sessionDateText(modified))"
+                    results.append((
+                        CleanableItem(
+                            name: name,
+                            path: path,
+                            size: fileSize.saturatedSum(companionSize),
+                            category: .aiApps,
+                            isSelected: false,
+                            lastModified: modified,
+                            companionPaths: spec.companionPaths,
+                            note: location.note,
+                            movesToTrash: true
+                        ),
+                        location.tool
+                    ))
+                }
+            }
+        }
+        return results
+    }
+
+    /// File or directory size for a path that may not exist (a session's
+    /// companion folder is optional).
+    private func itemSize(atPath path: String) -> Int64 {
+        var isDirectory: ObjCBool = false
+        guard fileManager.fileExists(atPath: path, isDirectory: &isDirectory) else { return 0 }
+        if isDirectory.boolValue { return directorySize(path: path) }
+        return fileSize(path: path) ?? 0
     }
 
     private func scanMailAttachments() -> CategoryResult {
@@ -1280,7 +1323,10 @@ actor ScanEngine {
         path: String,
         category: CleaningCategory,
         isSelected: Bool = true,
-        minimumSize: Int64 = 1024
+        minimumSize: Int64 = 1024,
+        companionPaths: [String] = [],
+        note: String? = nil,
+        movesToTrash: Bool = false
     ) -> CleanableItem? {
         report(path)
         var isDirectory: ObjCBool = false
@@ -1296,7 +1342,10 @@ actor ScanEngine {
                 size: size,
                 category: category,
                 isSelected: isSelected,
-                lastModified: fileModDate(path: path)
+                lastModified: fileModDate(path: path),
+                companionPaths: companionPaths,
+                note: note,
+                movesToTrash: movesToTrash
             )
         }
 
@@ -1310,7 +1359,10 @@ actor ScanEngine {
             size: size,
             category: category,
             isSelected: isSelected,
-            lastModified: attrs[.modificationDate] as? Date
+            lastModified: attrs[.modificationDate] as? Date,
+            companionPaths: companionPaths,
+            note: note,
+            movesToTrash: movesToTrash
         )
     }
 
@@ -1374,6 +1426,11 @@ actor ScanEngine {
 
     private func fileModDate(path: String) -> Date? {
         try? fileManager.attributesOfItem(atPath: path)[.modificationDate] as? Date
+    }
+
+    private func fileSize(path: String) -> Int64? {
+        guard let size = try? fileManager.attributesOfItem(atPath: path)[.size] as? Int64 else { return nil }
+        return size
     }
 
     // MARK: - Purgeable Space Helpers

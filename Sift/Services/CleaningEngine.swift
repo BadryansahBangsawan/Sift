@@ -6,9 +6,18 @@ actor CleaningEngine {
     /// XcodeBuildMCPDerivedDataSupport path checks on symlinked homes.
     private let homeDirectory: URL
     private let binaryThinner = BinaryThinner()
+    /// Whether an app with this bundle identifier is running. The Claude VM
+    /// bundle is refused while Claude runs; injectable for tests.
+    private let isAppRunning: (String) -> Bool
 
-    init(homeDirectory: URL = FileManager.default.homeDirectoryForCurrentUser) {
+    init(
+        homeDirectory: URL = FileManager.default.homeDirectoryForCurrentUser,
+        isAppRunning: @escaping (String) -> Bool = { bundleID in
+            RunningAppGuard.systemIsRunning(bundleIdentifier: bundleID, appURL: nil)
+        }
+    ) {
         self.homeDirectory = XcodeBuildMCPDerivedDataSupport.canonicalHomeDirectory(homeDirectory)
+        self.isAppRunning = isAppRunning
     }
 
     struct CleaningResult {
@@ -55,9 +64,25 @@ actor CleaningEngine {
                 continue
             }
 
-            if item.category == .aiApps, !isSupportedAIAppPath(item.path) {
+            if item.category == .aiApps, !AIToolCleanupCatalog.accepts(item: item, home: homeDirectory.path) {
                 result.errors.append("Unsupported AI app cleanup path: \(item.path)")
                 continue
+            }
+
+            if item.category == .aiApps {
+                // The Claude VM image cannot be written while Claude runs.
+                // Re-check the guard right before removal, not at scan time.
+                if let bundleID = AIToolCleanupCatalog.quitRequiredBundleID(
+                    forPath: item.path,
+                    home: homeDirectory.path
+                ), isAppRunning(bundleID) {
+                    let detail = String(
+                        localized: "Skipped: Claude is running. Quit Claude and scan again."
+                    )
+                    result.errors.append(detail)
+                    Logger.shared.log("Skipped AI tool item: \(item.path) — \(detail)", level: .info)
+                    continue
+                }
             }
 
             if item.category == .purgeableSpace {
@@ -201,6 +226,50 @@ actor CleaningEngine {
                     resolved,
                     homeDirectory: homeDirectory
                 )
+
+                if item.category == .aiApps {
+                    // Caches/logs are unlinked; opt-in history is moved to the
+                    // Trash so it stays recoverable. A session's companion
+                    // folder goes with the transcript, and the item only
+                    // counts as cleaned when both are gone.
+                    let useTrash = AIToolCleanupCatalog.entry(
+                        for: item.path,
+                        home: homeDirectory.path
+                    )?.isOptIn ?? false
+                    if let trashed = try removeAIPath(at: resolvedURL, useTrash: useTrash) {
+                        result.trashedPaths.insert(trashed)
+                    }
+                    var removalError: String?
+                    for companion in item.companionPaths {
+                        guard !AIToolCleanupCatalog.isNeverTouch(companion),
+                              fileManager.fileExists(atPath: companion),
+                              !hasUnexpectedSymlink(in: companion) else {
+                            if !fileManager.fileExists(atPath: companion) { continue }
+                            removalError = "Refused AI tool companion path: \(companion)"
+                            break
+                        }
+                        let companionURL = URL(fileURLWithPath: companion)
+                        guard companionURL.resolvingSymlinksInPath().path == companion else {
+                            removalError = "Refused AI tool companion path: \(companion)"
+                            break
+                        }
+                        if let trashed = try removeAIPath(at: companionURL, useTrash: useTrash) {
+                            result.trashedPaths.insert(trashed)
+                        }
+                    }
+                    if let removalError {
+                        // The primary path is already gone; report the leftover
+                        // instead of claiming a complete cleanup.
+                        result.errors.append(removalError)
+                        Logger.shared.log("Clean failed: \(removalError)", level: .error)
+                    } else {
+                        result.freedSpace += item.size
+                        result.itemsCleaned += 1
+                        result.cleanedPaths.insert(item.path)
+                    }
+                    continue
+                }
+
                 if isManagedDerivedData {
                     // The legacy shared root predates XcodeBuildMCP's
                     // per-workspace lock, so only workspace DerivedData waits
@@ -586,7 +655,8 @@ actor CleaningEngine {
         includeUninstallPaths: Bool = false
     ) -> Bool {
         if item.category == .aiApps {
-            return item.path == resolvedPath && isSupportedAIAppPath(resolvedPath)
+            return item.path == resolvedPath
+                && AIToolCleanupCatalog.accepts(item: item, home: homeDirectory.path)
         }
         let originalIsManaged = XcodeBuildMCPDerivedDataSupport.isManagedDerivedDataPath(
             item.path,
@@ -615,19 +685,16 @@ actor CleaningEngine {
             || (includeUninstallPaths && isSafeUninstallEscalationPath(resolvedPath))
     }
 
-    private func isSupportedAIAppPath(_ path: String) -> Bool {
-        guard !path.utf8.contains(0), path == (path as NSString).standardizingPath else { return false }
-        let home = homeDirectory.path
-        return [
-            "\(home)/.ollama/logs",
-            "\(home)/.ollama/history",
-            "\(home)/.lmstudio/server-logs",
-            "\(home)/.lmstudio/conversations",
-            "\(home)/Library/Caches/ollama",
-            "\(home)/Library/Caches/com.electron.ollama",
-            "\(home)/Library/WebKit/com.electron.ollama",
-            "\(home)/Library/Saved Application State/com.electron.ollama.savedState",
-        ].contains(path)
+    /// Removes one allow-listed AI tool path. Returns the Trash destination when
+    /// an opt-in history item was moved instead of unlinked.
+    private func removeAIPath(at url: URL, useTrash: Bool) throws -> String? {
+        if useTrash {
+            var resulting: NSURL?
+            try fileManager.trashItem(at: url, resultingItemURL: &resulting)
+            return resulting?.path
+        }
+        try fileManager.removeItem(at: url)
+        return nil
     }
 
     /// Validates that a resolved path is safe to delete.

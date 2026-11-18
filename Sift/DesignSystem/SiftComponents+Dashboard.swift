@@ -318,6 +318,9 @@ struct SiftRemovalReview: View {
         if XcodeBuildMCPDerivedDataSupport.isManagedDerivedDataPath(item.path) {
             return String(localized: "Move to Trash")
         }
+        if item.movesToTrash {
+            return String(localized: "Move to Trash")
+        }
         return String(localized: "Permanent · Delete files")
     }
 }
@@ -357,6 +360,7 @@ extension CleaningCategory {
         case .largeFiles: return "Large & old files"
         case .mailAttachments: return "Mail files"
         case .trash: return "Trash"
+        case .aiApps: return "AI tools"
         default: return LocalizedStringKey(rawValue)
         }
     }
@@ -365,6 +369,7 @@ extension CleaningCategory {
         switch cleanupLead {
         case .systemJunk: return "System and app caches, logs, and temporary files"
         case .xcodeJunk: return "Xcode, Homebrew, npm, and Docker caches"
+        case .aiApps: return "Caches, logs, and optional chat history of AI apps and coding agents"
         default: return LocalizedStringKey(description)
         }
     }
@@ -377,6 +382,7 @@ extension CleaningCategory {
         case .largeFiles: return .fileArchive
         case .mailAttachments: return .mail
         case .trash: return .trash
+        case .aiApps: return .sparkles
         default: return .file
         }
     }

@@ -646,7 +646,9 @@ private struct CleanupFileRow: View {
                             .fixedSize()
                     }
                 }
-                Text(item.isActionItem ? String(localized: "Managed cleanup action") : (item.path as NSString).abbreviatingWithTildeInPath)
+                Text(item.isActionItem
+                     ? String(localized: "Managed cleanup action")
+                     : (item.note ?? (item.path as NSString).abbreviatingWithTildeInPath))
                     .font(.siftMono(10.5))
                     .foregroundStyle(SiftColor.textTertiary)
                     .lineLimit(1)

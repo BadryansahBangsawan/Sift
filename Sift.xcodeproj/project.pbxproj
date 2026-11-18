@@ -113,6 +113,7 @@
 		B7287995D5FA2D19A1FBD161 /* BatteryInspectorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 741BB0C68D627DFC2B9D503A /* BatteryInspectorTests.swift */; };
 		B8FF2D76945CD18DD98A1CA4 /* SiftIcon.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB0BAFDB65856168BE5276C5 /* SiftIcon.swift */; };
 		BC702C454384BBC5053BEB1F /* ThemeManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B7E65E6A0C3B678B5A2A3F7D /* ThemeManagerTests.swift */; };
+		C40CD96BC880DC774B2F1E7C /* AIToolCleanupCatalog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91FD898EE7DF1766A6177827 /* AIToolCleanupCatalog.swift */; };
 		C41765FBA66AFE97581ECF75 /* CleaningEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C45FB14A3397A60B56F9DD1 /* CleaningEngine.swift */; };
 		C48168A00D24FE538387414A /* ProtectionAudit.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1F661A76BE866DAFB64F762 /* ProtectionAudit.swift */; };
 		C783D512D272B92F471A5A14 /* DuplicateFinder.swift in Sources */ = {isa = PBXBuildFile; fileRef = E448E435718F4CB106BE5838 /* DuplicateFinder.swift */; };
@@ -123,6 +124,7 @@
 		CBEF224183F51ED92B7C992F /* LocalizationFilesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 46450563E25B69897B0BFE46 /* LocalizationFilesTests.swift */; };
 		CD944BC1F39976AE3EA9365C /* Haptics.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A1E62923CA549AAB6DA9B2D /* Haptics.swift */; };
 		CF2F3B0B2473A7E4FDB0DEC1 /* CategoryDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C0924293EA3A4117B21EA78 /* CategoryDetailView.swift */; };
+		D276E98F59169B8E14BFF8E4 /* AIToolCleanupTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7909431822990BB260111F2 /* AIToolCleanupTests.swift */; };
 		D41D3E6F57B2E924A0AAE166 /* SiftComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 157E056EE4B062AD7EE3F853 /* SiftComponents.swift */; };
 		D7303528DE0DC9DE1D441919 /* ApplePreferenceStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 227A99D91CDD300AA48DA1A6 /* ApplePreferenceStore.swift */; };
 		D99C0CE0B181BE47372129AA /* AppleFeatureCatalogTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F97CDAADAAA21899072FE250 /* AppleFeatureCatalogTests.swift */; };
@@ -260,6 +262,7 @@
 		8CEFE07E40B5883E33B09911 /* SiftTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SiftTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		8D1EB1349B160773135134BA /* MenuBarController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBarController.swift; sourceTree = "<group>"; };
 		8D24791E4BF3F8E2431CA12B /* ru */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ru; path = ru.lproj/ServicesMenu.strings; sourceTree = "<group>"; };
+		91FD898EE7DF1766A6177827 /* AIToolCleanupCatalog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIToolCleanupCatalog.swift; sourceTree = "<group>"; };
 		9417956E728918EF09D887C6 /* TmpJunkPolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TmpJunkPolicy.swift; sourceTree = "<group>"; };
 		952A03ECD8599FF7ADE73379 /* uk */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = uk; path = uk.lproj/Localizable.strings; sourceTree = "<group>"; };
 		96631E39CA5FA1E18B990D0C /* ArchivoNarrow.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = ArchivoNarrow.ttf; sourceTree = "<group>"; };
@@ -297,6 +300,7 @@
 		C46D9331DC17BC1687026176 /* AppStateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppStateTests.swift; sourceTree = "<group>"; };
 		C500888A6085BCD2AF0E9972 /* SiftApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SiftApp.swift; sourceTree = "<group>"; };
 		C5F01D47E6FD2ECEBE7678E2 /* DeviceBackupServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceBackupServiceTests.swift; sourceTree = "<group>"; };
+		C7909431822990BB260111F2 /* AIToolCleanupTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIToolCleanupTests.swift; sourceTree = "<group>"; };
 		C81BA6C803D39C012BDFF70C /* ProjectJunkView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectJunkView.swift; sourceTree = "<group>"; };
 		C88A724575308943A78FFF7F /* Locations.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Locations.swift; sourceTree = "<group>"; };
 		CAB0041E3FC64BA308DC0E7D /* SimulatorRuntimeSupportTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimulatorRuntimeSupportTests.swift; sourceTree = "<group>"; };
@@ -474,6 +478,7 @@
 		9109BB7525CC8F7340B220F2 /* Services */ = {
 			isa = PBXGroup;
 			children = (
+				91FD898EE7DF1766A6177827 /* AIToolCleanupCatalog.swift */,
 				A5CBEE02FCF4E0BA1B855B64 /* AppleStorageService.swift */,
 				EE9E3695EE85B27EC1FC8A3F /* ApplicationUpdater.swift */,
 				748893E4BB7DE1DDFA6A0BB8 /* BatteryInspector.swift */,
@@ -559,6 +564,7 @@
 			isa = PBXGroup;
 			children = (
 				148AE3B9EFB7ACBAE4709BC6 /* AIAppsCleanupTests.swift */,
+				C7909431822990BB260111F2 /* AIToolCleanupTests.swift */,
 				3CFFCB41DD7FF4C7EDD87A69 /* AppLanguagePreferencesTests.swift */,
 				F97CDAADAAA21899072FE250 /* AppleFeatureCatalogTests.swift */,
 				4B2B9622B907E06FFDFEBFA9 /* AppleIntelligenceTests.swift */,
@@ -772,6 +778,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C40CD96BC880DC774B2F1E7C /* AIToolCleanupCatalog.swift in Sources */,
 				E8F05A83FE6DF5B7C2E414CE /* AppBundleDragHandle.swift in Sources */,
 				86169E9EC0AFA1829F4358D6 /* AppConstants.swift in Sources */,
 				70C84171921EFFF770DDBE82 /* AppFilesView.swift in Sources */,
@@ -871,6 +878,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				5479322B3FD17A974781013A /* AIAppsCleanupTests.swift in Sources */,
+				D276E98F59169B8E14BFF8E4 /* AIToolCleanupTests.swift in Sources */,
 				F33AC2AAC1C14C28D487C0B9 /* AppLanguagePreferencesTests.swift in Sources */,
 				F93386ECC29B862885549ECE /* AppStatePreferencesTests.swift in Sources */,
 				63D0690694DDAD1E0DC7E07D /* AppStateSummaryTests.swift in Sources */,

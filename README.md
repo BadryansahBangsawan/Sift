@@ -154,9 +154,10 @@ Walks `~/Library` and surfaces files left behind by apps that no longer exist on
 ### System Cleaner
 Smart Scan checks each category in sequence and reports progress as files are found. You can stop a scan and keep the categories already completed:
 
-- **System Junk** - system caches, logs, temp files
+- **System Junk** - system caches and logs; `/tmp` entries only when you own them, they have been untouched for three days and hold no repository or socket (never preselected)
 - **User Cache** - dynamically discovered, no hardcoded app list
-- **AI Apps** - Ollama and LM Studio logs, caches, opt-in history cleanup
+- **AI Tools** - caches and logs of Claude, Claude Code, omp, ChatGPT, Cursor, Codex, Ollama, LM Studio and similar tools; chat and session history and the Claude VM image are listed but never preselected and go to the Trash; memory folders, settings and credentials are never touched
+- **Project Junk** - `node_modules`, `.venv`, `target`, `.build`, `Pods` and similar folders in the project folders you choose, offered only when the matching project file sits next to them, their contents look generated and git ignores them without tracking anything inside; moved to the Trash, never part of Smart Scan or scheduled cleanup
 - **Mail Files** - downloaded mail attachments
 - **Large & Old Files** - >100 MB or older than 1 year (never auto-selected)
 - **Xcode Junk** - DerivedData, Archives, simulator caches, downloaded simulator runtimes (deleted via `simctl runtime delete`; never auto-selected), and XcodeBuildMCP or MobileBuildMCP DerivedData (never auto-selected, so scheduled cleanup leaves it alone; manual cleanup moves it to the Trash while holding the tool's storage lock, which does not detect a running build)
@@ -168,7 +169,7 @@ Smart Scan checks each category in sequence and reports progress as files are fo
 
 ### Storage and file review
 
-**Apple Features** brings together the supported controls for Siri, Apple Intelligence, Image Playground, Genmoji, writing assistance, summaries, inline predictions, analytics, and personalized ads. Instructions follow the installed macOS version and open the relevant Settings pane or app. Sift cannot reliably read or change these protected switches itself; opening Settings never marks a feature disabled.
+**Apple Features** can turn Apple Intelligence off on Apple silicon with macOS 15.1 or later: pick the features to keep, review every change, and Sift asks macOS's asset service to delete the on-device models and writes a configuration profile you approve in System Settings, which blocks the models from downloading again. Optional switches cover Mac Analytics, personalized ads, Siri and search improvement sharing, Spotlight web results and a few macOS pop-ups; every change can be undone. Storage settings may keep counting the models until macOS deletes them, and a blocked model download can delay a macOS update by about two hours. On other Macs the screen keeps its guidance: instructions for the installed macOS version that open the relevant Settings pane or app.
 
 The **Storage** tab in Apple Features measures known model assets, downloaded screen savers, GarageBand support files, Apple Loops, and local device backups. Missing, inaccessible, and partial results are distinguished. System-managed content is shown for review and is excluded from cleanup totals. Model storage is not promised as recoverable space. See the [Apple controls and storage research](docs/APPLE-FEATURES.md) for sources and version limits.
 

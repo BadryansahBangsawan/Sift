@@ -66,7 +66,8 @@ final class AppStateSummaryTests: XCTestCase {
 
     func testCategoryGroupsMergeTheirMembers() {
         XCTAssertEqual(CleaningCategory.developerCaches, [.xcodeJunk, .brewCache, .nodeCache, .dockerCache])
-        XCTAssertEqual(CleaningCategory.systemJunkGroup, [.systemJunk, .userCache, .aiApps])
+        XCTAssertEqual(CleaningCategory.systemJunkGroup, [.systemJunk, .userCache])
+        XCTAssertEqual(CleaningCategory.aiToolsGroup, [.aiApps])
 
         let state = makeState()
         let derived = item("DerivedData", size: 500, category: .xcodeJunk)
