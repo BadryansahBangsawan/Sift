@@ -129,6 +129,30 @@ final class DashboardChipSizeTests: XCTestCase {
         )
     }
 
+    func testSystemJunkLeavesLogsTheAIToolsCategoryOwnsToIt() async throws {
+        let logs = fixtureHome.appendingPathComponent("Library/Logs", isDirectory: true)
+        let claudeLogs = logs.appendingPathComponent("Claude", isDirectory: true)
+        let ordinaryLogs = logs.appendingPathComponent("com.example.app", isDirectory: true)
+        for folder in [claudeLogs, ordinaryLogs] {
+            try fileManager.createDirectory(at: folder, withIntermediateDirectories: true)
+            try Data(repeating: 0x44, count: 8_192).write(to: folder.appendingPathComponent("out.log"))
+        }
+        let claimed = claudeLogs.resolvingSymlinksInPath().path
+        let ordinary = ordinaryLogs.resolvingSymlinksInPath().path
+
+        let engine = ScanEngine(homeDirectory: fixtureHome, tmpRoots: [])
+        let aiApps = await engine.scanCategory(.aiApps)
+        XCTAssertTrue(aiApps.items.contains { $0.path == claimed })
+
+        let systemJunk = await engine.scanCategory(.systemJunk)
+        let paths = Set(systemJunk.items.map { $0.path })
+        XCTAssertTrue(paths.contains(ordinary), "Ordinary logs stay in System Junk")
+        XCTAssertFalse(
+            paths.contains(claimed),
+            "System Junk must not repeat the Claude log folder the AI tools category owns"
+        )
+    }
+
     func testUserCacheTotalMatchesTheRowsItKeeps() async throws {
         let caches = fixtureHome.appendingPathComponent("Library/Caches", isDirectory: true)
         for name in ["com.apple.dt.Xcode", "com.example.ordinary", "com.example.second"] {
