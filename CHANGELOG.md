@@ -6,6 +6,8 @@ All notable user-facing changes to Sift. Sift was called PureMac before 4.0.0.
 
 ### Fixed
 
+- The auto-clean setting no longer says it moves selected files to the Trash.
+  An unattended clean deletes them, and the copy now says so.
 - Developer cache rows (Xcode, Homebrew, npm, Docker, language files) show
   their real Modified date instead of a dash, so the age filter can judge them.
 - The Leftovers page no longer says "No Orphaned Files" before it has looked:
