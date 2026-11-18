@@ -895,15 +895,13 @@ final class AppState: ObservableObject {
                 selectedCleanupItems.remove(item.id)
                 deselectedItems.remove(item.id)
             }
-            if remaining.isEmpty {
-                categoryResults.removeValue(forKey: cat)
-            } else {
-                categoryResults[cat] = CategoryResult(
-                    category: cat,
-                    items: remaining,
-                    totalSize: remaining.reduce(0) { $0 + $1.size }
-                )
-            }
+            // An emptied category keeps an empty result: it was scanned, and
+            // the page must show "No files found", not "not scanned yet".
+            categoryResults[cat] = CategoryResult(
+                category: cat,
+                items: remaining,
+                totalSize: remaining.reduce(0) { $0 + $1.size }
+            )
         }
         totalJunkSize = categoryResults.values.reduce(0) { $0 + $1.totalSize }
 
@@ -1058,15 +1056,11 @@ final class AppState: ObservableObject {
                     selectedCleanupItems.remove(item.id)
                     deselectedItems.remove(item.id)
                 }
-                if remaining.isEmpty {
-                    categoryResults.removeValue(forKey: cat)
-                } else {
-                    categoryResults[cat] = CategoryResult(
-                        category: cat,
-                        items: remaining,
-                        totalSize: remaining.reduce(0) { $0 + $1.size }
-                    )
-                }
+                categoryResults[cat] = CategoryResult(
+                    category: cat,
+                    items: remaining,
+                    totalSize: remaining.reduce(0) { $0 + $1.size }
+                )
             }
             totalJunkSize = categoryResults.values.reduce(0) { $0 + $1.totalSize }
 
@@ -1121,15 +1115,11 @@ final class AppState: ObservableObject {
                     selectedCleanupItems.remove(item.id)
                     deselectedItems.remove(item.id)
                 }
-                if remaining.isEmpty {
-                    categoryResults.removeValue(forKey: category)
-                } else {
-                    categoryResults[category] = CategoryResult(
-                        category: category,
-                        items: remaining,
-                        totalSize: remaining.reduce(0) { $0 + $1.size }
-                    )
-                }
+                categoryResults[category] = CategoryResult(
+                    category: category,
+                    items: remaining,
+                    totalSize: remaining.reduce(0) { $0 + $1.size }
+                )
             }
             totalJunkSize = categoryResults.values.reduce(0) { $0 + $1.totalSize }
 
@@ -1263,7 +1253,8 @@ final class AppState: ObservableObject {
         let error = await trashEmptier()
         let after = applyingCleanupExclusions(to: await scanEngine.scanCategory(.trash))
 
-        categoryResults[.trash] = after.items.isEmpty ? nil : after
+        // Keep the scanned state: an emptied Trash is empty, not unscanned.
+        categoryResults[.trash] = after
         totalJunkSize = categoryResults.values.reduce(0) { $0 + $1.totalSize }
 
         let freed = max(0, before.totalSize - after.totalSize)
