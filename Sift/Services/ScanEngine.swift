@@ -710,17 +710,29 @@ actor ScanEngine {
             "\(home)/Library/org.swift.swiftpm",
         ]
 
+        // Archives hold the shipped builds and the dSYMs needed to symbolicate
+        // crash reports. They are the user's work and cannot be regenerated, so
+        // the row is opt-in, says what is lost, and leaves through the Trash
+        // instead of an unlink. That also keeps them out of an unattended
+        // scheduled clean, which only touches pre-selected rows.
+        let archivesPath = "\(home)/Library/Developer/Xcode/Archives"
+
         for path in xcodePaths {
             if fileManager.fileExists(atPath: path) {
                 let size = directorySize(path: path)
                 if size > 0 {
+                    let isArchives = path == archivesPath
                     items.append(CleanableItem(
                         name: URL(fileURLWithPath: path).lastPathComponent,
                         path: path,
                         size: size,
                         category: .xcodeJunk,
-                        isSelected: true,
-                        lastModified: nil
+                        isSelected: !isArchives,
+                        lastModified: fileModDate(path: path),
+                        note: isArchives
+                            ? String(localized: "Shipped builds and dSYMs — not selected by default")
+                            : nil,
+                        movesToTrash: isArchives
                     ))
                 }
             }
@@ -862,7 +874,7 @@ actor ScanEngine {
                         size: size,
                         category: .brewCache,
                         isSelected: true,
-                        lastModified: nil
+                        lastModified: fileModDate(path: path)
                     ))
                 }
             }
@@ -951,7 +963,7 @@ actor ScanEngine {
                     size: size,
                     category: .nodeCache,
                     isSelected: true,
-                    lastModified: nil
+                    lastModified: fileModDate(path: path)
                 ))
             }
         }
@@ -1104,7 +1116,7 @@ actor ScanEngine {
                 size: size,
                 category: .dockerCache,
                 isSelected: true,
-                lastModified: nil
+                lastModified: fileModDate(path: path)
             ))
         }
 
@@ -1180,7 +1192,7 @@ actor ScanEngine {
                 size: entry.size,
                 category: .languageFiles,
                 isSelected: false,
-                lastModified: nil
+                lastModified: fileModDate(path: entry.path)
             )
         }
 

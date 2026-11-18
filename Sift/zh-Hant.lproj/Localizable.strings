@@ -980,7 +980,6 @@
 "Day" = "星期";
 "Time" = "時間";
 "After each scan" = "每次掃描後";
-"Moves what the scan selected to the Trash without asking" = "不經詢問，直接將掃描選取的項目移到垃圾桶";
 "Minimum size" = "最小大小";
 "Auto-clean skips scans that would free less than this" = "可釋放空間小於此值時，略過自動清理";
 "A notification with what was found or cleaned" = "傳送通知，告知找到或清理的內容";
@@ -1360,6 +1359,15 @@
 "Codex Sessions (Optional)" = "Codex 工作階段（可選）";
 "Gemini CLI Temp Files" = "Gemini CLI 暫存檔案";
 "Chat history — not selected by default" = "聊天記錄 — 預設不選取";
+"Shipped builds and dSYMs — not selected by default" = "已發佈建置與 dSYM — 預設不選取";
+"Excluded from cleanup: %@" = "已從清理中排除：%@";
+"The Trash is emptied through Finder." = "垃圾桶需透過 Finder 清空。";
+"Not a supported AI tool path." = "不是支援的 AI 工具路徑。";
+"Temporary entry is in use: it %@" = "暫存項目正在使用：%@";
+"Unsafe path: a symlink points elsewhere." = "不安全的路徑：符號連結指向其他位置。";
+"Outside the folders Sift cleans." = "不在 Sift 清理的檔案夾內。";
+"In use by a running Xcode build." = "正被執行中的 Xcode 建置使用。";
+"%lld item(s) skipped: %@" = "已略過 %lld 項：%@";
 "Prompt history — not selected by default" = "提示歷程記錄 — 預設不選取";
 "Session history — not selected by default" = "工作階段歷程記錄 — 預設不選取";
 "Recoverable rewind data — not selected by default" = "可復原的倒轉資料 — 預設不選取";
@@ -1367,3 +1375,8 @@
 "Quit Claude to remove this." = "結束 Claude 後再刪除。";
 "Skipped: Claude is running. Quit Claude and scan again." = "已略過：Claude 正在執行。結束 Claude 後重新掃描。";
 "Skipped: this session is open. Quit the session and scan again." = "已略過：此工作階段處於開啟狀態。結束工作階段後重新掃描。";
+"Not scanned yet" = "尚未掃描";
+"Scan to see whether uninstalled apps left files behind." = "掃描以查看已解除安裝的應用程式是否留下了檔案。";
+"Couldn't compare installed apps" = "無法與已安裝的應用程式比較";
+"Sift needs the list of installed apps before it can call a file a leftover. Try again in a moment." = "Sift 需要已安裝應用程式的列表，才能判斷檔案是否為殘留。請稍後再試。";
+"Permanently deletes the junk the scan selected, without asking" = "無需確認即可永久刪除掃描所選的垃圾檔案";

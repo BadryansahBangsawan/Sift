@@ -6,6 +6,36 @@ All notable user-facing changes to Sift. Sift was called PureMac before 4.0.0.
 
 ### Fixed
 
+- The auto-clean setting no longer says it moves selected files to the Trash.
+  An unattended clean deletes them, and the copy now says so.
+- Developer cache rows (Xcode, Homebrew, npm, Docker, language files) show
+  their real Modified date instead of a dash, so the age filter can judge them.
+- The Leftovers page no longer says "No Orphaned Files" before it has looked:
+  it shows "Not scanned yet" first, and "Couldn't compare installed apps" when
+  the scan had no app list to compare against.
+- The window no longer freezes while a Leftovers scan fetches the app list.
+  Listing every installed app ran on the main actor and took seconds; it now
+  runs on the scan's background task.
+- Finder and WebKit metadata are no longer offered as leftovers: `.DS_Store`
+  files, WebKit's shared LocalStorage folder and the SwiftPM cache belong to no
+  app, so "the owner is uninstalled" said nothing about them.
+- Leftovers no longer lists installed apps' own data. The scan ran against
+  whatever the launch refresh had loaded so far, so with the installed-app list
+  still empty every folder looked orphaned (44 rows on a machine that has 20).
+  It now fetches the list first and, if it still has none, reports nothing and
+  says why.
+- A category you just emptied stays scanned: the page says "No files found"
+  instead of "not scanned yet", the Overview row keeps its "0 items", and an
+  emptied Trash no longer claims it was never scanned.
+- Xcode Archives are no longer pre-selected or deleted outright. They hold your
+  shipped builds and the dSYMs needed for crash reports and cannot be
+  regenerated, so the row is opt-in, says what it holds, moves to the Trash, and
+  stays out of an unattended scheduled clean unless you select it.
+- A cleanup that skipped a row on purpose (an excluded path, the Trash itself,
+  Claude running, a session you resumed, a temp entry that turned live, a
+  symlink or a path outside the folders Sift cleans) no longer reports
+  "N item(s) need Full Disk Access" and offers a Grant Access retry that can
+  never work. It shows the reason instead.
 - Overview "Where it sits" no longer clips its category names at the minimum
   window width. The row gave half the leftover space to the meter, so
   "Developer caches" read "Developer c…" while the meter still had room to

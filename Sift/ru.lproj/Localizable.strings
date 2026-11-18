@@ -980,7 +980,6 @@
 "Day" = "День";
 "Time" = "Время";
 "After each scan" = "После каждого сканирования";
-"Moves what the scan selected to the Trash without asking" = "Перемещает выбранное сканированием в Корзину без подтверждения";
 "Minimum size" = "Минимальный размер";
 "Auto-clean skips scans that would free less than this" = "Автоочистка не выполняется, если освободится меньше";
 "A notification with what was found or cleaned" = "Уведомление о том, что найдено или очищено";
@@ -1360,6 +1359,15 @@
 "Codex Sessions (Optional)" = "Сеансы Codex (необязательно)";
 "Gemini CLI Temp Files" = "Временные файлы Gemini CLI";
 "Chat history — not selected by default" = "История чата — не выбрано по умолчанию";
+"Shipped builds and dSYMs — not selected by default" = "Готовые сборки и dSYM — не выбрано по умолчанию";
+"Excluded from cleanup: %@" = "Исключено из очистки: %@";
+"The Trash is emptied through Finder." = "Корзина очищается через Finder.";
+"Not a supported AI tool path." = "Неподдерживаемый путь инструмента ИИ.";
+"Temporary entry is in use: it %@" = "Временная запись используется: %@";
+"Unsafe path: a symlink points elsewhere." = "Небезопасный путь: символическая ссылка указывает в другое место.";
+"Outside the folders Sift cleans." = "Вне папок, которые очищает Sift.";
+"In use by a running Xcode build." = "Используется запущенной сборкой Xcode.";
+"%lld item(s) skipped: %@" = "Пропущено %lld элемент(ов): %@";
 "Prompt history — not selected by default" = "История запросов — не выбрано по умолчанию";
 "Session history — not selected by default" = "История сеансов — не выбрано по умолчанию";
 "Recoverable rewind data — not selected by default" = "Восстанавливаемые данные перемотки — не выбрано по умолчанию";
@@ -1367,3 +1375,8 @@
 "Quit Claude to remove this." = "Закройте Claude, чтобы удалить это.";
 "Skipped: Claude is running. Quit Claude and scan again." = "Пропущено: Claude запущен. Закройте Claude и повторите сканирование.";
 "Skipped: this session is open. Quit the session and scan again." = "Пропущено: эта сессия открыта. Завершите сессию и повторите сканирование.";
+"Not scanned yet" = "Ещё не сканировано";
+"Scan to see whether uninstalled apps left files behind." = "Запустите сканирование, чтобы узнать, оставили ли удалённые приложения файлы.";
+"Couldn't compare installed apps" = "Не удалось сравнить установленные приложения";
+"Sift needs the list of installed apps before it can call a file a leftover. Try again in a moment." = "Sift нужен список установленных приложений, чтобы считать файл остатком. Повторите попытку через минуту.";
+"Permanently deletes the junk the scan selected, without asking" = "Безвозвратно удаляет выбранный сканированием мусор, не спрашивая";

@@ -980,7 +980,6 @@
 "Day" = "День";
 "Time" = "Час";
 "After each scan" = "Після кожного сканування";
-"Moves what the scan selected to the Trash without asking" = "Переміщує вибране скануванням у Смітник без запиту";
 "Minimum size" = "Мінімальний розмір";
 "Auto-clean skips scans that would free less than this" = "Автоочищення пропускається, якщо звільниться менше";
 "A notification with what was found or cleaned" = "Сповіщення про те, що знайдено чи очищено";
@@ -1360,6 +1359,15 @@
 "Codex Sessions (Optional)" = "Сеанси Codex (необов’язково)";
 "Gemini CLI Temp Files" = "Тимчасові файли Gemini CLI";
 "Chat history — not selected by default" = "Історія чату — не вибрано за замовчуванням";
+"Shipped builds and dSYMs — not selected by default" = "Готові збірки та dSYM — не вибрано за замовчуванням";
+"Excluded from cleanup: %@" = "Виключено з очищення: %@";
+"The Trash is emptied through Finder." = "Кошик очищується через Finder.";
+"Not a supported AI tool path." = "Непідтримуваний шлях інструмента ШІ.";
+"Temporary entry is in use: it %@" = "Тимчасовий запис використовується: %@";
+"Unsafe path: a symlink points elsewhere." = "Небезпечний шлях: символічне посилання вказує в інше місце.";
+"Outside the folders Sift cleans." = "Поза теками, які очищує Sift.";
+"In use by a running Xcode build." = "Використовується запущеним збиранням Xcode.";
+"%lld item(s) skipped: %@" = "Пропущено %lld елемент(ів): %@";
 "Prompt history — not selected by default" = "Історія запитів — не вибрано за замовчуванням";
 "Session history — not selected by default" = "Історія сеансів — не вибрано за замовчуванням";
 "Recoverable rewind data — not selected by default" = "Дані перемотування для відновлення — не вибрано за замовчуванням";
@@ -1367,3 +1375,8 @@
 "Quit Claude to remove this." = "Закрийте Claude, щоб видалити це.";
 "Skipped: Claude is running. Quit Claude and scan again." = "Пропущено: Claude запущено. Закрийте Claude і повторіть сканування.";
 "Skipped: this session is open. Quit the session and scan again." = "Пропущено: цю сесію відкрито. Завершіть сесію та повторіть сканування.";
+"Not scanned yet" = "Ще не сканувалося";
+"Scan to see whether uninstalled apps left files behind." = "Запустіть сканування, щоб дізнатися, чи залишили видалені програми файли.";
+"Couldn't compare installed apps" = "Не вдалося порівняти встановлені програми";
+"Sift needs the list of installed apps before it can call a file a leftover. Try again in a moment." = "Sift потрібен список встановлених програм, щоб вважати файл залишком. Спробуйте ще раз за мить.";
+"Permanently deletes the junk the scan selected, without asking" = "Остаточно видаляє вибране скануванням сміття, не питаючи";

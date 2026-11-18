@@ -980,7 +980,6 @@
 "Day" = "Día";
 "Time" = "Hora";
 "After each scan" = "Tras cada análisis";
-"Moves what the scan selected to the Trash without asking" = "Mueve a la Papelera lo que seleccionó el análisis sin preguntar";
 "Minimum size" = "Tamaño mínimo";
 "Auto-clean skips scans that would free less than this" = "La limpieza automática omite los análisis que liberarían menos de esto";
 "A notification with what was found or cleaned" = "Una notificación con lo que se encontró o limpió";
@@ -1360,6 +1359,15 @@
 "Codex Sessions (Optional)" = "Sesiones de Codex (opcional)";
 "Gemini CLI Temp Files" = "Archivos temporales de Gemini CLI";
 "Chat history — not selected by default" = "Historial de chat — no seleccionado de forma predeterminada";
+"Shipped builds and dSYMs — not selected by default" = "Compilaciones publicadas y dSYM — no seleccionado de forma predeterminada";
+"Excluded from cleanup: %@" = "Excluido de la limpieza: %@";
+"The Trash is emptied through Finder." = "La Papelera se vacía desde el Finder.";
+"Not a supported AI tool path." = "No es una ruta de herramienta de IA compatible.";
+"Temporary entry is in use: it %@" = "La entrada temporal está en uso: %@";
+"Unsafe path: a symlink points elsewhere." = "Ruta no segura: un enlace simbólico apunta a otro sitio.";
+"Outside the folders Sift cleans." = "Fuera de las carpetas que Sift limpia.";
+"In use by a running Xcode build." = "En uso por una compilación de Xcode en curso.";
+"%lld item(s) skipped: %@" = "%lld elemento(s) omitido(s): %@";
 "Prompt history — not selected by default" = "Historial de indicaciones — no seleccionado de forma predeterminada";
 "Session history — not selected by default" = "Historial de sesiones — no seleccionado de forma predeterminada";
 "Recoverable rewind data — not selected by default" = "Datos de rebobinado recuperables — no seleccionados de forma predeterminada";
@@ -1367,3 +1375,8 @@
 "Quit Claude to remove this." = "Cierra Claude para eliminar esto.";
 "Skipped: Claude is running. Quit Claude and scan again." = "Omitido: Claude se está ejecutando. Cierra Claude y vuelve a analizar.";
 "Skipped: this session is open. Quit the session and scan again." = "Omitido: esta sesión está abierta. Cierra la sesión y vuelve a analizar.";
+"Not scanned yet" = "Aún no analizado";
+"Scan to see whether uninstalled apps left files behind." = "Analiza para ver si las apps desinstaladas dejaron archivos.";
+"Couldn't compare installed apps" = "No se pudieron comparar las apps instaladas";
+"Sift needs the list of installed apps before it can call a file a leftover. Try again in a moment." = "Sift necesita la lista de apps instaladas antes de llamar a un archivo sobrante. Inténtalo en un momento.";
+"Permanently deletes the junk the scan selected, without asking" = "Elimina definitivamente la basura que seleccionó el análisis, sin preguntar";

@@ -983,7 +983,6 @@
 "Day" = "Tag";
 "Time" = "Uhrzeit";
 "After each scan" = "Nach jedem Scan";
-"Moves what the scan selected to the Trash without asking" = "Legt die vom Scan ausgewählten Objekte ohne Nachfrage in den Papierkorb";
 "Minimum size" = "Mindestgröße";
 "Auto-clean skips scans that would free less than this" = "Die automatische Bereinigung überspringt Scans, die weniger freigeben würden";
 "A notification with what was found or cleaned" = "Eine Mitteilung mit den gefundenen oder bereinigten Objekten";
@@ -1363,6 +1362,15 @@
 "Codex Sessions (Optional)" = "Codex-Sitzungen (optional)";
 "Gemini CLI Temp Files" = "Temporäre Dateien der Gemini CLI";
 "Chat history — not selected by default" = "Chatverlauf – standardmäßig nicht ausgewählt";
+"Shipped builds and dSYMs — not selected by default" = "Ausgelieferte Builds und dSYM – standardmäßig nicht ausgewählt";
+"Excluded from cleanup: %@" = "Vom Aufräumen ausgeschlossen: %@";
+"The Trash is emptied through Finder." = "Der Papierkorb wird über den Finder geleert.";
+"Not a supported AI tool path." = "Kein unterstützter KI-Tool-Pfad.";
+"Temporary entry is in use: it %@" = "Temporärer Eintrag ist in Benutzung: er %@";
+"Unsafe path: a symlink points elsewhere." = "Unsicherer Pfad: ein Symlink zeigt woandershin.";
+"Outside the folders Sift cleans." = "Außerhalb der Ordner, die Sift aufräumt.";
+"In use by a running Xcode build." = "Wird von einem laufenden Xcode-Build verwendet.";
+"%lld item(s) skipped: %@" = "%lld Element(e) übersprungen: %@";
 "Prompt history — not selected by default" = "Prompt-Verlauf – standardmäßig nicht ausgewählt";
 "Session history — not selected by default" = "Sitzungsverlauf – standardmäßig nicht ausgewählt";
 "Recoverable rewind data — not selected by default" = "Wiederherstellbare Rewind-Daten – standardmäßig nicht ausgewählt";
@@ -1370,3 +1378,8 @@
 "Quit Claude to remove this." = "Claude beenden, um dies zu entfernen.";
 "Skipped: Claude is running. Quit Claude and scan again." = "Übersprungen: Claude läuft. Beende Claude und scanne erneut.";
 "Skipped: this session is open. Quit the session and scan again." = "Übersprungen: Diese Sitzung ist offen. Beende die Sitzung und scanne erneut.";
+"Not scanned yet" = "Noch nicht gescannt";
+"Scan to see whether uninstalled apps left files behind." = "Scannen, um zu sehen, ob deinstallierte Apps Dateien hinterlassen haben.";
+"Couldn't compare installed apps" = "Installierte Apps konnten nicht verglichen werden";
+"Sift needs the list of installed apps before it can call a file a leftover. Try again in a moment." = "Sift braucht die Liste der installierten Apps, bevor es eine Datei als Überbleibsel bezeichnen kann. Versuche es gleich noch einmal.";
+"Permanently deletes the junk the scan selected, without asking" = "Löscht den vom Scan ausgewählten Ballast endgültig, ohne Rückfrage";

@@ -38,7 +38,7 @@ final class AppStateTrashTests: XCTestCase {
 
         XCTAssertEqual(finderCalls, 1)
         XCTAssertNil(state.cleanError)
-        XCTAssertNil(state.categoryResults[.trash])
+        XCTAssertEqual(state.categoryResults[.trash]?.items.count, 0, "An emptied Trash is scanned and empty, not unscanned")
         XCTAssertFalse(state.isEmptyingTrash)
         let record = try XCTUnwrap(state.cleanupHistory.first)
         XCTAssertEqual(record.category, .trash)
@@ -163,7 +163,7 @@ final class AppStateTrashTests: XCTestCase {
         await state.emptyTrash()
 
         XCTAssertTrue(fileManager.fileExists(atPath: kept.path))
-        XCTAssertNil(state.categoryResults[.trash])
+        XCTAssertEqual(state.categoryResults[.trash]?.items.count, 0, "An emptied Trash is scanned and empty, not unscanned")
         XCTAssertEqual(state.totalJunkSize, 0)
     }
 

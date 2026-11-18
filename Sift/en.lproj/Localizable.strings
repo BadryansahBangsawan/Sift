@@ -980,7 +980,6 @@
 "Day" = "Day";
 "Time" = "Time";
 "After each scan" = "After each scan";
-"Moves what the scan selected to the Trash without asking" = "Moves what the scan selected to the Trash without asking";
 "Minimum size" = "Minimum size";
 "Auto-clean skips scans that would free less than this" = "Auto-clean skips scans that would free less than this";
 "A notification with what was found or cleaned" = "A notification with what was found or cleaned";
@@ -1360,6 +1359,15 @@
 "Codex Sessions (Optional)" = "Codex Sessions (Optional)";
 "Gemini CLI Temp Files" = "Gemini CLI Temp Files";
 "Chat history — not selected by default" = "Chat history — not selected by default";
+"Shipped builds and dSYMs — not selected by default" = "Shipped builds and dSYMs — not selected by default";
+"Excluded from cleanup: %@" = "Excluded from cleanup: %@";
+"The Trash is emptied through Finder." = "The Trash is emptied through Finder.";
+"Not a supported AI tool path." = "Not a supported AI tool path.";
+"Temporary entry is in use: it %@" = "Temporary entry is in use: it %@";
+"Unsafe path: a symlink points elsewhere." = "Unsafe path: a symlink points elsewhere.";
+"Outside the folders Sift cleans." = "Outside the folders Sift cleans.";
+"In use by a running Xcode build." = "In use by a running Xcode build.";
+"%lld item(s) skipped: %@" = "%lld item(s) skipped: %@";
 "Prompt history — not selected by default" = "Prompt history — not selected by default";
 "Session history — not selected by default" = "Session history — not selected by default";
 "Recoverable rewind data — not selected by default" = "Recoverable rewind data — not selected by default";
@@ -1367,3 +1375,8 @@
 "Quit Claude to remove this." = "Quit Claude to remove this.";
 "Skipped: Claude is running. Quit Claude and scan again." = "Skipped: Claude is running. Quit Claude and scan again.";
 "Skipped: this session is open. Quit the session and scan again." = "Skipped: this session is open. Quit the session and scan again.";
+"Not scanned yet" = "Not scanned yet";
+"Scan to see whether uninstalled apps left files behind." = "Scan to see whether uninstalled apps left files behind.";
+"Couldn't compare installed apps" = "Couldn't compare installed apps";
+"Sift needs the list of installed apps before it can call a file a leftover. Try again in a moment." = "Sift needs the list of installed apps before it can call a file a leftover. Try again in a moment.";
+"Permanently deletes the junk the scan selected, without asking" = "Permanently deletes the junk the scan selected, without asking";

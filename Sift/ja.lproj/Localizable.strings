@@ -980,7 +980,6 @@
 "Day" = "曜日";
 "Time" = "時刻";
 "After each scan" = "スキャン後";
-"Moves what the scan selected to the Trash without asking" = "スキャンで選択された項目を確認なしでゴミ箱に移動します";
 "Minimum size" = "最小サイズ";
 "Auto-clean skips scans that would free less than this" = "解放される容量がこれより少ない場合、自動クリーンアップは実行されません";
 "A notification with what was found or cleaned" = "見つかった項目やクリーンアップした内容を通知します";
@@ -1360,6 +1359,15 @@
 "Codex Sessions (Optional)" = "Codexのセッション（任意）";
 "Gemini CLI Temp Files" = "Gemini CLIの一時ファイル";
 "Chat history — not selected by default" = "チャット履歴 — デフォルトでは選択されません";
+"Shipped builds and dSYMs — not selected by default" = "出荷済みビルドとdSYM — デフォルトでは選択されません";
+"Excluded from cleanup: %@" = "クリーンアップから除外: %@";
+"The Trash is emptied through Finder." = "ゴミ箱はFinderから空にします。";
+"Not a supported AI tool path." = "サポートされていないAIツールのパスです。";
+"Temporary entry is in use: it %@" = "一時エントリが使用中です: %@";
+"Unsafe path: a symlink points elsewhere." = "安全でないパス: シンボリックリンクが別の場所を指しています。";
+"Outside the folders Sift cleans." = "Siftがクリーンアップするフォルダの外です。";
+"In use by a running Xcode build." = "実行中のXcodeビルドが使用しています。";
+"%lld item(s) skipped: %@" = "%lld件をスキップしました: %@";
 "Prompt history — not selected by default" = "プロンプト履歴 — デフォルトでは選択されません";
 "Session history — not selected by default" = "セッション履歴 — デフォルトでは選択されません";
 "Recoverable rewind data — not selected by default" = "復元可能な巻き戻しデータ — デフォルトでは選択されません";
@@ -1367,3 +1375,8 @@
 "Quit Claude to remove this." = "削除するにはClaudeを終了してください。";
 "Skipped: Claude is running. Quit Claude and scan again." = "スキップしました: Claudeが実行中です。Claudeを終了して再スキャンしてください。";
 "Skipped: this session is open. Quit the session and scan again." = "スキップしました: このセッションは開いています。セッションを終了して再スキャンしてください。";
+"Not scanned yet" = "まだスキャンしていません";
+"Scan to see whether uninstalled apps left files behind." = "スキャンして、削除したアプリがファイルを残していないか確認します。";
+"Couldn't compare installed apps" = "インストール済みアプリと比較できませんでした";
+"Sift needs the list of installed apps before it can call a file a leftover. Try again in a moment." = "Siftがファイルを残骸と判断するには、インストール済みアプリの一覧が必要です。しばらくしてから再度お試しください。";
+"Permanently deletes the junk the scan selected, without asking" = "スキャンで選択された不要なファイルを確認なしで完全に削除します";

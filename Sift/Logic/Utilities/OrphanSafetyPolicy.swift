@@ -66,6 +66,21 @@ enum OrphanSafetyPolicy {
             return false
         }
 
+        // Finder and WebKit metadata, and the Swift toolchain's own package
+        // cache: no app owns them, so an uninstalled app's absence says
+        // nothing about them.
+        if name == ".ds_store" {
+            return false
+        }
+        let sharedWebKit = "\(home)/Library/WebKit/LocalStorage"
+        if lowerPath == sharedWebKit.lowercased() {
+            return false
+        }
+        let swiftPMCache = "\(home)/Library/Caches/org.swift.swiftpm"
+        if lowerPath == swiftPMCache.lowercased() {
+            return false
+        }
+
         return true
     }
 
