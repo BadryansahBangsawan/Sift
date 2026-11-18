@@ -56,10 +56,6 @@ enum CategoryScanner {
         return true
     }
 
-    static func concurrentSizes(_ paths: [String]) -> [Int64] {
-        concurrentMeasurements(paths).map(\.bytes)
-    }
-
     static func concurrentMeasurements(_ paths: [String]) -> [DirSizer.Measurement] {
         guard !paths.isEmpty else { return [] }
         var out = [DirSizer.Measurement](

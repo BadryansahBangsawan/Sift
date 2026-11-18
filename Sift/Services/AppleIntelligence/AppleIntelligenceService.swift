@@ -125,12 +125,6 @@ struct AppleIntelligenceSelection: Equatable {
     var keep: Set<String> = []
     /// Optional privacy and annoyance tweaks.
     var tweaks: Set<String> = []
-
-    static func recommended(on version: OperatingSystemVersion) -> AppleIntelligenceSelection {
-        AppleIntelligenceSelection(
-            keep: [],
-            tweaks: Set(AppleTweaks.preset(.recommended, on: version).map(\.id)))
-    }
 }
 
 struct AppleIntelligenceChange: Identifiable, Equatable {

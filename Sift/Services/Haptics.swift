@@ -43,14 +43,6 @@ enum Haptics {
         }
     }
 
-    /// Failure beat: haptic + the system "Basso" thud.
-    static func errorWithSound() {
-        generic()
-        if soundEnabled {
-            NSSound(named: "Basso")?.play()
-        }
-    }
-
     private static func perform(_ pattern: NSHapticFeedbackManager.FeedbackPattern) {
         NSHapticFeedbackManager.defaultPerformer.perform(pattern, performanceTime: .now)
     }

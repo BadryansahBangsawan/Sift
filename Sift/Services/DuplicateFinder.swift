@@ -114,8 +114,6 @@ struct DuplicateTrashFailure: Identifiable, Hashable, Sendable {
 struct DuplicateTrashReport: Hashable, Sendable {
     let trashedFiles: [DuplicateFile]
     let failures: [DuplicateTrashFailure]
-
-    var bytesMovedToTrash: Int64 { trashedFiles.reduce(0) { $0 + $1.size } }
 }
 
 enum DuplicateFinderError: LocalizedError, Equatable {

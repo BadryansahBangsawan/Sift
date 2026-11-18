@@ -21,7 +21,6 @@ enum Term {
     static func red(_ string: String) -> String { style(string, "31") }
     static func green(_ string: String) -> String { style(string, "32") }
     static func yellow(_ string: String) -> String { style(string, "33") }
-    static func blue(_ string: String) -> String { style(string, "34") }
     static func cyan(_ string: String) -> String { style(string, "36") }
     static func inverse(_ string: String) -> String { style(string, "7") }
 

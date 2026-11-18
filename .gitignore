@@ -1,10 +1,12 @@
 # Xcode
 build/
 build-ci/
+build-tests/
 DerivedData/
 *.xcworkspace
 !*.xcworkspace/contents.xcworkspacedata
 *.xcuserdata
+*.xcuserstate
 xcuserdata/
 
 # macOS

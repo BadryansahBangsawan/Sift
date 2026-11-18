@@ -28,10 +28,6 @@ enum AppPaths {
         if let legacyFile, fm.fileExists(atPath: legacyFile.path) { return legacyFile }
         return file
     }
-
-    static func ensureDir() throws {
-        try FileManager.default.createDirectory(at: configDir, withIntermediateDirectories: true)
-    }
 }
 
 enum StoreError: LocalizedError {

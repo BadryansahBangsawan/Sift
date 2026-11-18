@@ -42,20 +42,6 @@ actor ScanEngine {
         onPath(path())
     }
 
-    private struct CleanupTarget {
-        let name: String
-        let path: String
-        let isSelected: Bool
-        let minimumSize: Int64
-
-        init(name: String, path: String, isSelected: Bool = true, minimumSize: Int64 = 1024) {
-            self.name = name
-            self.path = path
-            self.isSelected = isSelected
-            self.minimumSize = minimumSize
-        }
-    }
-
     enum NodeCacheManager: String, CaseIterable {
         case npm
         case yarn
@@ -1526,21 +1512,6 @@ actor ScanEngine {
             Logger.shared.log("diskutil apfs listSnapshots failed: \(error.localizedDescription)", level: .warning)
         }
 
-        return 0
-    }
-
-    /// Calculate total local snapshot size from disk usage difference
-    private func getLocalSnapshotSize() -> Int64 {
-        // A per-snapshot size needs the APFS accounting that only an
-        // administrator command returns, and no snapshot UUIDs are available
-        // here to attribute space to. The previous implementation subtracted
-        // the container-wide free figure from the volume free figure, which
-        // measured nothing and produced numbers unrelated to the snapshots.
-        // Return 0 so no invented size reaches the UI.
-        Logger.shared.log(
-            "Local snapshot sizes need administrator APFS accounting; reporting none",
-            level: .info
-        )
         return 0
     }
 }

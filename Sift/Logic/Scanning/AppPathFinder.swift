@@ -79,24 +79,6 @@ class AppPathFinder {
 
     // MARK: - Public API
 
-    /// Find all files related to this app synchronously.
-    func findPaths() -> Set<URL> {
-        collectionSet.insert(appInfo.path)
-
-        for location in locations.appSearch.paths {
-            let isLibRoot = isLibraryDirectory(location)
-            let maxDepth = isLibRoot ? 2 : 1
-            processLocation(location, currentDepth: 0, maxDepth: maxDepth, isLibraryRootSearch: isLibRoot)
-        }
-
-        let containers = discoverContainers()
-        collectionSet.formUnion(containers)
-
-        applyConditions()
-
-        return filterSubpaths(collectionSet)
-    }
-
     /// Find all files related to this app with parallel location processing.
     func findPathsAsync(completion: @escaping (Set<URL>) -> Void) {
         collectionSet.insert(appInfo.path)
