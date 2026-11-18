@@ -3,7 +3,6 @@
 "Cleanup" = "التنظيف";
 "Dashboard" = "لوحة التحكم";
 "Installed Apps" = "التطبيقات المثبّتة";
-"Orphaned Files" = "الملفات اليتيمة";
 "Ready to clean" = "جاهز للتنظيف";
 "Limited access" = "وصول محدود";
 "Full Disk Access granted" = "تم منح الوصول الكامل للقرص";
@@ -102,7 +101,6 @@
 "Scanning for orphaned files..." = "جارٍ البحث عن الملفات اليتيمة...";
 "No Orphaned Files" = "لا توجد ملفات يتيمة";
 "No leftover files from uninstalled apps were found." = "لم يتم العثور على ملفات متبقية من تطبيقات تمت إزالتها.";
-"Scan for Orphans" = "ابحث عن الملفات اليتيمة";
 "Orphaned Files (%lld)" = "الملفات اليتيمة (%lld)";
 "Remove Selected (%lld)" = "إزالة المحدد (%lld)";
 "Some files could not be removed" = "تعذّرت إزالة بعض الملفات";
@@ -115,9 +113,7 @@
 "Get Started" = "ابدأ";
 "Free, open-source macOS app manager and system cleaner." = "مدير تطبيقات وأداة تنظيف نظام مجانية ومفتوحة المصدر لـ macOS.";
 "Find junk files across your system" = "اعثر على الملفات غير المرغوبة في جميع أنحاء النظام";
-"App Uninstaller" = "إلغاء تثبيت التطبيقات";
 "Remove apps and all their files" = "أزل التطبيقات وجميع ملفاتها";
-"Orphan Finder" = "البحث عن الملفات اليتيمة";
 "Find leftovers from deleted apps" = "اعثر على بقايا التطبيقات المحذوفة";
 "Full Disk Access" = "الوصول الكامل للقرص";
 "We'll guide you through the next steps." = "سنرشدك إلى الخطوات التالية.";
@@ -455,7 +451,6 @@
 "Always exclude from cleanup" = "استبعاد دائم من التنظيف";
 "Any age" = "أي عمر";
 "Any size" = "أي حجم";
-"App Updates" = "تحديثات التطبيقات";
 "App and document packages are excluded: %@" = "حزم التطبيقات والمستندات مستبعدة: %@";
 "App bundle missing" = "حزمة التطبيق مفقودة";
 "App downloads are checked before opening." = "يتم التحقق من التطبيقات التي جرى تنزيلها قبل فتحها.";
@@ -508,7 +503,6 @@
 "Delete local snapshot?" = "حذف اللقطة المحلية؟";
 "Disabled" = "معطّل";
 "Downloaded apps are not being assessed by Gatekeeper." = "لا يقيّم Gatekeeper التطبيقات التي جرى تنزيلها.";
-"Duplicate Finder" = "البحث عن المكررات";
 "Duplicate groups" = "مجموعات المكررات";
 "Every %lld seconds" = "كل %lld ثانية";
 "Every eligible file was checked." = "تم التحقق من كل ملف مؤهل.";
@@ -674,7 +668,6 @@
 "Show %@ in Finder" = "إظهار %@ في Finder";
 "Show in Finder" = "إظهار في Finder";
 "Shows a confirmation before moving the selected copies" = "يعرض تأكيدًا قبل نقل النسخ المحددة";
-"Similar Photos" = "الصور المتشابهة";
 "Similarity is a visual estimate, not proof that two files are identical. Use Show in Finder to compare originals at full quality." = "التشابه تقدير بصري وليس دليلاً على أن ملفين متطابقان. استخدم «إظهار في Finder» لمقارنة الأصلين بجودة كاملة.";
 "Skipped items" = "العناصر المتخطاة";
 "Smallest first" = "الأصغر أولاً";
@@ -688,7 +681,6 @@
 "Some protected locations are unavailable. Full Disk Access allows a more complete scan." = "بعض المواقع المحمية غير متاحة. يتيح الوصول الكامل للقرص فحصًا أكثر اكتمالاً.";
 "Some selected files" = "بعض الملفات المحددة";
 "Sort" = "فرز";
-"Space Explorer" = "مستكشف المساحة";
 "Stop" = "إيقاف";
 "Stop scan" = "إيقاف الفحص";
 "Stopping keeps the results found so far." = "يؤدي الإيقاف إلى الاحتفاظ بالنتائج التي جرى العثور عليها حتى الآن.";
@@ -994,7 +986,6 @@
 "Found a problem?" = "هل وجدت مشكلة؟";
 "Issues are tracked on GitHub" = "تُتابَع المشكلات على GitHub";
 "Features" = "الميزات";
-"Apple Features" = "ميزات Apple";
 "Review optional features and the storage used by Apple downloads." = "راجع الميزات الاختيارية والمساحة التي تشغلها تنزيلات Apple.";
 "Apple Features section" = "قسم ميزات Apple";
 "Finishing backup removal. New scans are available when it stops." = "جارٍ إنهاء إزالة النسخ الاحتياطية. تتوفر عمليات الفحص الجديدة عند توقفها.";

@@ -3,7 +3,6 @@
 "Cleanup" = "クリーンアップ";
 "Dashboard" = "ダッシュボード";
 "Installed Apps" = "インストール済みアプリ";
-"Orphaned Files" = "孤立ファイル";
 "Ready to clean" = "クリーンアップ可能";
 "Limited access" = "アクセスが制限されています";
 "Full Disk Access granted" = "フルディスクアクセスが許可されています";
@@ -102,7 +101,6 @@
 "Scanning for orphaned files..." = "孤立ファイルをスキャン中...";
 "No Orphaned Files" = "孤立ファイルはありません";
 "No leftover files from uninstalled apps were found." = "アンインストール済みアプリの残存ファイルは見つかりませんでした。";
-"Scan for Orphans" = "孤立ファイルをスキャン";
 "Orphaned Files (%lld)" = "孤立ファイル (%lld)";
 "Remove Selected (%lld)" = "選択した項目を削除 (%lld)";
 "Some files could not be removed" = "一部のファイルを削除できませんでした";
@@ -115,9 +113,7 @@
 "Get Started" = "始める";
 "Free, open-source macOS app manager and system cleaner." = "無料・オープンソースのmacOSアプリ管理&システムクリーナー。";
 "Find junk files across your system" = "システム全体のジャンクファイルを検出";
-"App Uninstaller" = "アプリアンインストーラ";
 "Remove apps and all their files" = "アプリと関連ファイルをすべて削除";
-"Orphan Finder" = "孤立ファイル検出";
 "Find leftovers from deleted apps" = "削除済みアプリの残存物を検出";
 "Full Disk Access" = "フルディスクアクセス";
 "We'll guide you through the next steps." = "次のステップへご案内します。";
@@ -455,7 +451,6 @@
 "Always exclude from cleanup" = "常にクリーンアップから除外";
 "Any age" = "すべての作成時期";
 "Any size" = "すべてのサイズ";
-"App Updates" = "アプリのアップデート";
 "App and document packages are excluded: %@" = "アプリと書類のパッケージは除外されます: %@";
 "App bundle missing" = "アプリバンドルが見つかりません";
 "App downloads are checked before opening." = "ダウンロードしたアプリは開く前にチェックされます。";
@@ -508,7 +503,6 @@
 "Delete local snapshot?" = "ローカルスナップショットを削除しますか?";
 "Disabled" = "無効";
 "Downloaded apps are not being assessed by Gatekeeper." = "ダウンロードしたアプリは Gatekeeper による評価を受けていません。";
-"Duplicate Finder" = "重複ファイル検索";
 "Duplicate groups" = "重複グループ";
 "Every %lld seconds" = "%lld 秒ごと";
 "Every eligible file was checked." = "対象となるすべてのファイルをチェックしました。";
@@ -674,7 +668,6 @@
 "Show %@ in Finder" = "Finder で %@ を表示";
 "Show in Finder" = "Finder で表示";
 "Shows a confirmation before moving the selected copies" = "選択したコピーを移動する前に確認を表示します";
-"Similar Photos" = "類似写真";
 "Similarity is a visual estimate, not proof that two files are identical. Use Show in Finder to compare originals at full quality." = "類似度は見た目の推定であり、2 つのファイルが同一である証明ではありません。オリジナルを最大品質で比較するには「Finder で表示」を使用してください。";
 "Skipped items" = "スキップした項目";
 "Smallest first" = "小さい順";
@@ -688,7 +681,6 @@
 "Some protected locations are unavailable. Full Disk Access allows a more complete scan." = "一部の保護された場所を利用できません。フルディスクアクセスを許可すると、より完全なスキャンができます。";
 "Some selected files" = "選択した一部のファイル";
 "Sort" = "並べ替え";
-"Space Explorer" = "スペースエクスプローラ";
 "Stop" = "停止";
 "Stop scan" = "スキャンを停止";
 "Stopping keeps the results found so far." = "停止しても、これまでに見つかった結果は保持されます。";
@@ -994,7 +986,6 @@
 "Found a problem?" = "問題が見つかりましたか?";
 "Issues are tracked on GitHub" = "問題は GitHub で管理されています";
 "Features" = "機能";
-"Apple Features" = "Apple の機能";
 "Review optional features and the storage used by Apple downloads." = "オプション機能と、Apple のダウンロードが使用しているストレージを確認します。";
 "Apple Features section" = "Apple の機能セクション";
 "Finishing backup removal. New scans are available when it stops." = "バックアップの削除を完了しています。終了すると新しいスキャンを開始できます。";

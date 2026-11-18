@@ -3,7 +3,6 @@
 "Cleanup" = "Очистка";
 "Dashboard" = "Сводка";
 "Installed Apps" = "Установленные приложения";
-"Orphaned Files" = "Остаточные файлы";
 "Ready to clean" = "Готово к очистке";
 "Limited access" = "Ограниченный доступ";
 "Full Disk Access granted" = "Полный доступ к диску включён";
@@ -138,7 +137,6 @@
 "Scanning for orphaned files..." = "Поиск остаточных файлов…";
 "No Orphaned Files" = "Остаточные файлы не найдены";
 "No leftover files from uninstalled apps were found." = "Файлы, оставшиеся после удаления приложений, не найдены.";
-"Scan for Orphans" = "Найти остаточные файлы";
 "Orphaned Files (%lld)" = "Остаточные файлы (%lld)";
 "Remove Selected (%lld)" = "Удалить выбранное (%lld)";
 "Some files could not be removed" = "Некоторые файлы не удалось удалить";
@@ -151,9 +149,7 @@
 "Get Started" = "Начать";
 "Free, open-source macOS app manager and system cleaner." = "Бесплатный менеджер приложений и средство очистки системы для macOS с открытым исходным кодом.";
 "Find junk files across your system" = "Находите мусорные файлы во всей системе";
-"App Uninstaller" = "Удаление приложений";
 "Remove apps and all their files" = "Удаляйте приложения и все их файлы";
-"Orphan Finder" = "Поиск остаточных файлов";
 "Find leftovers from deleted apps" = "Находите файлы, оставшиеся после удаления приложений";
 "Full Disk Access" = "Полный доступ к диску";
 "We'll guide you through the next steps." = "Мы поможем вам выполнить следующие шаги.";
@@ -455,7 +451,6 @@
 "Always exclude from cleanup" = "Всегда исключать из очистки";
 "Any age" = "Любой возраст";
 "Any size" = "Любой размер";
-"App Updates" = "Обновления приложений";
 "App and document packages are excluded: %@" = "Пакеты приложений и документов исключены: %@";
 "App bundle missing" = "Пакет приложения отсутствует";
 "App downloads are checked before opening." = "Загруженные приложения проверяются перед открытием.";
@@ -508,7 +503,6 @@
 "Delete local snapshot?" = "Удалить локальный снимок?";
 "Disabled" = "Отключено";
 "Downloaded apps are not being assessed by Gatekeeper." = "Gatekeeper не оценивает загруженные приложения.";
-"Duplicate Finder" = "Поиск дубликатов";
 "Duplicate groups" = "Группы дубликатов";
 "Every %lld seconds" = "Каждые %lld секунд";
 "Every eligible file was checked." = "Каждый подходящий файл проверен.";
@@ -674,7 +668,6 @@
 "Show %@ in Finder" = "Показать %@ в Finder";
 "Show in Finder" = "Показать в Finder";
 "Shows a confirmation before moving the selected copies" = "Показывает подтверждение перед перемещением выбранных копий";
-"Similar Photos" = "Похожие фото";
 "Similarity is a visual estimate, not proof that two files are identical. Use Show in Finder to compare originals at full quality." = "Сходство — это визуальная оценка, а не доказательство идентичности двух файлов. Используйте «Показать в Finder», чтобы сравнить оригиналы в полном качестве.";
 "Skipped items" = "Пропущенные элементы";
 "Smallest first" = "Сначала мелкие";
@@ -688,7 +681,6 @@
 "Some protected locations are unavailable. Full Disk Access allows a more complete scan." = "Некоторые защищённые расположения недоступны. Полный доступ к диску позволяет выполнить более полное сканирование.";
 "Some selected files" = "Некоторые выбранные файлы";
 "Sort" = "Сортировать";
-"Space Explorer" = "Обзор пространства";
 "Stop" = "Остановить";
 "Stop scan" = "Остановить сканирование";
 "Stopping keeps the results found so far." = "При остановке сохраняются уже найденные результаты.";
@@ -994,7 +986,6 @@
 "Found a problem?" = "Нашли проблему?";
 "Issues are tracked on GitHub" = "Проблемы отслеживаются на GitHub";
 "Features" = "Функции";
-"Apple Features" = "Функции Apple";
 "Review optional features and the storage used by Apple downloads." = "Проверьте дополнительные функции и место, занятое загрузками Apple.";
 "Apple Features section" = "Раздел «Функции Apple»";
 "Finishing backup removal. New scans are available when it stops." = "Завершается удаление резервных копий. Новое сканирование станет доступно после его окончания.";

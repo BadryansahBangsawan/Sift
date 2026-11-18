@@ -3,7 +3,6 @@
 "Cleanup" = "Cleanup";
 "Dashboard" = "Dashboard";
 "Installed Apps" = "Installed Apps";
-"Orphaned Files" = "Orphaned Files";
 "Ready to clean" = "Ready to clean";
 "Limited access" = "Limited access";
 "Full Disk Access granted" = "Full Disk Access granted";
@@ -138,7 +137,6 @@
 "Scanning for orphaned files..." = "Scanning for orphaned files...";
 "No Orphaned Files" = "No Orphaned Files";
 "No leftover files from uninstalled apps were found." = "No leftover files from uninstalled apps were found.";
-"Scan for Orphans" = "Scan for Orphans";
 "Orphaned Files (%lld)" = "Orphaned Files (%lld)";
 "Remove Selected (%lld)" = "Remove Selected (%lld)";
 "Some files could not be removed" = "Some files could not be removed";
@@ -151,9 +149,7 @@
 "Get Started" = "Get Started";
 "Free, open-source macOS app manager and system cleaner." = "Free, open-source macOS app manager and system cleaner.";
 "Find junk files across your system" = "Find junk files across your system";
-"App Uninstaller" = "App Uninstaller";
 "Remove apps and all their files" = "Remove apps and all their files";
-"Orphan Finder" = "Orphan Finder";
 "Find leftovers from deleted apps" = "Find leftovers from deleted apps";
 "Full Disk Access" = "Full Disk Access";
 "We'll guide you through the next steps." = "We'll guide you through the next steps.";
@@ -455,7 +451,6 @@
 "Always exclude from cleanup" = "Always exclude from cleanup";
 "Any age" = "Any age";
 "Any size" = "Any size";
-"App Updates" = "App Updates";
 "App and document packages are excluded: %@" = "App and document packages are excluded: %@";
 "App bundle missing" = "App bundle missing";
 "App downloads are checked before opening." = "App downloads are checked before opening.";
@@ -508,7 +503,6 @@
 "Delete local snapshot?" = "Delete local snapshot?";
 "Disabled" = "Disabled";
 "Downloaded apps are not being assessed by Gatekeeper." = "Downloaded apps are not being assessed by Gatekeeper.";
-"Duplicate Finder" = "Duplicate Finder";
 "Duplicate groups" = "Duplicate groups";
 "Every %lld seconds" = "Every %lld seconds";
 "Every eligible file was checked." = "Every eligible file was checked.";
@@ -674,7 +668,6 @@
 "Show %@ in Finder" = "Show %@ in Finder";
 "Show in Finder" = "Show in Finder";
 "Shows a confirmation before moving the selected copies" = "Shows a confirmation before moving the selected copies";
-"Similar Photos" = "Similar Photos";
 "Similarity is a visual estimate, not proof that two files are identical. Use Show in Finder to compare originals at full quality." = "Similarity is a visual estimate, not proof that two files are identical. Use Show in Finder to compare originals at full quality.";
 "Skipped items" = "Skipped items";
 "Smallest first" = "Smallest first";
@@ -688,7 +681,6 @@
 "Some protected locations are unavailable. Full Disk Access allows a more complete scan." = "Some protected locations are unavailable. Full Disk Access allows a more complete scan.";
 "Some selected files" = "Some selected files";
 "Sort" = "Sort";
-"Space Explorer" = "Space Explorer";
 "Stop" = "Stop";
 "Stop scan" = "Stop scan";
 "Stopping keeps the results found so far." = "Stopping keeps the results found so far.";
@@ -994,7 +986,6 @@
 "Found a problem?" = "Found a problem?";
 "Issues are tracked on GitHub" = "Issues are tracked on GitHub";
 "Features" = "Features";
-"Apple Features" = "Apple Features";
 "Review optional features and the storage used by Apple downloads." = "Review optional features and the storage used by Apple downloads.";
 "Apple Features section" = "Apple Features section";
 "Finishing backup removal. New scans are available when it stops." = "Finishing backup removal. New scans are available when it stops.";

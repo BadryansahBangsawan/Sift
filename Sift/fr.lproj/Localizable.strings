@@ -3,7 +3,6 @@
 "Cleanup" = "Nettoyage";
 "Dashboard" = "Tableau de bord";
 "Installed Apps" = "Apps installées";
-"Orphaned Files" = "Fichiers orphelins";
 "Ready to clean" = "Prêt à nettoyer";
 "Limited access" = "Accès limité";
 "Full Disk Access granted" = "Accès complet au disque accordé";
@@ -136,7 +135,6 @@
 "Scanning for orphaned files..." = "Recherche des fichiers orphelins...";
 "No Orphaned Files" = "Aucun fichier orphelin";
 "No leftover files from uninstalled apps were found." = "Aucun fichier résiduel d'apps désinstallées n'a été trouvé.";
-"Scan for Orphans" = "Rechercher les orphelins";
 "Orphaned Files (%lld)" = "Fichiers orphelins (%lld)";
 "Remove Selected (%lld)" = "Supprimer la sélection (%lld)";
 "Some files could not be removed" = "Certains fichiers n'ont pas pu être supprimés";
@@ -147,9 +145,7 @@
 "Get Started" = "Commencer";
 "Free, open-source macOS app manager and system cleaner." = "Gestionnaire d'apps et nettoyeur système macOS gratuit et open source.";
 "Find junk files across your system" = "Trouvez les fichiers inutiles sur votre système";
-"App Uninstaller" = "Désinstalleur d'apps";
 "Remove apps and all their files" = "Supprimez les apps et tous leurs fichiers";
-"Orphan Finder" = "Détecteur d'orphelins";
 "Find leftovers from deleted apps" = "Trouvez les résidus des apps supprimées";
 "Full Disk Access" = "Accès complet au disque";
 "We'll guide you through the next steps." = "Nous vous guidons pour les prochaines étapes.";
@@ -449,7 +445,6 @@
 "Always exclude from cleanup" = "Toujours exclure du nettoyage";
 "Any age" = "Tout âge";
 "Any size" = "Toute taille";
-"App Updates" = "Mises à jour d’apps";
 "App and document packages are excluded: %@" = "Les paquets d’apps et de documents sont exclus : %@";
 "App bundle missing" = "Paquet d’app manquant";
 "App downloads are checked before opening." = "Les téléchargements d’apps sont vérifiés avant l’ouverture.";
@@ -502,7 +497,6 @@
 "Delete local snapshot?" = "Supprimer l’instantané local ?";
 "Disabled" = "Désactivé";
 "Downloaded apps are not being assessed by Gatekeeper." = "Les apps téléchargées ne sont pas évaluées par Gatekeeper.";
-"Duplicate Finder" = "Recherche de doublons";
 "Duplicate groups" = "Groupes de doublons";
 "Every %lld seconds" = "Toutes les %lld secondes";
 "Every eligible file was checked." = "Chaque fichier éligible a été vérifié.";
@@ -668,7 +662,6 @@
 "Show %@ in Finder" = "Afficher %@ dans le Finder";
 "Show in Finder" = "Afficher dans le Finder";
 "Shows a confirmation before moving the selected copies" = "Affiche une confirmation avant de déplacer les copies sélectionnées";
-"Similar Photos" = "Photos similaires";
 "Similarity is a visual estimate, not proof that two files are identical. Use Show in Finder to compare originals at full quality." = "La similarité est une estimation visuelle, pas une preuve que deux fichiers sont identiques. Utilisez « Afficher dans le Finder » pour comparer les originaux en pleine qualité.";
 "Skipped items" = "Éléments ignorés";
 "Smallest first" = "Plus petits d’abord";
@@ -682,7 +675,6 @@
 "Some protected locations are unavailable. Full Disk Access allows a more complete scan." = "Certains emplacements protégés sont indisponibles. L’accès complet au disque permet une analyse plus complète.";
 "Some selected files" = "Certains fichiers sélectionnés";
 "Sort" = "Trier";
-"Space Explorer" = "Explorateur d’espace";
 "Stop" = "Arrêter";
 "Stop scan" = "Arrêter l’analyse";
 "Stopping keeps the results found so far." = "L’arrêt conserve les résultats déjà trouvés.";
@@ -988,7 +980,6 @@
 "Found a problem?" = "Un problème ?";
 "Issues are tracked on GitHub" = "Les problèmes sont suivis sur GitHub";
 "Features" = "Fonctionnalités";
-"Apple Features" = "Fonctionnalités Apple";
 "Review optional features and the storage used by Apple downloads." = "Vérifiez les fonctionnalités facultatives et le stockage utilisé par les téléchargements Apple.";
 "Apple Features section" = "Section Fonctionnalités Apple";
 "Finishing backup removal. New scans are available when it stops." = "Suppression des sauvegardes en cours. Les nouvelles analyses seront disponibles ensuite.";

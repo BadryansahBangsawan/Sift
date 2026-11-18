@@ -3,7 +3,6 @@
 "Cleanup" = "Limpieza";
 "Dashboard" = "Panel";
 "Installed Apps" = "Apps instaladas";
-"Orphaned Files" = "Archivos huérfanos";
 "Ready to clean" = "Listo para limpiar";
 "Limited access" = "Acceso limitado";
 "Full Disk Access granted" = "Acceso total al disco concedido";
@@ -102,7 +101,6 @@
 "Scanning for orphaned files..." = "Buscando archivos huérfanos...";
 "No Orphaned Files" = "Sin archivos huérfanos";
 "No leftover files from uninstalled apps were found." = "No se encontraron archivos sobrantes de apps desinstaladas.";
-"Scan for Orphans" = "Buscar huérfanos";
 "Orphaned Files (%lld)" = "Archivos huérfanos (%lld)";
 "Remove Selected (%lld)" = "Eliminar seleccionados (%lld)";
 "Some files could not be removed" = "Algunos archivos no se pudieron eliminar";
@@ -115,9 +113,7 @@
 "Get Started" = "Empezar";
 "Free, open-source macOS app manager and system cleaner." = "Administrador de apps y limpiador de sistema gratuito y de código abierto para macOS.";
 "Find junk files across your system" = "Encuentra archivos basura en todo el sistema";
-"App Uninstaller" = "Desinstalador de apps";
 "Remove apps and all their files" = "Elimina apps y todos sus archivos";
-"Orphan Finder" = "Buscador de huérfanos";
 "Find leftovers from deleted apps" = "Encuentra restos de apps eliminadas";
 "Full Disk Access" = "Acceso total al disco";
 "We'll guide you through the next steps." = "Te guiaremos por los siguientes pasos.";
@@ -455,7 +451,6 @@
 "Always exclude from cleanup" = "Excluir siempre de la limpieza";
 "Any age" = "Cualquier antigüedad";
 "Any size" = "Cualquier tamaño";
-"App Updates" = "Actualizaciones de apps";
 "App and document packages are excluded: %@" = "Los paquetes de apps y documentos están excluidos: %@";
 "App bundle missing" = "Falta el paquete de la app";
 "App downloads are checked before opening." = "Las descargas de apps se comprueban antes de abrirlas.";
@@ -508,7 +503,6 @@
 "Delete local snapshot?" = "¿Eliminar la instantánea local?";
 "Disabled" = "Desactivado";
 "Downloaded apps are not being assessed by Gatekeeper." = "Gatekeeper no está evaluando las apps descargadas.";
-"Duplicate Finder" = "Buscador de duplicados";
 "Duplicate groups" = "Grupos de duplicados";
 "Every %lld seconds" = "Cada %lld segundos";
 "Every eligible file was checked." = "Se comprobó cada archivo apto.";
@@ -674,7 +668,6 @@
 "Show %@ in Finder" = "Mostrar %@ en el Finder";
 "Show in Finder" = "Mostrar en el Finder";
 "Shows a confirmation before moving the selected copies" = "Muestra una confirmación antes de mover las copias seleccionadas";
-"Similar Photos" = "Fotos similares";
 "Similarity is a visual estimate, not proof that two files are identical. Use Show in Finder to compare originals at full quality." = "La similitud es una estimación visual, no una prueba de que dos archivos sean idénticos. Usa «Mostrar en el Finder» para comparar los originales a máxima calidad.";
 "Skipped items" = "Elementos omitidos";
 "Smallest first" = "Menores primero";
@@ -688,7 +681,6 @@
 "Some protected locations are unavailable. Full Disk Access allows a more complete scan." = "Algunas ubicaciones protegidas no están disponibles. El acceso total al disco permite un análisis más completo.";
 "Some selected files" = "Algunos archivos seleccionados";
 "Sort" = "Ordenar";
-"Space Explorer" = "Explorador de espacio";
 "Stop" = "Detener";
 "Stop scan" = "Detener análisis";
 "Stopping keeps the results found so far." = "Al detener se conservan los resultados encontrados hasta ahora.";
@@ -994,7 +986,6 @@
 "Found a problem?" = "¿Has encontrado un problema?";
 "Issues are tracked on GitHub" = "Los problemas se gestionan en GitHub";
 "Features" = "Funciones";
-"Apple Features" = "Funciones de Apple";
 "Review optional features and the storage used by Apple downloads." = "Revisa las funciones opcionales y el espacio que ocupan las descargas de Apple.";
 "Apple Features section" = "Sección Funciones de Apple";
 "Finishing backup removal. New scans are available when it stops." = "Terminando la eliminación de copias de seguridad. Podrás volver a analizar cuando acabe.";
