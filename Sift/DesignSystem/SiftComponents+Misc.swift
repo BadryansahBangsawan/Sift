@@ -154,7 +154,7 @@ struct SiftAppTile: View {
                     .offset(x: CGFloat(index) * 61 * unit, y: 112 * unit)
             }
             Circle()
-                .fill(SiftColor.accent)
+                .fill(SiftColor.accentOnInk)
                 .frame(width: 100 * unit, height: 100 * unit)
                 .offset(x: 62 * unit)
         }

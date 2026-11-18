@@ -148,6 +148,8 @@ enum SiftColor {
     }
 
     static let accent = accentColor { base, _ in base }
+    /// Accent on the always-dark app tile: the dark-surface base in both appearances.
+    static let accentOnInk = accentColor { _, _ in AccentStore.current.darkBase }
     static let accentHover = accentColor { base, dark in
         if dark {
             return AccentStore.current == .brass ? NSColor(hex: 0xD9B23A) : base.mixed(with: .white, 0.12)
