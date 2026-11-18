@@ -6,6 +6,8 @@ All notable user-facing changes to Sift. Sift was called PureMac before 4.0.0.
 
 ### Fixed
 
+- Developer cache rows (Xcode, Homebrew, npm, Docker, language files) show
+  their real Modified date instead of a dash, so the age filter can judge them.
 - The Leftovers page no longer says "No Orphaned Files" before it has looked:
   it shows "Not scanned yet" first, and "Couldn't compare installed apps" when
   the scan had no app list to compare against.
