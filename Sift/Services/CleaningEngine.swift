@@ -47,10 +47,22 @@ actor CleaningEngine {
         var result = CleaningResult()
         let total = items.count
         let exclusions = CleanupExclusions.paths()
+        // Report at most once per percent, plus the final item. Every report
+        // wakes the main thread and republishes the cleanup state, and each
+        // publication redraws the window: one per item turned a few-thousand
+        // item clean into thousands of full redraws, which the user sees as
+        // the app freezing for seconds while it deletes.
+        var lastReportedStep = -1
 
         for (index, item) in items.enumerated() {
             let progress = Double(index + 1) / Double(total)
-            defer { progressHandler(progress) }
+            defer {
+                let step = Int(progress * 100)
+                if step != lastReportedStep || index == items.count - 1 {
+                    lastReportedStep = step
+                    progressHandler(progress)
+                }
+            }
             if CleanupExclusions.excludes(item.path, paths: exclusions) {
                 result.errors.append("Excluded from cleanup: \(item.name)")
                 continue
