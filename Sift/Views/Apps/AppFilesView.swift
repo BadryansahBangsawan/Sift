@@ -337,49 +337,18 @@ struct AppFilesView: View {
     // MARK: - Action bar
 
     private var actionBar: some View {
-        HStack(spacing: 8) {
-            Button {
-                NSWorkspace.shared.activateFileViewerSelecting([app.path])
-            } label: {
-                barButtonLabel("Show in Finder", icon: .folderOpen)
-            }
-            .buttonStyle(.siftSecondary)
-
-            Button {
-                dryRunPlan = UninstallPlan(files: appState.selectedFiles, sizeOf: { sizeCache[$0] })
-            } label: {
-                barButtonLabel("Dry run", icon: .flaskConical)
-            }
-            .buttonStyle(.siftSecondary)
-            .disabled(appState.selectedFiles.isEmpty)
-            .help("List what would be removed without removing anything")
-            .accessibilityIdentifier("uninstaller.dryRun")
-
-            Spacer(minLength: 8)
-
-            Text("\(appState.selectedFiles.count) items, \(SiftFormat.bytes(totalSelectedSize))")
-                .font(.siftMono(12))
-                .foregroundStyle(SiftColor.textTertiary)
-                .lineLimit(1)
-                .contentTransition(.numericText())
-
-            Button {
+        UninstallerActionBar(
+            summary: "\(appState.selectedFiles.count) items, \(SiftFormat.bytes(totalSelectedSize))",
+            canDryRun: !appState.selectedFiles.isEmpty,
+            canReview: !appState.selectedFiles.isEmpty && !appIsRunning,
+            runningAppName: appIsRunning ? app.appName : nil,
+            showInFinder: { NSWorkspace.shared.activateFileViewerSelecting([app.path]) },
+            dryRun: { dryRunPlan = UninstallPlan(files: appState.selectedFiles, sizeOf: { sizeCache[$0] }) },
+            review: {
                 pendingRemoval = appState.selectedFiles
                 showBulkConfirmation = true
-            } label: {
-                HStack(spacing: 8) {
-                    SiftIcon.trash2.image(15)
-                    Text("Review removal").font(.sift(13))
-                    SiftKeyHint("⏎", onAccent: true)
-                }
-                .fixedSize()
             }
-            .buttonStyle(.siftPrimary)
-            .keyboardShortcut(.defaultAction)
-            .disabled(appState.selectedFiles.isEmpty || appIsRunning)
-            .help(appIsRunning ? Text("Quit \(app.appName) before removing.") : Text("Review the selected files before they move to the Trash"))
-            .accessibilityIdentifier("uninstaller.reviewRemoval")
-        }
+        )
     }
 
     private func barButtonLabel(_ title: LocalizedStringKey, icon: SiftIcon) -> some View {
