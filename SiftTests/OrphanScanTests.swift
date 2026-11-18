@@ -38,6 +38,8 @@ final class OrphanScanTests: XCTestCase {
             state.orphanedFiles.isEmpty,
             "Without the app list every folder looks orphaned; the scan must wait for it: \(state.orphanedFiles.map(\.lastPathComponent))"
         )
+        XCTAssertTrue(state.orphanScanNeedsAppList, "The page must say why nothing was scanned")
+        XCTAssertTrue(state.orphanScanCompleted)
 
     }
 
@@ -56,6 +58,8 @@ final class OrphanScanTests: XCTestCase {
         await waitForOrphanScan(state)
 
         XCTAssertEqual(state.orphanedFiles.map(\.lastPathComponent), ["com.example.goneapp"])
+        XCTAssertFalse(state.orphanScanNeedsAppList)
+        XCTAssertTrue(state.orphanScanCompleted)
 
     }
 

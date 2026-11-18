@@ -6,6 +6,11 @@ All notable user-facing changes to Sift. Sift was called PureMac before 4.0.0.
 
 ### Fixed
 
+- Leftovers no longer lists installed apps' own data. The scan ran against
+  whatever the launch refresh had loaded so far, so with the installed-app list
+  still empty every folder looked orphaned (44 rows on a machine that has 20).
+  It now fetches the list first and, if it still has none, reports nothing and
+  says why.
 - A category you just emptied stays scanned: the page says "No files found"
   instead of "not scanned yet", the Overview row keeps its "0 items", and an
   emptied Trash no longer claims it was never scanned.
