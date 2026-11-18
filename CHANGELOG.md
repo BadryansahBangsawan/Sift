@@ -6,6 +6,10 @@ All notable user-facing changes to Sift. Sift was called PureMac before 4.0.0.
 
 ### Fixed
 
+- Labels no longer truncate in other languages at the 1080 pt minimum window:
+  the storage capsules fit their label and value (the label moves to a second
+  line when the slice is narrow) and rail rows wrap instead of clipping, in all
+  13 localizations.
 - The auto-clean setting no longer says it moves selected files to the Trash.
   An unattended clean deletes them, and the copy now says so.
 - Developer cache rows (Xcode, Homebrew, npm, Docker, language files) show
