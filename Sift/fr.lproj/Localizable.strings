@@ -1060,6 +1060,8 @@
 "AC power" = "Adaptateur secteur";
 "battery power" = "batterie";
 "%@ of %@ mAh, service below 80%%" = "%@ sur %@ mAh, entretien en dessous de 80 %%";
+"%@ of %@ mAh" = "%@ sur %@ mAh";
+"%@, service below 80%%" = "%@, entretien en dessous de 80 %%";
 "service below 80%" = "entretien en dessous de 80 %";
 "%lld registered" = "%lld enregistrés";
 "No launch agents or daemons were found outside macOS system folders." = "Aucun agent ou daemon de lancement n'a été trouvé en dehors des dossiers système de macOS.";

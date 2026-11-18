@@ -1066,6 +1066,8 @@
 "AC power" = "питание от сети";
 "battery power" = "питание от аккумулятора";
 "%@ of %@ mAh, service below 80%%" = "%@ из %@ mAh, обслуживание ниже 80%%";
+"%@ of %@ mAh" = "%@ из %@ mAh";
+"%@, service below 80%%" = "%@, обслуживание ниже 80%%";
 "service below 80%" = "обслуживание ниже 80%";
 "%lld registered" = "Зарегистрировано: %lld";
 "No launch agents or daemons were found outside macOS system folders." = "Агенты и демоны запуска вне системных папок macOS не найдены.";

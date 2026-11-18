@@ -375,12 +375,22 @@ struct PerformanceView: View {
         return parts.isEmpty ? nil : parts.joined(separator: ", ")
     }
 
-    private func healthDetail(_ status: BatteryStatus) -> Text {
+    /// "4057 of 4629 mAh", with the service threshold named only when the
+    /// health percentage is actually below it. The card shows that percentage
+    /// directly above this line, so a fixed suffix contradicted it.
+    static func batteryHealthDetail(_ status: BatteryStatus) -> String {
+        let needsService = (status.healthPercent ?? 100) < 80
+        let service = String(localized: "service below 80%")
         if let max = status.maxCapacityMAh, let design = status.designCapacityMAh {
             // Plain digits, as the design writes capacities ("4082 of 4629 mAh").
-            return Text("\(String(max)) of \(String(design)) mAh, service below 80%")
+            let capacities = String(localized: "\(String(max)) of \(String(design)) mAh")
+            return needsService ? "\(capacities), \(service)" : capacities
         }
-        return Text("service below 80%")
+        return needsService ? service : ""
+    }
+
+    private func healthDetail(_ status: BatteryStatus) -> Text {
+        Text(verbatim: Self.batteryHealthDetail(status))
     }
 
     @MainActor

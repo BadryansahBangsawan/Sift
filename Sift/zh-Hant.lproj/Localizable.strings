@@ -1066,6 +1066,8 @@
 "AC power" = "電源轉換器";
 "battery power" = "電池電源";
 "%@ of %@ mAh, service below 80%%" = "%@ / %@ mAh，低於 80%% 需送修";
+"%@ of %@ mAh" = "%@ / %@ mAh";
+"%@, service below 80%%" = "%@，低於 80%% 需送修";
 "service below 80%" = "低於 80% 需送修";
 "%lld registered" = "已註冊 %lld 個";
 "No launch agents or daemons were found outside macOS system folders." = "在 macOS 系統資料夾之外找不到啟動代理程式或背景常駐程式。";

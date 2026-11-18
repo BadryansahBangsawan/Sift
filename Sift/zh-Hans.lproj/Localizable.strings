@@ -1065,6 +1065,8 @@
 "AC power" = "电源适配器";
 "battery power" = "电池供电";
 "%@ of %@ mAh, service below 80%%" = "%@ / %@ mAh，低于 80%% 需维修";
+"%@ of %@ mAh" = "%@ / %@ mAh";
+"%@, service below 80%%" = "%@，低于 80%% 需维修";
 "service below 80%" = "低于 80% 需维修";
 "%lld registered" = "已注册 %lld 项";
 "No launch agents or daemons were found outside macOS system folders." = "在 macOS 系统文件夹之外未找到启动代理或守护进程。";

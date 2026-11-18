@@ -1066,6 +1066,8 @@
 "AC power" = "電源アダプタ";
 "battery power" = "バッテリー電源";
 "%@ of %@ mAh, service below 80%%" = "%@ / %@ mAh、80%% 未満で修理推奨";
+"%@ of %@ mAh" = "%@ / %@ mAh";
+"%@, service below 80%%" = "%@、80%% 未満で修理推奨";
 "service below 80%" = "80% 未満で修理推奨";
 "%lld registered" = "%lld 件登録済み";
 "No launch agents or daemons were found outside macOS system folders." = "macOS のシステムフォルダ以外に起動エージェントやデーモンは見つかりませんでした。";

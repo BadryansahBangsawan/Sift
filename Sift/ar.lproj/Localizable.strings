@@ -1066,6 +1066,8 @@
 "AC power" = "محوّل الطاقة";
 "battery power" = "طاقة البطارية";
 "%@ of %@ mAh, service below 80%%" = "%@ من %@ mAh، تحتاج إلى صيانة دون 80%%";
+"%@ of %@ mAh" = "%@ من %@ mAh";
+"%@, service below 80%%" = "%@، تحتاج إلى صيانة دون 80%%";
 "service below 80%" = "تحتاج إلى صيانة دون 80%";
 "%lld registered" = "%lld مسجّل";
 "No launch agents or daemons were found outside macOS system folders." = "لم يتم العثور على وكلاء تشغيل أو خدمات خلفية خارج مجلدات نظام macOS.";

@@ -1066,6 +1066,8 @@
 "AC power" = "Zasilacz";
 "battery power" = "zasilanie z baterii";
 "%@ of %@ mAh, service below 80%%" = "%@ z %@ mAh, serwis poniżej 80%%";
+"%@ of %@ mAh" = "%@ z %@ mAh";
+"%@, service below 80%%" = "%@, serwis poniżej 80%%";
 "service below 80%" = "serwis poniżej 80%";
 "%lld registered" = "Zarejestrowane: %lld";
 "No launch agents or daemons were found outside macOS system folders." = "Nie znaleziono agentów ani demonów uruchamiania poza folderami systemowymi macOS.";
