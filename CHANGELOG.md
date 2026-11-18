@@ -27,6 +27,43 @@ All notable user-facing changes to Sift. Sift was called PureMac before 4.0.0.
 - User Cache no longer repeats the Xcode caches and AI tool caches that Xcode
   Junk and AI tools already list, so the total junk figure is no longer
   inflated by the same bytes counted twice.
+- `sift-cli uninstall` now lists the app's leftover files under `~/Library`
+  (preferences, caches, containers and the rest). It previously reported only
+  the app bundle, so the data it promised to clean stayed on disk.
+- `sift-cli uninstall` now lists a LaunchAgent whose `Label` is the app's
+  bundle identifier even when the file name differs.
+- `sift-cli optimize` and `sift-cli doctor` now report memory in the binary
+  units macOS uses, so a 16 GB Mac reads 16 GB instead of 17.2 GB.
+- The menu bar popover now quotes disk usage in the same decimal units as the
+  Overview. A 245.1 GB disk no longer reads 228.4 GB there.
+- `sift-cli` no longer prints a rounded size as "1000 KB" or "1000 MB"; it
+  moves up to "1 MB" and "1 GB" like the app does.
+- `sift-cli dupes` no longer reports a file as a duplicate when it could not be
+  read in full. A failed read used to hash only the bytes read so far, so two
+  files that merely shared a prefix could be paired and one listed for removal.
+- `sift-cli` now prints an empty size as "0 KB" (as the app does) and a single
+  byte as "1 byte" instead of "1 bytes".
+- The selected-count badge in a category keeps four- and five-digit counts on
+  one line instead of wrapping into a tall oval.
+- Cleaning a category with thousands of rows no longer freezes the window while
+  it runs: the visible rows are filtered and sorted once per change instead of
+  four times per redraw (largest main-run-loop gap on a 3000-row fixture fell
+  from 1.8 s to 218 ms).
+- The Overview "Where it sits" bars no longer collapse to a dot at the minimum
+  window width; the meter keeps a readable width and the label truncates with
+  the full name on hover.
+- Counts now agree with their number in every language ("1 item", "2 объекта",
+  "5 элементов"); Russian, Ukrainian, Polish and Arabic use their full plural
+  rules instead of a single fixed form.
+- The rail now fades the edge that hides rows, so a short window no longer
+  looks like the list ends at the last visible item.
+- Settings no longer claims every change applies immediately next to a language
+  row that needs a restart; the header chip now says "Most changes apply
+  immediately".
+- Performance no longer prints "service below 80%" under a battery health
+  reading that is above 80%; the note appears only when the reading is under
+  the threshold, and the caption no longer truncates at the minimum window
+  width.
 
 ## 4.0.1
 

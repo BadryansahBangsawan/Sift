@@ -944,6 +944,7 @@
 "Your version, release checks and how to install updates." = "現在のバージョン、リリースの確認、アップデートのインストール方法。";
 "macOS %@ or later" = "macOS %@ 以降";
 "Changes apply immediately" = "変更はすぐに適用されます";
+"Most changes apply immediately" = "ほとんどの変更はすぐに適用されます";
 "Opens quietly when you sign in to your Mac" = "Mac へのログイン時に目立たずに起動します";
 "A new language applies after Sift restarts" = "新しい言語は Sift の再起動後に適用されます";
 "Menu bar and sound" = "メニューバーとサウンド";
@@ -1066,6 +1067,8 @@
 "AC power" = "電源アダプタ";
 "battery power" = "バッテリー電源";
 "%@ of %@ mAh, service below 80%%" = "%@ / %@ mAh、80%% 未満で修理推奨";
+"%@ of %@ mAh" = "%@ / %@ mAh";
+"%@, service below 80%%" = "%@、80%% 未満で修理推奨";
 "service below 80%" = "80% 未満で修理推奨";
 "%lld registered" = "%lld 件登録済み";
 "No launch agents or daemons were found outside macOS system folders." = "macOS のシステムフォルダ以外に起動エージェントやデーモンは見つかりませんでした。";

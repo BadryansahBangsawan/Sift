@@ -944,6 +944,7 @@
 "Your version, release checks and how to install updates." = "Ваша версія, перевірка випусків і спосіб встановлення оновлень.";
 "macOS %@ or later" = "macOS %@ або новіша";
 "Changes apply immediately" = "Зміни застосовуються одразу";
+"Most changes apply immediately" = "Більшість змін застосовується одразу";
 "Opens quietly when you sign in to your Mac" = "Тихо відкривається, коли ви входите в систему на Mac";
 "A new language applies after Sift restarts" = "Нова мова застосується після перезапуску програми Sift";
 "Menu bar and sound" = "Смуга меню та звук";
@@ -1066,6 +1067,8 @@
 "AC power" = "живлення від мережі";
 "battery power" = "живлення від акумулятора";
 "%@ of %@ mAh, service below 80%%" = "%@ з %@ mAh, обслуговування нижче 80%%";
+"%@ of %@ mAh" = "%@ з %@ mAh";
+"%@, service below 80%%" = "%@, обслуговування нижче 80%%";
 "service below 80%" = "обслуговування нижче 80%";
 "%lld registered" = "Зареєстровано: %lld";
 "No launch agents or daemons were found outside macOS system folders." = "Агентів і демонів запуску поза системними папками macOS не знайдено.";

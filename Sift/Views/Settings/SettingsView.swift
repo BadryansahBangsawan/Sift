@@ -235,7 +235,7 @@ private struct SettingsPanel: View {
                     .foregroundStyle(SiftColor.textTertiary)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
-            SiftCheckPill(text: Text("Changes apply immediately"))
+            SiftCheckPill(text: Text("Most changes apply immediately"))
         }
         .padding(.bottom, 4)
     }

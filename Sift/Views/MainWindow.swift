@@ -266,24 +266,54 @@ struct SiftRail: View {
     let badge: (Item) -> String?
     var focusedSection: FocusState<AppSection?>.Binding
 
+    static let railScrollSpace = "sift.rail.scroll"
+
+    @State private var railOffset: CGFloat = 0
+    @State private var railContentHeight: CGFloat = 0
+
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             wordmark
-            ScrollViewReader { proxy in
-                ScrollView(.vertical, showsIndicators: false) {
-                    VStack(alignment: .leading, spacing: 2) {
-                        ForEach(Self.primaryItems) { row($0) }
-                        groupLabel("Cleanup")
-                        ForEach(Self.cleanupItems) { row($0) }
-                        groupLabel("Tools")
-                        ForEach(Self.toolItems) { row($0) }
+            GeometryReader { box in
+                ScrollViewReader { proxy in
+                    ScrollView(.vertical, showsIndicators: false) {
+                        VStack(alignment: .leading, spacing: 2) {
+                            ForEach(Self.primaryItems) { row($0) }
+                            groupLabel("Cleanup")
+                            ForEach(Self.cleanupItems) { row($0) }
+                            groupLabel("Tools")
+                            ForEach(Self.toolItems) { row($0) }
+                        }
+                        .background(
+                            GeometryReader { inner in
+                                Color.clear
+                                    .preference(
+                                        key: RailScrollOffsetKey.self,
+                                        value: -inner.frame(in: .named(Self.railScrollSpace)).minY
+                                    )
+                                    .preference(key: RailContentHeightKey.self, value: inner.size.height)
+                            }
+                        )
                     }
-                }
-                // Only follow changes: scrolling on appear centred the selected
-                // row and clipped the first rows when a middle section opened.
-                .onChange(of: selection) { newValue in
-                    guard let newValue else { return }
-                    proxy.scrollTo(newValue, anchor: nil)
+                    .coordinateSpace(name: Self.railScrollSpace)
+                    .overlay(alignment: .top) {
+                        if railFades(viewport: box.size.height).top {
+                            railFade(from: .top)
+                        }
+                    }
+                    .overlay(alignment: .bottom) {
+                        if railFades(viewport: box.size.height).bottom {
+                            railFade(from: .bottom)
+                        }
+                    }
+                    .onPreferenceChange(RailScrollOffsetKey.self) { railOffset = $0 }
+                    .onPreferenceChange(RailContentHeightKey.self) { railContentHeight = $0 }
+                    // Only follow changes: scrolling on appear centred the selected
+                    // row and clipped the first rows when a middle section opened.
+                    .onChange(of: selection) { newValue in
+                        guard let newValue else { return }
+                        proxy.scrollTo(newValue, anchor: nil)
+                    }
                 }
             }
             Spacer(minLength: 12)
@@ -296,6 +326,24 @@ struct SiftRail: View {
         .frame(maxHeight: .infinity)
         .background(RoundedRectangle(cornerRadius: SiftRadius.card, style: .continuous).fill(SiftColor.rail))
         .overlay(RoundedRectangle(cornerRadius: SiftRadius.card, style: .continuous).strokeBorder(SiftColor.stroke, lineWidth: 1))
+    }
+
+    private func railFades(viewport: CGFloat) -> RailFadeRule.Fades {
+        RailFadeRule.fades(offset: railOffset, contentHeight: railContentHeight, viewport: viewport)
+    }
+
+    /// A short gradient in the rail colour, so a clipped row fades out instead
+    /// of ending on a hard edge.
+    private func railFade(from edge: VerticalEdge) -> some View {
+        LinearGradient(
+            colors: edge == .top
+                ? [SiftColor.rail, SiftColor.rail.opacity(0)]
+                : [SiftColor.rail.opacity(0), SiftColor.rail],
+            startPoint: .top,
+            endPoint: .bottom
+        )
+        .frame(height: 20)
+        .allowsHitTesting(false)
     }
 
     /// Leaves room for the traffic lights above the wordmark.
@@ -399,6 +447,40 @@ struct SiftRail: View {
         case .cleaning(let category): return "sidebar.cleaning.\(category.id)"
         }
     }
+}
+
+/// Which edge of the rail list gets a fade.
+///
+/// The rail list scrolls without a scroller, so at short window heights the
+/// tool rows are simply cut off. A fade on the edge that hides content is the
+/// only sign that the list continues; the top fade appears once it is scrolled.
+struct RailFadeRule {
+    struct Fades: Equatable {
+        let top: Bool
+        let bottom: Bool
+    }
+
+    /// Overscroll shorter than this is treated as zero, so the rubber-band
+    /// bounce does not flicker a fade on and off.
+    static let tolerance: CGFloat = 1
+
+    static func fades(offset: CGFloat, contentHeight: CGFloat, viewport: CGFloat) -> Fades {
+        guard contentHeight > viewport + tolerance else { return Fades(top: false, bottom: false) }
+        return Fades(
+            top: offset > tolerance,
+            bottom: contentHeight - viewport - offset > tolerance
+        )
+    }
+}
+
+private struct RailScrollOffsetKey: PreferenceKey {
+    static var defaultValue: CGFloat = 0
+    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) { value = nextValue() }
+}
+
+private struct RailContentHeightKey: PreferenceKey {
+    static var defaultValue: CGFloat = 0
+    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) { value = nextValue() }
 }
 
 private struct RailRow: View {

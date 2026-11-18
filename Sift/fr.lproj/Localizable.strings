@@ -938,6 +938,7 @@
 "Your version, release checks and how to install updates." = "Votre version, la vérification des versions et l'installation des mises à jour.";
 "macOS %@ or later" = "macOS %@ ou version ultérieure";
 "Changes apply immediately" = "Les modifications s'appliquent immédiatement";
+"Most changes apply immediately" = "La plupart des modifications s'appliquent immédiatement";
 "Opens quietly when you sign in to your Mac" = "S'ouvre discrètement à l'ouverture de session sur votre Mac";
 "A new language applies after Sift restarts" = "Une nouvelle langue s'applique après le redémarrage de Sift";
 "Menu bar and sound" = "Barre des menus et son";
@@ -1060,6 +1061,8 @@
 "AC power" = "Adaptateur secteur";
 "battery power" = "batterie";
 "%@ of %@ mAh, service below 80%%" = "%@ sur %@ mAh, entretien en dessous de 80 %%";
+"%@ of %@ mAh" = "%@ sur %@ mAh";
+"%@, service below 80%%" = "%@, entretien en dessous de 80 %%";
 "service below 80%" = "entretien en dessous de 80 %";
 "%lld registered" = "%lld enregistrés";
 "No launch agents or daemons were found outside macOS system folders." = "Aucun agent ou daemon de lancement n'a été trouvé en dehors des dossiers système de macOS.";

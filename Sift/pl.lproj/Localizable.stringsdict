@@ -1,0 +1,246 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>%lld applications</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@value@</string>
+		<key>value</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>few</key>
+			<string>%lld aplikacje</string>
+			<key>many</key>
+			<string>%lld aplikacji</string>
+			<key>one</key>
+			<string>%lld aplikacja</string>
+			<key>other</key>
+			<string>%lld aplikacji</string>
+		</dict>
+	</dict>
+	<key>%lld apps selected</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@value@</string>
+		<key>value</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>few</key>
+			<string>wybrano %lld aplikacje</string>
+			<key>many</key>
+			<string>wybrano %lld aplikacji</string>
+			<key>one</key>
+			<string>wybrano %lld aplikację</string>
+			<key>other</key>
+			<string>wybrano %lld aplikacji</string>
+		</dict>
+	</dict>
+	<key>%lld files</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@value@</string>
+		<key>value</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>few</key>
+			<string>%lld pliki</string>
+			<key>many</key>
+			<string>%lld plików</string>
+			<key>one</key>
+			<string>%lld plik</string>
+			<key>other</key>
+			<string>%lld pliku</string>
+		</dict>
+	</dict>
+	<key>%lld files inspected</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@value@</string>
+		<key>value</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>few</key>
+			<string>sprawdzono %lld pliki</string>
+			<key>many</key>
+			<string>sprawdzono %lld plików</string>
+			<key>one</key>
+			<string>sprawdzono %lld plik</string>
+			<key>other</key>
+			<string>sprawdzono %lld pliku</string>
+		</dict>
+	</dict>
+	<key>%lld items</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@value@</string>
+		<key>value</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>few</key>
+			<string>%lld elementy</string>
+			<key>many</key>
+			<string>%lld elementów</string>
+			<key>one</key>
+			<string>%lld element</string>
+			<key>other</key>
+			<string>%lld elementu</string>
+		</dict>
+	</dict>
+	<key>%lld items in the Trash</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@value@</string>
+		<key>value</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>few</key>
+			<string>%lld elementy w koszu</string>
+			<key>many</key>
+			<string>%lld elementów w koszu</string>
+			<key>one</key>
+			<string>%lld element w koszu</string>
+			<key>other</key>
+			<string>%lld elementu w koszu</string>
+		</dict>
+	</dict>
+	<key>%lld items · %@</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@value@</string>
+		<key>value</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>few</key>
+			<string>%lld elementy · %@</string>
+			<key>many</key>
+			<string>%lld elementów · %@</string>
+			<key>one</key>
+			<string>%lld element · %@</string>
+			<key>other</key>
+			<string>%lld elementu · %@</string>
+		</dict>
+	</dict>
+	<key>%lld items, %@</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@value@</string>
+		<key>value</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>few</key>
+			<string>%lld elementy, %@</string>
+			<key>many</key>
+			<string>%lld elementów, %@</string>
+			<key>one</key>
+			<string>%lld element, %@</string>
+			<key>other</key>
+			<string>%lld elementu, %@</string>
+		</dict>
+	</dict>
+	<key>%lld photos</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@value@</string>
+		<key>value</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>few</key>
+			<string>%lld zdjęcia</string>
+			<key>many</key>
+			<string>%lld zdjęć</string>
+			<key>one</key>
+			<string>%lld zdjęcie</string>
+			<key>other</key>
+			<string>%lld zdjęcia</string>
+		</dict>
+	</dict>
+	<key>%lld photos · %@</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@value@</string>
+		<key>value</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>few</key>
+			<string>%lld zdjęcia · %@</string>
+			<key>many</key>
+			<string>%lld zdjęć · %@</string>
+			<key>one</key>
+			<string>%lld zdjęcie · %@</string>
+			<key>other</key>
+			<string>%lld zdjęcia · %@</string>
+		</dict>
+	</dict>
+	<key>Remove %lld files</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@value@</string>
+		<key>value</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>few</key>
+			<string>Usuń %lld pliki</string>
+			<key>many</key>
+			<string>Usuń %lld plików</string>
+			<key>one</key>
+			<string>Usuń %lld plik</string>
+			<key>other</key>
+			<string>Usuń %lld pliku</string>
+		</dict>
+	</dict>
+	<key>Remove %lld items</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@value@</string>
+		<key>value</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>few</key>
+			<string>Usuń %lld elementy</string>
+			<key>many</key>
+			<string>Usuń %lld elementów</string>
+			<key>one</key>
+			<string>Usuń %lld element</string>
+			<key>other</key>
+			<string>Usuń %lld elementu</string>
+		</dict>
+	</dict>
+</dict>
+</plist>

@@ -422,7 +422,7 @@ private struct StorageEntryRow: View {
     }
 
     static func fileCountLabel(_ count: Int) -> String {
-        count == 1 ? String(localized: "1 file") : String(localized: "\(count) files")
+        String(localized: "\(count) files")
     }
 
     static func folderCountLabel(_ count: Int) -> String {

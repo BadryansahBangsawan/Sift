@@ -5,11 +5,55 @@ final class SiftCLITests: XCTestCase {
     let home = FileManager.default.homeDirectoryForCurrentUser.path
 
     func testByteCountFormatting() {
-        XCTAssertEqual(ByteCount.human(0), "Zero KB")
+        XCTAssertEqual(ByteCount.human(0), "0 KB")
         XCTAssertEqual(ByteCount.human(1_000), "1 KB")
         XCTAssertEqual(ByteCount.human(631_000), "631 KB")
         XCTAssertEqual(ByteCount.human(23_790_000_000), "23.8 GB")
         XCTAssertEqual(ByteCount.human(358_700_000), "358.7 MB")
+    }
+
+    func testTinySizesReadLikeTheApp() {
+        XCTAssertEqual(ByteCount.human(0), "0 KB")
+        XCTAssertEqual(ByteCount.human(1), "1 byte")
+        XCTAssertEqual(ByteCount.human(2), "2 bytes")
+    }
+
+    func testSingleByteStaysSingularAtBothBases() {
+        XCTAssertEqual(ByteCount.human(1), "1 byte")
+        XCTAssertEqual(ByteCount.memory(1), "1 byte")
+        XCTAssertEqual(ByteCount.human(999), "999 bytes")
+        XCTAssertEqual(ByteCount.human(1_000), "1 KB")
+        XCTAssertEqual(ByteCount.human(-1), "0 KB")
+    }
+
+    func testMemoryCountsUseBinaryUnits() {
+        XCTAssertEqual(ByteCount.memory(17_179_869_184), "16 GB")
+        XCTAssertEqual(ByteCount.memory(536_870_912), "512 MB")
+        XCTAssertEqual(ByteCount.memory(4_294_967_296), "4 GB")
+    }
+
+    func testMemoryRoundsAtBinaryUnitBoundaries() {
+        XCTAssertEqual(ByteCount.memory(0), "0 KB")
+        XCTAssertEqual(ByteCount.memory(1_023), "1023 bytes")
+        XCTAssertEqual(ByteCount.memory(1_024), "1 KB")
+        XCTAssertEqual(ByteCount.memory(1_073_741_824), "1 GB")
+        XCTAssertEqual(ByteCount.memory(38_654_705_664), "36 GB")
+        XCTAssertEqual(ByteCount.memory(1_500_000_000), "1.4 GB")
+    }
+
+    func testByteCountPromotesInsteadOfPrintingAThousand() {
+        XCTAssertEqual(ByteCount.human(999_960), "1 MB")
+        XCTAssertEqual(ByteCount.human(999_999), "1 MB")
+        XCTAssertEqual(ByteCount.human(999_999_999), "1 GB")
+        XCTAssertEqual(ByteCount.human(999_000), "999 KB")
+    }
+
+    func testByteCountKeepsValuesBelowThePromotionBoundary() {
+        XCTAssertEqual(ByteCount.human(999_940), "999.9 KB")
+        XCTAssertEqual(ByteCount.human(1_000_000_000_000), "1 TB")
+        XCTAssertEqual(ByteCount.human(999_999_999_999), "1 TB")
+        XCTAssertEqual(ByteCount.memory(1_099_511_627_776), "1 TB")
+        XCTAssertEqual(ByteCount.memory(1_125_899_790_000_000), "1 PB")
     }
 
     func testArtifactMatching() {
