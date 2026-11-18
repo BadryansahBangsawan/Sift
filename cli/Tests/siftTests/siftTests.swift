@@ -18,6 +18,14 @@ final class SiftCLITests: XCTestCase {
         XCTAssertEqual(ByteCount.human(2), "2 bytes")
     }
 
+    func testSingleByteStaysSingularAtBothBases() {
+        XCTAssertEqual(ByteCount.human(1), "1 byte")
+        XCTAssertEqual(ByteCount.memory(1), "1 byte")
+        XCTAssertEqual(ByteCount.human(999), "999 bytes")
+        XCTAssertEqual(ByteCount.human(1_000), "1 KB")
+        XCTAssertEqual(ByteCount.human(-1), "0 KB")
+    }
+
     func testMemoryCountsUseBinaryUnits() {
         XCTAssertEqual(ByteCount.memory(17_179_869_184), "16 GB")
         XCTAssertEqual(ByteCount.memory(536_870_912), "512 MB")
