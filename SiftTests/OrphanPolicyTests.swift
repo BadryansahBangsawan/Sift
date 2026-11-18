@@ -21,4 +21,19 @@ final class OrphanPolicyTests: XCTestCase {
         )
     }
 
+
+    func testOnlyTheExactSharedPathsAreExcluded() {
+        XCTAssertTrue(
+            OrphanSafetyPolicy.isSafeCandidate(URL(fileURLWithPath: "\(home)/Library/WebKit/com.example.goneapp")),
+            "An app's own WebKit folder is still a leftover"
+        )
+        XCTAssertTrue(
+            OrphanSafetyPolicy.isSafeCandidate(URL(fileURLWithPath: "\(home)/Library/Caches/org.swift.swiftpm.extra")),
+            "Only the toolchain's own cache is excluded, not a look-alike name"
+        )
+        XCTAssertTrue(
+            OrphanSafetyPolicy.isSafeCandidate(URL(fileURLWithPath: "\(home)/Library/Caches/com.example.goneapp")),
+            "Ordinary app caches stay candidates"
+        )
+    }
 }
