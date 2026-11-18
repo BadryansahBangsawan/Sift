@@ -31,6 +31,14 @@ struct AppleFeaturesView: View {
     @State private var removalNotice: String?
     @State private var pendingRemoval: BackupSelection?
     @State private var errorMessage: String?
+    @State private var aiService = AppleIntelligenceService()
+    @State private var aiStatus: AppleIntelligenceStatus?
+    @State private var aiKeep: Set<String> = []
+    @State private var aiTweaks: Set<String> = []
+    @State private var aiPlan: AppleIntelligencePlan?
+    @State private var aiResult: AppleIntelligenceApplyResult?
+    @State private var aiNotice: String?
+    @State private var aiWorking = false
 
     private var removalRunning: Bool { appState.deviceBackupRemovalInProgress }
 
@@ -97,6 +105,12 @@ struct AppleFeaturesView: View {
                 removeBackups(selection.backups)
             }
         }
+        .sheet(item: $aiPlan) { plan in
+            AppleIntelligenceReviewSheet(plan: plan, onApply: applyAppleIntelligence) {
+                aiPlan = nil
+            }
+        }
+        .onAppear(perform: refreshAppleIntelligence)
         .onDisappear {
             inventoryTask?.cancel()
             backupTask?.cancel()
@@ -104,7 +118,16 @@ struct AppleFeaturesView: View {
         }
     }
 
+    @ViewBuilder
     private var featuresContent: some View {
+        if let status = aiStatus, status.supported {
+            appleIntelligenceContent(status)
+        } else {
+            guidanceContent
+        }
+    }
+
+    private var guidanceContent: some View {
         VStack(alignment: .leading, spacing: SiftSpacing.gutter) {
             SiftSearchField(text: $search, prompt: Text("Find a feature"))
                 .accessibilityIdentifier("appleFeatures.search")
@@ -135,6 +158,334 @@ struct AppleFeaturesView: View {
                     .fixedSize(horizontal: false, vertical: true)
             }
             .siftSurface(.card)
+        }
+    }
+
+    // MARK: Apple Intelligence
+
+    private func appleIntelligenceContent(_ status: AppleIntelligenceStatus) -> some View {
+        VStack(alignment: .leading, spacing: SiftSpacing.gutter) {
+            appleIntelligenceHeader(status)
+
+            VStack(alignment: .leading, spacing: 14) {
+                SiftCardHeader(Text("Features"), icon: .sparkles) {
+                    Text("Keep what you use")
+                        .siftStyle(.caption)
+                }
+                if let error = aiNotice {
+                    SiftNotice(icon: .triangleAlert, tone: .warning, message: Text(verbatim: error))
+                }
+                VStack(spacing: 0) {
+                    let features = AppleIntelligenceCatalog.availableFeatures(on: status.platform.version)
+                    ForEach(Array(features.enumerated()), id: \.element.id) { index, feature in
+                        appleFeatureRow(feature, status: status)
+                        if index < features.count - 1 { SiftRowDivider() }
+                    }
+                }
+                .siftSurface(.inset, padding: 0)
+
+                SiftFootnote(
+                    Text("Turned-off features are locked by the configuration profile. Keeping a feature leaves its setting and the models it needs alone."),
+                    icon: .info)
+            }
+            .siftSurface(.card)
+
+            appleTweaksCard(status)
+
+            HStack(spacing: 12) {
+                Button("Undo everything", action: undoEverything)
+                    .buttonStyle(.sift(.secondary))
+                    .disabled(aiWorking)
+                    .accessibilityIdentifier("appleFeatures.undoAll")
+                Spacer()
+                Text("Models come back only when macOS downloads them again after the profile is removed.")
+                    .siftStyle(.caption)
+                    .multilineTextAlignment(.trailing)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            .padding(.horizontal, 4)
+
+            if let result = aiResult { appleIntelligenceResult(result) }
+
+            VStack(alignment: .leading, spacing: 8) {
+                SiftFootnote(
+                    Text("Storage settings may keep counting the models until macOS deletes them. If a macOS update is waiting for the blocked downloads, it can take about two hours to finish; sleep pauses that wait."),
+                    icon: .info)
+                SiftFootnote(
+                    Text("Sift writes the configuration profile and opens it. You approve it in System Settings; Sift never installs it. Nothing changes until you confirm the review."),
+                    icon: .lockKeyhole)
+            }
+            .padding(.horizontal, 4)
+        }
+        .accessibilityIdentifier("appleFeatures.appleIntelligence")
+    }
+
+    private func appleIntelligenceHeader(_ status: AppleIntelligenceStatus) -> some View {
+        let modelSize = status.totalModelBytes.map {
+            ByteCountFormatter.string(fromByteCount: $0, countStyle: .file)
+        } ?? String(localized: "Unknown")
+        return VStack(alignment: .leading, spacing: 16) {
+            HStack(alignment: .top, spacing: 12) {
+                SiftIconTile(icon: .sparkles, tone: .accent, size: 34)
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Apple Intelligence")
+                        .siftStyle(.cardTitle)
+                        .accessibilityAddTraits(.isHeader)
+                    HStack(spacing: 8) {
+                        SiftStatusPill(overallLabel(status.overall), tone: overallTone(status.overall))
+                        if status.profile.on {
+                            SiftStatusPill(Text("Profile installed"), tone: .info, showsDot: false)
+                        }
+                    }
+                    Text("Sift asks macOS to delete the models and blocks their download URL.")
+                        .siftStyle(.label)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+                Spacer(minLength: 12)
+                VStack(alignment: .trailing, spacing: 2) {
+                    Text(verbatim: modelSize)
+                        .font(.siftMono(18))
+                        .foregroundStyle(SiftColor.textPrimary)
+                    Text("models on disk")
+                        .siftStyle(.caption)
+                }
+            }
+            HStack(spacing: 10) {
+                Button("Turn off Apple Intelligence…") { reviewAppleIntelligence() }
+                    .buttonStyle(.siftPrimary)
+                    .disabled(aiWorking)
+                    .accessibilityIdentifier("appleFeatures.turnOff")
+                Button("Turn back on") { undoAppleIntelligence() }
+                    .buttonStyle(.sift(.secondary))
+                    .disabled(aiWorking)
+                    .accessibilityIdentifier("appleFeatures.turnOn")
+                Spacer()
+                if aiWorking {
+                    ProgressView().controlSize(.small)
+                }
+            }
+        }
+        .siftSurface(.hero)
+    }
+
+    private func appleFeatureRow(
+        _ feature: AppleIntelligenceFeature, status: AppleIntelligenceStatus
+    ) -> some View {
+        let bytes = status.bytes(for: feature)
+        // Most features share the foundation models; only show a size that is on disk.
+        let size = bytes.flatMap { $0 > 0 ? ByteCountFormatter.string(fromByteCount: $0, countStyle: .file) : nil }
+        return HStack(alignment: .center, spacing: 14) {
+            VStack(alignment: .leading, spacing: 3) {
+                Text(verbatim: feature.title)
+                    .font(.sift(13.5, weight: 500))
+                    .foregroundStyle(SiftColor.textPrimary)
+                if let size {
+                    Text(verbatim: size)
+                        .siftStyle(.monoValue)
+                } else {
+                    Text("Model size unknown")
+                        .siftStyle(.caption)
+                }
+            }
+            Spacer(minLength: 12)
+            Toggle(isOn: Binding(
+                get: { aiKeep.contains(feature.id) },
+                set: { keep in
+                    if keep { aiKeep.insert(feature.id) } else { aiKeep.remove(feature.id) }
+                }
+            )) { EmptyView() }
+            .toggleStyle(.siftSwitch)
+            .accessibilityLabel(Text("Keep \(feature.title)"))
+            .disabled(aiWorking)
+            .accessibilityIdentifier("appleFeatures.keep.\(feature.id)")
+        }
+        .padding(.horizontal, 18)
+        .padding(.vertical, 12)
+    }
+
+    private func appleTweaksCard(_ status: AppleIntelligenceStatus) -> some View {
+        VStack(alignment: .leading, spacing: 14) {
+            HStack(alignment: .top, spacing: 10) {
+                SiftIconTile(icon: .shieldCheck, size: 30)
+                VStack(alignment: .leading, spacing: 3) {
+                    Text("Privacy & pop-ups (optional)")
+                        .siftStyle(.cardTitle)
+                        .accessibilityAddTraits(.isHeader)
+                    Text("Applied here, journaled first, and undone exactly as they were.")
+                        .siftStyle(.label)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+                Spacer(minLength: 8)
+                Button("Recommended") {
+                    aiKeep = []
+                    aiTweaks = Set(
+                        AppleTweaks.preset(.recommended, on: status.platform.version).map(\.id))
+                }
+                .buttonStyle(.sift(.secondary, compact: true))
+                .disabled(aiWorking)
+            }
+            VStack(spacing: 0) {
+                let tweaks = AppleTweaks.all.filter { $0.isAvailable(on: status.platform.version) }
+                ForEach(Array(tweaks.enumerated()), id: \.element.id) { index, tweak in
+                    HStack(alignment: .center, spacing: 14) {
+                        VStack(alignment: .leading, spacing: 3) {
+                            Text(verbatim: tweak.title)
+                                .font(.sift(13.5, weight: 500))
+                                .foregroundStyle(SiftColor.textPrimary)
+                            Text(verbatim: tweak.detail)
+                                .siftStyle(.caption)
+                                .fixedSize(horizontal: false, vertical: true)
+                            if let caveat = tweak.caveat {
+                                Text(verbatim: caveat)
+                                    .siftStyle(.caption)
+                                    .foregroundStyle(SiftColor.warning)
+                            }
+                        }
+                        Spacer(minLength: 12)
+                        Toggle(isOn: Binding(
+                            get: { aiTweaks.contains(tweak.id) },
+                            set: { apply in
+                                if apply { aiTweaks.insert(tweak.id) } else { aiTweaks.remove(tweak.id) }
+                            }
+                        )) { EmptyView() }
+                        .toggleStyle(.siftSwitch)
+                        .accessibilityLabel(Text("Apply \(tweak.title)"))
+                        .disabled(aiWorking)
+                        .accessibilityIdentifier("appleFeatures.tweak.\(tweak.id)")
+                    }
+                    .padding(.horizontal, 18)
+                    .padding(.vertical, 12)
+                    if index < tweaks.count - 1 { SiftRowDivider() }
+                }
+            }
+            .siftSurface(.inset, padding: 0)
+        }
+        .siftSurface(.card)
+    }
+
+    private func appleIntelligenceResult(_ result: AppleIntelligenceApplyResult) -> some View {
+        let complete = result.succeeded
+        return VStack(alignment: .leading, spacing: 10) {
+            SiftNotice(
+                icon: complete ? .check : .triangleAlert,
+                tone: complete ? .success : .warning,
+                title: complete ? Text("Turned off") : Text("Partly done"),
+                message: Text(verbatim: resultMessage(result))
+            )
+            HStack(spacing: 8) {
+                if result.profileURL != nil {
+                    Button("Open Profiles") {
+                        openDestination("com.apple.Profiles-Settings.extension")
+                    }
+                    .buttonStyle(.sift(.secondary, compact: true))
+                }
+                Button("Done") { aiResult = nil }
+                    .buttonStyle(.siftQuiet)
+            }
+        }
+        .siftSurface(.card)
+    }
+
+    private func resultMessage(_ result: AppleIntelligenceApplyResult) -> String {
+        var parts: [String] = []
+        if let url = result.profileURL {
+            parts.append(
+                String(localized: "Approve the profile in System Settings > Privacy & Security > Profiles. It is at \(url.path)."))
+        }
+        if !result.modelsRemoved.isEmpty {
+            parts.append(
+                String(localized: "\(result.modelsRemoved.count) model sets were released. macOS deletes the files on its own schedule."))
+        }
+        parts += result.problems
+        parts += result.modelProblems
+        if parts.isEmpty { parts.append(String(localized: "Everything requested was applied.")) }
+        return parts.joined(separator: "\n")
+    }
+
+    private func overallLabel(_ overall: AppleIntelligenceOverall) -> Text {
+        switch overall {
+        case .on: return Text("On")
+        case .off: return Text("Off")
+        case .partlyOff: return Text("Partly off")
+        case .unavailable: return Text("Not available on this macOS")
+        }
+    }
+
+    private func overallTone(_ overall: AppleIntelligenceOverall) -> SiftTone {
+        switch overall {
+        case .on: return .info
+        case .off: return .success
+        case .partlyOff: return .warning
+        case .unavailable: return .neutral
+        }
+    }
+
+    /// The asset service is a synchronous private API; never ask it on the main thread.
+    private func refreshAppleIntelligence() {
+        let service = aiService
+        Task { @MainActor in
+            aiStatus = await Task.detached(priority: .userInitiated) { service.status() }.value
+        }
+    }
+
+    private func reviewAppleIntelligence() {
+        let service = aiService
+        let selection = AppleIntelligenceSelection(keep: aiKeep, tweaks: aiTweaks)
+        let plan = service.plan(selection)
+        if plan.isEmpty {
+            aiNotice = String(localized: "This Mac already matches the review.")
+        } else {
+            aiNotice = nil
+            aiPlan = plan
+        }
+    }
+
+    private func applyAppleIntelligence() {
+        guard let plan = aiPlan, !aiWorking else { return }
+        aiWorking = true
+        aiNotice = nil
+        let service = aiService
+        Task { @MainActor in
+            let result = await Task.detached(priority: .userInitiated) {
+                service.apply(plan)
+            }.value
+            aiResult = result
+            aiWorking = false
+            aiPlan = nil
+            aiStatus = await Task.detached(priority: .userInitiated) { service.status() }.value
+        }
+    }
+
+    private func undoAppleIntelligence() {
+        guard !aiWorking else { return }
+        aiWorking = true
+        let service = aiService
+        Task { @MainActor in
+            let result = await Task.detached(priority: .userInitiated) {
+                service.undo(.appleIntelligence)
+            }.value
+            aiWorking = false
+            aiNotice = nil
+            aiResult = AppleIntelligenceApplyResult(problems: result.problems)
+            aiStatus = await Task.detached(priority: .userInitiated) { service.status() }.value
+            openDestination("com.apple.Profiles-Settings.extension")
+        }
+    }
+
+    private func undoEverything() {
+        guard !aiWorking else { return }
+        aiWorking = true
+        let service = aiService
+        Task { @MainActor in
+            let result = await Task.detached(priority: .userInitiated) {
+                service.undo(.everything)
+            }.value
+            aiWorking = false
+            aiNotice = result.problems.isEmpty
+                ? String(localized: "Settings restored. Remove the Sift profile in System Settings > Privacy & Security > Profiles to turn Apple Intelligence back on.")
+                : result.problems.joined(separator: "\n")
+            aiResult = nil
+            aiStatus = await Task.detached(priority: .userInitiated) { service.status() }.value
         }
     }
 
@@ -657,5 +1008,111 @@ private struct DeviceBackupConfirmation: View {
         .padding(24)
         .frame(width: 560)
         .background(SiftColor.card)
+    }
+}
+
+/// The exact list of changes before anything is applied.
+private struct AppleIntelligenceReviewSheet: View {
+    let plan: AppleIntelligencePlan
+    let onApply: () -> Void
+    let onCancel: () -> Void
+
+    private var profileChanges: [AppleIntelligenceChange] { plan.changes.filter(\.isProfile) }
+    private var localChanges: [AppleIntelligenceChange] { plan.changes.filter { !$0.isProfile } }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            VStack(alignment: .leading, spacing: 4) {
+                Text("Review changes")
+                    .siftStyle(.metricSmall)
+                Text("Nothing is applied until you choose Turn off.")
+                    .siftStyle(.label)
+            }
+
+            ScrollView {
+                VStack(alignment: .leading, spacing: 16) {
+                    if !plan.featuresTurnedOff.isEmpty {
+                        section(
+                            "Apple Intelligence off",
+                            detail: "Locked by the profile: \(plan.featuresTurnedOff.count) features.",
+                            changes: profileChanges.filter { $0.id.hasPrefix("feature:") })
+                    }
+                    if !plan.tweaks.isEmpty {
+                        section(
+                            "Privacy and pop-ups",
+                            detail: "Journaled first, so undo puts the old values back.",
+                            changes: plan.changes.filter { $0.id.hasPrefix("tweak:") })
+                    }
+                    if !plan.modelSets.isEmpty {
+                        let size = plan.reportedModelBytes.map {
+                            ByteCountFormatter.string(fromByteCount: $0, countStyle: .file)
+                        }
+                        section(
+                            "Models to delete",
+                            detail: size.map { String(localized: "\(plan.modelSets.count) sets, about \($0) reported by the service.") }
+                                ?? String(localized: "\(plan.modelSets.count) sets; the service did not report every size."),
+                            changes: localChanges.filter { $0.id.hasPrefix("model:") })
+                    }
+                    if plan.profile != nil {
+                        section(
+                            "Configuration profile",
+                            detail: "The profile points the removed sets' download URL at a closed local port and holds the locked settings. You approve it in System Settings.",
+                            changes: profileChanges.filter { $0.id == "profile" })
+                    }
+                }
+            }
+            .frame(maxHeight: 380)
+
+            SiftFootnote(
+                Text("macOS asks you to approve the profile. Removing the profile turns Apple Intelligence back on; models come back only when macOS downloads them again."),
+                icon: .info)
+
+            HStack(spacing: 8) {
+                Spacer()
+                Button("Cancel", role: .cancel, action: onCancel)
+                    .keyboardShortcut(.cancelAction)
+                    .buttonStyle(.siftSecondary)
+                Button("Turn off", action: onApply)
+                    .keyboardShortcut(.defaultAction)
+                    .buttonStyle(.siftPrimary)
+            }
+        }
+        .padding(24)
+        .frame(width: 620, height: 560, alignment: .topLeading)
+        .background(SiftColor.card)
+    }
+
+    private func section(
+        _ title: String, detail: String, changes: [AppleIntelligenceChange]
+    ) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(LocalizedStringKey(title))
+                .siftStyle(.cardTitle)
+            Text(verbatim: detail)
+                .siftStyle(.label)
+                .fixedSize(horizontal: false, vertical: true)
+            VStack(spacing: 0) {
+                ForEach(Array(changes.enumerated()), id: \.element.id) { index, change in
+                    HStack(alignment: .top, spacing: 10) {
+                        SiftDot(tone: change.isProfile ? .accent : .warning)
+                            .padding(.top, 5)
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(verbatim: change.title)
+                                .font(.sift(12.5, weight: 500))
+                                .foregroundStyle(SiftColor.textPrimary)
+                            Text(verbatim: change.detail)
+                                .siftStyle(.monoSmall)
+                                .textSelection(.enabled)
+                                .fixedSize(horizontal: false, vertical: true)
+                        }
+                        Spacer(minLength: 0)
+                    }
+                    .padding(.horizontal, 14)
+                    .padding(.vertical, 9)
+                    if index < changes.count - 1 { SiftRowDivider(inset: 14) }
+                }
+            }
+            .siftSurface(.inset, padding: 0)
+        }
     }
 }
