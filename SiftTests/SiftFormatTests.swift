@@ -55,4 +55,28 @@ final class SiftFormatTests: XCTestCase {
             XCTAssertFalse(text.localizedCaseInsensitiveContains("zero"), "\(label) spells out zero: \(text)")
         }
     }
+
+    // MARK: - Edges
+
+    /// A size the filesystem cannot report as positive still has to print a
+    /// size, not a minus sign: the scanner clamps its own arithmetic, and the
+    /// formatter must not hand a negative number to the label.
+    func testANegativeSizePrintsAsEmpty() {
+        XCTAssertEqual(SiftFormat.bytes(-1), SiftFormat.bytes(0))
+        let item = CleanableItem(
+            name: "odd", path: "/tmp/odd", size: -4_096, category: .systemJunk,
+            isSelected: false, lastModified: nil)
+        XCTAssertEqual(item.formattedSize, "0 KB")
+    }
+
+    /// The dashboard counts in KB and up, so a byte count below a kilobyte
+    /// still shows a unit the other screens use, never "bytes".
+    func testSmallSizesUseTheSameUnitsAsTheDashboard() {
+        for size in [1, 512, 999] {
+            let text = SiftFormat.bytes(Int64(size))
+            XCTAssertTrue(text.hasSuffix("KB"), "\(size) printed as \(text)")
+        }
+        XCTAssertTrue(SiftFormat.bytes(1_234_567).hasSuffix("MB"))
+        XCTAssertTrue(SiftFormat.bytes(64_000_000_000).hasSuffix("GB"))
+    }
 }
