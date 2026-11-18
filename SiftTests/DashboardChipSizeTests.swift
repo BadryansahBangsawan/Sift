@@ -61,6 +61,22 @@ final class DashboardChipSizeTests: XCTestCase {
         XCTAssertEqual(result.totalSize, 0)
     }
 
+    func testPurgeableRowNamesNoFilesystemPath() async {
+        var info = DiskInfo()
+        info.purgeableSpace = 12_000_000_000
+        let engine = ScanEngine(
+            homeDirectory: FileManager.default.temporaryDirectory,
+            diskInfoProvider: { info }
+        )
+
+        let result = await engine.scanCategory(.purgeableSpace)
+
+        let item = result.items.first
+        XCTAssertEqual(item?.path, "", "The purge row must not point at / as a deletable path")
+        XCTAssertEqual(item?.isActionItem, true, "An empty path marks the row as an action, not a file")
+        XCTAssertEqual(result.totalSize, item?.size)
+    }
+
     func testMissingContainersFolderMeasuresZero() async {
         let size = await ScanEngine(homeDirectory: fixtureHome).containersSize()
         XCTAssertEqual(size, 0)
