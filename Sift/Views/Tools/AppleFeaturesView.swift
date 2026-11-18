@@ -51,7 +51,7 @@ struct AppleFeaturesView: View {
     var body: some View {
         VStack(spacing: SiftSpacing.gutter) {
             SiftToolHeader(
-                Text("Apple Features"),
+                Text("Apple features"),
                 eyebrow: Text("Tools"),
                 subtitle: Text("Review optional features and the storage used by Apple downloads.")
             ) {
@@ -90,7 +90,7 @@ struct AppleFeaturesView: View {
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-        .navigationTitle("Apple Features")
+        .navigationTitle("Apple features")
         .alert("Couldn't complete the action", isPresented: Binding(
             get: { errorMessage != nil },
             set: { if !$0 { errorMessage = nil } }
@@ -222,7 +222,7 @@ struct AppleFeaturesView: View {
 
     private func appleIntelligenceHeader(_ status: AppleIntelligenceStatus) -> some View {
         let modelSize = status.totalModelBytes.map {
-            ByteCountFormatter.string(fromByteCount: $0, countStyle: .file)
+            SiftFormat.bytes($0)
         } ?? String(localized: "Unknown")
         return VStack(alignment: .leading, spacing: 16) {
             HStack(alignment: .top, spacing: 12) {
@@ -273,7 +273,7 @@ struct AppleFeaturesView: View {
     ) -> some View {
         let bytes = status.bytes(for: feature)
         // Most features share the foundation models; only show a size that is on disk.
-        let size = bytes.flatMap { $0 > 0 ? ByteCountFormatter.string(fromByteCount: $0, countStyle: .file) : nil }
+        let size = bytes.flatMap { $0 > 0 ? SiftFormat.bytes($0) : nil }
         return HStack(alignment: .center, spacing: 14) {
             VStack(alignment: .leading, spacing: 3) {
                 Text(verbatim: feature.title)
@@ -663,7 +663,7 @@ struct AppleFeaturesView: View {
             }
             Spacer(minLength: 8)
             VStack(alignment: .trailing, spacing: 6) {
-                Text(ByteCountFormatter.string(fromByteCount: backup.allocatedSize, countStyle: .file))
+                Text(SiftFormat.bytes(backup.allocatedSize))
                     .siftStyle(.rowValue)
                 Button("Show in Finder") { reveal(backup.url) }
                     .buttonStyle(.sift(.secondary, compact: true))
@@ -857,7 +857,7 @@ private struct AppleStorageRow: View {
             if bytes == 0 {
                 return item.status == .partial ? String(localized: "Not fully measured") : String(localized: "0 bytes")
             }
-            let size = ByteCountFormatter.string(fromByteCount: bytes, countStyle: .file)
+            let size = SiftFormat.bytes(bytes)
             return item.status == .partial ? String(format: String(localized: "At least %@"), size) : size
         }
     }
@@ -976,7 +976,7 @@ private struct DeviceBackupConfirmation: View {
                                 .foregroundStyle(SiftColor.textPrimary)
                                 .textSelection(.enabled)
                                 .fixedSize(horizontal: false, vertical: true)
-                            Text(ByteCountFormatter.string(fromByteCount: backup.allocatedSize, countStyle: .file))
+                            Text(SiftFormat.bytes(backup.allocatedSize))
                                 .siftStyle(.mono)
                         }
                     }
@@ -1045,7 +1045,7 @@ private struct AppleIntelligenceReviewSheet: View {
                     }
                     if !plan.modelSets.isEmpty {
                         let size = plan.reportedModelBytes.map {
-                            ByteCountFormatter.string(fromByteCount: $0, countStyle: .file)
+                            SiftFormat.bytes($0)
                         }
                         section(
                             "Models to delete",

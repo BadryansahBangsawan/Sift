@@ -36,7 +36,9 @@ struct CategoryDetailView: View {
     private var hasResult: Bool { !results.isEmpty }
     private var allItems: [CleanableItem] { results.flatMap(\.items) }
     private var visibleItems: [CleanableItem] { visibleCache.items(for: allItems, filter: filter) }
-    private var selectedItems: [CleanableItem] { isTrash ? [] : allItems.filter(appState.isItemSelected) }
+    private var selectedItems: [CleanableItem] {
+        isTrash ? [] : filter.ordered(allItems.filter(appState.isItemSelected))
+    }
     private var selectedSize: Int64 { selectedItems.reduce(0) { $0 + $1.size } }
     private var isScanning: Bool {
         if case .scanning = appState.scanState { return true }
@@ -192,7 +194,6 @@ struct CategoryDetailView: View {
         HStack(spacing: 8) {
             SiftSearchField(text: $filter.query, prompt: Text("Filter by name or path"))
                 .frame(minWidth: 180, maxWidth: 340)
-                .accessibilityLabel("Filter cleanup files")
             if !isTrash {
                 presetPill
                 pill(.size, label: Text(LocalizedStringKey(filter.size.rawValue)))
@@ -688,7 +689,7 @@ private struct CleanupFileRow: View {
                         .lineLimit(1)
                         .truncationMode(.middle)
                     if showsCategory {
-                        Text(LocalizedStringKey(item.category.rawValue))
+                        Text(item.category.cleanupTitle)
                             .font(.sift(10.5, weight: 500))
                             .foregroundStyle(SiftColor.textTertiary)
                             .lineLimit(1)

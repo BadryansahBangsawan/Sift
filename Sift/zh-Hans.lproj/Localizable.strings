@@ -3,7 +3,6 @@
 "Cleanup" = "清理";
 "Dashboard" = "仪表盘";
 "Installed Apps" = "已安装的应用";
-"Orphaned Files" = "应用残留";
 "Ready to clean" = "可以清理";
 "Limited access" = "访问受限";
 "Full Disk Access granted" = "已授予完全磁盘访问权限";
@@ -102,7 +101,6 @@
 "Scanning for orphaned files..." = "正在查找应用残留…";
 "No Orphaned Files" = "未发现应用残留";
 "No leftover files from uninstalled apps were found." = "未发现已卸载应用的残留文件。";
-"Scan for Orphans" = "查找应用残留";
 "Orphaned Files (%lld)" = "应用残留（%lld 项）";
 "Remove Selected (%lld)" = "删除所选 (%lld)";
 "Some files could not be removed" = "部分文件无法删除";
@@ -115,9 +113,7 @@
 "Get Started" = "开始使用";
 "Free, open-source macOS app manager and system cleaner." = "免费、开源的 macOS 应用管理和系统清理工具。";
 "Find junk files across your system" = "在系统中查找垃圾文件";
-"App Uninstaller" = "应用卸载器";
 "Remove apps and all their files" = "删除应用及其所有文件";
-"Orphan Finder" = "残留查找";
 "Find leftovers from deleted apps" = "查找已删除应用的残留";
 "Full Disk Access" = "完全磁盘访问权限";
 "We'll guide you through the next steps." = "我们将引导你完成接下来的步骤。";
@@ -454,7 +450,6 @@
 "Always exclude from cleanup" = "始终排除此项";
 "Any age" = "不限时间";
 "Any size" = "不限大小";
-"App Updates" = "应用更新";
 "App and document packages are excluded: %@" = "已排除应用程序包和文稿包：%@";
 "App bundle missing" = "应用程序文件缺失";
 "App downloads are checked before opening." = "下载的应用会在打开前接受安全检查。";
@@ -507,7 +502,6 @@
 "Delete local snapshot?" = "删除本地快照？";
 "Disabled" = "已停用";
 "Downloaded apps are not being assessed by Gatekeeper." = "门禁功能未对下载的应用进行安全检查。";
-"Duplicate Finder" = "重复文件";
 "Duplicate groups" = "重复文件组";
 "Every %lld seconds" = "每 %lld 秒";
 "Every eligible file was checked." = "已检查所有符合条件的文件。";
@@ -673,7 +667,6 @@
 "Show %@ in Finder" = "在访达中显示 %@";
 "Show in Finder" = "在访达中显示";
 "Shows a confirmation before moving the selected copies" = "移动所选副本前显示确认提示";
-"Similar Photos" = "相似照片";
 "Similarity is a visual estimate, not proof that two files are identical. Use Show in Finder to compare originals at full quality." = "相似度只是对画面的估计，并不代表两个文件完全相同。可点击“在访达中显示”查看并比较原图。";
 "Skipped items" = "已跳过的项目";
 "Smallest first" = "从小到大";
@@ -687,7 +680,6 @@
 "Some protected locations are unavailable. Full Disk Access allows a more complete scan." = "部分受保护的位置无法访问。授予完全磁盘访问权限后，可以扫描更多位置。";
 "Some selected files" = "部分所选文件";
 "Sort" = "排序";
-"Space Explorer" = "空间分析";
 "Stop" = "停止";
 "Stop scan" = "停止扫描";
 "Stopping keeps the results found so far." = "停止后会保留已经完成的扫描结果。";
@@ -992,7 +984,6 @@
 "Found a problem?" = "发现问题？";
 "Issues are tracked on GitHub" = "在 GitHub 上跟踪问题";
 "Features" = "功能";
-"Apple Features" = "Apple 功能";
 "Review optional features and the storage used by Apple downloads." = "查看可选功能以及 Apple 下载内容占用的存储空间。";
 "Apple Features section" = "Apple 功能分区";
 "Finishing backup removal. New scans are available when it stops." = "正在完成备份移除。完成后即可开始新的扫描。";
@@ -1379,3 +1370,5 @@
 "Couldn't compare installed apps" = "无法与已安装的应用比较";
 "Sift needs the list of installed apps before it can call a file a leftover. Try again in a moment." = "Sift 需要已安装应用的列表，才能判断文件是否为残留。请稍后重试。";
 "Permanently deletes the junk the scan selected, without asking" = "无需确认即可永久删除扫描所选的垃圾文件";
+"Last checked %@" = "上次检查：%@";
+"Scheduled scan" = "定时扫描";

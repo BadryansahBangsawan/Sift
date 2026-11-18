@@ -3,7 +3,6 @@
 "Cleanup" = "Bereinigung";
 "Dashboard" = "Dashboard";
 "Installed Apps" = "Installierte Apps";
-"Orphaned Files" = "Verwaiste Dateien";
 "Ready to clean" = "Bereit zum Bereinigen";
 "Limited access" = "Eingeschränkter Zugriff";
 "Full Disk Access granted" = "Festplattenvollzugriff erteilt";
@@ -136,7 +135,6 @@
 "Scanning for orphaned files..." = "Suche nach verwaisten Dateien …";
 "No Orphaned Files" = "Keine verwaisten Dateien";
 "No leftover files from uninstalled apps were found." = "Es wurden keine Überreste von deinstallierten Apps gefunden.";
-"Scan for Orphans" = "Nach verwaisten Dateien suchen";
 "Orphaned Files (%lld)" = "Verwaiste Dateien (%lld)";
 "Remove Selected (%lld)" = "Auswahl entfernen (%lld)";
 "Some files could not be removed" = "Einige Dateien konnten nicht entfernt werden";
@@ -149,9 +147,7 @@
 "Get Started" = "Los geht’s";
 "Free, open-source macOS app manager and system cleaner." = "Kostenloser Open-Source-App-Manager und System-Cleaner für macOS.";
 "Find junk files across your system" = "Überflüssige Dateien im ganzen System finden";
-"App Uninstaller" = "App-Deinstallation";
 "Remove apps and all their files" = "Apps samt aller Dateien entfernen";
-"Orphan Finder" = "Verwaiste Dateien finden";
 "Find leftovers from deleted apps" = "Überreste gelöschter Apps finden";
 "Full Disk Access" = "Festplattenvollzugriff";
 "We'll guide you through the next steps." = "Wir führen dich durch die nächsten Schritte.";
@@ -454,7 +450,6 @@
 "Always exclude from cleanup" = "Immer von der Bereinigung ausschließen";
 "Any age" = "Beliebiges Alter";
 "Any size" = "Beliebige Größe";
-"App Updates" = "App-Updates";
 "App and document packages are excluded: %@" = "App- und Dokumentpakete sind ausgeschlossen: %@";
 "App bundle missing" = "App-Paket fehlt";
 "App downloads are checked before opening." = "App-Downloads werden vor dem Öffnen geprüft.";
@@ -507,7 +502,6 @@
 "Delete local snapshot?" = "Lokalen Snapshot löschen?";
 "Disabled" = "Deaktiviert";
 "Downloaded apps are not being assessed by Gatekeeper." = "Geladene Apps werden von Gatekeeper nicht bewertet.";
-"Duplicate Finder" = "Duplikatsuche";
 "Duplicate groups" = "Duplikatgruppen";
 "Every %lld seconds" = "Alle %lld Sekunden";
 "Every eligible file was checked." = "Jede geeignete Datei wurde geprüft.";
@@ -673,7 +667,6 @@
 "Show %@ in Finder" = "%@ im Finder zeigen";
 "Show in Finder" = "Im Finder zeigen";
 "Shows a confirmation before moving the selected copies" = "Zeigt eine Bestätigung, bevor die ausgewählten Kopien bewegt werden";
-"Similar Photos" = "Ähnliche Fotos";
 "Similarity is a visual estimate, not proof that two files are identical. Use Show in Finder to compare originals at full quality." = "Ähnlichkeit ist eine visuelle Schätzung, kein Beweis dafür, dass zwei Dateien identisch sind. Nutze „Im Finder zeigen“, um die Originale in voller Qualität zu vergleichen.";
 "Skipped items" = "Übersprungene Objekte";
 "Smallest first" = "Kleinste zuerst";
@@ -687,7 +680,6 @@
 "Some protected locations are unavailable. Full Disk Access allows a more complete scan." = "Einige geschützte Speicherorte sind nicht verfügbar. Festplattenvollzugriff ermöglicht einen vollständigeren Scan.";
 "Some selected files" = "Einige ausgewählte Dateien";
 "Sort" = "Sortieren";
-"Space Explorer" = "Speicheranalyse";
 "Stop" = "Stoppen";
 "Stop scan" = "Scan stoppen";
 "Stopping keeps the results found so far." = "Beim Stoppen bleiben die bisher gefundenen Ergebnisse erhalten.";
@@ -996,7 +988,6 @@
 "Found a problem?" = "Problem gefunden?";
 "Issues are tracked on GitHub" = "Probleme werden auf GitHub erfasst";
 "Features" = "Funktionen";
-"Apple Features" = "Apple-Funktionen";
 "Review optional features and the storage used by Apple downloads." = "Optionale Funktionen und den von Apple-Downloads belegten Speicher prüfen.";
 "Apple Features section" = "Bereich „Apple-Funktionen“";
 "Finishing backup removal. New scans are available when it stops." = "Backups werden noch entfernt. Neue Scans sind danach wieder möglich.";
@@ -1383,3 +1374,5 @@
 "Couldn't compare installed apps" = "Installierte Apps konnten nicht verglichen werden";
 "Sift needs the list of installed apps before it can call a file a leftover. Try again in a moment." = "Sift braucht die Liste der installierten Apps, bevor es eine Datei als Überbleibsel bezeichnen kann. Versuche es gleich noch einmal.";
 "Permanently deletes the junk the scan selected, without asking" = "Löscht den vom Scan ausgewählten Ballast endgültig, ohne Rückfrage";
+"Last checked %@" = "Zuletzt geprüft: %@";
+"Scheduled scan" = "Geplanter Scan";

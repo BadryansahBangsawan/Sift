@@ -673,6 +673,19 @@ struct SiftMeterBar: View {
 
 // MARK: - Search field
 
+/// The two names VoiceOver uses inside a search field: the field speaks its
+/// prompt, the clear button says what it clears. Keeping them in one place
+/// stops a label glued onto the whole control from naming both.
+struct SearchFieldLabels: Equatable {
+    let field: String
+
+    init(field: String) {
+        self.field = field
+    }
+
+    static let clear = String(localized: "Clear search")
+}
+
 struct SiftSearchField: View {
     @Binding var text: String
     let prompt: Text
@@ -687,12 +700,13 @@ struct SiftSearchField: View {
                 .font(.sift(13))
                 .foregroundStyle(SiftColor.textPrimary)
                 .focused($focused)
+                .accessibilityLabel(prompt)
             if !text.isEmpty {
                 Button { text = "" } label: {
                     SiftIcon.x.image(13).foregroundStyle(SiftColor.textTertiary)
                 }
                 .buttonStyle(.plain)
-                .accessibilityLabel(Text("Clear search"))
+                .accessibilityLabel(Text(verbatim: SearchFieldLabels.clear))
             } else if let shortcut {
                 Text(verbatim: shortcut)
                     .font(.siftMono(10.5))

@@ -3,7 +3,6 @@
 "Cleanup" = "Limpeza";
 "Dashboard" = "Painel";
 "Installed Apps" = "Apps instalados";
-"Orphaned Files" = "Arquivos órfãos";
 "Ready to clean" = "Pronto para limpar";
 "Limited access" = "Acesso limitado";
 "Full Disk Access granted" = "Acesso total ao disco concedido";
@@ -102,7 +101,6 @@
 "Scanning for orphaned files..." = "Buscando arquivos órfãos...";
 "No Orphaned Files" = "Sem arquivos órfãos";
 "No leftover files from uninstalled apps were found." = "Nenhum arquivo restante de apps desinstalados foi encontrado.";
-"Scan for Orphans" = "Buscar órfãos";
 "Orphaned Files (%lld)" = "Arquivos órfãos (%lld)";
 "Remove Selected (%lld)" = "Remover selecionados (%lld)";
 "Some files could not be removed" = "Alguns arquivos não puderam ser removidos";
@@ -115,9 +113,7 @@
 "Get Started" = "Começar";
 "Free, open-source macOS app manager and system cleaner." = "Gerenciador de apps e limpador de sistema gratuito e de código aberto para macOS.";
 "Find junk files across your system" = "Encontre arquivos de lixo no sistema todo";
-"App Uninstaller" = "Desinstalador de apps";
 "Remove apps and all their files" = "Remova apps e todos os seus arquivos";
-"Orphan Finder" = "Localizador de órfãos";
 "Find leftovers from deleted apps" = "Encontre restos de apps apagados";
 "Full Disk Access" = "Acesso total ao disco";
 "We'll guide you through the next steps." = "Vamos guiá-lo pelos próximos passos.";
@@ -455,7 +451,6 @@
 "Always exclude from cleanup" = "Sempre excluir da limpeza";
 "Any age" = "Qualquer idade";
 "Any size" = "Qualquer tamanho";
-"App Updates" = "Atualizações de Apps";
 "App and document packages are excluded: %@" = "Pacotes de apps e documentos são excluídos: %@";
 "App bundle missing" = "Pacote do app ausente";
 "App downloads are checked before opening." = "Os downloads de apps são verificados antes de abrir.";
@@ -508,7 +503,6 @@
 "Delete local snapshot?" = "Apagar o instantâneo local?";
 "Disabled" = "Desativado";
 "Downloaded apps are not being assessed by Gatekeeper." = "Apps baixados não estão sendo avaliados pelo Gatekeeper.";
-"Duplicate Finder" = "Localizador de Duplicatas";
 "Duplicate groups" = "Grupos de duplicatas";
 "Every %lld seconds" = "A cada %lld segundos";
 "Every eligible file was checked." = "Todos os arquivos elegíveis foram verificados.";
@@ -674,7 +668,6 @@
 "Show %@ in Finder" = "Mostrar %@ no Finder";
 "Show in Finder" = "Mostrar no Finder";
 "Shows a confirmation before moving the selected copies" = "Mostra uma confirmação antes de mover as cópias selecionadas";
-"Similar Photos" = "Fotos Semelhantes";
 "Similarity is a visual estimate, not proof that two files are identical. Use Show in Finder to compare originals at full quality." = "A similaridade é uma estimativa visual, não uma prova de que dois arquivos são idênticos. Use “Mostrar no Finder” para comparar os originais em qualidade total.";
 "Skipped items" = "Itens ignorados";
 "Smallest first" = "Menores primeiro";
@@ -688,7 +681,6 @@
 "Some protected locations are unavailable. Full Disk Access allows a more complete scan." = "Alguns locais protegidos estão indisponíveis. O Acesso Total ao Disco permite uma verificação mais completa.";
 "Some selected files" = "Alguns arquivos selecionados";
 "Sort" = "Ordenar";
-"Space Explorer" = "Explorador de Espaço";
 "Stop" = "Parar";
 "Stop scan" = "Parar verificação";
 "Stopping keeps the results found so far." = "Parar mantém os resultados encontrados até agora.";
@@ -993,7 +985,6 @@
 "Found a problem?" = "Encontrou um problema?";
 "Issues are tracked on GitHub" = "Os problemas são acompanhados no GitHub";
 "Features" = "Recursos";
-"Apple Features" = "Recursos da Apple";
 "Review optional features and the storage used by Apple downloads." = "Revise recursos opcionais e o armazenamento usado por downloads da Apple.";
 "Apple Features section" = "Seção Recursos da Apple";
 "Finishing backup removal. New scans are available when it stops." = "Concluindo a remoção de backups. Novas verificações ficarão disponíveis quando terminar.";
@@ -1380,3 +1371,5 @@
 "Couldn't compare installed apps" = "Não foi possível comparar os apps instalados";
 "Sift needs the list of installed apps before it can call a file a leftover. Try again in a moment." = "O Sift precisa da lista de apps instalados antes de chamar um arquivo de sobra. Tente novamente em instantes.";
 "Permanently deletes the junk the scan selected, without asking" = "Exclui permanentemente o lixo selecionado pela verificação, sem perguntar";
+"Last checked %@" = "Última verificação: %@";
+"Scheduled scan" = "Verificação agendada";

@@ -18,7 +18,7 @@ struct InstalledApp: Identifiable, Hashable {
     var lastOpened: Date? = nil
 
     var formattedSize: String {
-        ByteCountFormatter.string(fromByteCount: size, countStyle: .file)
+        SiftFormat.bytes(size)
     }
 
     func hash(into hasher: inout Hasher) {

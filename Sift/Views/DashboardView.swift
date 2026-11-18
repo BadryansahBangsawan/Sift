@@ -66,7 +66,9 @@ struct DashboardView: View {
     }
 
     private var selectedItems: [CleanableItem] {
-        appState.allResults.flatMap(\.items).filter(appState.isItemSelected)
+        // The dashboard shows no sort control, so the sheet reads largest first.
+        CleanupReviewFilter(order: .largest)
+            .ordered(appState.allResults.flatMap(\.items).filter(appState.isItemSelected))
     }
 
     private func requestAccess() {
@@ -1094,7 +1096,7 @@ private struct HistoryRow: View {
                 .frame(width: 24, height: 24)
                 .background(RoundedRectangle(cornerRadius: 8, style: .continuous).fill(SiftColor.control))
             VStack(alignment: .leading, spacing: 1) {
-                Text(verbatim: record.title ?? String(localized: "Cleanup"))
+                Text(verbatim: CleanupHistoryTitle.text(for: record))
                     .font(.sift(12))
                     .foregroundStyle(SiftColor.textPrimary)
                     .lineLimit(1)
@@ -1118,7 +1120,7 @@ private struct HistoryRow: View {
     /// category, else just the time.
     private func subtitle(now: Date) -> Text {
         let when = SiftFormat.relative(record.date, to: now)
-        guard let category = record.category, record.title != nil else { return Text(verbatim: when) }
+        guard let category = record.category else { return Text(verbatim: when) }
         return Text("\(Text(category.cleanupTitle)) · \(when)")
     }
 }

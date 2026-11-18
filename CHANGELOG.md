@@ -40,6 +40,38 @@ All notable user-facing changes to Sift. Sift was called PureMac before 4.0.0.
   symlink or a path outside the folders Sift cleans) no longer reports
   "N item(s) need Full Disk Access" and offers a Grant Access retry that can
   never work. It shows the reason instead.
+- Pages are named the way the rail names them: "Space explorer", "Duplicates",
+  "Similar photos", "Apple features", "App updates", and the Leftovers screen
+  and onboarding rows ("Overview", "Uninstaller", "Leftovers") no longer use a
+  second set of names.
+- VoiceOver hears the cleanup search field and its clear button as two
+  controls: the field is named by its prompt and the × is "Clear search", not
+  both "Filter cleanup files".
+- The rail's schedule card says "Scheduled scan" — matching Settings' "Enable
+  scheduled scanning" — until auto-clean is on, when it says "Scheduled
+  cleanup". It used to promise a cleanup for a schedule that only scans.
+- App updates now says when it last checked ("Last checked 1 minute ago",
+  "Last checked just now") as one sentence in every language. The eyebrow used
+  to render a live duration — "1 min, 19 secs" — that ticked every second and
+  never said "ago", glued to a separate "Last checked" fragment.
+- Cleanup history now names each row the way the app names it today ("AI
+  tools", "System junk", "Developer caches") and in the language on screen.
+  Records written by an older build keep their meaning: their stored text is
+  read back through every shipped language.
+- The removal sheet and the selection bar list files in the same order as the
+  list (name, size or date) instead of the order the scan produced; the
+  dashboard's sheet, which has no sort control, reads largest first.
+- The Uninstaller footer now says what the selection is on a line of its own
+  ("25 items, 1.12 GB") above the buttons; at the minimum window width the
+  summary used to be squeezed to a few points between "Dry run" and "Review
+  removal", and its wording now follows the plural rules ("1 item").
+- Arabic no longer loses the size in a count of zero, one or two files, and
+  no longer crashes there: a label such as "1 item, 2 MB" put the size in the
+  number's place and read `لا عناصر، (null)` before the crash.
+- Sizes no longer read "Zero KB" or "999 bytes" in the Uninstaller, its
+  leftovers, the History rows, the scan notification or `Sift scan`: every
+  size in the app now comes from the one formatter the dashboard uses, so an
+  empty folder reads "0 KB".
 - Overview "Where it sits" no longer clips its category names at the minimum
   window width. The row gave half the leftover space to the meter, so
   "Developer caches" read "Developer c…" while the meter still had room to

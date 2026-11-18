@@ -40,7 +40,7 @@ struct OrphanListView: View {
                         systemImage: "magnifyingglass",
                         description: "Scan to see whether uninstalled apps left files behind.",
                         action: { appState.findOrphans() },
-                        actionLabel: "Scan for Orphans",
+                        actionLabel: "Scan for leftover files",
                         tint: SiftColor.textSecondary
                     )
                     .siftSurface(.card)
@@ -52,12 +52,12 @@ struct OrphanListView: View {
                         systemImage: "exclamationmark.triangle",
                         description: "Sift needs the list of installed apps before it can call a file a leftover. Try again in a moment.",
                         action: { appState.findOrphans() },
-                        actionLabel: "Scan for Orphans",
+                        actionLabel: "Scan for leftover files",
                         tint: SiftColor.warning
                     )
                     .siftSurface(.card)
                 } else {
-                    EmptyStateView("No Orphaned Files", systemImage: "checkmark.circle", description: "No leftover files from uninstalled apps were found.", action: { appState.findOrphans() }, actionLabel: "Scan for Orphans", tint: SiftColor.success)
+                    EmptyStateView("No Leftovers", systemImage: "checkmark.circle", description: "No leftover files from uninstalled apps were found.", action: { appState.findOrphans() }, actionLabel: "Scan for leftover files", tint: SiftColor.success)
                         .siftSurface(.card)
                 }
             }
@@ -116,7 +116,7 @@ struct OrphanListView: View {
                     appState.findOrphans()
                 } label: {
                     Label {
-                        Text("Scan for Orphans")
+                        Text("Scan for leftover files")
                     } icon: {
                         SiftIcon.rotateCw.image(15).foregroundStyle(SiftColor.textSecondary)
                     }
@@ -190,7 +190,7 @@ struct OrphanListView: View {
                     .font(.sift(13.5, weight: 500))
                     .foregroundStyle(SiftColor.textPrimary)
                 if !selectedOrphans.isEmpty {
-                    Text(verbatim: ByteCountFormatter.string(fromByteCount: selectedSize, countStyle: .file))
+                    Text(verbatim: SiftFormat.bytes(selectedSize))
                         .font(.siftMono(12.5))
                         .foregroundStyle(SiftColor.accent)
                 }
@@ -473,7 +473,7 @@ private struct OrphanRowView: View {
 
             Group {
                 if let size = fileSize {
-                    Text(ByteCountFormatter.string(fromByteCount: size, countStyle: .file))
+                    Text(SiftFormat.bytes(size))
                 } else {
                     Text(verbatim: "…")
                 }

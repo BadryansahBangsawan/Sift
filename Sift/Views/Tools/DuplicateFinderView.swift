@@ -71,7 +71,7 @@ struct DuplicateFinderView: View {
 
     private var header: some View {
         SiftToolHeader(
-            Text("Duplicate Finder"),
+            Text("Duplicates"),
             eyebrow: Text("Tools"),
             subtitle: Text(verbatim: headerSubtitle)
         ) {
@@ -627,7 +627,7 @@ struct DuplicateFinderView: View {
     }
 
     private func format(_ bytes: Int64) -> String {
-        ByteCountFormatter.string(fromByteCount: bytes, countStyle: .file)
+        SiftFormat.bytes(bytes)
     }
 }
 
