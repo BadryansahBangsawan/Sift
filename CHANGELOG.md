@@ -2,6 +2,19 @@
 
 All notable user-facing changes to Sift. Sift was called PureMac before 4.0.0.
 
+## Unreleased
+
+### Apple Intelligence
+
+- The Apple features screen can turn Apple Intelligence off per feature, delete
+  its on-device model sets through Apple's asset service, and block them from
+  downloading again with a configuration profile you approve in System Settings.
+- Optional privacy and pop-up tweaks, with a Recommended preset and an undo
+  journal that restores the values Sift changed.
+- Ported from [RemoveMacAI](https://github.com/omlahore/RemoveMacAI), which builds
+  on [pared](https://github.com/4evy/pared). Both are MIT; their notices are in
+  [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md).
+
 ## 4.0.0
 
 PureMac is now Sift. The app, the command-line tool and the release artifacts use
