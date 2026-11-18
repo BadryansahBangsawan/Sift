@@ -36,6 +36,21 @@ final class SearchFieldAccessibilityTests: XCTestCase {
         }
     }
 
+    /// German is the case where the two sentences are longest: both labels
+    /// must still be there, and neither may fall back to English.
+    func testGermanKeepsBothLabels() throws {
+        let de = try bundle(for: "de")
+        let prompt = de.localizedString(forKey: "Filter by name or path", value: nil, table: nil)
+        let uninstaller = de.localizedString(forKey: "Search applications", value: nil, table: nil)
+        let clear = de.localizedString(forKey: "Clear search", value: nil, table: nil)
+        XCTAssertNotEqual(clear, "Clear search", "German fell back to English for the clear button")
+        XCTAssertNotEqual(prompt, "Filter by name or path")
+        XCTAssertNotEqual(uninstaller, "Search applications")
+        XCTAssertNotEqual(clear, prompt)
+        XCTAssertNotEqual(clear, uninstaller)
+        XCTAssertEqual(SearchFieldLabels(field: uninstaller).field, uninstaller)
+    }
+
     private func bundle(for language: String) throws -> Bundle {
         let path = try XCTUnwrap(Bundle.main.path(forResource: language, ofType: "lproj"))
         return try XCTUnwrap(Bundle(path: path))
