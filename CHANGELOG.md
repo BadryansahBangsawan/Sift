@@ -6,6 +6,10 @@ All notable user-facing changes to Sift. Sift was called PureMac before 4.0.0.
 
 ### Fixed
 
+- The Uninstaller footer now says what the selection is on a line of its own
+  ("25 items, 1.12 GB") above the buttons; at the minimum window width the
+  summary used to be squeezed to a few points between "Dry run" and "Review
+  removal", and its wording now follows the plural rules ("1 item").
 - Arabic no longer loses the size in a count of zero, one or two files, and
   no longer crashes there: a label such as "1 item, 2 MB" put the size in the
   number's place and read `لا عناصر، (null)` before the crash.
