@@ -10,6 +10,9 @@ struct MainWindow: View {
     @ObservedObject private var accentStore = AccentStore.shared
     @State private var selectedSection: AppSection? = .cleaning(.smartScan)
     @FocusState private var focusedSection: AppSection?
+    /// Owns arrow-key navigation; set when the window appears so ↑/↓ work
+    /// without clicking a row first.
+    @FocusState private var railFocused: Bool
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
@@ -21,6 +24,9 @@ struct MainWindow: View {
                 badge: railBadge(for:),
                 focusedSection: $focusedSection
             )
+            .focusable()
+            .hideFocusEffect()
+            .focused($railFocused)
             .onMoveCommand(perform: moveSelection)
 
             detailContainer
@@ -51,6 +57,7 @@ struct MainWindow: View {
             } else if let selectedSection {
                 focusedSection = selectedSection
             }
+            railFocused = true
         }
         .onChange(of: appState.cleanErrorIsFDAFixable) { isFDAFixable in
             guard isFDAFixable else { return }
@@ -266,14 +273,11 @@ struct SiftRail: View {
                         ForEach(Self.toolItems) { row($0) }
                     }
                 }
-                // Arrow-key navigation can select a row below the fold; keep it
-                // on screen. scrollTo(anchor: nil) leaves visible rows alone.
+                // Only follow changes: scrolling on appear centred the selected
+                // row and clipped the first rows when a middle section opened.
                 .onChange(of: selection) { newValue in
                     guard let newValue else { return }
                     proxy.scrollTo(newValue, anchor: nil)
-                }
-                .onAppear {
-                    if let selection { proxy.scrollTo(selection, anchor: nil) }
                 }
             }
             Spacer(minLength: 12)
@@ -429,5 +433,18 @@ private struct RailRow: View {
         )
         .contentShape(RoundedRectangle(cornerRadius: SiftRadius.nav, style: .continuous))
         .onHover { hovering = $0 }
+    }
+}
+
+private extension View {
+    /// `.focusEffectDisabled()` needs macOS 14; the rail is focused for ↑/↓
+    /// navigation and must not paint a ring around the window on older systems.
+    @ViewBuilder
+    func hideFocusEffect() -> some View {
+        if #available(macOS 14.0, *) {
+            focusEffectDisabled()
+        } else {
+            self
+        }
     }
 }
