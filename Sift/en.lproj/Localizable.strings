@@ -944,6 +944,7 @@
 "Your version, release checks and how to install updates." = "Your version, release checks and how to install updates.";
 "macOS %@ or later" = "macOS %@ or later";
 "Changes apply immediately" = "Changes apply immediately";
+"Most changes apply immediately" = "Most changes apply immediately";
 "Opens quietly when you sign in to your Mac" = "Opens quietly when you sign in to your Mac";
 "A new language applies after Sift restarts" = "A new language applies after Sift restarts";
 "Menu bar and sound" = "Menu bar and sound";

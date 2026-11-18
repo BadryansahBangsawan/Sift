@@ -944,6 +944,7 @@
 "Your version, release checks and how to install updates." = "La tua versione, il controllo delle nuove versioni e come installare gli aggiornamenti.";
 "macOS %@ or later" = "macOS %@ o versioni successive";
 "Changes apply immediately" = "Le modifiche si applicano subito";
+"Most changes apply immediately" = "La maggior parte delle modifiche si applica subito";
 "Opens quietly when you sign in to your Mac" = "Si apre in modo discreto quando accedi al Mac";
 "A new language applies after Sift restarts" = "La nuova lingua viene applicata al riavvio di Sift";
 "Menu bar and sound" = "Barra dei menu e suoni";

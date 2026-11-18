@@ -944,6 +944,7 @@
 "Your version, release checks and how to install updates." = "目前版本、版本檢查以及更新的安裝方式。";
 "macOS %@ or later" = "macOS %@ 或以上版本";
 "Changes apply immediately" = "變更會立即生效";
+"Most changes apply immediately" = "大多數變更會立即生效";
 "Opens quietly when you sign in to your Mac" = "登入 Mac 時在背景安靜開啟";
 "A new language applies after Sift restarts" = "重新啟動 Sift 後才會套用新語言";
 "Menu bar and sound" = "選單列與聲音";
