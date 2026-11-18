@@ -14,7 +14,9 @@ enum ByteCount {
     }
 
     private static func format(_ bytes: Int64, base: Double) -> String {
-        if bytes <= 0 { return "Zero KB" }
+        // The app formats an empty size as "0 KB" (ByteCountFormatter with
+        // allowsNonnumericFormatting off), so the CLI says the same thing.
+        if bytes <= 0 { return "0 KB" }
         let units = ["bytes", "KB", "MB", "GB", "TB", "PB"]
         var value = Double(bytes)
         var idx = 0
@@ -22,7 +24,9 @@ enum ByteCount {
             value /= base
             idx += 1
         }
-        if idx == 0 { return "\(Int(value)) bytes" }
+        if idx == 0 {
+            return value == 1 ? "1 byte" : "\(Int(value)) bytes"
+        }
 
         // Rounding to one decimal place can turn 999.96 into 1000.0; promote to
         // the next unit rather than print a thousand of a smaller one.

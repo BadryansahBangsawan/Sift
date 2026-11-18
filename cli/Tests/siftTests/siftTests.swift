@@ -5,7 +5,7 @@ final class SiftCLITests: XCTestCase {
     let home = FileManager.default.homeDirectoryForCurrentUser.path
 
     func testByteCountFormatting() {
-        XCTAssertEqual(ByteCount.human(0), "Zero KB")
+        XCTAssertEqual(ByteCount.human(0), "0 KB")
         XCTAssertEqual(ByteCount.human(1_000), "1 KB")
         XCTAssertEqual(ByteCount.human(631_000), "631 KB")
         XCTAssertEqual(ByteCount.human(23_790_000_000), "23.8 GB")
@@ -25,7 +25,7 @@ final class SiftCLITests: XCTestCase {
     }
 
     func testMemoryRoundsAtBinaryUnitBoundaries() {
-        XCTAssertEqual(ByteCount.memory(0), "Zero KB")
+        XCTAssertEqual(ByteCount.memory(0), "0 KB")
         XCTAssertEqual(ByteCount.memory(1_023), "1023 bytes")
         XCTAssertEqual(ByteCount.memory(1_024), "1 KB")
         XCTAssertEqual(ByteCount.memory(1_073_741_824), "1 GB")
