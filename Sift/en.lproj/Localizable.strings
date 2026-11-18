@@ -1367,3 +1367,4 @@
 "Quit Claude to remove this." = "Quit Claude to remove this.";
 "Skipped: Claude is running. Quit Claude and scan again." = "Skipped: Claude is running. Quit Claude and scan again.";
 "Skipped: this session is open. Quit the session and scan again." = "Skipped: this session is open. Quit the session and scan again.";
+"Last checked %@" = "Last checked %@";

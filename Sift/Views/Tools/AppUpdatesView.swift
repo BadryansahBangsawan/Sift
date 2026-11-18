@@ -86,11 +86,14 @@ struct AppUpdatesView: View {
     // MARK: Header
 
     private var header: some View {
-        SiftScreenHeader(
-            Text("App Updates"),
-            eyebrow: eyebrow,
-            subtitle: Text("Review and update apps installed as Homebrew casks.")
-        ) {
+        // A minute is the finest step a relative date needs: the eyebrow used
+        // to tick every second because it rendered a live duration.
+        TimelineView(.periodic(from: .now, by: 60)) { timeline in
+            SiftScreenHeader(
+                Text("App Updates"),
+                eyebrow: eyebrow(now: timeline.date),
+                subtitle: Text("Review and update apps installed as Homebrew casks.")
+            ) {
             // The first-run card carries its own Check button.
             if !isFirstRun {
                 Button {
@@ -105,14 +108,20 @@ struct AppUpdatesView: View {
                 .buttonStyle(.siftSecondary)
                 .disabled(updater.isBusy || !updater.isHomebrewAvailable)
             }
+            }
         }
     }
 
-    private var eyebrow: Text {
-        if let date = updater.lastCheckedAt {
-            return Text("Last checked") + Text(verbatim: " ") + Text(date, style: .relative)
-        }
-        return Text("Updates from Homebrew")
+    /// "Last checked 1 minute ago" — one sentence, with the language's own
+    /// word order around the date. A live duration (`style: .relative`) said
+    /// "1 min, 19 secs" and ticked every second without ever saying "ago".
+    static func checkedLabel(_ date: Date, now: Date = Date()) -> String {
+        String(format: String(localized: "Last checked %@"), SiftFormat.relative(date, to: now))
+    }
+
+    private func eyebrow(now: Date) -> Text {
+        guard let date = updater.lastCheckedAt else { return Text("Updates from Homebrew") }
+        return Text(verbatim: Self.checkedLabel(date, now: now))
     }
 
     private var isFirstRun: Bool {

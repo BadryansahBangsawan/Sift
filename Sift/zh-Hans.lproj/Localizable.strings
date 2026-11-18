@@ -1366,3 +1366,4 @@
 "Quit Claude to remove this." = "退出 Claude 后再删除。";
 "Skipped: Claude is running. Quit Claude and scan again." = "已跳过：Claude 正在运行。退出 Claude 后重新扫描。";
 "Skipped: this session is open. Quit the session and scan again." = "已跳过：此会话处于打开状态。退出会话后重新扫描。";
+"Last checked %@" = "上次检查：%@";

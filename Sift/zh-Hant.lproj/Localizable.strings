@@ -1367,3 +1367,4 @@
 "Quit Claude to remove this." = "結束 Claude 後再刪除。";
 "Skipped: Claude is running. Quit Claude and scan again." = "已略過：Claude 正在執行。結束 Claude 後重新掃描。";
 "Skipped: this session is open. Quit the session and scan again." = "已略過：此工作階段處於開啟狀態。結束工作階段後重新掃描。";
+"Last checked %@" = "上次檢查：%@";

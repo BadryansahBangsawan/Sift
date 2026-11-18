@@ -1367,3 +1367,4 @@
 "Quit Claude to remove this." = "Закройте Claude, чтобы удалить это.";
 "Skipped: Claude is running. Quit Claude and scan again." = "Пропущено: Claude запущен. Закройте Claude и повторите сканирование.";
 "Skipped: this session is open. Quit the session and scan again." = "Пропущено: эта сессия открыта. Завершите сессию и повторите сканирование.";
+"Last checked %@" = "Последняя проверка: %@";

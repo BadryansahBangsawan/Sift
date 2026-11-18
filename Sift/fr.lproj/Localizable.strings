@@ -1361,3 +1361,4 @@
 "Quit Claude to remove this." = "Quittez Claude pour supprimer ceci.";
 "Skipped: Claude is running. Quit Claude and scan again." = "Ignoré : Claude est en cours d’exécution. Quittez Claude et relancez l’analyse.";
 "Skipped: this session is open. Quit the session and scan again." = "Ignoré : cette session est ouverte. Quittez la session et relancez l’analyse.";
+"Last checked %@" = "Dernière vérification : %@";

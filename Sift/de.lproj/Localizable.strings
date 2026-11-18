@@ -1370,3 +1370,4 @@
 "Quit Claude to remove this." = "Claude beenden, um dies zu entfernen.";
 "Skipped: Claude is running. Quit Claude and scan again." = "Übersprungen: Claude läuft. Beende Claude und scanne erneut.";
 "Skipped: this session is open. Quit the session and scan again." = "Übersprungen: Diese Sitzung ist offen. Beende die Sitzung und scanne erneut.";
+"Last checked %@" = "Zuletzt geprüft: %@";

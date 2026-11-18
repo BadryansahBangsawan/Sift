@@ -1367,3 +1367,4 @@
 "Quit Claude to remove this." = "Chiudi Claude per rimuovere questo elemento.";
 "Skipped: Claude is running. Quit Claude and scan again." = "Saltato: Claude è in esecuzione. Chiudi Claude e ripeti la scansione.";
 "Skipped: this session is open. Quit the session and scan again." = "Saltato: questa sessione è aperta. Chiudi la sessione e ripeti la scansione.";
+"Last checked %@" = "Ultimo controllo: %@";
