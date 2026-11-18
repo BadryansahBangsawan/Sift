@@ -637,13 +637,18 @@ final class AppState: ObservableObject {
         isSearchingOrphans = true
         orphanedFiles = []
         Task.detached(priority: .userInitiated) {
-            let locations = await MainActor.run { self.locationsProvider() }
+            // Read the closures on the main actor, then call them off it:
+            // both walk the file system and take seconds, which would freeze
+            // the window if they ran where the UI draws.
+            let locationsProvider = await MainActor.run { self.locationsProvider }
+            let installedAppsProvider = await MainActor.run { self.installedAppsProvider }
+            let locations = locationsProvider()
             var knownApps = await MainActor.run { self.installedApps }
             if knownApps.isEmpty {
                 // The list loads in the background at launch. With none of the
                 // IDs known every folder looks orphaned, so fetch it here
                 // instead of trusting an empty snapshot.
-                let fetched = await MainActor.run { self.installedAppsProvider() }
+                let fetched = installedAppsProvider()
                 knownApps = fetched
                 await MainActor.run { [weak self] in
                     if self?.installedApps.isEmpty == true { self?.installedApps = fetched }
