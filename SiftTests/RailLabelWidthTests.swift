@@ -31,6 +31,16 @@ final class RailLabelWidthTests: XCTestCase {
         }
     }
 
+    func testShortLabelsKeepOneLineAndTheRowKeepsItsHeight() {
+        let card = RailRowLayout.labelWidth(railWidth: SiftSpacing.railWidth, trailingWidth: badgeWidth)
+        XCTAssertEqual(RailRowLayout.lineLimit(labelWidth: 60, available: card), 1)
+        XCTAssertEqual(
+            RailRowLayout.rowMinHeight, 36,
+            "Rows without a badge keep the rail's rhythm; wrapping grows the row, never shrinks it"
+        )
+        XCTAssertGreaterThan(card, 100, "A rail row must still leave a usable label column")
+    }
+
     // MARK: - Fixtures
 
     /// A row with a count badge is the widest case: the badge takes the most room.
