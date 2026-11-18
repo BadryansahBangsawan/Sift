@@ -710,17 +710,29 @@ actor ScanEngine {
             "\(home)/Library/org.swift.swiftpm",
         ]
 
+        // Archives hold the shipped builds and the dSYMs needed to symbolicate
+        // crash reports. They are the user's work and cannot be regenerated, so
+        // the row is opt-in, says what is lost, and leaves through the Trash
+        // instead of an unlink. That also keeps them out of an unattended
+        // scheduled clean, which only touches pre-selected rows.
+        let archivesPath = "\(home)/Library/Developer/Xcode/Archives"
+
         for path in xcodePaths {
             if fileManager.fileExists(atPath: path) {
                 let size = directorySize(path: path)
                 if size > 0 {
+                    let isArchives = path == archivesPath
                     items.append(CleanableItem(
                         name: URL(fileURLWithPath: path).lastPathComponent,
                         path: path,
                         size: size,
                         category: .xcodeJunk,
-                        isSelected: true,
-                        lastModified: nil
+                        isSelected: !isArchives,
+                        lastModified: nil,
+                        note: isArchives
+                            ? String(localized: "Shipped builds and dSYMs — not selected by default")
+                            : nil,
+                        movesToTrash: isArchives
                     ))
                 }
             }

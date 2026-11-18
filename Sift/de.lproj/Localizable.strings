@@ -1363,6 +1363,7 @@
 "Codex Sessions (Optional)" = "Codex-Sitzungen (optional)";
 "Gemini CLI Temp Files" = "Temporäre Dateien der Gemini CLI";
 "Chat history — not selected by default" = "Chatverlauf – standardmäßig nicht ausgewählt";
+"Shipped builds and dSYMs — not selected by default" = "Ausgelieferte Builds und dSYM – standardmäßig nicht ausgewählt";
 "Prompt history — not selected by default" = "Prompt-Verlauf – standardmäßig nicht ausgewählt";
 "Session history — not selected by default" = "Sitzungsverlauf – standardmäßig nicht ausgewählt";
 "Recoverable rewind data — not selected by default" = "Wiederherstellbare Rewind-Daten – standardmäßig nicht ausgewählt";

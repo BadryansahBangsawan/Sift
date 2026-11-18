@@ -341,6 +341,15 @@ actor CleaningEngine {
                     // Trashed, not unlinked: the bytes are still on disk until
                     // the Trash is emptied (which records them itself), so this
                     // item must not add to freedSpace here.
+                } else if item.movesToTrash {
+                    // Rows the user opted into that hold work rather than junk
+                    // (Xcode Archives) leave through the Trash so they stay
+                    // recoverable.
+                    var resulting: NSURL?
+                    try fileManager.trashItem(at: resolvedURL, resultingItemURL: &resulting)
+                    if let trashedPath = resulting?.path {
+                        result.trashedPaths.insert(trashedPath)
+                    }
                 } else {
                     try fileManager.removeItem(at: itemURL)
                     result.freedSpace += item.size

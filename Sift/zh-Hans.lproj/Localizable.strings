@@ -1359,6 +1359,7 @@
 "Codex Sessions (Optional)" = "Codex 会话（可选）";
 "Gemini CLI Temp Files" = "Gemini CLI 临时文件";
 "Chat history — not selected by default" = "聊天记录 — 默认不选择";
+"Shipped builds and dSYMs — not selected by default" = "已发布构建和 dSYM — 默认不选择";
 "Prompt history — not selected by default" = "提示历史记录 — 默认不选择";
 "Session history — not selected by default" = "会话历史记录 — 默认不选择";
 "Recoverable rewind data — not selected by default" = "可恢复的回退数据 — 默认不选择";

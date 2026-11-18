@@ -1360,6 +1360,7 @@
 "Codex Sessions (Optional)" = "Codexのセッション（任意）";
 "Gemini CLI Temp Files" = "Gemini CLIの一時ファイル";
 "Chat history — not selected by default" = "チャット履歴 — デフォルトでは選択されません";
+"Shipped builds and dSYMs — not selected by default" = "出荷済みビルドとdSYM — デフォルトでは選択されません";
 "Prompt history — not selected by default" = "プロンプト履歴 — デフォルトでは選択されません";
 "Session history — not selected by default" = "セッション履歴 — デフォルトでは選択されません";
 "Recoverable rewind data — not selected by default" = "復元可能な巻き戻しデータ — デフォルトでは選択されません";
