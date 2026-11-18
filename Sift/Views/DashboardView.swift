@@ -320,29 +320,198 @@ private struct DashboardHero: View {
     }
 }
 
+/// Geometry of the three storage capsules. The capsule that holds a label and
+/// a value must be wide enough for both, or the label goes to a second line:
+/// an ellipsis in a storage bar hides the one word that says what the colour
+/// means.
+enum DiskMeterLayout {
+    /// Horizontal padding inside a capsule.
+    static let capsulePadding: CGFloat = 16
+    /// Gap between the label and the value on one line.
+    static let labelGap: CGFloat = 6
+    /// Gap between capsules, and the meter's own padding on each side.
+    static let spacing: CGFloat = 4
+    static let freeFloor: CGFloat = 140
+    static let reclaimableFloor: CGFloat = 170
+    /// No segment takes more than this share of the bar.
+    static let segmentCap: CGFloat = 0.4
+
+    /// How a capsule shows its label and value.
+    enum Style: Equatable {
+        /// Label, then value, on one line.
+        case inline
+        /// Label above value.
+        case stacked
+    }
+
+    /// Width the meter gets in the Overview hero card at `windowWidth`:
+    /// window gutters, the rail, and the card's own padding.
+    static func meterWidth(atWindowWidth windowWidth: CGFloat) -> CGFloat {
+        let content = windowWidth - SiftSpacing.gutter * 2 - SiftSpacing.railWidth - SiftSpacing.gutter
+        return max(0, content - SiftSpacing.cardPadding * 2)
+    }
+
+    /// Width the three capsules share, after the meter's padding.
+    static func available(total: CGFloat, hasReclaimable: Bool) -> CGFloat {
+        max(total - (hasReclaimable ? spacing * 2 : spacing), 0)
+    }
+
+    /// Width a label and a value need on one line together.
+    static func inlineWidth(label: CGFloat, value: CGFloat) -> CGFloat {
+        label + labelGap + value + capsulePadding * 2
+    }
+
+    /// Width a label above a value needs: the wider of the two.
+    static func stackedWidth(label: CGFloat, value: CGFloat) -> CGFloat {
+        max(label, value) + capsulePadding * 2
+    }
+
+    /// Style for a capsule of `width`: inline when both fit side by side,
+    /// stacked otherwise, because a second line is readable and an ellipsis is not.
+    static func style(width: CGFloat, label: CGFloat, value: CGFloat) -> Style {
+        style(width: width, neededInline: inlineWidth(label: label, value: value))
+    }
+
+    static func style(width: CGFloat, neededInline: CGFloat) -> Style {
+        width >= neededInline ? .inline : .stacked
+    }
+
+    /// Width of a run of text at the given font, rounded up.
+    static func textWidth(_ text: String, size: CGFloat, weight: CGFloat, family: String) -> CGFloat {
+        let font = SiftFonts.nsFont(family, size: size, weight: weight) ?? .systemFont(ofSize: size)
+        return ceil(NSAttributedString(string: text, attributes: [.font: font]).size().width)
+    }
+
+    /// Lines the free capsule's text takes: one when it fits, two otherwise.
+    /// Two lines need room for the longest word, not for the whole sentence.
+    static func freeLineLimit(textWidth: CGFloat, available: CGFloat) -> Int {
+        available >= textWidth + capsulePadding * 2 ? 1 : 2
+    }
+
+    /// Width a wrapped text needs: its longest word.
+    static func longestWordWidth(_ text: String, measure: (String) -> CGFloat) -> CGFloat {
+        text.split(separator: " ").map { measure(String($0)) }.max() ?? 0
+    }
+
+    /// Narrowest width at which `text` still lays out in at most `lines` lines.
+    /// A word list cannot answer this for every script, so ask the typesetter.
+    static func wrappedWidth(_ text: String, lines: Int, size: CGFloat, weight: CGFloat, family: String) -> CGFloat {
+        let font = SiftFonts.nsFont(family, size: size, weight: weight) ?? .systemFont(ofSize: size)
+        let attributed = NSAttributedString(string: text, attributes: [.font: font])
+        let typesetter = CTTypesetterCreateWithAttributedString(attributed)
+        let full = ceil(attributed.size().width)
+
+        func lineCount(_ width: CGFloat) -> Int {
+            var start = 0
+            var count = 0
+            while start < attributed.length {
+                let consumed = CTTypesetterSuggestLineBreak(typesetter, start, Double(width))
+                guard consumed > 0 else { return Int.max }
+                start += consumed
+                count += 1
+                if count > lines { return count }
+            }
+            return count
+        }
+
+        guard lineCount(full) > lines else { return full }
+        var low: CGFloat = 1
+        var high = full
+        for _ in 0..<20 {
+            let mid = (low + high) / 2
+            if lineCount(mid) <= lines { high = mid } else { low = mid }
+        }
+        return ceil(high)
+    }
+
+    /// Width of the reclaimable capsule and the free capsule. Each keeps at
+    /// least the width its own text needs, in whichever style that text takes,
+    /// so no capsule has to clip a translated label.
+    static func segmentWidths(
+        total: CGFloat,
+        disk: Double,
+        freeSpace: Int64,
+        reclaimable: Int64?,
+        labelWidth: CGFloat,
+        valueWidth: CGFloat,
+        freeTextWidth: CGFloat,
+        freeLongestWordWidth: CGFloat,
+        freeTwoLineWidth: CGFloat
+    ) -> (reclaimable: CGFloat?, free: CGFloat) {
+        let available = available(total: total, hasReclaimable: reclaimable != nil)
+        let diskTotal = max(disk, 1)
+
+        let proportionalFree = available * CGFloat(Double(freeSpace) / diskTotal)
+        let freeOneLine = freeTextWidth + capsulePadding * 2
+        let freeMinimum = proportionalFree >= freeOneLine
+            ? freeOneLine
+            : max(freeLongestWordWidth + capsulePadding * 2, freeTwoLineWidth + capsulePadding * 2)
+        let free = min(max(proportionalFree, freeMinimum), max(available * segmentCap, freeMinimum))
+
+        guard let reclaimable else { return (nil, free) }
+        let proportionalJunk = available * CGFloat(Double(reclaimable) / diskTotal)
+        let inlineNeeded = inlineWidth(label: labelWidth, value: valueWidth)
+        let junkMinimum = proportionalJunk >= inlineNeeded
+            ? inlineNeeded
+            : stackedWidth(label: labelWidth, value: valueWidth)
+        let junk = min(max(proportionalJunk, junkMinimum), max(available * segmentCap, junkMinimum))
+        return (junk, free)
+    }
+}
+
 /// Reclaimable, in use and free as three proportional capsules.
-private struct DiskMeter: View {
+struct DiskMeter: View {
     let info: DiskInfo
     /// nil before a scan: the meter then shows only in use and free.
     let reclaimable: Int64?
+    /// The copy as the app shows it. Injectable so a test can render a
+    /// translation without changing the launch language.
+    var reclaimableTitle: String?
+    var freeTitle: String?
 
     var body: some View {
         GeometryReader { proxy in
-            let widths = segmentWidths(total: proxy.size.width - 8)
-            HStack(spacing: 4) {
+            let total = proxy.size.width - DiskMeterLayout.spacing * 2
+            let label = reclaimableTitle ?? String(localized: "Reclaimable")
+            let value = reclaimable.map(SiftFormat.bytes) ?? ""
+            let free = freeTitle ?? String(localized: "\(SiftFormat.bytes(info.freeSpace)) free")
+            let labelWidth = DiskMeterLayout.textWidth(label, size: 11, weight: 500, family: SiftFonts.ui)
+            let valueWidth = DiskMeterLayout.textWidth(value, size: 16, weight: 400, family: SiftFonts.display)
+            let freeWidth = DiskMeterLayout.textWidth(free, size: 16, weight: 500, family: SiftFonts.display)
+            let freeWord = DiskMeterLayout.longestWordWidth(free) {
+                DiskMeterLayout.textWidth($0, size: 16, weight: 500, family: SiftFonts.display)
+            }
+            let widths = DiskMeterLayout.segmentWidths(
+                total: total,
+                disk: Double(info.totalSpace),
+                freeSpace: info.freeSpace,
+                reclaimable: reclaimable,
+                labelWidth: labelWidth,
+                valueWidth: valueWidth,
+                freeTextWidth: freeWidth,
+                freeLongestWordWidth: freeWord,
+                freeTwoLineWidth: DiskMeterLayout.wrappedWidth(
+                    free, lines: 2, size: 16, weight: 500, family: SiftFonts.display
+                )
+            )
+            HStack(spacing: DiskMeterLayout.spacing) {
                 if let reclaimable, let width = widths.reclaimable {
-                    HStack {
-                        Text("Reclaimable")
-                            .font(.sift(11, weight: 500))
-                            .foregroundStyle(SiftColor.onAccentMuted)
-                            .lineLimit(1)
-                        Spacer(minLength: 6)
-                        Text(verbatim: SiftFormat.bytes(reclaimable))
-                            .font(.siftDisplay(16))
-                            .foregroundStyle(SiftColor.onAccent)
-                            .lineLimit(1)
+                    let style = DiskMeterLayout.style(width: width, label: labelWidth, value: valueWidth)
+                    Group {
+                        if style == .inline {
+                            HStack(spacing: DiskMeterLayout.labelGap) {
+                                labelText(label)
+                                Spacer(minLength: 0)
+                                valueText(value)
+                            }
+                        } else {
+                            VStack(alignment: .leading, spacing: 0) {
+                                labelText(label)
+                                valueText(value)
+                            }
+                        }
                     }
-                    .padding(.horizontal, 16)
+                    .padding(.horizontal, DiskMeterLayout.capsulePadding)
                     .frame(width: width)
                     .frame(maxHeight: .infinity)
                     .background(Capsule(style: .continuous).fill(SiftColor.accent))
@@ -351,14 +520,14 @@ private struct DiskMeter: View {
                     .font(.siftDisplay(16, weight: 500))
                     .foregroundStyle(SiftColor.textPrimary)
                     .lineLimit(1)
-                    .padding(.horizontal, 16)
+                    .padding(.horizontal, DiskMeterLayout.capsulePadding)
                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
                     .background(Capsule(style: .continuous).fill(SiftColor.meterUsed))
-                Text("\(SiftFormat.bytes(info.freeSpace)) free")
+                Text(verbatim: free)
                     .font(.siftDisplay(16, weight: 500))
                     .foregroundStyle(SiftColor.textSecondary)
-                    .lineLimit(1)
-                    .padding(.horizontal, 16)
+                    .lineLimit(DiskMeterLayout.freeLineLimit(textWidth: freeWidth, available: widths.free))
+                    .padding(.horizontal, DiskMeterLayout.capsulePadding)
                     .frame(width: widths.free, alignment: .leading)
                     .frame(maxHeight: .infinity)
                     .background(Capsule(style: .continuous).fill(SiftColor.meterFree))
@@ -367,25 +536,31 @@ private struct DiskMeter: View {
                             .strokeBorder(SiftColor.controlStroke, style: StrokeStyle(lineWidth: 1, dash: [4, 4]))
                     )
             }
-            .padding(4)
+            .padding(DiskMeterLayout.spacing)
         }
         .frame(height: 56)
         .background(Capsule(style: .continuous).fill(SiftColor.window))
         .accessibilityElement(children: .combine)
     }
 
+    private func labelText(_ text: String) -> some View {
+        Text(verbatim: text)
+            .font(.sift(11, weight: 500))
+            .foregroundStyle(SiftColor.onAccentMuted)
+            .lineLimit(1)
+            .fixedSize(horizontal: true, vertical: false)
+    }
+
+    private func valueText(_ text: String) -> some View {
+        Text(verbatim: text)
+            .font(.siftDisplay(16))
+            .foregroundStyle(SiftColor.onAccent)
+            .lineLimit(1)
+            .fixedSize(horizontal: true, vertical: false)
+    }
+
     private var used: Int64 { max(0, info.totalSpace - info.freeSpace) }
     private var inUse: Int64 { max(0, used - (reclaimable ?? 0)) }
-
-    /// Proportional widths with a floor so each label stays readable.
-    private func segmentWidths(total: CGFloat) -> (reclaimable: CGFloat?, free: CGFloat) {
-        let disk = Double(max(info.totalSpace, 1))
-        let available = max(total - (reclaimable == nil ? 4 : 8), 0)
-        let free = min(max(available * CGFloat(Double(info.freeSpace) / disk), 140), available * 0.4)
-        guard let reclaimable else { return (nil, free) }
-        let junk = min(max(available * CGFloat(Double(reclaimable) / disk), 170), available * 0.4)
-        return (junk, free)
-    }
 }
 
 private struct ScanPathTicker: View {

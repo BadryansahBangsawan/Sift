@@ -400,13 +400,13 @@ struct SiftRail: View {
                 Text("Scheduled cleanup")
                     .font(.sift(10.5))
                     .foregroundStyle(SiftColor.textTertiary)
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.75)
+                    .lineLimit(2)
                     .fixedSize(horizontal: false, vertical: true)
                 scheduleSummary
                     .font(.sift(12.5, weight: 500))
                     .foregroundStyle(SiftColor.textPrimary)
-                    .lineLimit(1)
+                    .lineLimit(2)
+                    .fixedSize(horizontal: false, vertical: true)
             }
             Spacer(minLength: 0)
             Toggle(isOn: Binding(
@@ -483,7 +483,30 @@ private struct RailContentHeightKey: PreferenceKey {
     static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) { value = nextValue() }
 }
 
-private struct RailRow: View {
+/// Geometry of a rail row. A rail label must never end in an ellipsis: at the
+/// 228 pt rail a long translation either fits in its column or takes a second
+/// line, which is why the row's height is a minimum and not a fixed one.
+enum RailRowLayout {
+    static let rowMinHeight: CGFloat = 36
+    static let horizontalPadding: CGFloat = 10
+    static let iconWidth: CGFloat = 16
+    static let iconTrailing: CGFloat = 10
+    /// Room after the label before the badge or shortcut.
+    static let trailingGap: CGFloat = 6
+
+    /// Width the label gets in a `railWidth` rail, with `trailingWidth` taken
+    /// by a badge or shortcut hint (0 when the row has neither).
+    static func labelWidth(railWidth: CGFloat, trailingWidth: CGFloat) -> CGFloat {
+        max(0, railWidth - horizontalPadding * 2 - iconWidth - iconTrailing - trailingGap - trailingWidth)
+    }
+
+    /// Lines a label takes: one when it fits, two otherwise. The row grows.
+    static func lineLimit(labelWidth ideal: CGFloat, available: CGFloat) -> Int {
+        available >= ideal ? 1 : 2
+    }
+}
+
+struct RailRow: View {
     let item: SiftRail.Item
     let badge: String?
     let shortcut: String?
@@ -499,8 +522,11 @@ private struct RailRow: View {
             Text(item.label)
                 .font(.sift(13, weight: isSelected ? 500 : 400))
                 .foregroundStyle(isSelected || hovering ? SiftColor.textPrimary : SiftColor.textSecondary)
-                .lineLimit(1)
-                .minimumScaleFactor(0.9)
+                // A translation too long for the column takes a second line:
+                // the row grows rather than hiding where it goes behind an ellipsis.
+                .lineLimit(2)
+                .fixedSize(horizontal: false, vertical: true)
+                .multilineTextAlignment(.leading)
             Spacer(minLength: 6)
             if let badge {
                 SiftBadge(badge, highlighted: isSelected)
@@ -510,8 +536,9 @@ private struct RailRow: View {
                     .foregroundStyle(SiftColor.textTertiary)
             }
         }
-        .padding(.horizontal, 10)
-        .frame(height: 36)
+        .padding(.horizontal, RailRowLayout.horizontalPadding)
+        .padding(.vertical, 4)
+        .frame(minHeight: RailRowLayout.rowMinHeight)
         .background(
             RoundedRectangle(cornerRadius: SiftRadius.nav, style: .continuous)
                 .fill(isSelected ? SiftColor.selected : hovering ? SiftColor.selected.opacity(0.55) : .clear)
