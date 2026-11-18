@@ -13,6 +13,8 @@ All notable user-facing changes to Sift. Sift was called PureMac before 4.0.0.
   bundle identifier even when the file name differs.
 - `sift-cli optimize` and `sift-cli doctor` now report memory in the binary
   units macOS uses, so a 16 GB Mac reads 16 GB instead of 17.2 GB.
+- The menu bar popover now quotes disk usage in the same decimal units as the
+  Overview. A 245.1 GB disk no longer reads 228.4 GB there.
 
 ## 4.0.1
 
