@@ -110,6 +110,28 @@ final class UninstallTests: XCTestCase {
         XCTAssertEqual(found.sorted(), [plistPath.path, cachePath.path].sorted())
     }
 
+    func testLeftoverPathsIncludeLaunchAgentsMatchedByLabel() throws {
+        let home = try temporaryDirectory()
+        defer { try? FileManager.default.removeItem(at: home) }
+
+        let agents = home.appendingPathComponent("Library/LaunchAgents", isDirectory: true)
+        try FileManager.default.createDirectory(at: agents, withIntermediateDirectories: true)
+        let agentPath = agents.appendingPathComponent("com.example.agent.plist")
+        try launchAgent(label: "com.example.app").write(to: agentPath)
+        try launchAgent(label: "com.other.app").write(to: agents.appendingPathComponent("com.other.agent.plist"))
+
+        let ignore = try IgnoreStore(
+            fileURL: home.appendingPathComponent("ignore"),
+            legacyFileURL: nil,
+            currentDirectoryPath: home.path
+        )
+
+        XCTAssertEqual(
+            Uninstall.leftoverPaths(for: "com.example.app", home: home.path, ignore: ignore),
+            [agentPath.path]
+        )
+    }
+
     func testLeftoverPathsSkipSymlinksAndIgnoredPaths() throws {
         let home = try temporaryDirectory()
         defer { try? FileManager.default.removeItem(at: home) }
@@ -157,6 +179,16 @@ final class UninstallTests: XCTestCase {
             Uninstall.leftoverPaths(for: "com.example.app", home: home.path, ignore: ignore),
             [leftover.path]
         )
+    }
+
+    private func launchAgent(label: String) -> Data {
+        Data("""
+        <?xml version="1.0" encoding="UTF-8"?>
+        <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+        <plist version="1.0"><dict>
+        <key>Label</key><string>\(label)</string>
+        </dict></plist>
+        """.utf8)
     }
 
     private func plist(identifier: String) -> Data {
