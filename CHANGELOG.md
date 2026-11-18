@@ -9,6 +9,9 @@ All notable user-facing changes to Sift. Sift was called PureMac before 4.0.0.
 - AI tools no longer report space as freed when opt-in chat history and the
   Claude VM image are moved to the Trash, where they still take up room until
   the Trash is emptied.
+- User Cache no longer repeats the Xcode caches and AI tool caches that Xcode
+  Junk and AI tools already list, so the total junk figure is no longer
+  inflated by the same bytes counted twice.
 
 ## 4.0.1
 
