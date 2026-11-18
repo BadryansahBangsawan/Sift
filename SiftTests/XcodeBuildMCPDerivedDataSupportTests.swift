@@ -136,6 +136,35 @@ final class XcodeBuildMCPDerivedDataSupportTests: XCTestCase {
         XCTAssertFalse(item.isSelected)
     }
 
+    func testTrashedManagedDerivedDataIsNotCountedAsFreedSpace() async throws {
+        let fileManager = FileManager.default
+        let temporaryHome = fileManager.temporaryDirectory
+            .appendingPathComponent("PureMac-XcodeBuildMCP-TrashFreed-\(UUID().uuidString)", isDirectory: true)
+        defer { try? fileManager.removeItem(at: temporaryHome) }
+
+        let managedRoot = temporaryHome
+            .appendingPathComponent("Library/Developer/XcodeBuildMCP", isDirectory: true)
+        let derivedData = managedRoot.appendingPathComponent("DerivedData", isDirectory: true)
+        try fileManager.createDirectory(at: derivedData, withIntermediateDirectories: true)
+        try Data(repeating: 0xAB, count: 4_096)
+            .write(to: derivedData.appendingPathComponent("build-product"))
+
+        let scan = await ScanEngine(homeDirectory: temporaryHome).scanCategory(.xcodeJunk)
+        let item = try XCTUnwrap(scan.items.first { $0.name == "XcodeBuildMCP: Legacy DerivedData" })
+        let result = await CleaningEngine(homeDirectory: temporaryHome).cleanItems([item]) { _ in }
+
+        XCTAssertEqual(result.itemsCleaned, 1)
+        XCTAssertTrue(result.errors.isEmpty, "\(result.errors)")
+        let trashedPath = try XCTUnwrap(result.trashedPaths.first)
+        XCTAssertTrue(fileManager.fileExists(atPath: trashedPath))
+        XCTAssertEqual(
+            result.freedSpace,
+            0,
+            "The bundle sits in the Trash; its bytes are only freed when the Trash is emptied"
+        )
+        try? fileManager.removeItem(atPath: trashedPath)
+    }
+
     func testCleaningLegacySharedDerivedDataMovesToTrashWithoutWorkspaceLock() async throws {
         let fileManager = FileManager.default
         let temporaryHome = fileManager.temporaryDirectory
