@@ -22,6 +22,9 @@ All notable user-facing changes to Sift. Sift was called PureMac before 4.0.0.
   files that merely shared a prefix could be paired and one listed for removal.
 - `sift-cli` now prints an empty size as "0 KB" (as the app does) and a single
   byte as "1 byte" instead of "1 bytes".
+- Counts now agree with their number in every language ("1 item", "2 объекта",
+  "5 элементов"); Russian, Ukrainian, Polish and Arabic use their full plural
+  rules instead of a single fixed form.
 - The rail now fades the edge that hides rows, so a short window no longer
   looks like the list ends at the last visible item.
 - Settings no longer claims every change applies immediately next to a language
