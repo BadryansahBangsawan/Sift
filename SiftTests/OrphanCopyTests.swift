@@ -1,4 +1,5 @@
 import XCTest
+@testable import Sift
 
 /// The Leftovers page must say whether it never looked, could not compare, or
 /// found nothing. Before the first scan it claimed "No Orphaned Files", which
@@ -24,6 +25,25 @@ final class OrphanCopyTests: XCTestCase {
                 XCTAssertFalse(value?.isEmpty ?? true, "\(language).lproj has an empty \"\(key)\"")
             }
         }
+    }
+
+    func testAPageThatHasNotScannedDiffersFromOneThatFoundNothing() async throws {
+        let state = await MainActor.run {
+            AppState(performStartupTasks: false, installedAppsProvider: { [] })
+        }
+        let freshCompleted = await state.orphanScanCompleted
+        XCTAssertFalse(freshCompleted, "A page that has not scanned must not show the clean-Mac state")
+
+        await state.findOrphans()
+        for _ in 0..<200 {
+            if await state.orphanScanCompleted { break }
+            try await Task.sleep(nanoseconds: 20_000_000)
+        }
+
+        let completed = await state.orphanScanCompleted
+        let needsList = await state.orphanScanNeedsAppList
+        XCTAssertTrue(completed, "A refused scan still counts as finished, so the page stops saying \"not scanned\"")
+        XCTAssertTrue(needsList, "The page must blame the missing app list, not claim a clean Mac")
     }
 
     private func localizationFiles() throws -> [String: URL] {
