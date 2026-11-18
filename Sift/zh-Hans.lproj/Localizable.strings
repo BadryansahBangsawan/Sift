@@ -101,7 +101,6 @@
 "Scanning for orphaned files..." = "正在查找应用残留…";
 "No Orphaned Files" = "未发现应用残留";
 "No leftover files from uninstalled apps were found." = "未发现已卸载应用的残留文件。";
-"Orphaned Files (%lld)" = "应用残留（%lld 项）";
 "Remove Selected (%lld)" = "删除所选 (%lld)";
 "Some files could not be removed" = "部分文件无法删除";
 "blocked by safety policy" = "已被安全策略阻止";
@@ -1374,3 +1373,4 @@
 "Scheduled scan" = "定时扫描";
 "No Leftovers" = "没有应用残留";
 "Scan for leftover files" = "扫描应用残留";
+"Leftovers (%lld)" = "应用残留（%lld）";

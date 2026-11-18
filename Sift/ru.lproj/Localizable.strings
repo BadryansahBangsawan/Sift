@@ -137,7 +137,6 @@
 "Scanning for orphaned files..." = "Поиск остаточных файлов…";
 "No Orphaned Files" = "Остаточные файлы не найдены";
 "No leftover files from uninstalled apps were found." = "Файлы, оставшиеся после удаления приложений, не найдены.";
-"Orphaned Files (%lld)" = "Остаточные файлы (%lld)";
 "Remove Selected (%lld)" = "Удалить выбранное (%lld)";
 "Some files could not be removed" = "Некоторые файлы не удалось удалить";
 "blocked by safety policy" = "заблокировано политикой безопасности";
@@ -1375,3 +1374,4 @@
 "Scheduled scan" = "Запланированная проверка";
 "No Leftovers" = "Остатков нет";
 "Scan for leftover files" = "Искать оставшиеся файлы";
+"Leftovers (%lld)" = "Остатки (%lld)";

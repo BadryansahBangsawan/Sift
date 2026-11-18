@@ -137,7 +137,6 @@
 "Scanning for orphaned files..." = "Scanning for orphaned files...";
 "No Orphaned Files" = "No Orphaned Files";
 "No leftover files from uninstalled apps were found." = "No leftover files from uninstalled apps were found.";
-"Orphaned Files (%lld)" = "Orphaned Files (%lld)";
 "Remove Selected (%lld)" = "Remove Selected (%lld)";
 "Some files could not be removed" = "Some files could not be removed";
 "blocked by safety policy" = "blocked by safety policy";
@@ -1375,3 +1374,4 @@
 "Scheduled scan" = "Scheduled scan";
 "No Leftovers" = "No Leftovers";
 "Scan for leftover files" = "Scan for leftover files";
+"Leftovers (%lld)" = "Leftovers (%lld)";

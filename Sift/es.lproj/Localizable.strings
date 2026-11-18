@@ -101,7 +101,6 @@
 "Scanning for orphaned files..." = "Buscando archivos restantes...";
 "No Orphaned Files" = "Sin archivos huérfanos";
 "No leftover files from uninstalled apps were found." = "No se encontraron archivos sobrantes de apps desinstaladas.";
-"Orphaned Files (%lld)" = "Archivos huérfanos (%lld)";
 "Remove Selected (%lld)" = "Eliminar seleccionados (%lld)";
 "Some files could not be removed" = "Algunos archivos no se pudieron eliminar";
 "blocked by safety policy" = "bloqueado por la política de seguridad";
@@ -1375,3 +1374,4 @@
 "Scheduled scan" = "Análisis programado";
 "No Leftovers" = "Sin restos";
 "Scan for leftover files" = "Buscar archivos restantes";
+"Leftovers (%lld)" = "Restos (%lld)";

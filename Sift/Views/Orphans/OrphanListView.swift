@@ -230,7 +230,9 @@ struct OrphanListView: View {
     }
 
     private var orphanedFilesTitle: String {
-        String(format: String(localized: "Orphaned Files (%lld)"), Int64(appState.orphanedFiles.count))
+        LeftoversTitle.text(
+            count: appState.orphanedFiles.count,
+            scanned: appState.orphanScanCompleted)
     }
 
     private var removeSelectedLabel: String {

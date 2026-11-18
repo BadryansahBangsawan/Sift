@@ -101,7 +101,6 @@
 "Scanning for orphaned files..." = "جارٍ فحص الملفات المتبقية...";
 "No Orphaned Files" = "لا توجد ملفات يتيمة";
 "No leftover files from uninstalled apps were found." = "لم يتم العثور على ملفات متبقية من تطبيقات تمت إزالتها.";
-"Orphaned Files (%lld)" = "الملفات اليتيمة (%lld)";
 "Remove Selected (%lld)" = "إزالة المحدد (%lld)";
 "Some files could not be removed" = "تعذّرت إزالة بعض الملفات";
 "blocked by safety policy" = "محظور بواسطة سياسة الأمان";
@@ -1375,3 +1374,4 @@
 "Scheduled scan" = "فحص مجدول";
 "No Leftovers" = "لا بقايا";
 "Scan for leftover files" = "فحص الملفات المتبقية";
+"Leftovers (%lld)" = "البقايا (%lld)";
