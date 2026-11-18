@@ -6,6 +6,10 @@ All notable user-facing changes to Sift. Sift was called PureMac before 4.0.0.
 
 ### Fixed
 
+- Overview "Where it sits" no longer clips its category names at the minimum
+  window width. The row gave half the leftover space to the meter, so
+  "Developer caches" read "Developer c…" while the meter still had room to
+  shrink; the label now keeps its full width and the meter gives way first.
 - AI tools no longer moves a session transcript to the Trash when you resumed
   that session after the scan. The scan already treats a session touched in the
   last ten minutes as open; cleanup now re-checks the transcript before
