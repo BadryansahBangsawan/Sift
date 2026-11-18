@@ -13,6 +13,9 @@ All notable user-facing changes to Sift. Sift was called PureMac before 4.0.0.
 - System Junk no longer repeats the AI tool log folders (for example
   `~/Library/Logs/Claude`) that the AI tools category already lists, so the
   total junk figure is no longer inflated by the same log bytes counted twice.
+- Biggest single wins no longer re-sorts every scanned row with locale-aware
+  comparison on each cleanup update; on a 3000-row cleanup that sort was the
+  main-thread stall behind the remaining freeze.
 - Cleaning no longer republishes progress for every removed item. A large
   cleanup asked the window to redraw thousands of times, which looked like the
   app freezing for seconds; it now updates about once per percent.
@@ -47,6 +50,9 @@ All notable user-facing changes to Sift. Sift was called PureMac before 4.0.0.
   files that merely shared a prefix could be paired and one listed for removal.
 - `sift-cli` now prints an empty size as "0 KB" (as the app does) and a single
   byte as "1 byte" instead of "1 bytes".
+- `sift-cli` now keeps its settings and ignore list under the `HOME` it is run
+  with (`$HOME/.config/sift`), as the XDG spec defines, instead of always the
+  login user's home; `XDG_CONFIG_HOME` still wins when it is an absolute path.
 - The selected-count badge in a category keeps four- and five-digit counts on
   one line instead of wrapping into a tall oval.
 - Cleaning a category with thousands of rows no longer freezes the window while

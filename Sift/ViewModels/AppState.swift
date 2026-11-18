@@ -192,7 +192,14 @@ final class AppState: ObservableObject {
         let items = allResults.flatMap(\.items).filter { $0.isSelected && !$0.isActionItem }
         return Array(items.sorted { left, right in
             if left.size != right.size { return left.size > right.size }
-            return left.name.localizedStandardCompare(right.name) == .orderedAscending
+            // Plain string order, not localizedStandardCompare: this sorts
+            // every scanned row again on each cleanup publication, and
+            // locale-aware collation costs microseconds per comparison. With
+            // thousands of equal-size rows that blocked the window for
+            // hundreds of milliseconds (sampled), and the order depended on
+            // the user's locale. Ties break by name bytes, then by path.
+            if left.name != right.name { return left.name < right.name }
+            return left.path < right.path
         }.prefix(max(0, limit)))
     }
 
