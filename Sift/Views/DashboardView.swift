@@ -404,7 +404,7 @@ private struct ScanPathTicker: View {
 
 // MARK: - Where it sits
 
-private struct WhereItSitsCard: View {
+struct WhereItSitsCard: View {
     @EnvironmentObject var appState: AppState
     let onNavigate: (AppSection) -> Void
 
@@ -475,7 +475,7 @@ private struct WhereItSitsCard: View {
 
 /// Column widths for the Overview "Where it sits" rows.
 ///
-/// The card is ~292 pt wide at the 1080 pt minimum window width: icon tile 32 +
+/// The row is ~372 pt wide at the 1080 pt minimum window width: icon tile 32 +
 /// label + meter + size 72 + chevron 16 + spacing and padding leave the meter as
 /// the only column that can give way, so it collapsed to a dot and the
 /// proportion read as nothing. It keeps `meterMinWidth` instead and the label
@@ -483,9 +483,89 @@ private struct WhereItSitsCard: View {
 enum WhereRowLayout {
     static let meterMinWidth: CGFloat = 56
     static let meterIdealWidth: CGFloat = 120
+
+    /// Columns that never flex in a Where row: the row's own horizontal
+    /// padding, the icon tile, the four 14 pt gaps, the size column and the
+    /// chevron.
+    static let fixedChrome: CGFloat = 20 + 32 + 14 * 4 + 72 + 16
+
+    /// Width the Overview card's left column gives a Where row at
+    /// `windowWidth`: window gutter on both sides, the rail and its gap, the
+    /// fixed 392 pt right column and its gap, then the card's own padding.
+    static func rowWidth(atWindowWidth windowWidth: CGFloat) -> CGFloat {
+        let content = windowWidth - SiftSpacing.gutter * 2 - SiftSpacing.railWidth - SiftSpacing.gutter
+        let card = content - rightColumnWidth - SiftSpacing.gutter
+        return max(0, card - SiftSpacing.cardPadding * 2)
+    }
+
+    static let rightColumnWidth: CGFloat = 392
+
+    /// Width the meter gets out of the `space` left for the label and the
+    /// meter together: enough for the meter's ideal width once the label has
+    /// its own, shrinking to `meterMinWidth` before the label is clipped.
+    static func meterWidth(space: CGFloat, labelIdealWidth: CGFloat) -> CGFloat {
+        min(max(space - labelIdealWidth, meterMinWidth), meterIdealWidth)
+    }
+
+    /// Width the label gets; whatever the meter leaves. It only falls below
+    /// its text width when the row cannot hold the meter's minimum too.
+    static func labelWidth(space: CGFloat, labelIdealWidth: CGFloat) -> CGFloat {
+        max(0, space - meterWidth(space: space, labelIdealWidth: labelIdealWidth))
+    }
+
+    /// Five columns in the order icon, label, meter, size, chevron, spaced by
+    /// `spacing`. An HStack cannot express the rule above: with two flexible
+    /// columns it splits the leftover space between them, which clipped the
+    /// category name while the meter still had slack.
+    struct Row: Layout {
+        var spacing: CGFloat = 14
+
+        func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {
+            let rowWidth = proposal.width ?? 0
+            let widths = columnWidths(rowWidth: rowWidth, subviews: subviews)
+            let height = subviews.map { $0.sizeThatFits(.unspecified).height }.max() ?? 0
+            return CGSize(width: rowWidth, height: height)
+        }
+
+        func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) {
+            let widths = columnWidths(rowWidth: bounds.width, subviews: subviews)
+            var x = bounds.minX
+            for (index, subview) in subviews.enumerated() {
+                let size = subview.sizeThatFits(ProposedViewSize(width: widths[index], height: nil))
+                subview.place(
+                    at: CGPoint(x: x, y: bounds.midY - size.height / 2),
+                    proposal: ProposedViewSize(width: widths[index], height: nil)
+                )
+                x += widths[index] + spacing
+            }
+        }
+
+        /// Icon, size column and chevron keep their size; the label and the
+        /// meter share the rest by the rule in `WhereRowLayout`.
+        private func columnWidths(rowWidth: CGFloat, subviews: Subviews) -> [CGFloat] {
+            guard subviews.count == 5 else {
+                return subviews.map { $0.sizeThatFits(.unspecified).width }
+            }
+            let fixed = subviews[0].sizeThatFits(.unspecified).width
+                + subviews[3].sizeThatFits(.unspecified).width
+                + subviews[4].sizeThatFits(.unspecified).width
+                + spacing * 4
+            let space = max(0, rowWidth - fixed)
+            let labelIdeal = subviews[1].sizeThatFits(.unspecified).width
+            let label = WhereRowLayout.labelWidth(space: space, labelIdealWidth: labelIdeal)
+            let meter = WhereRowLayout.meterWidth(space: space, labelIdealWidth: labelIdeal)
+            return [
+                subviews[0].sizeThatFits(.unspecified).width,
+                label,
+                meter,
+                subviews[3].sizeThatFits(.unspecified).width,
+                subviews[4].sizeThatFits(.unspecified).width,
+            ]
+        }
+    }
 }
 
-private struct WhereRow: View {
+struct WhereRow: View {
     let row: WhereItSitsCard.Row
     let fraction: Double
     let isLargest: Bool
@@ -493,7 +573,7 @@ private struct WhereRow: View {
 
     var body: some View {
         Button(action: open) {
-            HStack(spacing: 14) {
+            WhereRowLayout.Row(spacing: 14) {
                 SiftIconTile(icon: row.item.icon, tone: isLargest ? .accent : .neutral, size: 32)
                 VStack(alignment: .leading, spacing: 2) {
                     Text(row.item.label)
@@ -509,12 +589,9 @@ private struct WhereRow: View {
                     }
                     .siftStyle(.monoSmall)
                 }
-                .frame(minWidth: 0, maxWidth: .infinity, alignment: .leading)
+                .frame(maxWidth: .infinity, alignment: .leading)
                 .help(row.item.label)
                 SiftMeterBar(fraction: row.measured ? fraction : 0, fill: isLargest ? SiftColor.accent : SiftColor.accentDim)
-                    .frame(minWidth: WhereRowLayout.meterMinWidth,
-                           idealWidth: WhereRowLayout.meterIdealWidth,
-                           maxWidth: WhereRowLayout.meterIdealWidth)
                 Text(verbatim: row.measured ? SiftFormat.bytes(row.size) : "–")
                     .font(.siftDisplay(16, weight: 500))
                     .foregroundStyle(isLargest ? SiftColor.accent : SiftColor.textPrimary)
