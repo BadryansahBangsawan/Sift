@@ -193,14 +193,27 @@ actor ScanEngine {
         // Exclude cache roots claimed by dedicated categories to avoid double-counting,
         // plus cloud File Provider state, which lives under Caches but is a live
         // database rather than reclaimable junk (issue #142).
-        let excludedRootPaths = Set(([
-            "\(home)/Library/Caches/Homebrew",
-            "\(home)/Library/Caches/com.electron.ollama",
-            "\(home)/Library/Caches/ollama",
-            "\(home)/Library/Caches/npm",
-            "\(home)/Library/Caches/Yarn",
-            "\(home)/Library/Caches/dev.kdrag0n.MacVirt",
-        ] + ProviderPaths.deniedRoots(homeDirectory: URL(fileURLWithPath: home, isDirectory: true))).map(normalizePath))
+        //
+        // Two of those roots (com.apple.dt.Xcode and org.swift.swiftpm) belong
+        // to Xcode Junk, and every AI tool cache under ~/Library/Caches is
+        // already a row in the AI tools category. Without them here the same
+        // bytes were counted twice on the dashboard and cleaned twice.
+        let cachesRoot = "\(home)/Library/Caches"
+        let dedicatedCacheRoots = [
+            "\(cachesRoot)/Homebrew",
+            "\(cachesRoot)/npm",
+            "\(cachesRoot)/Yarn",
+            "\(cachesRoot)/dev.kdrag0n.MacVirt",
+            "\(cachesRoot)/com.apple.dt.Xcode",
+            "\(cachesRoot)/org.swift.swiftpm",
+        ] + AIToolCleanupCatalog.specs(home: home)
+            .map(\.path)
+            .filter { $0.hasPrefix(cachesRoot + "/") }
+        let excludedRootPaths = Set(
+            (dedicatedCacheRoots
+                + ProviderPaths.deniedRoots(homeDirectory: URL(fileURLWithPath: home, isDirectory: true)))
+                .map(normalizePath)
+        )
 
         // Dynamically enumerate ~/Library/Caches/ so every subdirectory is visible
         let cachePath = "\(home)/Library/Caches"
