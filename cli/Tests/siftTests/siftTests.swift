@@ -12,6 +12,12 @@ final class SiftCLITests: XCTestCase {
         XCTAssertEqual(ByteCount.human(358_700_000), "358.7 MB")
     }
 
+    func testTinySizesReadLikeTheApp() {
+        XCTAssertEqual(ByteCount.human(0), "0 KB")
+        XCTAssertEqual(ByteCount.human(1), "1 byte")
+        XCTAssertEqual(ByteCount.human(2), "2 bytes")
+    }
+
     func testMemoryCountsUseBinaryUnits() {
         XCTAssertEqual(ByteCount.memory(17_179_869_184), "16 GB")
         XCTAssertEqual(ByteCount.memory(536_870_912), "512 MB")
