@@ -39,4 +39,29 @@ final class RailFadeTests: XCTestCase {
         XCTAssertTrue(bottom.top)
         XCTAssertFalse(bottom.bottom)
     }
+
+    /// A list exactly as tall as the viewport hides nothing.
+    func testExactFitShowsNoFade() {
+        let fades = RailFadeRule.fades(offset: 0, contentHeight: 600, viewport: 600)
+        XCTAssertEqual(fades, RailFadeRule.Fades(top: false, bottom: false))
+    }
+
+    /// One hidden point is not worth a fade; two are.
+    func testToleranceKeepsAFrayedPixelQuiet() {
+        XCTAssertEqual(
+            RailFadeRule.fades(offset: 0, contentHeight: 601, viewport: 600),
+            RailFadeRule.Fades(top: false, bottom: false)
+        )
+        XCTAssertTrue(
+            RailFadeRule.fades(offset: 0, contentHeight: 602, viewport: 600).bottom
+        )
+    }
+
+    /// Momentum scrolling can report an offset past the end; the bottom fade
+    /// must stay off there.
+    func testOffsetPastTheEndNeverFadesTheBottom() {
+        let fades = RailFadeRule.fades(offset: 400, contentHeight: 920, viewport: 600)
+        XCTAssertTrue(fades.top)
+        XCTAssertFalse(fades.bottom)
+    }
 }
