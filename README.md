@@ -61,7 +61,17 @@ The screenshots in this README still show the PureMac interface.
 
 ## Install
 
-Sift has no published release yet. Until one exists, [build it from source](#build-from-source). The Homebrew cask (`homebrew/sift.rb`) and CLI formula (`homebrew/sift-cli.rb`) are ready for `Sift-<version>.zip` and `sift-cli-<version>.tar.gz` release assets.
+Sift 4.0.0 is prepared but **not published yet**: there is no tagged release and
+no DMG to download. [Build it from source](#build-from-source) for now.
+
+Once 4.0.0 is on the [releases page](https://github.com/BadryansahBangsawan/Sift/releases):
+
+```bash
+brew install --cask BadryansahBangsawan/tap/sift
+```
+
+or download `Sift-4.0.0.dmg` from that release. Release steps live in
+[RELEASING.md](RELEASING.md).
 
 ### Build from source
 
