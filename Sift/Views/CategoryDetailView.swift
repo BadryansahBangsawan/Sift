@@ -21,6 +21,8 @@ struct CategoryDetailView: View {
     let category: CleaningCategory
 
     @State private var filter = CleanupReviewFilter()
+    /// Keeps the filtered and sorted rows between reads; see `VisibleItemsCache`.
+    @State private var visibleCache = VisibleItemsCache()
     @State private var pendingReview: CleanupSelection?
     @State private var openMenu: ToolbarMenu?
     @State private var confirmEmptyTrash = false
@@ -33,7 +35,7 @@ struct CategoryDetailView: View {
     private var results: [CategoryResult] { members.compactMap { appState.categoryResults[$0] } }
     private var hasResult: Bool { !results.isEmpty }
     private var allItems: [CleanableItem] { results.flatMap(\.items) }
-    private var visibleItems: [CleanableItem] { filter.apply(to: allItems) }
+    private var visibleItems: [CleanableItem] { visibleCache.items(for: allItems, filter: filter) }
     private var selectedItems: [CleanableItem] { isTrash ? [] : allItems.filter(appState.isItemSelected) }
     private var selectedSize: Int64 { selectedItems.reduce(0) { $0 + $1.size } }
     private var isScanning: Bool {
@@ -605,6 +607,39 @@ struct CategoryDetailView: View {
             appState.checkFullDiskAccess()
             rescan()
         }
+    }
+}
+
+// MARK: - Visible rows
+
+/// Answers "which rows are visible" for one set of inputs.
+///
+/// The list, both toolbar counters and the selection bar all read the visible
+/// rows, so one body evaluation used to filter and sort every row four times.
+/// A clean publishes progress dozens of times per second, which kept the sort
+/// of thousands of rows on the main thread for most of the pass and froze the
+/// window. The cache keeps the previous result until the items, the filter or
+/// the search text actually change.
+final class VisibleItemsCache {
+    private struct Inputs: Equatable {
+        let filter: CleanupReviewFilter
+        let items: [CleanableItem]
+    }
+
+    private var inputs: Inputs?
+    private var output: [CleanableItem] = []
+    /// Number of times the filter really ran. Read by the tests that pin the
+    /// "once per input set" contract.
+    private(set) var recomputations = 0
+
+    func items(for items: [CleanableItem], filter: CleanupReviewFilter) -> [CleanableItem] {
+        let candidate = Inputs(filter: filter, items: items)
+        if candidate == inputs { return output }
+        let computed = filter.apply(to: items)
+        inputs = candidate
+        output = computed
+        recomputations += 1
+        return computed
     }
 }
 
