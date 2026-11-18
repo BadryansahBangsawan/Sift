@@ -6,6 +6,9 @@ All notable user-facing changes to Sift. Sift was called PureMac before 4.0.0.
 
 ### Fixed
 
+- The Leftovers page is called "Leftovers" above the heading and in the window
+  title, and shows a count only once a scan has finished: it used to say
+  "Orphaned Files (0)" on a page that had not looked yet.
 - The Leftovers empty state and its button are translated: twelve languages
   showed the English "No Leftovers" and "Scan for leftover files". The
   scanning line in eight languages also said "orphaned files" next to a screen
