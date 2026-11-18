@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="../screenshots/smart-care.png" alt="Sift" width="700">
+  <img src="../screenshots/smart-care-dark.png" alt="Sift" width="760">
 </p>
 
 <p align="center">
@@ -14,156 +14,70 @@
 
 <h1 align="center">Sift</h1>
 
-<p align="center"><sub>Sift هو الاسم الجديد لـ PureMac. لا يوجد إصدار منشور من Sift بعد، لذا ابنِه من الشيفرة المصدرية. راجع <a href="../README.md#renamed-from-puremac">Renamed from PureMac</a> لمعرفة كيفية نقل الإعدادات ومنح صلاحية الوصول الكامل إلى القرص من جديد.</sub></p>
-
 <p align="center" dir="rtl">
-  <b>أداة مجانية ومفتوحة المصدر لإدارة التطبيقات وتنظيف النظام على macOS.</b><br>
-  إزالة التطبيقات بالكامل. العثور على الملفات اليتيمة. تنظيف ملفات النظام غير المرغوبة.<br>
-  بلا اشتراكات. بلا تتبع. بلا جمع بيانات.
+  <b>استعد مساحة جهاز Mac.</b><br>
+  عناية مجانية ومفتوحة المصدر بجهاز Mac: التنظيف، وإدارة التطبيقات، واستكشاف التخزين، وفحوصات النظام. بلا اشتراك وبلا تتبّع.
 </p>
-
-<p align="center">
-  <a href="https://github.com/BadryansahBangsawan/Sift/releases/latest"><img src="https://img.shields.io/github/v/release/BadryansahBangsawan/Sift?style=flat-square&label=%D8%AA%D9%86%D8%B2%D9%8A%D9%84" alt="أحدث إصدار"></a>
-  <a href="https://github.com/BadryansahBangsawan/Sift/actions/workflows/build.yml"><img src="https://img.shields.io/github/actions/workflow/status/BadryansahBangsawan/Sift/build.yml?style=flat-square&label=Build" alt="حالة البناء"></a>
-  <img src="https://img.shields.io/badge/macOS-13.0+-blue?style=flat-square" alt="macOS 13.0+">
-  <img src="https://img.shields.io/badge/Swift-5.9-orange?style=flat-square" alt="Swift 5.9">
-  <a href="../LICENSE"><img src="https://img.shields.io/github/license/BadryansahBangsawan/Sift?style=flat-square" alt="رخصة MIT"></a>
-  <a href="https://github.com/BadryansahBangsawan/Sift/stargazers"><img src="https://img.shields.io/github/stars/BadryansahBangsawan/Sift?style=flat-square" alt="النجوم"></a>
-  <a href="https://github.com/BadryansahBangsawan/Sift/releases"><img src="https://img.shields.io/github/downloads/BadryansahBangsawan/Sift/total?style=flat-square&label=%D8%A7%D9%84%D8%AA%D9%86%D8%B2%D9%8A%D9%84%D8%A7%D8%AA" alt="التنزيلات"></a>
-</p>
-
-<p align="center">
-  <a href="#التثبيت">التثبيت</a> -
-  <a href="#الميزات">الميزات</a> -
-  <a href="#لقطات-الشاشة">لقطات الشاشة</a> -
-  <a href="#المساهمة">المساهمة</a>
-</p>
-
----
 
 <div dir="rtl">
 
+> هذا ملخص. [ملف README بالإنجليزية](../README.md) هو المرجع الكامل والمحدّث.
+
+## إن كنت قادمًا من PureMac
+
+بدأ Sift كتفرّع من PureMac، أداة التنظيف مفتوحة المصدر من Moamen Basel، ويُطوَّر الآن بشكل مستقل. عند التشغيل الأول ينسخ إعدادات PureMac وسجله، ولا يُمسّ بالبيانات القديمة. امنح **الوصول الكامل إلى القرص** مرة أخرى، لأن الإذن مرتبط بالمعرّف القديم. أداة سطر الأوامر أصبح اسمها `sift-cli`.
+
 ## التثبيت
 
-### Homebrew (موصى به)
+نزّل `Sift-4.0.0.dmg` من [أحدث إصدار](https://github.com/BadryansahBangsawan/Sift/releases/latest) واسحب Sift إلى مجلد التطبيقات.
 
-```bash
-brew update
-brew install --cask sift
-```
+هذا الإصدار غير موثّق من Apple بعد، لذلك يوقفه macOS في المرة الأولى:
 
-### التنزيل المباشر
+1. افتح Sift. عندما يقول macOS إنه لا يستطيع التحقق من التطبيق، انقر **تم**.
+2. افتح **إعدادات النظام > الخصوصية والأمن**، ومرّر للأسفل وانقر **فتح على أي حال** بجانب Sift.
+3. امنح **الوصول الكامل إلى القرص** عندما يطلبه Sift.
 
-نزّل أحدث ملف `.dmg` من صفحة [Releases](https://github.com/BadryansahBangsawan/Sift/releases/latest)، ثم افتحه واسحب Sift إلى `/Applications`.
-
-> موقّع وموثّق باستخدام Apple Developer ID — يُثبَّت دون ظهور تحذيرات Gatekeeper.
-
-### البناء من الكود المصدري
+### البناء من الشيفرة المصدرية
 
 ```bash
 brew install xcodegen
 git clone https://github.com/BadryansahBangsawan/Sift.git
 cd Sift
 xcodegen generate
-xcodebuild -project Sift.xcodeproj -scheme Sift -configuration Release -derivedDataPath build build
+xcodebuild -project Sift.xcodeproj -scheme Sift -configuration Release \
+  -derivedDataPath build build
 open build/Build/Products/Release/Sift.app
 ```
 
-## الميزات
+### سطر الأوامر
 
-### أداة إزالة التطبيقات
-- اكتشاف جميع التطبيقات المثبّتة في `/Applications` و `~/Applications`
-- محرّك اكتشاف ملفات اعتمادي يقوم على **المطابقة بعشرة مستويات** (مُعرِّف الحزمة، اسم الشركة، الـ entitlements، مُعرِّف الفريق، بيانات Spotlight الوصفية، اكتشاف الحاويات)
-- **ثلاث مستويات حساسية**: Strict (آمن) و Enhanced (متوازن) و Deep (شامل)
-- عرض جميع الملفات المرتبطة: ذاكرة التخزين المؤقت، والتفضيلات، والحاويات، والسجلات، وملفات الدعم، ووكلاء التشغيل
-- حماية تطبيقات النظام — يُستبعَد 27 تطبيقًا من Apple من قائمة الإزالة
-- عرض رئيسي/تفصيلي: جدول التطبيقات على اليمين، والملفات المكتشفة على اليسار
-
-### العثور على الملفات اليتيمة
-- اكتشاف الملفات المتبقية في `~/Library` من تطبيقات سبق إزالتها
-- مقارنة محتوى الـ Library بمُعرِّفات جميع التطبيقات المثبّتة
-- تنظيف الملفات اليتيمة بنقرة واحدة
-
-### تنظيف النظام
-- **الفحص الذكي** — فحص بنقرة واحدة لجميع الفئات
-- **ملفات النظام غير المرغوبة** — ذاكرة التخزين المؤقت للنظام والسجلات والملفات المؤقتة
-- **ذاكرة التخزين المؤقت للمستخدم** — اكتشاف ديناميكي لذاكرة التخزين المؤقت لكل التطبيقات (دون قوائم مكتوبة مسبقًا)
-- **مرفقات البريد** — مرفقات البريد التي تم تنزيلها
-- **سلة المهملات** — تفريغ كل سلال المهملات
-- **الملفات الكبيرة والقديمة** — ملفات يزيد حجمها عن 100 ميغابايت أو أقدم من سنة
-- **المساحة القابلة للإزالة** — اكتشاف المساحة القابلة للإزالة في APFS
-- **ملفات Xcode غير المرغوبة** — DerivedData والأرشيفات وذاكرة التخزين المؤقت للمحاكيات وأنظمة تشغيل المحاكي المحمّلة (تُحذف عبر `simctl runtime delete`؛ لا تُحدد تلقائيًا أبدًا)
-- **ذاكرة التخزين المؤقت لـ Brew** — ذاكرة تنزيلات Homebrew (مع دعم HOMEBREW_CACHE مخصص)
-- **التنظيف المجدوَل** — فحص تلقائي وفق فترات قابلة للتخصيص
-
-### تجربة أصيلة في macOS
-- مبنيّ على SwiftUI باستخدام مكوّنات macOS الأصلية
-- `NavigationSplitView` و `Toggle` و `ProgressView` و `Form` و `GroupBox` و `Table`
-- يتبع المظهر الفاتح/الداكن للنظام تلقائيًا
-- دون تدرّجات لونية مخصصة أو أساليب ويب دخيلة
-- إعداد تمهيدي عند أول تشغيل يشمل ضبط الوصول الكامل إلى القرص
-
-### الأمان
-- تأكيد قبل كل عملية حذف حاسمة
-- حماية من هجمات الروابط الرمزية — يتم حل المسارات والتحقق منها قبل الحذف
-- حماية تطبيقات النظام — لا يمكن إزالة تطبيقات Apple
-- لا يتم تحديد الملفات الكبيرة والقديمة تلقائيًا
-- تسجيل منظّم عبر `os.log` (يظهر في تطبيق "وحدة التحكم")
-
-</div>
-
-## لقطات الشاشة
-
-| الإعداد التمهيدي | أداة إزالة التطبيقات |
-|---|---|
-| ![الإعداد التمهيدي](../screenshots/onboarding.png) | ![أداة إزالة التطبيقات](../screenshots/app-uninstaller.png) |
-
-| ملفات النظام غير المرغوبة | ملفات Xcode غير المرغوبة |
-|---|---|
-| ![ملفات النظام غير المرغوبة](../screenshots/system-junk.png) | ![ملفات Xcode غير المرغوبة](../screenshots/xcode-junk.png) |
-
-| ذاكرة التخزين المؤقت للمستخدم |
-|---|
-| ![ذاكرة التخزين المؤقت للمستخدم](../screenshots/user-cache.png) |
-
-<div dir="rtl">
-
-## البنية المعمارية
-
-```
-Sift/
-  Logic/Scanning/     - محرّك الفحص الاعتمادي وقاعدة المواقع والشروط
-  Logic/Utilities/    - التسجيل المنظّم
-  Models/             - نماذج البيانات والأخطاء المُنمّطة
-  Services/           - محرّك الفحص ومحرّك التنظيف والمجدوِل
-  ViewModels/         - حالة التطبيق المركزية
-  Views/              - واجهات SwiftUI الأصلية
-    Apps/             - واجهات أداة إزالة التطبيقات
-    Cleaning/         - الفحص الذكي وواجهات الفئات
-    Orphans/          - أداة الملفات اليتيمة
-    Settings/         - إعدادات قائمة على Form الأصلي
-    Components/       - مكوّنات مشتركة
+```bash
+cd cli
+swift build -c release
+.build/release/sift-cli
 ```
 
-المكوّنات الأساسية:
-- **AppPathFinder** — محرّك مطابقة اعتمادي بعشرة مستويات لاكتشاف ملفات التطبيقات
-- **Locations** — أكثر من 120 مسارًا للبحث في نظام ملفات macOS
-- **Conditions** — 25 قاعدة مطابقة خاصة بتطبيقات بعينها للحالات الاستثنائية (Xcode وChrome وVS Code وغيرها)
-- **AppInfoFetcher** — بيانات Spotlight الوصفية مع اعتماد Info.plist بديلًا لاكتشاف التطبيقات
-- **Logger** — تسجيل موحّد عبر `os.log` من Apple
+## ماذا يفعل
 
-## المساهمة
+- **نظرة عامة**: مقياس التخزين، ومكان الملفات غير الضرورية، وأكبر المكاسب، والبطارية، وعناصر بدء التشغيل.
+- **التنظيف**: ملفات النظام غير الضرورية، وأدوات الذكاء الاصطناعي، وذاكرات المطوّرين المؤقتة، وملفات التثبيت، والملفات الكبيرة والقديمة، وملفات البريد، وسلة المهملات، مع عوامل تصفية واستثناءات ومراجعة قبل حذف أي شيء.
+- **أدوات الذكاء الاصطناعي**: الذاكرات المؤقتة والسجلات لـ Claude وClaude Code وChatGPT وCursor وOllama وما يشبهها. يظهر سجل المحادثات والجلسات لكنه لا يُحدَّد مسبقًا أبدًا ويُنقل إلى سلة المهملات؛ ولا تُمسّ مجلدات memory والإعدادات وبيانات الاعتماد أبدًا.
+- **مخلّفات المشاريع**: مجلدات `node_modules` و`.venv` و`target` و`.build` وما يشبهها داخل مجلدات المشاريع التي تختارها، فقط عندما يستطيع Sift إثبات أنها مُولَّدة وأن git يتجاهلها. تُنقل إلى سلة المهملات ولا تدخل أبدًا في التنظيف المجدول.
+- **Apple Intelligence**: أوقفه ميزةً ميزة، واحذف نماذجه على الجهاز، وامنع تنزيلها مجددًا بملف تعريف توافق عليه أنت. تُراجَع كل التغييرات مسبقًا ويمكن التراجع عنها (Apple silicon وmacOS 15.1 أو أحدث).
+- **أداة الإزالة والمخلّفات**: تعثر على ملفات التطبيق المرتبطة وبقايا التطبيقات المحذوفة؛ راجعها وانقلها إلى سلة المهملات.
+- **مستكشف المساحة، والملفات المكررة، والصور المتشابهة**، و**الحماية**، و**الأداء**.
+- **التنظيف المجدول** (أسبوعيًا مع اختيار اليوم والساعة)، و13 لغة، والمظهر الفاتح/الداكن ولون التمييز.
 
-المساهمات مرحّب بها. راجع [CONTRIBUTING.md](../CONTRIBUTING.md) للاطلاع على الإرشادات.
+## الخصوصية والأمان
 
-المجالات التي تحظى بترحيب خاص:
-- إعدادات جاهزة لفلاتر الحجم والتاريخ في واجهات الفئات
-- تغطية باستخدام XCTest لـ AppState ومحرّك الفحص
-- الترجمة إلى لغات إضافية
-- تصميم أيقونة التطبيق
+لا تتبّع ولا تحليلات ولا تقارير أعطال. الفحص محلي ويعمل دون اتصال. تُراجَع كل الأشياء قبل حذفها؛ بعض عمليات التنظيف (الفئات والتنظيف المجدول) تحذف نهائيًا، لذا اقرأ رسالة التأكيد. يحتاج Sift إلى **الوصول الكامل إلى القرص** لفحص المواقع المحمية، وسيرشدك الإعداد الأول.
+
+## الشكر
+
+مبني على [PureMac](https://github.com/momenbasel/PureMac) من Moamen Basel والمساهمين فيه. أداة Apple Intelligence منقولة من [RemoveMacAI](https://github.com/omlahore/RemoveMacAI) من Om Lahore، المبنية على [pared](https://github.com/4evy/pared) من 4evy. جميعها برخصة MIT؛ راجع [THIRD-PARTY-NOTICES.md](../THIRD-PARTY-NOTICES.md).
 
 ## الرخصة
 
-رخصة MIT. راجع [LICENSE](../LICENSE) للتفاصيل.
+MIT. راجع [LICENSE](../LICENSE).
 
 </div>

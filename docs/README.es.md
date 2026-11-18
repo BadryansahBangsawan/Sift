@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="../screenshots/smart-care.png" alt="Sift" width="700">
+  <img src="../screenshots/smart-care-dark.png" alt="Sift" width="760">
 </p>
 
 <p align="center">
@@ -14,47 +14,26 @@
 
 <h1 align="center">Sift</h1>
 
-<p align="center"><sub>Sift es el nuevo nombre de PureMac. Todavía no hay una versión publicada de Sift: compílalo desde el código fuente. Consulta <a href="../README.md#renamed-from-puremac">Renamed from PureMac</a> sobre la migración de ajustes y el Acceso total al disco.</sub></p>
-
 <p align="center">
-  <b>Gestor de aplicaciones y limpiador de sistema para macOS, gratuito y de código abierto.</b><br>
-  Desinstala apps por completo. Encuentra archivos huérfanos. Limpia la basura del sistema.<br>
-  Sin suscripciones. Sin telemetría. Sin recolección de datos.
+  <b>Recupera tu Mac.</b><br>
+  Cuidado para Mac gratuito y de código abierto: limpieza, gestión de apps, exploración del almacenamiento y revisiones del sistema. Sin suscripción ni telemetría.
 </p>
 
-<p align="center">
-  <a href="https://github.com/BadryansahBangsawan/Sift/releases/latest"><img src="https://img.shields.io/github/v/release/BadryansahBangsawan/Sift?style=flat-square&label=Descargar" alt="Última versión"></a>
-  <a href="https://github.com/BadryansahBangsawan/Sift/actions/workflows/build.yml"><img src="https://img.shields.io/github/actions/workflow/status/BadryansahBangsawan/Sift/build.yml?style=flat-square&label=Build" alt="Estado de build"></a>
-  <img src="https://img.shields.io/badge/macOS-13.0+-blue?style=flat-square" alt="macOS 13.0+">
-  <img src="https://img.shields.io/badge/Swift-5.9-orange?style=flat-square" alt="Swift 5.9">
-  <a href="../LICENSE"><img src="https://img.shields.io/github/license/BadryansahBangsawan/Sift?style=flat-square" alt="Licencia MIT"></a>
-  <a href="https://github.com/BadryansahBangsawan/Sift/stargazers"><img src="https://img.shields.io/github/stars/BadryansahBangsawan/Sift?style=flat-square" alt="Estrellas"></a>
-  <a href="https://github.com/BadryansahBangsawan/Sift/releases"><img src="https://img.shields.io/github/downloads/BadryansahBangsawan/Sift/total?style=flat-square&label=Descargas" alt="Descargas"></a>
-</p>
+> Este es un resumen. El [README en inglés](../README.md) es la referencia completa y actualizada.
 
-<p align="center">
-  <a href="#instalación">Instalación</a> -
-  <a href="#características">Características</a> -
-  <a href="#capturas">Capturas</a> -
-  <a href="#contribuir">Contribuir</a>
-</p>
+## Si vienes de PureMac
 
----
+Sift empezó como un fork de PureMac, el limpiador de código abierto de Moamen Basel, y ahora se desarrolla de forma independiente. En el primer arranque copia tus ajustes e historial de PureMac; los datos antiguos no se tocan. Concede de nuevo el **acceso total al disco**, porque el permiso pertenece al identificador anterior. La herramienta de terminal ahora se llama `sift-cli`.
 
 ## Instalación
 
-### Homebrew (recomendado)
+Descarga `Sift-4.0.0.dmg` desde la [última versión](https://github.com/BadryansahBangsawan/Sift/releases/latest) y arrastra Sift a Aplicaciones.
 
-```bash
-brew update
-brew install --cask sift
-```
+Esta versión aún no está notarizada por Apple, así que macOS la detiene la primera vez:
 
-### Descarga directa
-
-Descarga el `.dmg` más reciente desde [Releases](https://github.com/BadryansahBangsawan/Sift/releases/latest), ábrelo y arrastra Sift a `/Applications`.
-
-> Firmado y notarizado con Apple Developer ID — se instala sin advertencias de Gatekeeper.
+1. Abre Sift. macOS dice que no puede verificar la app; pulsa **Listo**.
+2. Abre **Ajustes del Sistema > Privacidad y seguridad**, desplázate y pulsa **Abrir igualmente** junto a Sift.
+3. Concede el **acceso total al disco** cuando Sift lo pida.
 
 ### Compilar desde el código fuente
 
@@ -63,101 +42,38 @@ brew install xcodegen
 git clone https://github.com/BadryansahBangsawan/Sift.git
 cd Sift
 xcodegen generate
-xcodebuild -project Sift.xcodeproj -scheme Sift -configuration Release -derivedDataPath build build
+xcodebuild -project Sift.xcodeproj -scheme Sift -configuration Release \
+  -derivedDataPath build build
 open build/Build/Products/Release/Sift.app
 ```
 
-## Características
+### Línea de comandos
 
-### Desinstalador de apps
-- Descubre todas las apps instaladas desde `/Applications` y `~/Applications`
-- Motor heurístico de búsqueda de archivos con **10 niveles de coincidencia** (bundle ID, nombre de la empresa, entitlements, team identifier, metadatos de Spotlight, descubrimiento de contenedores)
-- **3 niveles de sensibilidad**: Estricto (seguro), Mejorado (equilibrado), Profundo (exhaustivo)
-- Muestra todos los archivos relacionados: cachés, preferencias, contenedores, registros, archivos de soporte, launch agents
-- Protección de apps del sistema: 27 apps de Apple están excluidas de la lista
-- Vista maestro-detalle: tabla de apps a la izquierda, archivos descubiertos a la derecha
-
-### Buscador de archivos huérfanos
-- Detecta archivos sobrantes en `~/Library` de apps ya desinstaladas
-- Compara el contenido de la Biblioteca con los identificadores de todas las apps instaladas
-- Limpieza de archivos huérfanos con un clic
-
-### Limpiador del sistema
-- **Análisis inteligente** — análisis de un clic en todas las categorías
-- **Basura del sistema** — cachés del sistema, registros y archivos temporales
-- **Caché de usuario** — descubre dinámicamente todos los cachés de apps (sin lista predefinida)
-- **Apps de IA** — registros, cachés y limpieza opcional del historial local de Ollama y LM Studio
-- **Adjuntos de correo** — adjuntos de correo descargados
-- **Papeleras** — vacía todas las papeleras
-- **Archivos grandes y antiguos** — archivos de más de 100 MB o con más de 1 año
-- **Espacio purgable** — detección de espacio purgable APFS
-- **Basura de Xcode** — DerivedData, Archives, cachés de simuladores y runtimes descargados (se eliminan vía `simctl runtime delete`; nunca se auto-seleccionan)
-- **Caché de Brew** — caché de descargas de Homebrew (detecta HOMEBREW_CACHE personalizado)
-- **Limpieza programada** — análisis automático en intervalos configurables
-
-### Experiencia nativa de macOS
-- Desarrollado con SwiftUI usando componentes nativos de macOS
-- `NavigationSplitView`, `Toggle`, `ProgressView`, `Form`, `GroupBox`, `Table`
-- Respeta el modo claro/oscuro del sistema automáticamente
-- Sin gradientes personalizados, resplandores ni estilos de app web
-- Onboarding de primer arranque con configuración de acceso total al disco
-
-### Seguridad
-- Diálogos de confirmación antes de cualquier operación destructiva
-- Prevención de ataques por enlaces simbólicos — resuelve y valida rutas antes de eliminar
-- Protección de apps del sistema — las apps de Apple no se pueden desinstalar
-- Los archivos grandes y antiguos nunca se seleccionan automáticamente
-- El historial de prompts y conversaciones de IA se muestra para revisión, pero nunca se selecciona automáticamente
-- Registro estructurado con `os.log` (visible en Consola.app)
-
-## Capturas
-
-| Onboarding | Desinstalador de apps |
-|---|---|
-| ![Onboarding](../screenshots/onboarding.png) | ![Desinstalador de apps](../screenshots/app-uninstaller.png) |
-
-| Basura del sistema | Basura de Xcode |
-|---|---|
-| ![Basura del sistema](../screenshots/system-junk.png) | ![Basura de Xcode](../screenshots/xcode-junk.png) |
-
-| Caché de usuario |
-|---|
-| ![Caché de usuario](../screenshots/user-cache.png) |
-
-## Arquitectura
-
-```
-Sift/
-  Logic/Scanning/     - Motor heurístico de escaneo, base de ubicaciones, condiciones
-  Logic/Utilities/    - Registro estructurado
-  Models/             - Modelos de datos, errores tipados
-  Services/           - Motor de escaneo, motor de limpieza, programador
-  ViewModels/         - Estado centralizado de la app
-  Views/              - Vistas nativas de SwiftUI
-    Apps/             - Vistas del desinstalador
-    Cleaning/         - Análisis inteligente y vistas de categorías
-    Orphans/          - Buscador de huérfanos
-    Settings/         - Ajustes basados en Form nativo
-    Components/       - Componentes compartidos
+```bash
+cd cli
+swift build -c release
+.build/release/sift-cli
 ```
 
-Componentes clave:
-- **AppPathFinder** — motor de coincidencia heurística de 10 niveles para descubrir archivos de apps
-- **Locations** — más de 120 rutas de búsqueda del sistema de archivos macOS
-- **Conditions** — 25 reglas de coincidencia por app para casos especiales (Xcode, Chrome, VS Code, etc.)
-- **AppInfoFetcher** — metadatos de Spotlight + respaldo de Info.plist para descubrir apps
-- **Logger** — registro unificado con `os.log` de Apple
+## Qué hace
 
-## Contribuir
+- **Resumen**: medidor de almacenamiento, dónde está la basura, las mayores ganancias, batería y elementos de arranque.
+- **Limpieza**: basura del sistema, herramientas de IA, cachés de desarrollo, instaladores, archivos grandes y antiguos, archivos de Mail y Papelera, con filtros, exclusiones y una revisión antes de eliminar nada.
+- **Herramientas de IA**: cachés y registros de Claude, Claude Code, ChatGPT, Cursor, Ollama y similares. El historial de chats y sesiones aparece pero nunca se preselecciona y va a la Papelera; las carpetas de memoria, los ajustes y las credenciales nunca se tocan.
+- **Basura de proyectos**: `node_modules`, `.venv`, `target`, `.build` y carpetas similares en las carpetas de proyectos que elijas, solo cuando Sift puede demostrar que son generadas y git las ignora. Van a la Papelera y nunca forman parte de la limpieza programada.
+- **Apple Intelligence**: desactívala función por función, elimina sus modelos en el dispositivo y bloquea su descarga con un perfil que tú apruebas. Cada cambio se revisa antes y se puede deshacer (Apple silicon, macOS 15.1 o posterior).
+- **Desinstalador y restos**: encuentra los archivos relacionados de una app y los restos de apps eliminadas; revisa y mueve a la Papelera.
+- **Explorador de espacio, duplicados y fotos similares**, **Protección** y **Rendimiento**.
+- **Limpieza programada** (semanal con día y hora), 13 idiomas, apariencia clara/oscura y color de acento.
 
-Las contribuciones son bienvenidas. Consulta [CONTRIBUTING.md](../CONTRIBUTING.md) para las pautas.
+## Privacidad y seguridad
 
-Áreas donde la ayuda es especialmente bienvenida:
-- Filtros predefinidos por tamaño y fecha en las vistas de categoría
-- Cobertura de XCTest para AppState y el motor de escaneo
-- Localización (es, pt-BR y otros idiomas)
-- Diseño del ícono de la app
+Sin telemetría, analíticas ni informes de fallos. Los análisis son locales y funcionan sin conexión. Todo se revisa antes de eliminarse; algunas limpiezas (categorías y limpieza programada) borran de forma permanente, así que lee la confirmación. Sift necesita **acceso total al disco** para analizar ubicaciones protegidas; la configuración inicial te guía.
+
+## Créditos
+
+Basado en [PureMac](https://github.com/momenbasel/PureMac) de Moamen Basel y sus colaboradores. La herramienta de Apple Intelligence está portada de [RemoveMacAI](https://github.com/omlahore/RemoveMacAI) de Om Lahore, que se basa en [pared](https://github.com/4evy/pared) de 4evy. Todos con licencia MIT; consulta [THIRD-PARTY-NOTICES.md](../THIRD-PARTY-NOTICES.md).
 
 ## Licencia
 
-Licencia MIT. Consulta [LICENSE](../LICENSE) para más detalles.
+MIT. Consulta [LICENSE](../LICENSE).

@@ -12,11 +12,10 @@ Captured from the running CLI using sample projects, before the rename to Sift.
 
 The executable is `sift-cli`, not `sift`, because Homebrew already has an unrelated `sift` formula (a grep alternative) and the two would clash on your `PATH`.
 
-No Sift CLI release is published yet, so [build it from source](#build-from-source) and run `sift-cli`. Once a release exists, publish [`homebrew/sift-cli.rb`](../homebrew/sift-cli.rb) in a tap and install it with `brew install <tap>/sift-cli`.
+The CLI has no published release yet: [build it from source](#build-from-source) and run `sift-cli`. It needs only the Swift toolchain that comes with Xcode or the Command Line Tools.
 
 ![Sift CLI workspace with cleanup, storage, and system tools](screenshots/workspace.png)
 
-The release contains a universal binary for Apple Silicon and Intel, signed with Developer ID and submitted to Apple for notarization. Standalone command-line executables cannot carry stapled tickets; the release includes Apple's notarization result.
 
 ## Select, review, confirm
 
@@ -69,7 +68,7 @@ sift-cli analyze ~/Projects --json
 | `sift-cli clean junk` | Review user logs and generated Xcode files |
 | `sift-cli clean ai` | Review AI-tool caches and logs |
 | `sift-cli clean trash` | Review user and mounted-volume Trash |
-| `sift-cli purge [path]` | Find generated artifacts inside project folders |
+| `sift-cli purge [path]` | Find generated artifacts inside project folders (matched by folder name; the app's Project Junk also checks the project file, build signature and git) |
 | `sift-cli analyze [path]` | Browse disk usage without modifying files |
 | `sift-cli optimize` | Show factual memory and disk status |
 | `sift-cli ignore add <path>` | Protect a path from cleanup |
@@ -139,4 +138,4 @@ swift build -c release
 .build/release/sift-cli
 ```
 
-See [the local release script](../scripts/release-cli-local.sh) for universal builds, signing, and Apple notarization. Publishing also requires updating the Homebrew formula to the checksum of the released archive.
+For a signed, notarized universal build see [the local release script](../scripts/release-cli-local.sh); it needs a Developer ID certificate (see [RELEASING.md](../RELEASING.md)).

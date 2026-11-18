@@ -1,5 +1,19 @@
 # Apple feature and storage research
 
+## What Sift does since 4.0.0
+
+On Apple silicon with macOS 15.1 or later, the Apple Features screen can turn Apple Intelligence off. The approach is ported from [RemoveMacAI](https://github.com/omlahore/RemoveMacAI), which builds on [pared](https://github.com/4evy/pared) (both MIT; see [THIRD-PARTY-NOTICES.md](../THIRD-PARTY-NOTICES.md)):
+
+- **Review first.** Pick the features to keep; Sift lists every setting, model set and profile entry it will change, and applies nothing until you confirm.
+- **Settings** that are ordinary preferences are written per user. Sift records each previous value in `~/Library/Application Support/Sift/apple-tweaks-journal.json` first, and undo restores exactly that value (or removes a key that did not exist). An unreadable journal blocks further changes.
+- **Locked settings and the download block** go in one configuration profile, written to `~/Downloads` and opened so you approve it in System Settings; macOS requires that, and Sift never installs it silently. The profile points each removed model set's download address at a closed local port, so macOS does not fetch it again. Removing the profile in System Settings > Privacy & Security > Profiles turns Apple Intelligence back on.
+- **Models** are removed by asking Apple's asset service (the private Unified Asset Framework) to reset the model sets, one set per request, and only sets whose every feature is being turned off. An empty set list is refused, because the service reads it as "every set". If the framework or a selector is missing, Sift falls back to the guidance below.
+- System Integrity Protection stays on, nothing under `/System` is modified, and no administrator password is needed.
+
+Known limits: Storage settings may keep counting the models until macOS deletes the files on its own schedule; a macOS update can wait about two hours on blocked model downloads before it installs; models come back only after the profile is removed and macOS downloads them again. The model reset has been tested with fakes and a read-only inventory, not end to end on a release build. Intel Macs and older macOS versions get the guidance below.
+
+## Research notes
+
 Checked 2026-10-24 against Apple documentation. These are supported user workflows, not proof of a public API for changing the setting or of a setting's state on a particular Mac.
 
 ## Consumer controls
@@ -70,7 +84,7 @@ No Apple-supported direct filesystem deletion workflow for downloaded aerial scr
 
 ## Implemented boundaries
 
-The Apple Features page opens settings and explains the remaining manual steps. It does not write undocumented preferences, install profiles, stop system services, infer enabled state from files, or remove protected apps. Version checks only determine whether to offer a settings shortcut; model, language, region, and management restrictions still affect availability.
+Where Sift can't turn Apple Intelligence off (Intel, macOS before 15.1, or a missing asset service), the Apple Features page opens settings and explains the remaining manual steps. In that mode it does not write preferences, offer a profile, stop system services, infer enabled state from files, or remove protected apps. Version checks only determine whether to offer a settings shortcut; model, language, region, and management restrictions still affect availability. Where it can, see "What Sift does since 4.0.0" above; it still never stops system services or removes protected apps.
 
 Apple Storage measures allocated blocks in five known locations. Hard links are counted once per location. Symbolic links and cloud-only items are skipped, inaccessible entries and entry limits produce partial results, and absent locations are distinct from measured zero. Compiled model/resource packages are traversed only in the model inventory. No inventory result enters ordinary cleanup or scheduled cleaning.
 

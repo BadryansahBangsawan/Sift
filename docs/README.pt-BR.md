@@ -1,9 +1,5 @@
 <p align="center">
-  <img src="../screenshots/smart-care.png" alt="Sift Smart Care - um escaneamento cobrindo 12 verificações de limpeza, com medidor de espaço livre" width="820">
-</p>
-
-<p align="center">
-  <img src="../screenshots/scanning.png" alt="Escaneamento do Sift - progresso ao vivo com categorias e tamanhos conforme são encontrados" width="820">
+  <img src="../screenshots/smart-care-dark.png" alt="Sift" width="760">
 </p>
 
 <p align="center">
@@ -18,48 +14,28 @@
 
 <h1 align="center">Sift</h1>
 
-<p align="center"><sub>Sift é o novo nome do PureMac. Ainda não há uma versão publicada do Sift: compile a partir do código-fonte. Veja <a href="../README.md#renamed-from-puremac">Renamed from PureMac</a> sobre a migração das configurações e o Acesso Total ao Disco.</sub></p>
-
 <p align="center">
-  <b>Recupere o seu Mac.</b><br>
-  Desinstalador e limpador para macOS, gratuito e open-source. Sem assinatura, sem telemetria, sem upsell.
+  <b>Recupere seu Mac.</b><br>
+  Cuidado para Mac gratuito e de código aberto: limpeza, gerenciamento de apps, exploração do armazenamento e verificações do sistema. Sem assinatura e sem telemetria.
 </p>
 
-<p align="center">
-  <a href="https://github.com/BadryansahBangsawan/Sift/releases/latest"><img src="https://img.shields.io/github/v/release/BadryansahBangsawan/Sift?style=flat-square&label=Baixar" alt="Última versão"></a>
-  <img src="https://img.shields.io/badge/macOS-13.0+-blue?style=flat-square" alt="macOS 13.0+">
-  <img src="https://img.shields.io/badge/Signed%20%26%20Notarized-Apple-success?style=flat-square" alt="Assinado e notarizado pela Apple">
-  <img src="https://img.shields.io/badge/telemetry-none-success?style=flat-square" alt="Sem telemetria">
-  <a href="../LICENSE"><img src="https://img.shields.io/github/license/BadryansahBangsawan/Sift?style=flat-square" alt="Licença MIT"></a>
-  <a href="https://github.com/BadryansahBangsawan/Sift/stargazers"><img src="https://img.shields.io/github/stars/BadryansahBangsawan/Sift?style=flat-square" alt="Estrelas"></a>
-  <a href="https://github.com/BadryansahBangsawan/Sift/releases"><img src="https://img.shields.io/github/downloads/BadryansahBangsawan/Sift/total?style=flat-square&label=Downloads" alt="Downloads"></a>
-</p>
+> Este é um resumo. O [README em inglês](../README.md) é a referência completa e atualizada.
 
-<p align="center">
-  <a href="#instalação">Instalação</a> -
-  <a href="#por-que-isto-existe">Por que isto existe</a> -
-  <a href="#comparativo">Comparativo</a> -
-  <a href="#nossa-promessa">Nossa promessa</a> -
-  <a href="#o-que-ele-faz">O que ele faz</a> -
-  <a href="#permissões">Permissões</a> -
-  <a href="#contribuindo">Contribuindo</a>
-</p>
+## Vindo do PureMac
 
-<p align="center">
-  <sub>Quer mais código aberto? Experimente o <a href="https://github.com/momenbasel/pesty"><b>Pesty</b></a> - um gerenciador de área de transferência nativo e gratuito para macOS.</sub>
-</p>
-
----
+O Sift começou como um fork do PureMac, o limpador de código aberto de Moamen Basel, e agora é desenvolvido de forma independente. Na primeira abertura ele copia seus ajustes e histórico do PureMac; os dados antigos não são alterados. Conceda de novo o **Acesso Total ao Disco**, porque a permissão pertence ao identificador antigo. A ferramenta de terminal agora se chama `sift-cli`.
 
 ## Instalação
 
-```bash
-brew install --cask sift
-```
+Baixe `Sift-4.0.0.dmg` na [versão mais recente](https://github.com/BadryansahBangsawan/Sift/releases/latest) e arraste o Sift para Aplicativos.
 
-Ou baixe o `.dmg` assinado e notarizado em [Releases](https://github.com/BadryansahBangsawan/Sift/releases/latest) e arraste o Sift para `/Applications`. Sem avisos do Gatekeeper, sem gambiarra de quarentena.
+Esta versão ainda não é notarizada pela Apple, então o macOS a bloqueia na primeira vez:
 
-### Compilar do código-fonte
+1. Abra o Sift. O macOS diz que não pode verificar o app; clique em **OK**.
+2. Abra **Ajustes do Sistema > Privacidade e Segurança**, role para baixo e clique em **Abrir Mesmo Assim** ao lado do Sift.
+3. Conceda o **Acesso Total ao Disco** quando o Sift pedir.
+
+### Compilar a partir do código-fonte
 
 ```bash
 brew install xcodegen
@@ -71,204 +47,33 @@ xcodebuild -project Sift.xcodeproj -scheme Sift -configuration Release \
 open build/Build/Products/Release/Sift.app
 ```
 
-### Linha de comando (beta)
-
-Prefere o terminal? O `sift-cli` é um companheiro de linha de comando
-independente, com comandos de limpeza e verificações de segurança próprios.
-Alguns comandos removem permanentemente os arquivos selecionados; comece com
-`--dry-run`, revise cada caminho e só então confirme deliberadamente.
+### Linha de comando
 
 ```bash
-brew install sift-cli
-sift-cli clean dev --dry-run
+cd cli
+swift build -c release
+.build/release/sift-cli
 ```
-
-![sift-cli escaneando e listando exatamente o que será removido antes de apagar qualquer item](../cli/screenshots/clean.png)
-
-Consulte [`cli/README.md`](../cli/README.md) para ver a referência completa de comandos.
-
-## Comparativo
-
-|  | **Sift** | CleanMyMac | Pearcleaner | Mole | OnyX |
-|---|:---:|:---:|:---:|:---:|:---:|
-| Preço | **Grátis** | US$ 40+/ano | Grátis | CLI grátis / GUI paga | Grátis |
-| Código aberto | **Sim (MIT)** | Não | Código-disponível¹ | Só a CLI | Não |
-| Interface nativa de Mac | **Sim** | Sim | Sim | Focado no terminal | Sim |
-| Sem telemetria | **Sim** | Não | Sim | Sim | Sim |
-| Sem assinatura | **Sim** | Não | Sim | — | Sim |
-| Assinado + notarizado | **Sim** | Sim | Sim | — | Sim |
-| Desinstalador de apps + órfãos | **Sim** | Sim | Sim | Parcial | Não |
-| Lixeira no desinstalador de apps | **Sim** | Parcial | Sim | Parcial | Não |
-| Honesto sobre espaço purgável | **Sim** | Não | n/a | n/a | n/a |
-
-<sub>¹ O Pearcleaner é Apache 2.0 **+ Commons Clause** - código-disponível, mas não aprovado pela OSI (você não pode vendê-lo). O Sift é MIT de verdade. O comparativo reflete recursos documentados publicamente em 2026; correções são bem-vindas via PR.</sub>
-
-## Nossa promessa
-
-Um limpador de Mac pede a permissão mais profunda que o macOS concede - o Acesso Total ao Disco - e depois apaga os seus arquivos. Isso exige um nível de confiança que a categoria passou vinte anos queimando. Este é o contrato que o Sift assume consigo mesmo, e você pode verificar cada linha dele no código-fonte:
-
-- **O comportamento de remoção é explícito.** Os fluxos do desinstalador tentam mover os arquivos de apps selecionados para a Lixeira. A limpeza do painel/das categorias, a limpeza automática agendada, a remoção de órfãos, o esvaziamento da Lixeira, a limpeza do Docker/de runtimes do Xcode, a limpeza autorizada como administrador e a CLI podem apagar dados permanentemente. Revise as seleções e use o modo de simulação da CLI.
-- **Sem telemetria, nunca.** Sem analytics, sem relatórios de falha, sem "estatísticas anônimas de uso", sem chamadas de rede para nós. O app não sabe que você existe.
-- **Sem urgência fabricada.** Nenhum selo dramático de "47 GB de lixo detectados!", nenhum contador vermelho de alarme, nenhum "seu Mac está em risco". Mostramos fatos neutros e deixamos você decidir.
-- **Sem promessas exageradas.** Não afirmamos "recuperar espaço purgável", "turbinar a RAM" nem "acelerar o seu Mac" - coisas que nenhum app consegue fazer de forma confiável. Veja a nota sobre espaço purgável abaixo.
-- **Seleção revisável.** A limpeza do painel/das categorias e a remoção de um único arquivo de app pedem confirmação. A remoção em lote de arquivos de apps e de órfãos age sobre a seleção explícita sem uma segunda confirmação. A limpeza automática agendada é executada sem interação depois de ativada, e linhas baseadas em ferramentas, como a limpeza do Docker, podem não ter um caminho revelável.
-- **Auditável.** É MIT. O código exato que decide o que é removido está em [`Sift/Services`](../Sift/Services) e [`Sift/Logic/Scanning`](../Sift/Logic/Scanning). Leia. Faça um fork. Publique o seu próprio.
-
-Se algum dia o Sift adicionar telemetria, um paywall sobre recursos essenciais ou um escaneamento baseado em medo, ele terá se tornado exatamente aquilo que foi criado para substituir. Cobre isso de nós.
-
-## Por que isto existe
-
-A Apple vende Macs de entrada com SSDs de 256 GB que não podem ser expandidos. O Mac mini, o Air, todo MacBook Pro de entrada - o armazenamento vem soldado. O próximo nível de armazenamento custa mais do que um notebook Windows intermediário. Depois de pagar por ele, cada gigabyte que você já comprou importa.
-
-A maioria dos limpadores de Mac são apps por assinatura que escondem o uso do disco atrás de um paywall, embutem telemetria por padrão e lucram com FUD ("47 GB de lixo detectados!"). O Sift é o oposto:
-
-- **Instalação única.** Sem assinatura, sem trial, sem conta.
-- **Sem telemetria.** Ele nunca liga para casa. Nem sequer sabe que você existe.
-- **Código aberto sob MIT.** Leia o código, faça fork, audite.
-- **Escaneamentos honestos.** "Lixo" significa lixo de verdade: diretórios de cache que o próprio sistema purgaria, arquivos órfãos deixados por apps que você já apagou, recibos de instalação quebrados, aquele blob de 4 GB de DerivedData do Xcode de 2023.
-- **Desinstalações de verdade.** Arraste um app e veja cada plist de preferências, pasta de cache, contêiner, launch agent e arquivo de log que ele espalhou pela sua biblioteca - e remova tudo de uma vez.
 
 ## O que ele faz
 
-### Desinstalador de apps
-Descobre tudo em `/Applications` e `~/Applications` e usa um motor de correspondência de 10 níveis (bundle ID, team identifier, entitlements, metadados do Spotlight, descoberta de contêineres, heurísticas de nome da empresa, correspondências parciais de caminho) para encontrar cada arquivo que o app espalhou pelo disco. Três níveis de sensibilidade - Estrito, Aprimorado e Profundo - permitem escolher o quão agressiva é a correspondência. Apps de sistema da Apple são excluídos automaticamente da lista de desinstalação. Você também pode clicar com o botão direito em qualquer app no Finder e escolher **Serviços → Desinstalar com o Sift** para ir direto ao escaneamento de arquivos relacionados.
+- **Visão geral**: medidor de armazenamento, onde está o lixo, os maiores ganhos, bateria e itens de inicialização.
+- **Limpeza**: lixo do sistema, ferramentas de IA, caches de desenvolvimento, instaladores, arquivos grandes e antigos, arquivos do Mail e Lixo, com filtros, exclusões e uma revisão antes de remover qualquer coisa.
+- **Ferramentas de IA**: caches e logs do Claude, Claude Code, ChatGPT, Cursor, Ollama e semelhantes. O histórico de conversas e sessões aparece, mas nunca é pré-selecionado e vai para o Lixo; pastas de memória, ajustes e credenciais nunca são tocados.
+- **Lixo de projetos**: `node_modules`, `.venv`, `target`, `.build` e pastas semelhantes nas pastas de projetos que você escolher, só quando o Sift consegue provar que são geradas e o git as ignora. Vão para o Lixo e nunca entram na limpeza agendada.
+- **Apple Intelligence**: desative recurso por recurso, apague os modelos no dispositivo e bloqueie o download com um perfil que você aprova. Cada alteração é revisada antes e pode ser desfeita (Apple silicon, macOS 15.1 ou posterior).
+- **Desinstalador e sobras**: encontra os arquivos relacionados de um app e as sobras de apps removidos; revise e mova para o Lixo.
+- **Explorador de espaço, duplicados e fotos semelhantes**, **Proteção** e **Desempenho**.
+- **Limpeza agendada** (semanal com dia e hora), 13 idiomas, aparência clara/escura e cor de destaque.
 
-### Localizador de órfãos
-Percorre a `~/Library` e revela arquivos deixados para trás por apps que não existem mais no disco. O comparador confere com os bundle identifiers e nomes normalizados de todos os apps instalados, então um `~/Library/Containers/com.foo.bar` esquecido por um app que você apagou em 2022 aparece com clareza.
+## Privacidade e segurança
 
-### Limpador do sistema
-O Smart Scan executa todas as categorias em paralelo. Cada categoria é um scanner deliberado e independente:
+Sem telemetria, análises ou relatórios de falhas. As verificações são locais e funcionam offline. Tudo é revisado antes de ser removido; algumas limpezas (categorias e limpeza agendada) apagam de forma permanente, então leia a confirmação. O Sift precisa do **Acesso Total ao Disco** para verificar locais protegidos; a configuração inicial guia você.
 
-- **Lixo do sistema** - caches do sistema, logs, arquivos temporários
-- **Cache do usuário** - descoberto dinamicamente, sem lista fixa de apps
-- **Apps de IA** - logs e caches do Ollama e do LM Studio, limpeza de histórico opcional
-- **Arquivos do Mail** - anexos de e-mail baixados
-- **Lixeiras** - esvazia todas as lixeiras, incluindo volumes externos
-- **Arquivos grandes e antigos** - >100 MB ou com mais de 1 ano (nunca selecionados automaticamente)
-- **Lixo do Xcode** - DerivedData, Archives, caches de simuladores e runtimes de simulador baixados (removidos via `simctl runtime delete`; nunca selecionados automaticamente)
-- **Cache do Brew** - respeita `HOMEBREW_CACHE` personalizado
-- **Cache do Node** - npm, yarn clássico, armazenamento endereçado por conteúdo do pnpm
-- **Cache do Docker** - imagens, contêineres, cache de build
+## Créditos
 
-> **Sobre o "espaço purgável":** o Sift mostra o espaço purgável do APFS no detalhamento de armazenamento por transparência, mas deliberadamente **não** o lista como lixo a apagar. O espaço purgável é reservado e recuperado pelo próprio macOS - nenhum app de terceiros consegue liberá-lo de forma confiável, e até o número de espaço purgável do Finder é conhecido por ser impreciso. Limpadores que prometem "recuperar espaço purgável" estão prometendo demais. Preferimos ser honestos a ser impressionantes.
-
-### Limpeza agendada
-Opcional. Intervalo configurável (de a cada hora até mensal), com limite mínimo de auto-limpeza para que execuções em segundo plano só disparem quando houver algo significativo a remover.
-
-## Permissões
-
-O Sift precisa de **Acesso total ao Disco** para ler os locais que o macOS esconde de todos os apps por padrão - downloads do Mail, dados do Safari, o banco de dados do TCC, contêineres protegidos de apps. Sem ele, as categorias de limpeza deixam de encontrar cerca de 70% do que poderiam, e as desinstalações deixam para trás tudo o que está em `~/Library/Containers`.
-
-O onboarding do primeiro uso guia a concessão da permissão com uma prévia animada do exato interruptor que você precisa acionar. Se você pular, o painel exibe uma pílula "Configurar" de um clique. Se uma limpeza falhar por questão de permissão, o Sift abre os Ajustes do Sistema, revela seu bundle no Finder para você arrastá-lo à lista de Acesso Total ao Disco, monitora o estado da permissão a cada segundo e refaz automaticamente o lote que falhou assim que o acesso é concedido. Você nunca precisa selecionar nada de novo.
-
-O que o Sift *não* faz:
-- Não coleta telemetria, relatórios de falha nem análises de uso.
-- Não exige conexão de rede para funcionar.
-- Não envia nem transmite caminhos escaneados ou dados removidos.
-
-## Solução de problemas
-
-### O Launchpad / Dock mostra um ícone desatualizado ou sem cor do Sift
-
-O macOS faz cache agressivo de ícones de apps no LaunchServices. Após uma **reinstalação ou atualização** via Homebrew, o Dock e o Launchpad podem continuar exibindo o ícone antigo em cache. O cask do Sift executa `lsregister -f` na instalação para atualizá-lo automaticamente. Se o ícone desatualizado persistir, registre novamente apenas o Sift e reinicie o Dock (ajuste o caminho se você instalou o app em outro local):
-
-```bash
-/System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/LaunchServices.framework/Versions/A/Support/lsregister \
-  -f "/Applications/Sift.app"
-killall Dock
-```
-
-Dê um minuto para o cache se repovoar e abra o Sift uma vez. Se ainda persistir, uma reinicialização (ou boot em Modo de Segurança) força a reconstrução completa.
-
-## Capturas de tela
-
-| Smart Care | Escaneamento ao vivo |
-|---|---|
-| ![Smart Care](../screenshots/smart-care.png) | ![Escaneamento ao vivo](../screenshots/scanning.png) |
-
-| Detalhamento do escaneamento | Desinstalador de apps |
-|---|---|
-| ![Detalhamento do escaneamento](../screenshots/breakdown.png) | ![Desinstalador de apps](../screenshots/app-uninstaller.png) |
-
-| Lixo do sistema | Lixo do Xcode |
-|---|---|
-| ![Lixo do sistema](../screenshots/system-junk.png) | ![Lixo do Xcode](../screenshots/xcode-junk.png) |
-
-| Cache do usuário | Onboarding |
-|---|---|
-| ![Cache do usuário](../screenshots/user-cache.png) | ![Onboarding](../screenshots/onboarding.png) |
-
-## Arquitetura
-
-```
-Sift/
-  Logic/Scanning/     - Motor heurístico de escaneamento, banco de locais, condições
-  Logic/Utilities/    - Logging estruturado
-  Models/             - Modelos de dados, erros tipados
-  Services/           - Motor de escaneamento, motor de limpeza, coordenador de permissões, agendador
-  ViewModels/         - Estado centralizado do app
-  Views/              - Views nativas em SwiftUI
-    Apps/             - Views do desinstalador de apps
-    Components/       - Componentes compartilhados (demo do FDA, sheet de permissão, tema)
-    Orphans/          - Localizador de órfãos
-    Settings/         - Ajustes nativos baseados em Form
-```
-
-Componentes-chave:
-- **AppPathFinder** - motor de correspondência heurística de 10 níveis para descobrir arquivos relacionados a apps
-- **Locations** - mais de 120 caminhos de busca do sistema de arquivos do macOS
-- **Conditions** - 25 regras de correspondência por app para casos especiais (Xcode, Chrome, VS Code, etc.)
-- **PermissionCoordinator** - fonte única da verdade para prompts de FDA, monitoramento e novas tentativas pós-concessão
-- **FullDiskAccessManager** - sondagem + registro no TCC; caminhos de sondagem amplos (Mail, Safari, Mensagens, AddressBook, Calendários) para que o macOS catalogue o bundle de forma confiável
-- **CleaningEngine** - remoção resistente a symlinks com allow-list, escalonamento de admin via NSAppleScript para itens do root, preparação de caminhos separados por NUL para o xargs
-
-## Segurança
-
-- Redução do risco de symlinks no limpador principal: o `CleaningEngine` resolve os caminhos antes da validação e novamente perto da remoção em nível de usuário. Como a remoção final ainda usa o caminho, isso reduz, mas não elimina, todas as condições de corrida TOCTOU; os outros fluxos de remoção têm verificações próprias.
-- Allow-list do limpador principal: o `CleaningEngine` recusa, na passagem em nível de usuário, caminhos fora das raízes seguras explícitas. O desinstalador de apps e o fluxo de órfãos usam políticas próprias.
-- O escalonamento de administrador usa sua própria allow-list explícita; itens do root fora das raízes permitidas são recusados.
-- Proteção de apps do sistema: os bundles da Apple não podem ser desinstalados, independentemente da seleção.
-- A confirmação varia conforme o fluxo: a limpeza do painel/das categorias e a remoção de um único arquivo de app pedem confirmação; a remoção em lote de arquivos de apps e de órfãos age sobre a seleção explícita sem uma segunda confirmação; a limpeza automática agendada é executada sem confirmação a cada rodada depois de ativada.
-
-Se você encontrar uma vulnerabilidade, abra um aviso de segurança privado (security advisory) em vez de uma issue pública.
-
-## Contribuindo
-
-Pull requests são bem-vindos. Veja o [CONTRIBUTING.md](../CONTRIBUTING.md).
-
-Especialmente bem-vindos:
-- Presets de filtro por tamanho e data em cada categoria
-- Cobertura mais ampla de XCTest para o `AppState` e o motor de escaneamento
-- Traduções além do conjunto atual (en, ar, es, ja, pl, pt-BR, ru, uk, zh-Hans, zh-Hant)
-- Design do ícone do app
-
-## Agradecimentos
-
-- **[@nguyenhuy158](https://github.com/nguyenhuy158)** - Recurso de busca e filtro ([#18](https://github.com/momenbasel/PureMac/issues/18), [#29](https://github.com/momenbasel/PureMac/pull/29))
-- **[@edufalcao](https://github.com/edufalcao)** - Salvaguardas de limpeza e diálogos de confirmação ([#30](https://github.com/momenbasel/PureMac/pull/30))
-- **[@zeck00](https://github.com/zeck00)** - Reformulação da interface ([#31](https://github.com/momenbasel/PureMac/pull/31)), desinstalador de apps com proteção de apps do sistema ([#32](https://github.com/momenbasel/PureMac/pull/32)), experiência de onboarding ([#33](https://github.com/momenbasel/PureMac/pull/33))
-- **[@0x-man](https://github.com/0x-man)** - Relato da vulnerabilidade de segurança com symlinks ([#25](https://github.com/momenbasel/PureMac/issues/25))
-- **[@ansidev](https://github.com/ansidev)** - Relato do bug de interação com checkboxes ([#34](https://github.com/momenbasel/PureMac/issues/34))
-- **[@fengcheng01](https://github.com/fengcheng01)** - Pedido do recurso de desinstalador de apps ([#28](https://github.com/momenbasel/PureMac/issues/28))
-- **[@scholzfuni](https://github.com/scholzfuni)** - Proposta de modularização ([#23](https://github.com/momenbasel/PureMac/issues/23))
-- **[@Zonharo](https://github.com/Zonharo)** - Pedido de atualização automática no app ([#94](https://github.com/momenbasel/PureMac/issues/94))
-
-## Histórico de estrelas
-
-Se o Sift liberou espaço no seu disco, uma estrela ajuda outras pessoas a encontrá-lo.
-
-<a href="https://star-history.com/#BadryansahBangsawan/Sift&Date">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=BadryansahBangsawan/Sift&type=Date&theme=dark" />
-    <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=BadryansahBangsawan/Sift&type=Date" />
-    <img alt="Gráfico do histórico de estrelas do Sift" src="https://api.star-history.com/svg?repos=BadryansahBangsawan/Sift&type=Date" width="720" />
-  </picture>
-</a>
-
-## Mais código aberto
-
-- **[Pesty](https://github.com/momenbasel/pesty)** - um gerenciador de área de transferência gratuito e de código aberto para macOS. Histórico com código de cores, pinboards, busca instantânea, colagem rápida pelo teclado. Assinado, notarizado, `brew install --cask momenbasel/pesty/pesty`.
+Baseado no [PureMac](https://github.com/momenbasel/PureMac) de Moamen Basel e seus colaboradores. A ferramenta de Apple Intelligence foi portada do [RemoveMacAI](https://github.com/omlahore/RemoveMacAI) de Om Lahore, que se baseia no [pared](https://github.com/4evy/pared) de 4evy. Todos sob a licença MIT; veja [THIRD-PARTY-NOTICES.md](../THIRD-PARTY-NOTICES.md).
 
 ## Licença
 
-MIT. Veja o [LICENSE](../LICENSE). Use, faça fork, publique com o seu próprio nome se quiser - a única coisa que a licença pede é que o aviso permaneça.
+MIT. Veja [LICENSE](../LICENSE).

@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="../screenshots/smart-care.png" alt="Sift" width="700">
+  <img src="../screenshots/smart-care-dark.png" alt="Sift" width="760">
 </p>
 
 <p align="center">
@@ -14,47 +14,26 @@
 
 <h1 align="center">Sift</h1>
 
-<p align="center"><sub>Sift は PureMac の新しい名前です。Sift のリリースはまだ公開されていないため、ソースからビルドしてください。設定の移行とフルディスクアクセスについては <a href="../README.md#renamed-from-puremac">Renamed from PureMac</a> を参照してください。</sub></p>
-
 <p align="center">
-  <b>無料・オープンソースの macOS アプリマネージャー兼システムクリーナー。</b><br>
-  アプリを完全にアンインストール。孤立ファイルを検出。システムのゴミを一掃。<br>
-  サブスクリプション、テレメトリ、データ収集は一切なし。
+  <b>Mac の空き容量を取り戻す。</b><br>
+  無料のオープンソース Mac ケア：クリーンアップ、アプリ管理、ストレージの確認、システムチェック。サブスクリプションもテレメトリもありません。
 </p>
 
-<p align="center">
-  <a href="https://github.com/BadryansahBangsawan/Sift/releases/latest"><img src="https://img.shields.io/github/v/release/BadryansahBangsawan/Sift?style=flat-square&label=%E3%83%80%E3%82%A6%E3%83%B3%E3%83%AD%E3%83%BC%E3%83%89" alt="最新リリース"></a>
-  <a href="https://github.com/BadryansahBangsawan/Sift/actions/workflows/build.yml"><img src="https://img.shields.io/github/actions/workflow/status/BadryansahBangsawan/Sift/build.yml?style=flat-square&label=Build" alt="ビルド状況"></a>
-  <img src="https://img.shields.io/badge/macOS-13.0+-blue?style=flat-square" alt="macOS 13.0+">
-  <img src="https://img.shields.io/badge/Swift-5.9-orange?style=flat-square" alt="Swift 5.9">
-  <a href="../LICENSE"><img src="https://img.shields.io/github/license/BadryansahBangsawan/Sift?style=flat-square" alt="MIT License"></a>
-  <a href="https://github.com/BadryansahBangsawan/Sift/stargazers"><img src="https://img.shields.io/github/stars/BadryansahBangsawan/Sift?style=flat-square" alt="スター数"></a>
-  <a href="https://github.com/BadryansahBangsawan/Sift/releases"><img src="https://img.shields.io/github/downloads/BadryansahBangsawan/Sift/total?style=flat-square&label=%E3%83%80%E3%82%A6%E3%83%B3%E3%83%AD%E3%83%BC%E3%83%89%E6%95%B0" alt="ダウンロード数"></a>
-</p>
+> これは概要です。完全で最新の情報は[英語の README](../README.md) を参照してください。
 
-<p align="center">
-  <a href="#インストール">インストール</a> -
-  <a href="#機能">機能</a> -
-  <a href="#スクリーンショット">スクリーンショット</a> -
-  <a href="#コントリビューション">コントリビューション</a>
-</p>
+## PureMac から移行する場合
 
----
+Sift は Moamen Basel によるオープンソースのクリーナー PureMac のフォークとして始まり、現在は独立して開発されています。初回起動時に PureMac の設定と履歴をコピーし、元のデータには手を加えません。権限は以前の識別子に属しているため、**フルディスクアクセス**をもう一度許可してください。コマンドラインツールは `sift-cli` になりました。
 
 ## インストール
 
-### Homebrew（推奨）
+[最新リリース](https://github.com/BadryansahBangsawan/Sift/releases/latest)から `Sift-4.0.0.dmg` をダウンロードし、Sift を「アプリケーション」にドラッグします。
 
-```bash
-brew update
-brew install --cask sift
-```
+このリリースはまだ Apple の公証を受けていないため、初回は macOS に止められます：
 
-### 直接ダウンロード
-
-[Releases](https://github.com/BadryansahBangsawan/Sift/releases/latest) から最新の `.dmg` をダウンロードし、開いて Sift を `/Applications` にドラッグします。
-
-> Apple Developer ID で署名・公証済み — Gatekeeper の警告なしでインストールできます。
+1. Sift を開きます。アプリを検証できないと表示されたら **完了** をクリックします。
+2. **システム設定 > プライバシーとセキュリティ** を開き、下にスクロールして Sift の横の **このまま開く** をクリックします。
+3. Sift に求められたら **フルディスクアクセス** を許可します。
 
 ### ソースからビルド
 
@@ -63,101 +42,38 @@ brew install xcodegen
 git clone https://github.com/BadryansahBangsawan/Sift.git
 cd Sift
 xcodegen generate
-xcodebuild -project Sift.xcodeproj -scheme Sift -configuration Release -derivedDataPath build build
+xcodebuild -project Sift.xcodeproj -scheme Sift -configuration Release \
+  -derivedDataPath build build
 open build/Build/Products/Release/Sift.app
 ```
 
-## 機能
+### コマンドライン
 
-### アプリアンインストーラー
-- `/Applications` と `~/Applications` からすべてのインストール済みアプリを検出
-- **10 段階のマッチング**を行うヒューリスティックなファイル検出エンジン（バンドル ID、企業名、エンタイトルメント、チーム識別子、Spotlight メタデータ、コンテナ検出）
-- **3 段階の感度**: Strict（安全）、Enhanced（バランス重視）、Deep（徹底）
-- 関連するすべてのファイルを表示: キャッシュ、設定、コンテナ、ログ、サポートファイル、ランチエージェント
-- システムアプリ保護 — 27 個の Apple 製アプリがアンインストール対象から除外されます
-- マスター／ディテールビュー: 左にアプリ一覧、右に検出されたファイル
-
-### 孤立ファイル検出
-- アンインストール済みアプリが `~/Library` に残した残骸を検出
-- Library の内容を、インストール済みアプリの識別子と照合
-- ワンクリックで孤立ファイルをクリーンアップ
-
-### システムクリーナー
-- **スマートスキャン** — すべてのカテゴリをワンクリックでスキャン
-- **システムジャンク** — システムキャッシュ、ログ、一時ファイル
-- **ユーザーキャッシュ** — すべてのアプリキャッシュを動的に検出（ハードコーディングされたリストなし）
-- **AIアプリ** — Ollama と LM Studio のログ、キャッシュ、任意のローカル履歴クリーンアップ
-- **メール添付ファイル** — ダウンロード済みのメール添付
-- **ゴミ箱** — すべてのゴミ箱を空に
-- **大容量・古いファイル** — 100 MB を超える、または 1 年以上経過したファイル
-- **消去可能領域** — APFS の消去可能ディスク領域を検出
-- **Xcode ジャンク** — DerivedData、Archives、シミュレータキャッシュ、ダウンロード済み simulator runtimes（`simctl runtime delete` 経由で削除、自動選択されません）
-- **Brew キャッシュ** — Homebrew ダウンロードキャッシュ（カスタム HOMEBREW_CACHE も検出）
-- **スケジュールクリーニング** — 設定可能な間隔での自動スキャン
-
-### ネイティブな macOS 体験
-- ネイティブ macOS コンポーネントを使った SwiftUI で実装
-- `NavigationSplitView`、`Toggle`、`ProgressView`、`Form`、`GroupBox`、`Table`
-- システムのライト／ダークモードを自動で尊重
-- カスタムグラデーション、グロー、Web アプリ風のスタイリングなし
-- 初回起動時にフルディスクアクセスのオンボーディング
-
-### 安全性
-- 破壊的な操作の前に必ず確認ダイアログを表示
-- シンボリックリンク攻撃の防止 — 削除前にパスを解決・検証
-- システムアプリ保護 — Apple 製アプリはアンインストール不可
-- 大容量・古いファイルは自動選択されません
-- AI のプロンプト履歴と会話履歴は確認用に表示されますが、自動選択されません
-- `os.log` による構造化ログ（Console.app で閲覧可能）
-
-## スクリーンショット
-
-| オンボーディング | アプリアンインストーラー |
-|---|---|
-| ![オンボーディング](../screenshots/onboarding.png) | ![アプリアンインストーラー](../screenshots/app-uninstaller.png) |
-
-| システムジャンク | Xcode ジャンク |
-|---|---|
-| ![システムジャンク](../screenshots/system-junk.png) | ![Xcode ジャンク](../screenshots/xcode-junk.png) |
-
-| ユーザーキャッシュ |
-|---|
-| ![ユーザーキャッシュ](../screenshots/user-cache.png) |
-
-## アーキテクチャ
-
-```
-Sift/
-  Logic/Scanning/     - ヒューリスティックなスキャンエンジン、ロケーションデータベース、条件
-  Logic/Utilities/    - 構造化ログ
-  Models/             - データモデル、型付きエラー
-  Services/           - スキャンエンジン、クリーニングエンジン、スケジューラ
-  ViewModels/         - アプリ全体の状態管理
-  Views/              - ネイティブな SwiftUI ビュー
-    Apps/             - アプリアンインストーラーのビュー
-    Cleaning/         - スマートスキャンとカテゴリビュー
-    Orphans/          - 孤立ファイル検出
-    Settings/         - ネイティブ Form ベースの設定画面
-    Components/       - 共有コンポーネント
+```bash
+cd cli
+swift build -c release
+.build/release/sift-cli
 ```
 
-主要なコンポーネント:
-- **AppPathFinder** — アプリ関連ファイルを検出するための 10 段階ヒューリスティックマッチングエンジン
-- **Locations** — macOS の 120 以上のファイルシステム検索パス
-- **Conditions** — 特殊ケース用の 25 個のアプリ別マッチングルール（Xcode、Chrome、VS Code など）
-- **AppInfoFetcher** — アプリ検出のための Spotlight メタデータ + Info.plist フォールバック
-- **Logger** — Apple の `os.log` による統合ロギング
+## できること
 
-## コントリビューション
+- **概要**：ストレージメーター、不要ファイルの内訳、効果の大きい項目、バッテリー、起動項目。
+- **クリーンアップ**：システムの不要ファイル、AI ツール、開発者キャッシュ、インストーラ、大きく古いファイル、メールのファイル、ゴミ箱。フィルタ、除外設定、削除前の確認付き。
+- **AI ツール**：Claude、Claude Code、ChatGPT、Cursor、Ollama などのキャッシュとログ。チャットやセッションの履歴は表示されますが既定では選択されず、ゴミ箱に移動されます。memory フォルダ、設定、認証情報には一切触れません。
+- **プロジェクトの不要ファイル**：選んだプロジェクトフォルダ内の `node_modules`、`.venv`、`target`、`.build` など。Sift が生成物だと証明でき、git が無視している場合だけ表示されます。ゴミ箱に移動され、スケジュール実行には含まれません。
+- **Apple Intelligence**：機能ごとにオフにし、デバイス上のモデルを削除し、あなたが承認するプロファイルで再ダウンロードを止めます。変更はすべて事前に確認でき、元に戻せます（Apple シリコン、macOS 15.1 以降）。
+- **アンインストーラと残りファイル**：アプリの関連ファイルや削除済みアプリの残りを見つけ、確認してゴミ箱へ移動します。
+- **容量エクスプローラ、重複ファイル、類似写真**、**保護**、**パフォーマンス**。
+- **スケジュールクリーンアップ**（週ごとに曜日と時刻を指定）、13 言語、ライト/ダーク表示とアクセントカラー。
 
-コントリビューションを歓迎します。ガイドラインは [CONTRIBUTING.md](../CONTRIBUTING.md) を参照してください。
+## プライバシーと安全性
 
-特に歓迎する分野:
-- カテゴリビューでのサイズ／日付フィルターのプリセット
-- AppState やスキャンエンジンに対する XCTest のカバレッジ
-- ローカライゼーション（その他の言語）
-- アプリアイコンのデザイン
+テレメトリ、分析、クラッシュレポートはありません。スキャンはローカルでオフラインでも動作します。削除前にすべて確認でき、一部のクリーンアップ（カテゴリとスケジュール実行）は完全に削除するため、確認内容を読んでください。保護された場所をスキャンするには **フルディスクアクセス** が必要です。初回設定で案内します。
+
+## クレジット
+
+Moamen Basel と貢献者による [PureMac](https://github.com/momenbasel/PureMac) をもとにしています。Apple Intelligence ツールは Om Lahore の [RemoveMacAI](https://github.com/omlahore/RemoveMacAI) から移植したもので、RemoveMacAI は 4evy の [pared](https://github.com/4evy/pared) を基盤としています。いずれも MIT ライセンスです。[THIRD-PARTY-NOTICES.md](../THIRD-PARTY-NOTICES.md) を参照してください。
 
 ## ライセンス
 
-MIT ライセンス。詳細は [LICENSE](../LICENSE) を参照してください。
+MIT。[LICENSE](../LICENSE) を参照してください。

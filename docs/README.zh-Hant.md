@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="../screenshots/smart-care.png" alt="Sift" width="700">
+  <img src="../screenshots/smart-care-dark.png" alt="Sift" width="760">
 </p>
 
 <p align="center">
@@ -14,150 +14,66 @@
 
 <h1 align="center">Sift</h1>
 
-<p align="center"><sub>Sift 是 PureMac 的新名稱。Sift 尚未發佈正式版本，請從原始碼建置。設定移轉與完整磁碟取用權限的說明請見 <a href="../README.md#renamed-from-puremac">Renamed from PureMac</a>。</sub></p>
-
 <p align="center">
-  <b>免費、開源的 macOS 應用程式管理與系統清理工具。</b><br>
-  徹底解除安裝應用程式。尋找孤立檔案。清理系統垃圾。<br>
-  無訂閱。無遙測。無資料收集。
+  <b>讓你的 Mac 重獲空間。</b><br>
+  免費、開源的 Mac 維護工具：清理、App 管理、儲存空間瀏覽和系統檢查。沒有訂閱，沒有遙測。
 </p>
 
-<p align="center">
-  <a href="https://github.com/BadryansahBangsawan/Sift/releases/latest"><img src="https://img.shields.io/github/v/release/BadryansahBangsawan/Sift?style=flat-square&label=%E4%B8%8B%E8%BC%89" alt="最新版本"></a>
-  <a href="https://github.com/BadryansahBangsawan/Sift/actions/workflows/build.yml"><img src="https://img.shields.io/github/actions/workflow/status/BadryansahBangsawan/Sift/build.yml?style=flat-square&label=Build" alt="建置狀態"></a>
-  <img src="https://img.shields.io/badge/macOS-13.0+-blue?style=flat-square" alt="macOS 13.0+">
-  <img src="https://img.shields.io/badge/Swift-5.9-orange?style=flat-square" alt="Swift 5.9">
-  <a href="../LICENSE"><img src="https://img.shields.io/github/license/BadryansahBangsawan/Sift?style=flat-square" alt="MIT 授權"></a>
-  <a href="https://github.com/BadryansahBangsawan/Sift/stargazers"><img src="https://img.shields.io/github/stars/BadryansahBangsawan/Sift?style=flat-square" alt="Stars"></a>
-  <a href="https://github.com/BadryansahBangsawan/Sift/releases"><img src="https://img.shields.io/github/downloads/BadryansahBangsawan/Sift/total?style=flat-square&label=%E4%B8%8B%E8%BC%89%E6%95%B8" alt="下載數"></a>
-</p>
+> 這是摘要。完整且最新的說明請參閱[英文 README](../README.md)。
 
-<p align="center">
-  <a href="#安裝">安裝</a> -
-  <a href="#功能">功能</a> -
-  <a href="#螢幕截圖">螢幕截圖</a> -
-  <a href="#貢獻">貢獻</a>
-</p>
+## 從 PureMac 移轉
 
----
+Sift 最初是 Moamen Basel 的開源清理工具 PureMac 的分支，現已獨立開發。首次啟動時會複製你的 PureMac 設定和歷史紀錄，舊資料保持不變。由於權限屬於舊的識別碼，請重新授予**完整磁碟取用權**。命令列工具現在叫 `sift-cli`。
 
 ## 安裝
 
-### Homebrew（建議）
+從[最新版本](https://github.com/BadryansahBangsawan/Sift/releases/latest)下載 `Sift-4.0.0.dmg`，將 Sift 拖到「應用程式」。
 
-```bash
-brew update
-brew install --cask sift
-```
+此版本尚未經過 Apple 公證，因此第一次打開時 macOS 會阻擋它：
 
-### 直接下載
+1. 打開 Sift。macOS 顯示無法驗證此 App 時，按一下**完成**。
+2. 打開**系統設定 > 隱私權與安全性**，向下捲動，按一下 Sift 旁的**強制打開**。
+3. 在 Sift 要求時授予**完整磁碟取用權**。
 
-從 [Releases](https://github.com/BadryansahBangsawan/Sift/releases/latest) 下載最新的 `.dmg`,開啟後將 Sift 拖曳到 `/Applications`。
-
-> 已使用 Apple Developer ID 簽署並公證 — 安裝時不會出現 Gatekeeper 警告。
-
-### 由原始碼建置
+### 從原始碼建置
 
 ```bash
 brew install xcodegen
 git clone https://github.com/BadryansahBangsawan/Sift.git
 cd Sift
 xcodegen generate
-xcodebuild -project Sift.xcodeproj -scheme Sift -configuration Release -derivedDataPath build build
+xcodebuild -project Sift.xcodeproj -scheme Sift -configuration Release \
+  -derivedDataPath build build
 open build/Build/Products/Release/Sift.app
+```
+
+### 命令列
+
+```bash
+cd cli
+swift build -c release
+.build/release/sift-cli
 ```
 
 ## 功能
 
-### 應用程式解除安裝
-- 從 `/Applications` 及 `~/Applications` 探索所有已安裝的應用程式
-- 具備**10 層比對機制**的啟發式檔案發現引擎(Bundle ID、公司名稱、entitlements、Team Identifier、Spotlight 中繼資料、容器探索)
-- **3 種靈敏度**:Strict(安全)、Enhanced(平衡)、Deep(徹底)
-- 顯示所有相關檔案:快取、偏好設定、容器、記錄、支援檔案、啟動代理
-- 系統應用程式保護 — 排除 27 個 Apple 應用程式,避免誤刪
-- 主從檢視:左側為應用程式列表,右側為發現的檔案
+- **概覽**：儲存空間條、垃圾分布、最大的可清理項目、電池和開機項目。
+- **清理**：系統垃圾、AI 工具、開發者快取、安裝檔、大型和舊檔案、郵件檔案和垃圾桶，皆支援篩選、排除和刪除前確認。
+- **AI 工具**：Claude、Claude Code、ChatGPT、Cursor、Ollama 等的快取和記錄。聊天和工作階段歷史會列出但絕不預先選取，並移到垃圾桶；memory 檔案夾、設定和憑證永遠不會被觸碰。
+- **專案垃圾**：你所選專案檔案夾中的 `node_modules`、`.venv`、`target`、`.build` 等檔案夾，僅在 Sift 能證明它們是產生的且被 git 忽略時才列出。它們會移到垃圾桶，且絕不參與排程清理。
+- **Apple Intelligence**：依功能關閉，刪除裝置上的模型，並以你核准的描述檔阻止重新下載。所有變更都會先供你檢查，並可復原（Apple 晶片，macOS 15.1 或以上版本）。
+- **解除安裝器和殘留檔案**：找到 App 的相關檔案及已刪除 App 的殘留，檢查後移到垃圾桶。
+- **空間瀏覽器、重複檔案和相似照片**，以及**保護**和**效能**。
+- **排程清理**（每週可選星期和時間）、13 種語言、淺色/深色外觀和強調色。
 
-### 孤立檔案搜尋
-- 偵測 `~/Library` 中已解除安裝應用程式留下的殘餘檔案
-- 將 Library 內容與所有已安裝應用程式的識別碼比對
-- 一鍵清除孤立檔案
+## 隱私權與安全
 
-### 系統清理
-- **智慧掃描** — 一鍵掃描所有分類
-- **系統垃圾** — 系統快取、記錄與暫存檔案
-- **使用者快取** — 動態發現所有應用程式快取(不需寫死清單)
-- **AI 應用程式** — Ollama 與 LM Studio 日誌、快取，以及可選的本機歷史記錄清理
-- **郵件附件** — 已下載的郵件附件
-- **垃圾桶** — 清空所有垃圾桶
-- **大型與舊檔案** — 超過 100 MB 或超過 1 年的檔案
-- **可清除空間** — 偵測 APFS 可清除磁碟空間
-- **Xcode 垃圾** — DerivedData、Archives、模擬器快取與下載的 simulator runtimes（透過 `simctl runtime delete` 刪除，不會自動勾選）
-- **Brew 快取** — Homebrew 下載快取(可辨識自訂的 HOMEBREW_CACHE)
-- **排程清理** — 以可設定的間隔自動掃描
+沒有遙測、分析或當機報告。掃描在本機進行，可離線使用。刪除前一切都會供你檢查；部分清理（類別清理和排程清理）是永久刪除，請閱讀確認訊息。Sift 需要**完整磁碟取用權**才能掃描受保護的位置，首次設定會引導你完成。
 
-### 原生 macOS 體驗
-- 使用 SwiftUI 與原生 macOS 元件打造
-- `NavigationSplitView`、`Toggle`、`ProgressView`、`Form`、`GroupBox`、`Table`
-- 自動沿用系統淺色/深色模式
-- 不使用自訂漸層、光暈或網頁風格樣式
-- 首次啟動時提供完整磁碟存取權的設定流程
+## 致謝
 
-### 安全性
-- 所有破壞性操作前皆會顯示確認對話框
-- 符號連結攻擊防護 — 刪除前先解析並驗證路徑
-- 系統應用程式保護 — Apple 應用程式無法被解除安裝
-- 大型與舊檔案永遠不會被自動勾選
-- AI 提示與對話歷史記錄會顯示供使用者檢視，但永遠不會自動勾選
-- 透過 `os.log` 進行結構化記錄(可在「主控台」App 中檢視)
-
-## 螢幕截圖
-
-| 引導 | 應用程式解除安裝 |
-|---|---|
-| ![引導](../screenshots/onboarding.png) | ![應用程式解除安裝](../screenshots/app-uninstaller.png) |
-
-| 系統垃圾 | Xcode 垃圾 |
-|---|---|
-| ![系統垃圾](../screenshots/system-junk.png) | ![Xcode 垃圾](../screenshots/xcode-junk.png) |
-
-| 使用者快取 |
-|---|
-| ![使用者快取](../screenshots/user-cache.png) |
-
-## 架構
-
-```
-Sift/
-  Logic/Scanning/     - 啟發式掃描引擎、位置資料庫、條件
-  Logic/Utilities/    - 結構化記錄
-  Models/             - 資料模型、型別化錯誤
-  Services/           - 掃描引擎、清理引擎、排程器
-  ViewModels/         - 集中式應用程式狀態
-  Views/              - 原生 SwiftUI 視圖
-    Apps/             - 應用程式解除安裝視圖
-    Cleaning/         - 智慧掃描與分類視圖
-    Orphans/          - 孤立檔案搜尋
-    Settings/         - 以原生 Form 為基礎的設定
-    Components/       - 共用元件
-```
-
-核心元件:
-- **AppPathFinder** — 用於發現應用程式相關檔案的 10 層啟發式比對引擎
-- **Locations** — 120 組以上的 macOS 檔案系統搜尋路徑
-- **Conditions** — 針對特殊情況(Xcode、Chrome、VS Code 等)的 25 條應用程式比對規則
-- **AppInfoFetcher** — 以 Spotlight 中繼資料搭配 Info.plist 作為後備的應用程式發現
-- **Logger** — 以 Apple `os.log` 為基礎的整合式記錄
-
-## 貢獻
-
-歡迎參與貢獻。請參閱 [CONTRIBUTING.md](../CONTRIBUTING.md) 了解指引。
-
-特別歡迎協助的方向:
-- 分類視圖中的大小/日期篩選預設值
-- AppState 與掃描引擎的 XCTest 覆蓋率
-- 本地化(其他語言)
-- 應用程式圖示設計
+以 Moamen Basel 及其貢獻者的 [PureMac](https://github.com/momenbasel/PureMac) 為基礎。Apple Intelligence 工具移植自 Om Lahore 的 [RemoveMacAI](https://github.com/omlahore/RemoveMacAI)，它以 4evy 的 [pared](https://github.com/4evy/pared) 為基礎。皆採用 MIT 授權，詳見 [THIRD-PARTY-NOTICES.md](../THIRD-PARTY-NOTICES.md)。
 
 ## 授權
 
-MIT 授權。詳情請參閱 [LICENSE](../LICENSE)。
+MIT。詳見 [LICENSE](../LICENSE)。

@@ -24,4 +24,4 @@ If applicable, add screenshots.
 **Environment**
 - macOS version:
 - Sift version:
-- Install method: (Homebrew / DMG / App Store / Source)
+- Install method: (DMG / ZIP / built from source)

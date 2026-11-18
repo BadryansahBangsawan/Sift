@@ -2,6 +2,22 @@
 
 All notable user-facing changes to Sift. Sift was called PureMac before 4.0.0.
 
+## Unreleased
+
+### Changed
+
+- Releases can be published without a Developer ID: an ad-hoc signed,
+  not notarized build with first-launch instructions (Open Anyway).
+- Documentation rewritten for Sift 4: README, the six translated READMEs,
+  the website, the CLI guide and the Apple features notes. Contribution
+  guides, the sponsor link and the star-history chart were removed; Sift is
+  maintained by one person.
+
+### Fixed
+
+- The Duplicates "Clear" button now reads as "deselect" in every language
+  (French, Italian and Portuguese said "clean" or "no problem").
+
 ## 4.0.0
 
 PureMac is now Sift. The app, the command-line tool and the release artifacts use

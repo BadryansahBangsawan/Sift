@@ -26,10 +26,9 @@
 <p align="center">
   <a href="https://github.com/BadryansahBangsawan/Sift/releases/latest"><img src="https://img.shields.io/github/v/release/BadryansahBangsawan/Sift?style=flat-square&label=Download" alt="Latest Release"></a>
   <img src="https://img.shields.io/badge/macOS-13.0+-blue?style=flat-square" alt="macOS 13.0+">
-  <img src="https://img.shields.io/badge/Signed%20%26%20Notarized-Apple-success?style=flat-square" alt="Signed & Notarized by Apple">
+  <img src="https://img.shields.io/badge/universal-Apple%20silicon%20%2B%20Intel-blue?style=flat-square" alt="Universal: Apple silicon and Intel">
   <img src="https://img.shields.io/badge/telemetry-none-success?style=flat-square" alt="No telemetry">
   <a href="LICENSE"><img src="https://img.shields.io/github/license/BadryansahBangsawan/Sift?style=flat-square" alt="MIT License"></a>
-  <a href="https://github.com/BadryansahBangsawan/Sift/stargazers"><img src="https://img.shields.io/github/stars/BadryansahBangsawan/Sift?style=flat-square" alt="Stars"></a>
   <a href="https://github.com/BadryansahBangsawan/Sift/releases"><img src="https://img.shields.io/github/downloads/BadryansahBangsawan/Sift/total?style=flat-square&label=Downloads" alt="Downloads"></a>
 </p>
 
@@ -39,25 +38,18 @@
   <a href="#how-it-compares">How it compares</a> -
   <a href="#our-promise">Our promise</a> -
   <a href="#what-it-does">What it does</a> -
-  <a href="#permissions">Permissions</a> -
-  <a href="#contributing">Contributing</a>
-</p>
-
-<p align="center">
-  <sub>Want more open source? Try <a href="https://github.com/momenbasel/pesty"><b>Pesty</b></a> - a free, native clipboard manager for macOS.</sub>
+  <a href="#permissions">Permissions</a>
 </p>
 
 ---
 
-## Renamed from PureMac
+## Coming from PureMac
 
-Sift is the new name of PureMac, the open-source Mac cleaner created by [Moamen Basel](https://github.com/momenbasel). The app now uses the bundle identifier `com.sift.app` (previously `com.puremac.app`).
+Sift started as a fork of PureMac, the open-source Mac cleaner by [Moamen Basel](https://github.com/momenbasel), and is now developed independently with a new interface and new tools. It uses its own bundle identifier, `com.sift.app` (PureMac used `com.puremac.app`).
 
 - **Settings and history migrate automatically.** On first launch Sift copies your PureMac preferences and its `~/Library/Application Support/PureMac` folder. The PureMac data is left untouched, so an old copy keeps working until you remove it.
 - **Grant Full Disk Access again.** macOS ties the permission to the bundle identifier, so Sift needs its own entry in System Settings > Privacy & Security > Full Disk Access. You can remove the old PureMac entry.
 - **The command-line tool is now `sift-cli`.** It is not called `sift` because Homebrew already ships an unrelated `sift` (a grep alternative). It reads `~/.config/sift/` first and falls back to your existing `~/.config/puremac/` settings and protected paths.
-
-The screenshots in this README still show the PureMac interface.
 
 ## Install
 
@@ -109,18 +101,18 @@ Use `sift-cli clean dev --dry-run` for a preview or `--json` for scripts. See
 | Native Mac GUI | **Yes** | Yes | Yes | Terminal-first | Yes |
 | No telemetry | **Yes** | No | Yes | Yes | Yes |
 | No subscription | **Yes** | No | Yes | — | Yes |
-| Signed + notarized | **Yes** | Yes | Yes | — | Yes |
+| Signed + notarized | No (ad-hoc signed) | Yes | Yes | — | Yes |
 | App uninstaller + orphans | **Yes** | Yes | Yes | Partial | No |
 | App-uninstall Trash support | **Yes** | Partial | Yes | Partial | No |
 | Honest about purgeable space | **Yes** | No | n/a | n/a | n/a |
 
-<sub>¹ Pearcleaner is Apache 2.0 **+ Commons Clause** - source-available but not OSI-approved (you may not sell it). Sift is true MIT. Comparison reflects publicly documented features as of 2026; corrections welcome via PR.</sub>
+<sub>¹ Pearcleaner is Apache 2.0 **+ Commons Clause** - source-available but not OSI-approved (you may not sell it). Sift is true MIT. Comparison reflects publicly documented features as of 2026.</sub>
 
 ## Our promise
 
 A Mac cleaner asks for the deepest permission macOS grants - Full Disk Access - and then deletes your files. That demands a level of trust the category has spent twenty years burning. Here's the contract Sift holds itself to, and you can verify every line of it in the source:
 
-- **Deletion behavior is explicit.** App uninstalls, orphan removal, and exact-duplicate removal use the Trash at user level. Sift never empties the Trash: empty it yourself in Finder. Dashboard/category cleanup, scheduled auto-clean, Docker/Xcode runtime cleanup, administrator-authorized removal, local snapshot deletion, and CLI cleanup can permanently delete data. Review selections carefully and use CLI dry runs.
+- **Deletion behavior is explicit.** App uninstalls, orphan removal, exact-duplicate removal, project junk and AI chat history use the Trash at user level. Sift never empties the Trash: empty it yourself in Finder. Dashboard/category cleanup, scheduled auto-clean, Docker/Xcode runtime cleanup, administrator-authorized removal, local snapshot deletion, and CLI cleanup can permanently delete data. Review selections carefully and use CLI dry runs.
 - **No telemetry, ever.** No analytics, no crash reporting, no "anonymous usage stats," no network calls to us. The app doesn't know you exist.
 - **No fake urgency.** No dramatized "47 GB of junk detected!" badge, no red alarm counters, no "your Mac is at risk." We show you neutral facts and let you decide.
 - **No overpromising.** We don't claim to "reclaim purgeable space," "boost RAM," or "speed up your Mac" - things no app can reliably do. See the purgeable-space note below.
@@ -155,13 +147,22 @@ Smart Scan checks each category in sequence and reports progress as files are fo
 - **System Junk** - system caches and logs; `/tmp` entries only when you own them, they have been untouched for three days and hold no repository or socket (never preselected)
 - **User Cache** - dynamically discovered, no hardcoded app list
 - **AI Tools** - caches and logs of Claude, Claude Code, omp, ChatGPT, Cursor, Codex, Ollama, LM Studio and similar tools; chat and session history and the Claude VM image are listed but never preselected and go to the Trash; memory folders, settings and credentials are never touched
-- **Project Junk** - `node_modules`, `.venv`, `target`, `.build`, `Pods` and similar folders in the project folders you choose, offered only when the matching project file sits next to them, their contents look generated and git ignores them without tracking anything inside; moved to the Trash, never part of Smart Scan or scheduled cleanup
 - **Mail Files** - downloaded mail attachments
 - **Large & Old Files** - >100 MB or older than 1 year (never auto-selected)
 - **Xcode Junk** - DerivedData, Archives, simulator caches, downloaded simulator runtimes (deleted via `simctl runtime delete`; never auto-selected), and XcodeBuildMCP or MobileBuildMCP DerivedData (never auto-selected, so scheduled cleanup leaves it alone; manual cleanup moves it to the Trash while holding the tool's storage lock, which does not detect a running build)
 - **Brew Cache** - Homebrew download caches within approved cache locations
 - **Node Cache** - npm, yarn classic, pnpm content-addressable store
 - **Docker Cache** - images, containers, build cache
+
+### Project Junk
+
+Developer projects pile up dependency folders and build output: `node_modules`, `.venv`, `target`, `.build`, `.next`, `Pods`, `DerivedData` and similar. Choose the folders where you keep code (external drives work) and Sift lists, per project, only the folders it can prove are generated:
+
+- the matching project file sits next to the folder (`package.json` next to `node_modules`, `Cargo.toml` next to `target`, …),
+- the folder's contents carry a build signature (`.package-lock.json`, `pyvenv.cfg`, `CACHEDIR.TAG`, …),
+- and, inside a git repository, git ignores the folder and tracks nothing in it.
+
+Symbolic links, folders that contain a repository, folders inside hidden tool directories (such as agent worktrees) and your exclusions are left alone, and every row says why it qualified. A folder Sift is unsure about is listed under "Left alone" with the reason instead of being offered. Each folder is checked again right before it moves, and folders go to the Trash. Project Junk is never part of Smart Scan or scheduled cleanup.
 
 > **On "purgeable space":** Sift shows your APFS purgeable space in the storage breakdown for transparency, but it deliberately does **not** list it as junk to delete. Purgeable space is reserved and reclaimed by macOS itself - no third-party app can reliably free it, and even the Finder's purgeable figure is known to be inaccurate. Cleaners that claim to "reclaim purgeable space" are overpromising. We'd rather be honest than impressive.
 
@@ -192,13 +193,13 @@ Cleanup results support name/path search, size and age filters, sorting, and sel
 Check for updates to Homebrew-managed cask apps and choose which ones to upgrade. Sift runs Homebrew with analytics disabled and shows command failures. These actions use the network and Homebrew's package sources. Apps installed outside Homebrew are not covered; an App Store shortcut is provided for those managed by Apple.
 
 ### Scheduled Cleaning
-Optional. Configurable interval (hourly to monthly), with auto-clean threshold so background runs only fire when there's something meaningful to remove.
+Optional. Choose an interval (weekly runs pick a day and an hour) and an auto-clean threshold, so background runs only fire when there's something meaningful to remove. The rail shows when the next run is due. Opt-in items (AI chat history, large files, `/tmp` entries) and Project Junk are never cleaned on a schedule.
 
 ### Settings
 
-Open **Settings** using the gear in the sidebar or the standard macOS Settings command. General settings include language (including Italian), System/Light/Dark appearance, Full Disk Access status and recheck, startup, menu-bar monitoring, sound and safety. Cleaning and scheduled scanning keep their existing preferences.
+Open **Settings** from the bottom of the sidebar or with ⌘,. It is split into General, Cleaning, Schedule, Appearance, Permissions and Updates: language (13 languages), System/Light/Dark appearance and an accent colour, Full Disk Access status and recheck, startup, the menu-bar monitor, the large-file threshold, exclusions, and the schedule.
 
-The **Updates** tab shows the installed version and build and checks official GitHub app releases on request. CLI releases, drafts and prereleases are excluded. Choose the update method for Homebrew instructions or a DMG/ZIP download link. The check reports availability; it does not install an update or run Homebrew.
+The **Updates** tab shows the installed version and build and checks this repository's GitHub releases on request. CLI releases, drafts and prereleases are excluded. The check reports availability and links to the release; it does not install anything.
 
 ## Permissions
 
@@ -213,9 +214,13 @@ What Sift does *not* do:
 
 ## Troubleshooting
 
+### macOS says it can't verify Sift
+
+Releases are ad-hoc signed and not notarized by Apple yet. The first time you open Sift, click **Done**, then open **System Settings > Privacy & Security**, scroll down and click **Open Anyway** next to Sift. You only do this once per version.
+
 ### Launchpad / Dock shows a stale or dull Sift icon
 
-macOS aggressively caches app icons in LaunchServices. After a Homebrew **reinstall or upgrade** the Dock and Launchpad can keep showing the old cached icon. Sift's cask runs `lsregister -f` on install to refresh it automatically. If a stale icon persists, re-register only Sift and restart the Dock (adjust the app path if you installed it elsewhere):
+macOS aggressively caches app icons in LaunchServices. After replacing Sift with a newer version the Dock and Launchpad can keep showing the old cached icon. Re-register Sift and restart the Dock (adjust the app path if you installed it elsewhere):
 
 ```bash
 /System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/LaunchServices.framework/Versions/A/Support/lsregister \
@@ -231,9 +236,13 @@ Give it a minute to re-seed, then open Sift once. If it still sticks, a restart 
 |---|---|
 | ![Overview](screenshots/smart-care.png) | ![Dark appearance](screenshots/smart-care-dark.png) |
 
-| Apple Features | Apple Storage |
+| AI Tools | Project Junk |
 |---|---|
-| ![Apple Features](screenshots/apple-features.png) | ![Apple Storage](screenshots/apple-storage.png) |
+| ![AI Tools: caches preselected, chat history opt-in](screenshots/ai-tools.png) | ![Project Junk grouped by project with the evidence for each folder](screenshots/project-junk.png) |
+
+| Apple Intelligence | Apple Storage |
+|---|---|
+| ![Apple Features: turn Apple Intelligence off feature by feature](screenshots/apple-features.png) | ![Apple Storage](screenshots/apple-storage.png) |
 
 | Space Explorer | Duplicate Finder |
 |---|---|
@@ -243,24 +252,26 @@ Give it a minute to re-seed, then open Sift once. If it still sticks, a restart 
 |---|---|
 | ![Protection](screenshots/protection.png) | ![App Updates](screenshots/app-updates.png) |
 
-<p align="center">
-  <img src="screenshots/similar-photos.png" alt="Similar Photos comparing sample images for manual review" width="820">
-</p>
+| Uninstaller | System Junk |
+|---|---|
+| ![Uninstaller listing installed apps by size](screenshots/app-uninstaller.png) | ![System Junk with filters, presets and the selection bar](screenshots/system-junk.png) |
 
-Screenshots show the running macOS app. File tools use sample files and images.
+Screenshots show the running macOS app on a real Mac.
 
 ## Architecture
 
 ```
 Sift/
+  DesignSystem/       - Colours, type, icons and components shared by every screen
   Logic/Scanning/     - Heuristic scan engine, locations database, conditions
   Logic/Utilities/    - Structured logging
   Models/             - Data models, typed errors
   Services/           - Scanning, cleanup, file tools, protection, updates, scheduler
+    AppleIntelligence/ - Apple Intelligence catalog, asset service, profile, undo journal
   ViewModels/         - Centralized app state
   Views/              - Native SwiftUI views
     Apps/             - App uninstaller views
-    Components/       - Shared components (FDA demo, permission sheet, theme)
+    Components/       - Shared components (FDA demo, permission sheet)
     Orphans/          - Orphan finder
     Tools/            - Space, duplicates, similar photos, protection, performance, updates
     Settings/         - Native Form-based settings
@@ -273,6 +284,8 @@ Key components:
 - **PermissionCoordinator** - Single source of truth for FDA prompts, polling, and post-grant retries
 - **FullDiskAccessManager** - TCC probe + registration; broad probe paths (Mail, Safari, Messages, AddressBook, Calendars) so macOS catalogs the bundle reliably
 - **CleaningEngine** - Symlink-resistant deletion with an allow-list, NSAppleScript-based admin escalation for root-owned items, NUL-separated path staging for xargs
+- **ProjectJunkFinder** - The single decision point for Project Junk: name, project marker, content signature and git checks, run at scan time and again before a folder moves
+- **AIToolCleanupCatalog** - Exact allow-list of AI tool caches and session shapes, plus the paths that are never touched
 
 ## Security
 
@@ -284,49 +297,14 @@ Key components:
 
 If you find a vulnerability, please open a private security advisory rather than a public issue.
 
-## Contributing
-
-Pull requests welcome. See [CONTRIBUTING.md](CONTRIBUTING.md).
-
-Especially welcome:
-- Per-category size and date filter presets
-- Wider XCTest coverage for `AppState` and the scan engine
-- Translations beyond the current set (en, ar, es, ja, pl, pt-BR, ru, uk, zh-Hans, zh-Hant)
-- App icon design
-
 ## Acknowledgments
 
+- **[PureMac](https://github.com/momenbasel/PureMac)** by Moamen Basel and the PureMac contributors - the cleaner Sift started from (MIT).
 - **Om Lahore** - [RemoveMacAI](https://github.com/omlahore/RemoveMacAI), whose Apple Intelligence catalog, asset-service reset and profile design Sift's Apple Intelligence tool is ported from (MIT).
-- **4evy** - [pared](https://github.com/4evy/pared), which first mapped Apple's asset service, model sets and settings keys that RemoveMacAI builds on (MIT). Licenses: [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md).
-- **[@nguyenhuy158](https://github.com/nguyenhuy158)** - Search and filter feature ([#18](https://github.com/momenbasel/PureMac/issues/18), [#29](https://github.com/momenbasel/PureMac/pull/29))
-- **[@edufalcao](https://github.com/edufalcao)** - Cleaning safety guards and confirmation dialogs ([#30](https://github.com/momenbasel/PureMac/pull/30))
-- **[@zeck00](https://github.com/zeck00)** - UI overhaul ([#31](https://github.com/momenbasel/PureMac/pull/31)), app uninstaller with system app protection ([#32](https://github.com/momenbasel/PureMac/pull/32)), onboarding experience ([#33](https://github.com/momenbasel/PureMac/pull/33))
-- **[@0x-man](https://github.com/0x-man)** - Symlink security vulnerability report ([#25](https://github.com/momenbasel/PureMac/issues/25))
-- **[@ansidev](https://github.com/ansidev)** - Checkbox interaction bug report ([#34](https://github.com/momenbasel/PureMac/issues/34))
-- **[@fengcheng01](https://github.com/fengcheng01)** - App uninstaller feature request ([#28](https://github.com/momenbasel/PureMac/issues/28))
-- **[@scholzfuni](https://github.com/scholzfuni)** - Modularization proposal ([#23](https://github.com/momenbasel/PureMac/issues/23))
-- **[@Zonharo](https://github.com/Zonharo)** - In-app auto-update request ([#94](https://github.com/momenbasel/PureMac/issues/94))
+- **4evy** - [pared](https://github.com/4evy/pared), which first mapped Apple's asset service, model sets and settings keys that RemoveMacAI builds on (MIT).
 
-## Star History
-
-If Sift saved you some disk space, a star helps other people find it.
-
-<a href="https://github.com/BadryansahBangsawan/Sift/stargazers">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="assets/star-history-dark.svg" />
-    <source media="(prefers-color-scheme: light)" srcset="assets/star-history.svg" />
-    <img alt="Star history chart for the PureMac repository" src="assets/star-history.svg" width="720" />
-  </picture>
-</a>
-
-## More open source
-
-- **[Pesty](https://github.com/momenbasel/pesty)** - a free, open-source clipboard manager for macOS. Color-coded history, pinboards, instant search, keyboard-fast paste. Signed, notarized, `brew install --cask momenbasel/pesty/pesty`.
-
-## Also try
-
-[JMacy](https://jmacy.xyz) - the best and fastest downloader for macOS. Multi-connection segmented downloads that saturate your line, plus browser capture and torrents.
+Their licenses are in [LICENSE](LICENSE) and [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md).
 
 ## License
 
-MIT. See [LICENSE](LICENSE). Use it, fork it, ship it under your own name if you want - the only thing the license asks is that the notice stays.
+MIT. See [LICENSE](LICENSE).

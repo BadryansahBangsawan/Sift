@@ -3,37 +3,37 @@
 > Sift is a free, native, open-source Mac utility for cleanup, app management, storage exploration, duplicate detection, and system checks.
 
 ## Product
-- Current stable GUI release verified 24 October 2026: 3.1.0.
-- macOS 13 Ventura or later. Universal Apple Silicon and Intel binary.
-- Developer ID signed, Apple-notarized. MIT license, no paid feature tier.
-- Smart Care scans cleanup categories with progress, cancellation, filters, exclusions, and manual confirmation.
+- Current release: 4.0.0 (18 November 2026). Sift was renamed from PureMac; settings and history migrate on first launch.
+- macOS 13 Ventura or later. Universal Apple silicon and Intel binary.
+- Ad-hoc signed, not notarized by Apple: on first launch use System Settings > Privacy & Security > Open Anyway. MIT license, no paid feature tier.
+- Overview and cleanup categories scan with progress, cancellation, filters, exclusions, and manual confirmation.
+- AI tools clears caches and logs of AI apps and coding agents (Claude, Claude Code, ChatGPT, Cursor, Ollama and similar). Chat and session history is opt-in and goes to Trash; memory folders, settings and credentials are never touched.
+- Project Junk finds node_modules, .venv, target, .build and similar folders in user-chosen project folders, only when the project file sits next to them, their contents look generated and git ignores them. They go to Trash and are never part of Smart Scan or scheduled cleanup.
+- Apple Features turns Apple Intelligence off feature by feature on Apple silicon with macOS 15.1+, deletes its models through Apple's asset service and blocks re-download with a user-approved configuration profile. Every change is reviewed first and can be undone.
 - App Uninstaller discovers related files using heuristic matching. Users must review matches.
 - Orphan Finder surfaces files associated with apps no longer installed.
 - Space Explorer measures allocated folder storage and reports skipped or inaccessible items.
 - Duplicate Finder verifies exact matches by content hash and protects one copy per group.
 - Similar Photos reviews likely matches and reveals them in Finder. It does not delete photos.
 - Protection checks Gatekeeper, FileVault, firewall, SIP, and XProtect metadata. It is not an antivirus scan.
-- Performance shows process CPU and memory usage, startup items, and local snapshots.
+- Performance shows process CPU and memory usage, battery health, startup items, and local snapshots.
 - App Updates checks and upgrades Homebrew-managed casks. It does not cover all installed apps.
-- Settings includes appearance, language, Full Disk Access, and user-requested GitHub release checks.
+- Settings includes appearance and accent colour, 13 languages, Full Disk Access, the schedule, and user-requested GitHub release checks.
 
 ## Removal behavior
-User-level app uninstalling, orphan removal, and exact-duplicate removal use Trash. Recovery is possible only until Trash is emptied. Dashboard/category cleanup, scheduled auto-clean, Trash emptying, Docker/Xcode runtime cleanup, administrator-authorized removal, local snapshot deletion, and CLI cleanup can permanently delete data. Manual removal requires confirmation. Scheduled auto-clean runs unattended once enabled. Keep backups and review selections. Purgeable space is managed by macOS and is not promised as recoverable cleanup.
+User-level app uninstalling, orphan removal, exact-duplicate removal, Project Junk and AI chat history use Trash. Recovery is possible only until Trash is emptied. Dashboard/category cleanup, scheduled auto-clean, Trash emptying, Docker/Xcode runtime cleanup, administrator-authorized removal, local snapshot deletion, and CLI cleanup can permanently delete data. Manual removal requires confirmation. Scheduled auto-clean runs unattended once enabled and never includes opt-in items or Project Junk. Keep backups and review selections. Purgeable space is managed by macOS and is not promised as recoverable cleanup.
 
 ## Privacy
 No telemetry, analytics, or crash reporting. Local scans and cleanup work offline. Scanned paths and file contents are not uploaded. GitHub release checks and Homebrew update operations use the network. Homebrew operations run with analytics disabled.
 
 ## Install
-- Sift was renamed from PureMac and has no published release yet; build from source. The commands below apply once Sift releases exist.
-- GUI: `brew install --cask sift`
-- Signed DMG: https://github.com/BadryansahBangsawan/Sift/releases/latest
-- CLI: `brew install sift-cli`
-- If Homebrew requires tap trust: run `brew tap momenbasel/tap`, then `brew trust --tap momenbasel/tap`, then repeat the CLI install command.
+- GUI: download Sift-4.0.0.dmg from https://github.com/BadryansahBangsawan/Sift/releases/latest, drag Sift to Applications, then allow it once with Open Anyway.
+- CLI: build from source with `cd cli && swift build -c release`, then run `.build/release/sift-cli`.
 - CLI cleanup is permanent; preview with `sift-cli clean dev --dry-run`.
 
 ## Links
-- Website: https://www.moamenbasel.com/PureMac/
+- Website: https://badryansahbangsawan.github.io/Sift/
 - Source: https://github.com/BadryansahBangsawan/Sift
 - Releases: https://github.com/BadryansahBangsawan/Sift/releases
 - CLI guide: https://github.com/BadryansahBangsawan/Sift/blob/main/cli/README.md
-- Privacy: https://www.moamenbasel.com/PureMac/privacy.html
+- Privacy: https://badryansahbangsawan.github.io/Sift/privacy.html

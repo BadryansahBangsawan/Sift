@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://www.moamenbasel.com/PureMac/sitemap.xml
+Sitemap: https://badryansahbangsawan.github.io/Sift/sitemap.xml
