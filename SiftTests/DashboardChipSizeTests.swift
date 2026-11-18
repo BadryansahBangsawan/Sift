@@ -36,4 +36,37 @@ final class DashboardChipSizeTests: XCTestCase {
         let size = await ScanEngine(homeDirectory: fixtureHome).containersSize()
         XCTAssertEqual(size, 0)
     }
+
+    func testUserCacheLeavesCachesOwnedByXcodeJunkAndAIToolsToThem() async throws {
+        let caches = fixtureHome.appendingPathComponent("Library/Caches", isDirectory: true)
+        let ownedByOtherCategories = [
+            "com.apple.dt.Xcode",
+            "org.swift.swiftpm",
+            "com.anthropic.claudefordesktop",
+        ]
+        for name in ownedByOtherCategories + ["com.example.ordinary"] {
+            let folder = caches.appendingPathComponent(name, isDirectory: true)
+            try fileManager.createDirectory(at: folder, withIntermediateDirectories: true)
+            try Data(repeating: 0x11, count: 8_192).write(to: folder.appendingPathComponent("blob"))
+        }
+
+        let engine = ScanEngine(homeDirectory: fixtureHome)
+        let userCache = await engine.scanCategory(.userCache)
+        let paths = Set(userCache.items.map { $0.path })
+
+        XCTAssertTrue(paths.contains(caches.appendingPathComponent("com.example.ordinary").path))
+        for name in ownedByOtherCategories {
+            XCTAssertFalse(
+                paths.contains(caches.appendingPathComponent(name).path),
+                "User Cache must not repeat the \(name) row another category owns"
+            )
+        }
+
+        let xcodeJunk = await engine.scanCategory(.xcodeJunk)
+        XCTAssertTrue(xcodeJunk.items.contains { $0.path == caches.appendingPathComponent("com.apple.dt.Xcode").path })
+        XCTAssertTrue(xcodeJunk.items.contains { $0.path == caches.appendingPathComponent("org.swift.swiftpm").path })
+
+        let aiApps = await engine.scanCategory(.aiApps)
+        XCTAssertTrue(aiApps.items.contains { $0.path == caches.appendingPathComponent("com.anthropic.claudefordesktop").path })
+    }
 }
