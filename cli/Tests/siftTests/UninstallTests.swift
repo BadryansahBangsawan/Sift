@@ -83,6 +83,33 @@ final class UninstallTests: XCTestCase {
         XCTAssertGreaterThan(scan.groups[1].items[0].sizeBytes, 0)
     }
 
+    func testLeftoverPathsFindFilesUnderTheHomeLibrary() throws {
+        let home = try temporaryDirectory()
+        defer { try? FileManager.default.removeItem(at: home) }
+
+        let preferences = home.appendingPathComponent("Library/Preferences", isDirectory: true)
+        let caches = home.appendingPathComponent("Library/Caches", isDirectory: true)
+        try FileManager.default.createDirectory(at: preferences, withIntermediateDirectories: true)
+        try FileManager.default.createDirectory(at: caches, withIntermediateDirectories: true)
+        let plistPath = preferences.appendingPathComponent("com.example.app.plist")
+        let cachePath = caches.appendingPathComponent("com.example.app")
+        try Data(repeating: 0x1, count: 32).write(to: plistPath)
+        try Data(repeating: 0x2, count: 64).write(to: cachePath)
+
+        let ignore = try IgnoreStore(
+            fileURL: home.appendingPathComponent("ignore"),
+            legacyFileURL: nil,
+            currentDirectoryPath: home.path
+        )
+        let found = Uninstall.leftoverPaths(
+            for: "com.example.app",
+            home: home.path,
+            ignore: ignore
+        )
+
+        XCTAssertEqual(found.sorted(), [plistPath.path, cachePath.path].sorted())
+    }
+
     private func plist(identifier: String) -> Data {
         Data("""
         <?xml version="1.0" encoding="UTF-8"?>
