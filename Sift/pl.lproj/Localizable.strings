@@ -134,10 +134,9 @@
 "Remove" = "Usuń";
 
 /* Orphans */
-"Scanning for orphaned files..." = "Skanowanie osieroconych plików...";
+"Scanning for orphaned files..." = "Szukanie pozostałych plików...";
 "No Orphaned Files" = "Brak osieroconych plików";
 "No leftover files from uninstalled apps were found." = "Nie znaleziono pozostałości po odinstalowanych aplikacjach.";
-"Orphaned Files (%lld)" = "Osierocone pliki (%lld)";
 "Remove Selected (%lld)" = "Usuń zaznaczone (%lld)";
 "Some files could not be removed" = "Niektórych plików nie udało się usunąć";
 "blocked by safety policy" = "zablokowano przez zasady bezpieczeństwa";
@@ -1373,3 +1372,6 @@
 "Permanently deletes the junk the scan selected, without asking" = "Trwale usuwa wybrane przez skanowanie pliki, bez pytania";
 "Last checked %@" = "Ostatnie sprawdzenie: %@";
 "Scheduled scan" = "Zaplanowane skanowanie";
+"No Leftovers" = "Brak pozostałości";
+"Scan for leftover files" = "Szukaj pozostałych plików";
+"Leftovers (%lld)" = "Pozostałości (%lld)";

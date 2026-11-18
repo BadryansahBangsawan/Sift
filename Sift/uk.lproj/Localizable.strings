@@ -137,7 +137,6 @@
 "Scanning for orphaned files..." = "Пошук залишкових файлів...";
 "No Orphaned Files" = "Залишкових файлів немає";
 "No leftover files from uninstalled apps were found." = "Залишків видалених програм не знайдено.";
-"Orphaned Files (%lld)" = "Залишкові файли (%lld)";
 "Remove Selected (%lld)" = "Видалити вибране (%lld)";
 "Some files could not be removed" = "Деякі файли не вдалося видалити";
 "blocked by safety policy" = "заблоковано політикою безпеки";
@@ -1373,3 +1372,6 @@
 "Permanently deletes the junk the scan selected, without asking" = "Остаточно видаляє вибране скануванням сміття, не питаючи";
 "Last checked %@" = "Остання перевірка: %@";
 "Scheduled scan" = "Запланована перевірка";
+"No Leftovers" = "Залишків немає";
+"Scan for leftover files" = "Шукати залишкові файли";
+"Leftovers (%lld)" = "Залишки (%lld)";

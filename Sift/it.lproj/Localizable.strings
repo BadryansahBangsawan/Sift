@@ -137,7 +137,6 @@
 "Scanning for orphaned files..." = "Ricerca dei file residui...";
 "No Orphaned Files" = "Nessun file residuo";
 "No leftover files from uninstalled apps were found." = "Nessun file residuo di app disinstallate trovato.";
-"Orphaned Files (%lld)" = "File residui (%lld)";
 "Remove Selected (%lld)" = "Rimuovi selezionati (%lld)";
 "Some files could not be removed" = "Non è stato possibile rimuovere alcuni file";
 "blocked by safety policy" = "bloccato dalle regole di sicurezza";
@@ -1373,3 +1372,6 @@
 "Permanently deletes the junk the scan selected, without asking" = "Elimina definitivamente i file selezionati dalla scansione, senza chiedere";
 "Last checked %@" = "Ultimo controllo: %@";
 "Scheduled scan" = "Scansione pianificata";
+"No Leftovers" = "Nessun file residuo";
+"Scan for leftover files" = "Cerca file residui";
+"Leftovers (%lld)" = "File residui (%lld)";
