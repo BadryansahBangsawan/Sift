@@ -33,6 +33,22 @@ final class ScheduleCopyTests: XCTestCase {
         }
     }
 
+    func testNoLanguageStillPromisesATrashMove() throws {
+        let languages = ["ar", "de", "en", "es", "fr", "it", "ja", "pl", "pt-BR", "ru", "uk", "zh-Hans", "zh-Hant"]
+        for language in languages {
+            for (key, value) in try localizedStrings(for: language) {
+                XCTAssertFalse(
+                    value.localizedCaseInsensitiveContains("to the Trash without asking"),
+                    "\(language).lproj still claims auto-clean moves files to the Trash"
+                )
+                XCTAssertFalse(
+                    key.localizedCaseInsensitiveContains("to the Trash without asking"),
+                    "\(language).lproj still keys on the misleading sentence"
+                )
+            }
+        }
+    }
+
     // MARK: - Fixtures
 
     private func localizedStrings(for language: String) throws -> [String: String] {
