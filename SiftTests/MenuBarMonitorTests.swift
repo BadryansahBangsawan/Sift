@@ -19,4 +19,30 @@ final class MenuBarMonitorTests: XCTestCase {
 
         XCTAssertEqual(MenuBarMonitorView.diskDetail(used: used, total: total), expected)
     }
+
+    /// A disk smaller than one gigabyte must not fall back to "Zero KB", and a
+    /// zero reading must still read as a size rather than a blank.
+    func testDiskDetailKeepsSmallAndEmptyReadingsReadable() {
+        XCTAssertEqual(MenuBarMonitorView.diskDetail(used: 0, total: 0), "0 KB / 0 KB")
+        XCTAssertEqual(
+            MenuBarMonitorView.diskDetail(used: 512_000, total: 900_000),
+            "\(SiftFormat.bytes(512_000)) / \(SiftFormat.bytes(900_000))"
+        )
+    }
+
+    /// RAM stays binary, so the popover agrees with the Performance screen
+    /// (16 GB of memory, not 17.2 GB).
+    func testMemoryDetailStaysBinary() {
+        let formatter = ByteCountFormatter()
+        formatter.countStyle = .memory
+        formatter.allowsNonnumericFormatting = false
+        let used: Int64 = 11_900_000_000
+        let total: Int64 = 17_179_869_184
+        let expected = formatter.string(fromByteCount: used)
+            + " / "
+            + formatter.string(fromByteCount: total)
+
+        XCTAssertEqual(MenuBarMonitorView.memoryDetail(used: used, total: total), expected)
+        XCTAssertEqual(MenuBarMonitorView.memoryDetail(used: total, total: total).hasSuffix("16 GB"), true)
+    }
 }
