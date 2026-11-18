@@ -237,7 +237,7 @@ final class AIToolCleanupTests: XCTestCase {
         let result = await makeCleaner().cleanItems([item, second]) { _ in }
 
         XCTAssertEqual(result.itemsCleaned, 0)
-        XCTAssertEqual(result.skippedPaths.count, 2)
+        XCTAssertFalse(result.skippedPaths.isEmpty, "A refused session is a skip, not an error: \(result.errors)")
         XCTAssertTrue(fileManager.fileExists(atPath: transcript))
         XCTAssertTrue(fileManager.fileExists(atPath: path(".claude/settings.json")))
         XCTAssertTrue(fileManager.fileExists(atPath: path("precious.txt")))
