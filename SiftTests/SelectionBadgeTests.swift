@@ -21,4 +21,20 @@ final class SelectionBadgeTests: XCTestCase {
         XCTAssertEqual(SelectionBadgeRule.minimumSize, 28)
         XCTAssertGreaterThan(SelectionBadgeRule.minimumSize, 0)
     }
+
+    /// The two-digit case still fills the circle exactly, so the badge looks
+    /// unchanged until it has to grow.
+    func testTwoDigitsFillTheCircle() {
+        XCTAssertEqual(SelectionBadgeRule.horizontalPadding(for: 99), 0)
+        XCTAssertLessThan(SelectionBadgeRule.horizontalPadding(for: 100), SelectionBadgeRule.minimumSize)
+    }
+
+    /// The widening stops after the first step: five digits use the same
+    /// padding as four and the text scales instead of stretching the bar.
+    func testWideningIsOneStep() {
+        XCTAssertEqual(
+            SelectionBadgeRule.horizontalPadding(for: 9_999),
+            SelectionBadgeRule.horizontalPadding(for: 1_000)
+        )
+    }
 }
