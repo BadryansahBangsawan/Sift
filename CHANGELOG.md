@@ -11,6 +11,8 @@ All notable user-facing changes to Sift. Sift was called PureMac before 4.0.0.
   the app bundle, so the data it promised to clean stayed on disk.
 - `sift-cli uninstall` now lists a LaunchAgent whose `Label` is the app's
   bundle identifier even when the file name differs.
+- `sift-cli optimize` and `sift-cli doctor` now report memory in the binary
+  units macOS uses, so a 16 GB Mac reads 16 GB instead of 17.2 GB.
 
 ## 4.0.1
 
