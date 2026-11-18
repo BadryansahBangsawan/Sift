@@ -7,19 +7,20 @@
 // Spec (macOS Big Sur+ icon grid):
 //   canvas          1024x1024, transparent outside the shape
 //   body            824x824 centered, continuous-corner squircle (superellipse n=5,
-//                   equivalent to a ~185 px rounded rect), brass #C9A227 with a
-//                   subtle vertical gradient #D4AE36 -> #BE981F
+//                   equivalent to a ~185 px rounded rect), ink #0D0F11
 //   shadow          black 30%, y+10 px, blur 20 px, inside the canvas; both
 //                   scale with the output size (1024 px reference) and are
 //                   omitted at 32 px and below
-//   mark            "S" in Archivo Narrow Bold (wght 700), #0D0F11,
-//                   cap height 52% of the body height, ink-centered
+//   mark            the Sift sieve: a brass #C9A227 grain resting on four
+//                   light #F1EFEA sieve bars, two small grains falling through.
+//                   Drawn on a 256-unit grid (same geometry as the logo kit) and
+//                   scaled 3.2x onto the body. At 64 px and below the small cut
+//                   is used: no falling grains, thicker bars, wider gaps.
 //
 // Every size is rasterized independently from the vectors, so nothing is
 // downscaled from one master bitmap.
 
 import CoreGraphics
-import CoreText
 import Foundation
 import ImageIO
 import UniformTypeIdentifiers
@@ -28,7 +29,6 @@ import UniformTypeIdentifiers
 
 let scriptURL = URL(fileURLWithPath: #filePath).resolvingSymlinksInPath()
 let repoRoot = scriptURL.deletingLastPathComponent().deletingLastPathComponent()
-let fontURL = repoRoot.appendingPathComponent("Sift/Resources/Fonts/ArchivoNarrow.ttf")
 let iconSetDir = repoRoot.appendingPathComponent("Sift/Assets.xcassets/AppIcon.appiconset")
 let docsIconURL = repoRoot.appendingPathComponent("docs/assets/icon.png")
 
@@ -39,7 +39,6 @@ let bodySize: CGFloat = 824
 let bodyHalf = bodySize / 2
 let bodyCenter = CGPoint(x: canvas / 2, y: canvas / 2)
 let squircleExponent: CGFloat = 5 // continuous-corner approximation of r ≈ 185 px
-let baseCapRatio: CGFloat = 0.52
 
 // MARK: - Colors
 
@@ -50,66 +49,65 @@ func srgb(_ hex: UInt32, alpha: CGFloat = 1) -> CGColor {
     return CGColor(srgbRed: r, green: g, blue: b, alpha: alpha)
 }
 
-let gradientTop = srgb(0xD4AE36)
-let gradientBottom = srgb(0xBE981F)
 let inkColor = srgb(0x0D0F11)
+let lightColor = srgb(0xF1EFEA)
+let brassColor = srgb(0xC9A227)
 let shadowColor = CGColor(srgbRed: 0, green: 0, blue: 0, alpha: 0.3)
 
-// MARK: - Typography
+// MARK: - Mark (256-unit grid, y down, same geometry as the logo kit)
 
-var fontRegistrationError: Unmanaged<CFError>?
-if !CTFontManagerRegisterFontsForURL(fontURL as CFURL, .process, &fontRegistrationError) {
-    // Already registered in this process is fine; anything else is fatal.
-    if let error = fontRegistrationError?.takeRetainedValue(),
-       CFErrorGetCode(error) != 105 { // kCTFontManagerErrorAlreadyRegistered
-        FileHandle.standardError.write("font registration failed: \(error)\n".data(using: .utf8)!)
-        exit(1)
-    }
+struct SieveMark {
+    var bars: [CGRect]      // pill-shaped sieve bars
+    var grains: [(CGPoint, CGFloat)]
+    var nugget: (CGPoint, CGFloat)
+
+    /// Full mark: four 44x22 bars 16 apart, a 46-radius nugget 8 above them.
+    static let full: SieveMark = {
+        let ybar: CGFloat = 135, bh: CGFloat = 22
+        let bars = (0..<4).map { CGRect(x: 16 + CGFloat($0) * 60, y: ybar, width: 44, height: bh) }
+        return SieveMark(
+            bars: bars,
+            grains: [(CGPoint(x: 68, y: ybar + bh + 26), 11), (CGPoint(x: 188, y: ybar + bh + 56), 8)],
+            nugget: (CGPoint(x: 128, y: ybar - 8 - 46), 46)
+        )
+    }()
+
+    /// Small cut: four 41x32 bars 20 apart, a 50-radius nugget, no grains.
+    static let small: SieveMark = {
+        let ybar: CGFloat = 142
+        let bars = (0..<4).map { CGRect(x: 16 + CGFloat($0) * 61, y: ybar, width: 41, height: 32) }
+        return SieveMark(bars: bars, grains: [], nugget: (CGPoint(x: 128, y: ybar - 12 - 50), 50))
+    }()
 }
 
-let fontDescriptors = (CTFontManagerCreateFontDescriptorsFromURL(fontURL as CFURL) as? [CTFontDescriptor]) ?? []
-guard let baseDescriptor = fontDescriptors.first else {
-    FileHandle.standardError.write("no font descriptors in \(fontURL.path)\n".data(using: .utf8)!)
-    exit(1)
+let markScale: CGFloat = 3.2
+let markOffset = CGPoint(x: canvas / 2 - 128 * markScale, y: canvas / 2 - 128 * markScale + 8)
+
+/// Maps a point on the 256-unit, y-down grid to the 1024 y-up canvas.
+func place(_ point: CGPoint) -> CGPoint {
+    CGPoint(x: markOffset.x + point.x * markScale, y: canvas - (markOffset.y + point.y * markScale))
 }
 
-let weightTag = NSNumber(value: 0x77676874) // 'wght'
-let boldVariation: CFDictionary = [weightTag: 700] as CFDictionary
-let boldDescriptor = CTFontDescriptorCreateCopyWithAttributes(
-    baseDescriptor,
-    [kCTFontVariationAttribute: boldVariation] as CFDictionary
-)
-let measuredBold = CTFontCreateWithFontDescriptor(boldDescriptor, 1000, nil)
-let capRatio = CTFontGetCapHeight(measuredBold) / 1000 // cap height per em
-
-guard var sGlyph: CGGlyph = {
-    var glyph: CGGlyph = 0
-    var character: UniChar = 0x53 // "S"
-    return CTFontGetGlyphsForCharacters(measuredBold, &character, &glyph, 1) ? glyph : nil
-}()
-else {
-    FileHandle.standardError.write("font has no glyph for S\n".data(using: .utf8)!)
-    exit(1)
+func placedRect(_ rect: CGRect) -> CGRect {
+    let origin = place(CGPoint(x: rect.minX, y: rect.maxY))
+    return CGRect(x: origin.x, y: origin.y, width: rect.width * markScale, height: rect.height * markScale)
 }
 
-/// Glyph outline for "S" at the requested cap height, ink-centered on the body.
-func markPath(capHeight: CGFloat, opticalNudge: CGFloat = 0) -> (path: CGPath, size: CGFloat) {
-    let fontSize = capHeight / capRatio
-    let font = CTFontCreateWithFontDescriptor(boldDescriptor, fontSize, nil)
-    guard let glyphPath = CTFontCreatePathForGlyph(font, sGlyph, nil) else {
-        FileHandle.standardError.write("could not build glyph path\n".data(using: .utf8)!)
-        exit(1)
+func drawMark(_ mark: SieveMark, in ctx: CGContext) {
+    ctx.setFillColor(lightColor)
+    for bar in mark.bars {
+        let rect = placedRect(bar)
+        let radius = rect.height / 2
+        ctx.addPath(CGPath(roundedRect: rect, cornerWidth: radius, cornerHeight: radius, transform: nil))
     }
-    let ink = glyphPath.boundingBoxOfPath
-    var transform = CGAffineTransform(
-        translationX: bodyCenter.x - ink.midX,
-        y: bodyCenter.y - ink.midY + opticalNudge
-    )
-    guard let placed = glyphPath.copy(using: &transform) else {
-        FileHandle.standardError.write("could not place glyph path\n".data(using: .utf8)!)
-        exit(1)
+    for (center, radius) in mark.grains {
+        let c = place(center), r = radius * markScale
+        ctx.addEllipse(in: CGRect(x: c.x - r, y: c.y - r, width: 2 * r, height: 2 * r))
     }
-    return (placed, fontSize)
+    ctx.fillPath()
+    let c = place(mark.nugget.0), r = mark.nugget.1 * markScale
+    ctx.setFillColor(brassColor)
+    ctx.fillEllipse(in: CGRect(x: c.x - r, y: c.y - r, width: 2 * r, height: 2 * r))
 }
 
 // MARK: - Shape
@@ -136,7 +134,7 @@ let bodyPath = squirclePath(half: bodyHalf, exponent: squircleExponent)
 
 // MARK: - Renderer
 
-/// Brass body with its gradient, rendered once into a transparent 1024 canvas.
+/// Ink body, rendered once into a transparent 1024 canvas.
 let bodyImage: CGImage = {
     let space = CGColorSpace(name: CGColorSpace.sRGB)!
     guard let ctx = CGContext(
@@ -151,16 +149,8 @@ let bodyImage: CGImage = {
     }
     ctx.setShouldAntialias(true)
     ctx.addPath(bodyPath)
-    ctx.clip()
-    let gradient = CGGradient(colorsSpace: space, colors: [gradientTop, gradientBottom] as CFArray, locations: [0, 1])!
-    // y-up context: the body's top edge is the start, its bottom edge the end,
-    // so the ramp hits #D4AE36 and #BE981F exactly at the shape's edges.
-    ctx.drawLinearGradient(
-        gradient,
-        start: CGPoint(x: 0, y: bodyCenter.y + bodyHalf),
-        end: CGPoint(x: 0, y: bodyCenter.y - bodyHalf),
-        options: [.drawsBeforeStartLocation, .drawsAfterEndLocation]
-    )
+    ctx.setFillColor(inkColor)
+    ctx.fillPath()
     guard let image = ctx.makeImage() else {
         FileHandle.standardError.write("could not snapshot body\n".data(using: .utf8)!)
         exit(1)
@@ -169,7 +159,7 @@ let bodyImage: CGImage = {
 }()
 
 /// Renders the icon at `pixels` and returns PNG data.
-func renderIcon(pixels: Int, capRatio: CGFloat) -> Data {
+func renderIcon(pixels: Int) -> Data {
     let space = CGColorSpace(name: CGColorSpace.sRGB)!
     guard let ctx = CGContext(
         data: nil,
@@ -203,12 +193,8 @@ func renderIcon(pixels: Int, capRatio: CGFloat) -> Data {
     ctx.draw(bodyImage, in: CGRect(x: 0, y: 0, width: canvas, height: canvas))
     ctx.restoreGState()
 
-    // Mark, unshadowed.
-    let capHeight = bodySize * capRatio
-    let mark = markPath(capHeight: capHeight)
-    ctx.addPath(mark.path)
-    ctx.setFillColor(inkColor)
-    ctx.fillPath()
+    // Mark, unshadowed; the small cut keeps the idea readable at 64 px and below.
+    drawMark(pixels <= 64 ? .small : .full, in: ctx)
 
     guard let image = ctx.makeImage() else {
         FileHandle.standardError.write("could not snapshot \(pixels) px icon\n".data(using: .utf8)!)
@@ -245,26 +231,16 @@ let iconFiles: [(name: String, pixels: Int)] = [
     ("icon_512@2x.png", 1024),
 ]
 
-/// Small sizes lose weight when the mark keeps its 52% cap height, so the S is
-/// grown slightly at 16 and 32 px only.
-func capRatio(forPixels pixels: Int) -> CGFloat {
-    switch pixels {
-    case ..<24: return 0.60
-    case ..<48: return 0.56
-    default: return baseCapRatio
-    }
-}
-
 try? FileManager.default.createDirectory(at: iconSetDir, withIntermediateDirectories: true)
 
 for file in iconFiles {
-    let png = renderIcon(pixels: file.pixels, capRatio: capRatio(forPixels: file.pixels))
+    let png = renderIcon(pixels: file.pixels)
     let url = iconSetDir.appendingPathComponent(file.name)
     try png.write(to: url)
     print("wrote \(url.path) (\(file.pixels)x\(file.pixels))")
 }
 
 // Website icon: 1024 px, same artwork as the 1024 master.
-let docsPNG = renderIcon(pixels: 1024, capRatio: baseCapRatio)
+let docsPNG = renderIcon(pixels: 1024)
 try docsPNG.write(to: docsIconURL)
 print("wrote \(docsIconURL.path) (1024x1024)")
