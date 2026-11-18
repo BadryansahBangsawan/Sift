@@ -1361,6 +1361,14 @@
 "Gemini CLI Temp Files" = "Тимчасові файли Gemini CLI";
 "Chat history — not selected by default" = "Історія чату — не вибрано за замовчуванням";
 "Shipped builds and dSYMs — not selected by default" = "Готові збірки та dSYM — не вибрано за замовчуванням";
+"Excluded from cleanup: %@" = "Виключено з очищення: %@";
+"The Trash is emptied through Finder." = "Кошик очищується через Finder.";
+"Not a supported AI tool path." = "Непідтримуваний шлях інструмента ШІ.";
+"Temporary entry is in use: it %@" = "Тимчасовий запис використовується: %@";
+"Unsafe path: a symlink points elsewhere." = "Небезпечний шлях: символічне посилання вказує в інше місце.";
+"Outside the folders Sift cleans." = "Поза теками, які очищує Sift.";
+"In use by a running Xcode build." = "Використовується запущеним збиранням Xcode.";
+"%lld item(s) skipped: %@" = "Пропущено %lld елемент(ів): %@";
 "Prompt history — not selected by default" = "Історія запитів — не вибрано за замовчуванням";
 "Session history — not selected by default" = "Історія сеансів — не вибрано за замовчуванням";
 "Recoverable rewind data — not selected by default" = "Дані перемотування для відновлення — не вибрано за замовчуванням";

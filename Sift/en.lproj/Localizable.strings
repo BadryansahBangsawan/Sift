@@ -1361,6 +1361,14 @@
 "Gemini CLI Temp Files" = "Gemini CLI Temp Files";
 "Chat history — not selected by default" = "Chat history — not selected by default";
 "Shipped builds and dSYMs — not selected by default" = "Shipped builds and dSYMs — not selected by default";
+"Excluded from cleanup: %@" = "Excluded from cleanup: %@";
+"The Trash is emptied through Finder." = "The Trash is emptied through Finder.";
+"Not a supported AI tool path." = "Not a supported AI tool path.";
+"Temporary entry is in use: it %@" = "Temporary entry is in use: it %@";
+"Unsafe path: a symlink points elsewhere." = "Unsafe path: a symlink points elsewhere.";
+"Outside the folders Sift cleans." = "Outside the folders Sift cleans.";
+"In use by a running Xcode build." = "In use by a running Xcode build.";
+"%lld item(s) skipped: %@" = "%lld item(s) skipped: %@";
 "Prompt history — not selected by default" = "Prompt history — not selected by default";
 "Session history — not selected by default" = "Session history — not selected by default";
 "Recoverable rewind data — not selected by default" = "Recoverable rewind data — not selected by default";

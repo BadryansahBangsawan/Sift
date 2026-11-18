@@ -415,7 +415,7 @@ final class XcodeBuildMCPDerivedDataSupportTests: XCTestCase {
         let result = await CleaningEngine(homeDirectory: temporaryHome).cleanItems([item]) { _ in }
 
         XCTAssertEqual(result.itemsCleaned, 0)
-        XCTAssertFalse(result.errors.isEmpty)
+        XCTAssertFalse(result.skippedPaths.isEmpty)
         XCTAssertTrue(fileManager.fileExists(atPath: targetDerivedData.appendingPathComponent("must-survive").path))
     }
 
@@ -688,7 +688,7 @@ final class XcodeBuildMCPDerivedDataSupportTests: XCTestCase {
 
         XCTAssertEqual(result.itemsCleaned, 0)
         XCTAssertTrue(result.cleanedPaths.isEmpty)
-        XCTAssertEqual(result.errors.count, 2)
+        XCTAssertEqual(result.skippedPaths.count, 2)
         for directory in [birdCache, cloudStorage] {
             XCTAssertTrue(fileManager.fileExists(atPath: directory.appendingPathComponent("blob").path))
         }

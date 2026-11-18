@@ -82,7 +82,7 @@ final class AIToolCleanupTests: XCTestCase {
         let result = await makeCleaner().cleanItems(items) { _ in }
 
         XCTAssertEqual(result.itemsCleaned, 0)
-        XCTAssertEqual(result.errors.count, forbidden.count)
+        XCTAssertEqual(result.skippedPaths.count, forbidden.count)
         for relative in forbidden {
             XCTAssertTrue(fileManager.fileExists(atPath: path(relative)), "\(relative) was removed")
         }
@@ -183,7 +183,7 @@ final class AIToolCleanupTests: XCTestCase {
 
         XCTAssertEqual(result.itemsCleaned, 0)
         XCTAssertEqual(result.freedSpace, 0)
-        XCTAssertFalse(result.errors.isEmpty)
+        XCTAssertFalse(result.skippedPaths.isEmpty)
         XCTAssertTrue(fileManager.fileExists(atPath: transcript))
     }
 
@@ -213,7 +213,7 @@ final class AIToolCleanupTests: XCTestCase {
         let skipped = await running.cleanItems([vmItem]) { _ in }
         XCTAssertEqual(skipped.itemsCleaned, 0)
         XCTAssertTrue(fileManager.fileExists(atPath: vmPath))
-        XCTAssertTrue(skipped.errors.contains { $0.contains("Claude is running") }, "\(skipped.errors)")
+        XCTAssertTrue(skipped.skippedPaths.values.contains { $0.contains("Claude is running") }, "\(skipped.skippedPaths)")
 
         let idle = CleaningEngine(homeDirectory: home, isAppRunning: { _ in false })
         let cleaned = await idle.cleanItems([vmItem]) { _ in }
@@ -237,7 +237,7 @@ final class AIToolCleanupTests: XCTestCase {
         let result = await makeCleaner().cleanItems([item, second]) { _ in }
 
         XCTAssertEqual(result.itemsCleaned, 0)
-        XCTAssertEqual(result.errors.count, 2)
+        XCTAssertEqual(result.skippedPaths.count, 2)
         XCTAssertTrue(fileManager.fileExists(atPath: transcript))
         XCTAssertTrue(fileManager.fileExists(atPath: path(".claude/settings.json")))
         XCTAssertTrue(fileManager.fileExists(atPath: path("precious.txt")))
@@ -277,7 +277,7 @@ final class AIToolCleanupTests: XCTestCase {
         XCTAssertEqual(result.itemsCleaned, 0)
         XCTAssertTrue(fileManager.fileExists(atPath: transcript), "A live session must stay where its agent writes it")
         XCTAssertTrue(result.trashedPaths.isEmpty)
-        XCTAssertTrue(result.errors.contains { $0.localizedCaseInsensitiveContains("open") }, "\(result.errors)")
+        XCTAssertTrue(result.skippedPaths.values.contains { $0.localizedCaseInsensitiveContains("open") }, "\(result.skippedPaths)")
     }
 
     func testTouchedAfterTheScanBlocksASessionOnlyWithinOneSecondTolerance() async throws {

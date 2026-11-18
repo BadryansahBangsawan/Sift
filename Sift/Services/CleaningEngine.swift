@@ -39,6 +39,11 @@ actor CleaningEngine {
         // "Couldn't clean everything" alert.
         var protectedPaths: Set<String> = []
         var skippedProtected: Int { protectedPaths.count }
+        /// Paths the cleaner left alone on purpose, with the reason: a temp
+        /// entry that turned live, Claude running, a session the user resumed,
+        /// an excluded or unsafe path. None of these are permission failures,
+        /// so they are reported separately instead of as errors.
+        var skippedPaths: [String: String] = [:]
     }
 
     // MARK: - Public API
@@ -64,7 +69,10 @@ actor CleaningEngine {
                 }
             }
             if CleanupExclusions.excludes(item.path, paths: exclusions) {
-                result.errors.append("Excluded from cleanup: \(item.name)")
+                result.skippedPaths[item.path] = String(
+                    format: String(localized: "Excluded from cleanup: %@"),
+                    item.name
+                )
                 continue
             }
 
@@ -72,12 +80,12 @@ actor CleaningEngine {
             // (AppState.emptyTrash). Unlinking its contents here would make
             // them unrecoverable with no Finder confirmation at all.
             if item.category == .trash {
-                result.errors.append("Trash items are emptied through Finder, not deleted: \(item.name)")
+                result.skippedPaths[item.path] = String(localized: "The Trash is emptied through Finder.")
                 continue
             }
 
             if item.category == .aiApps, !AIToolCleanupCatalog.accepts(item: item, home: homeDirectory.path) {
-                result.errors.append("Unsupported AI app cleanup path: \(item.path)")
+                result.skippedPaths[item.path] = String(localized: "Not a supported AI tool path.")
                 continue
             }
 
@@ -91,7 +99,7 @@ actor CleaningEngine {
                     let detail = String(
                         localized: "Skipped: Claude is running. Quit Claude and scan again."
                     )
-                    result.errors.append(detail)
+                    result.skippedPaths[item.path] = detail
                     Logger.shared.log("Skipped AI tool item: \(item.path) — \(detail)", level: .info)
                     continue
                 }
@@ -106,7 +114,7 @@ actor CleaningEngine {
                     let detail = String(
                         localized: "Skipped: this session is open. Quit the session and scan again."
                     )
-                    result.errors.append(detail)
+                    result.skippedPaths[item.path] = detail
                     Logger.shared.log("Skipped open AI session: \(item.path)", level: .info)
                     continue
                 }
@@ -202,7 +210,10 @@ actor CleaningEngine {
                     let remainder = inspection.rejectionReason ?? "could not be verified"
                     let msg = "Skipped temporary entry \(item.name) at \(item.path): it \(remainder)"
                     Logger.shared.log(msg, level: .warning)
-                    result.errors.append(msg)
+                    result.skippedPaths[item.path] = String(
+                        format: String(localized: "Temporary entry is in use: it %@"),
+                        remainder
+                    )
                     continue
                 }
             }
@@ -210,9 +221,8 @@ actor CleaningEngine {
             do {
                 let itemURL = URL(fileURLWithPath: item.path)
                 guard !hasUnexpectedSymlink(in: item.path) else {
-                    let msg = "Skipped symlink or unsafe path: \(item.path)"
-                    Logger.shared.log(msg, level: .warning)
-                    result.errors.append(msg)
+                    Logger.shared.log("Skipped symlink or unsafe path: \(item.path)", level: .warning)
+                    result.skippedPaths[item.path] = String(localized: "Unsafe path: a symlink points elsewhere.")
                     continue
                 }
                 guard fileManager.fileExists(atPath: item.path) else {
@@ -229,9 +239,8 @@ actor CleaningEngine {
                 // the staged re-sign flow, not the delete path.
                 let pathAccepted = isSafeToDelete(item: item, resolvedPath: resolved)
                 guard pathAccepted else {
-                    let msg = "Skipped symlink or unsafe path: \(item.path) -> \(resolved)"
-                    Logger.shared.log(msg, level: .warning)
-                    result.errors.append(msg)
+                    Logger.shared.log("Skipped symlink or unsafe path: \(item.path) -> \(resolved)", level: .warning)
+                    result.skippedPaths[item.path] = String(localized: "Outside the folders Sift cleans.")
                     continue
                 }
 
@@ -318,6 +327,9 @@ actor CleaningEngine {
                         ) else {
                             let detail = "Skipped XcodeBuildMCP DerivedData: lifecycle lock is unavailable: \(item.path)"
                             Logger.shared.log(detail, level: .warning)
+                            result.skippedPaths[item.path] = String(
+                                localized: "In use by a running Xcode build."
+                            )
                             result.errors.append(detail)
                             continue
                         }

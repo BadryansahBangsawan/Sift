@@ -879,6 +879,7 @@ final class AppState: ObservableObject {
             result.freedSpace += admin.freedSpace
             result.errors.append(contentsOf: admin.errors)
             result.protectedPaths.formUnion(admin.protectedPaths)
+            result.skippedPaths.merge(admin.skippedPaths) { current, _ in current }
         }
 
         totalFreedSpace = result.freedSpace
@@ -910,7 +911,7 @@ final class AppState: ObservableObject {
         // cleanup uses. Without this, an FDA revocation between grant and
         // retry would silently drop errors instead of re-popping the sheet.
         let survivors = survivingItems(from: items, result: result)
-        handleCleanOutcome(errors: result.errors, survivors: survivors)
+        handleCleanOutcome(errors: result.errors, survivors: survivors, skips: result.skippedPaths)
 
         scanState = result.itemsCleaned > 0 ? .cleaned : .completed
         loadDiskInfo()
@@ -1038,6 +1039,7 @@ final class AppState: ObservableObject {
                 result.freedSpace += admin.freedSpace
                 result.errors.append(contentsOf: admin.errors)
                 result.protectedPaths.formUnion(admin.protectedPaths)
+                result.skippedPaths.merge(admin.skippedPaths) { current, _ in current }
             }
 
             totalFreedSpace = result.freedSpace
@@ -1068,7 +1070,7 @@ final class AppState: ObservableObject {
             }
             totalJunkSize = categoryResults.values.reduce(0) { $0 + $1.totalSize }
 
-            handleCleanOutcome(errors: result.errors, survivors: survivors)
+            handleCleanOutcome(errors: result.errors, survivors: survivors, skips: result.skippedPaths)
 
             scanState = result.itemsCleaned > 0 ? .cleaned : .completed
             loadDiskInfo()
@@ -1132,7 +1134,7 @@ final class AppState: ObservableObject {
             totalJunkSize = categoryResults.values.reduce(0) { $0 + $1.totalSize }
 
             let survivors = survivingItems(from: selectedItems, result: cleanResult)
-            handleCleanOutcome(errors: cleanResult.errors, survivors: survivors)
+            handleCleanOutcome(errors: cleanResult.errors, survivors: survivors, skips: cleanResult.skippedPaths)
 
             scanState = cleanResult.itemsCleaned > 0 ? .cleaned : .completed
             loadDiskInfo()
@@ -1176,17 +1178,39 @@ final class AppState: ObservableObject {
         return items.filter {
             !$0.isActionItem &&
                 !result.cleanedPaths.contains($0.path) &&
-                !result.protectedPaths.contains($0.path)
+                !result.protectedPaths.contains($0.path) &&
+                !result.skippedPaths.keys.contains($0.path)
         }
     }
 
     /// Inspect a clean batch's leftovers and either route the user into the
     /// PermissionSheet (FDA is the most likely cause) or surface a richer
     /// error alert that lists actual paths instead of "Check the log".
-    private func handleCleanOutcome(errors: [String], survivors: [CleanableItem]) {
+    private func handleCleanOutcome(
+        errors: [String],
+        survivors: [CleanableItem],
+        skips: [String: String] = [:]
+    ) {
+        // A deliberate skip (a temp entry that turned live, Claude running, a
+        // session the user resumed, an excluded path) is neither a failure nor
+        // something Full Disk Access could fix: it is reported with its own
+        // reason so the user is not sent into a Grant Access loop.
+        let skipReasons = Array(Set(skips.values)).sorted()
         lastCleanupHadFailures = !errors.isEmpty || !survivors.isEmpty
-        guard !errors.isEmpty || !survivors.isEmpty else {
+        guard !errors.isEmpty || !survivors.isEmpty || !skipReasons.isEmpty else {
             cleanError = nil
+            cleanErrorIsFDAFixable = false
+            pendingPermissionRetryItems = []
+            return
+        }
+        if errors.isEmpty, survivors.isEmpty {
+            cleanError = skips.count == 1
+                ? skipReasons.first
+                : String(
+                    format: String(localized: "%lld item(s) skipped: %@"),
+                    Int64(skips.count),
+                    skipReasons.prefix(2).joined(separator: " ")
+                )
             cleanErrorIsFDAFixable = false
             pendingPermissionRetryItems = []
             return

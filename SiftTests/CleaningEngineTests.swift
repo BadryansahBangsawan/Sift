@@ -69,7 +69,7 @@ final class CleaningEngineTests: XCTestCase {
             .typeSymbolicLink
         )
         XCTAssertFalse(result.cleanedPaths.contains(link.path))
-        XCTAssertTrue(result.errors.contains { $0.localizedCaseInsensitiveContains("symlink") })
+        XCTAssertFalse(result.skippedPaths.isEmpty)
     }
 
     func testSymlinkedParentIsRefusedWithoutDeletingItsTarget() async throws {
@@ -85,7 +85,7 @@ final class CleaningEngineTests: XCTestCase {
 
         XCTAssertTrue(fileManager.fileExists(atPath: target.path))
         XCTAssertFalse(result.cleanedPaths.contains(linkedTarget.path))
-        XCTAssertTrue(result.errors.contains { $0.localizedCaseInsensitiveContains("symlink") })
+        XCTAssertFalse(result.skippedPaths.isEmpty)
     }
 
     func testDanglingSymlinkIsRefusedInsteadOfReportedAsCleaned() async throws {
@@ -100,7 +100,7 @@ final class CleaningEngineTests: XCTestCase {
             .typeSymbolicLink
         )
         XCTAssertFalse(result.cleanedPaths.contains(link.path))
-        XCTAssertTrue(result.errors.contains { $0.localizedCaseInsensitiveContains("symlink") })
+        XCTAssertFalse(result.skippedPaths.isEmpty)
     }
 
     func testExcludedFileIsNeverDeleted() async throws {
@@ -112,7 +112,7 @@ final class CleaningEngineTests: XCTestCase {
 
         XCTAssertTrue(fileManager.fileExists(atPath: file.path))
         XCTAssertFalse(result.cleanedPaths.contains(file.path))
-        XCTAssertEqual(result.errors, ["Excluded from cleanup: excluded.bin"])
+        XCTAssertEqual(result.skippedPaths[file.path], "Excluded from cleanup: excluded.bin")
     }
 
     func testAppModifyingCategoriesNeverFallThroughToFileDeletion() async throws {
@@ -146,7 +146,7 @@ final class CleaningEngineTests: XCTestCase {
         XCTAssertEqual(result.itemsCleaned, 0)
         XCTAssertEqual(result.freedSpace, 0)
         XCTAssertTrue(result.requiresAdmin.isEmpty)
-        XCTAssertTrue(result.errors.contains { $0.contains("Trash") })
+        XCTAssertTrue(result.skippedPaths.values.contains { $0.contains("Trash") })
     }
 
     func testAdminPassRefusesTrashItemsBeforeEscalating() async throws {
