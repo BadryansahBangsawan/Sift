@@ -22,6 +22,8 @@ All notable user-facing changes to Sift. Sift was called PureMac before 4.0.0.
   files that merely shared a prefix could be paired and one listed for removal.
 - `sift-cli` now prints an empty size as "0 KB" (as the app does) and a single
   byte as "1 byte" instead of "1 bytes".
+- The selected-count badge in a category keeps four- and five-digit counts on
+  one line instead of wrapping into a tall oval.
 - Cleaning a category with thousands of rows no longer freezes the window while
   it runs: the visible rows are filtered and sorted once per change instead of
   four times per redraw (largest main-run-loop gap on a 3000-row fixture fell
