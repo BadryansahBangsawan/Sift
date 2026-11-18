@@ -263,7 +263,12 @@ actor CleaningEngine {
                         result.errors.append(removalError)
                         Logger.shared.log("Clean failed: \(removalError)", level: .error)
                     } else {
-                        result.freedSpace += item.size
+                        // A Trash move reclaims nothing until the Trash is
+                        // emptied (emptyTrash records those bytes itself), so
+                        // only unlinked caches and logs count as freed here.
+                        if !useTrash {
+                            result.freedSpace += item.size
+                        }
                         result.itemsCleaned += 1
                         result.cleanedPaths.insert(item.path)
                     }
