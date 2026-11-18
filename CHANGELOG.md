@@ -6,6 +6,10 @@ All notable user-facing changes to Sift. Sift was called PureMac before 4.0.0.
 
 ### Fixed
 
+- Cleanup history now names each row the way the app names it today ("AI
+  tools", "System junk", "Developer caches") and in the language on screen.
+  Records written by an older build keep their meaning: their stored text is
+  read back through every shipped language.
 - The removal sheet and the selection bar list files in the same order as the
   list (name, size or date) instead of the order the scan produced; the
   dashboard's sheet, which has no sort control, reads largest first.
