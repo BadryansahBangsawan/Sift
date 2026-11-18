@@ -87,6 +87,7 @@
 		87C5F679B9154C5C296448C2 /* AppleStorageService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5CBEE02FCF4E0BA1B855B64 /* AppleStorageService.swift */; };
 		8BA4D2DCEFBDAF07A19B7E94 /* SimilarPhotoFinder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FE17F866383B7204B016598 /* SimilarPhotoFinder.swift */; };
 		8BD2D62C8EB027F190C06568 /* ApplicationUpdaterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F34942EB3A444A117F5033A /* ApplicationUpdaterTests.swift */; };
+		9597C12290925AA0B28EABFB /* EntitlementsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D10E2A7DFB3D4251902CB82 /* EntitlementsTests.swift */; };
 		98768298B7D9339A021C0AB4 /* AppleFeaturesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09F97A0E9887D6417884249A /* AppleFeaturesView.swift */; };
 		98AB6FEFC8C2C08A31A7E349 /* OrphanSafetyPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 542680B283381CABE44F0D75 /* OrphanSafetyPolicy.swift */; };
 		9A20176ACF571A7A56038DB6 /* FileSize.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2788DF65F826CC759B9EB29E /* FileSize.swift */; };
@@ -212,6 +213,7 @@
 		542680B283381CABE44F0D75 /* OrphanSafetyPolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrphanSafetyPolicy.swift; sourceTree = "<group>"; };
 		54AEDE41EE66B3D014ABF50F /* PermissionCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PermissionCoordinator.swift; sourceTree = "<group>"; };
 		5A365BC8B03DE13E3ACFEEBA /* SiftComponents+Performance.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SiftComponents+Performance.swift"; sourceTree = "<group>"; };
+		5D10E2A7DFB3D4251902CB82 /* EntitlementsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EntitlementsTests.swift; sourceTree = "<group>"; };
 		5F99CE87B6197915876B1FD2 /* SiftFonts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SiftFonts.swift; sourceTree = "<group>"; };
 		5FE17F866383B7204B016598 /* SimilarPhotoFinder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimilarPhotoFinder.swift; sourceTree = "<group>"; };
 		60BDD97D743BB808D9991210 /* CleaningEngineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CleaningEngineTests.swift; sourceTree = "<group>"; };
@@ -536,6 +538,7 @@
 				7D193FE2C99D20B8F2F0C9F6 /* DeviceBackupCoordinationTests.swift */,
 				C5F01D47E6FD2ECEBE7678E2 /* DeviceBackupServiceTests.swift */,
 				2B8ED1D4EECC942E632C4F55 /* DuplicateFinderTests.swift */,
+				5D10E2A7DFB3D4251902CB82 /* EntitlementsTests.swift */,
 				D8FA404F58577C7167BDF2F7 /* ICloudPlaceholderScanTests.swift */,
 				661EEAA4ED8E95FEFFB8EAEE /* InstalledAppMetadataTests.swift */,
 				4DD53E74995AFBB639D4EA28 /* LegacyMigrationTests.swift */,
@@ -836,6 +839,7 @@
 				F5271726073F952CBD929207 /* DeviceBackupCoordinationTests.swift in Sources */,
 				02B55675A291435F85043CF2 /* DeviceBackupServiceTests.swift in Sources */,
 				5F0EED9227CD4FBE14EAFF56 /* DuplicateFinderTests.swift in Sources */,
+				9597C12290925AA0B28EABFB /* EntitlementsTests.swift in Sources */,
 				60F752A59B7FEEEF222C8AC3 /* ICloudPlaceholderScanTests.swift in Sources */,
 				7ADC7BCDE80760EF6E971F34 /* InstalledAppMetadataTests.swift in Sources */,
 				04A54B7BEE1D4E51D779BF19 /* LegacyMigrationTests.swift in Sources */,
