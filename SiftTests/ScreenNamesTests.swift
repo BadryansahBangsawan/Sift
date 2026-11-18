@@ -26,4 +26,22 @@ final class ScreenNamesTests: XCTestCase {
             }
         }
     }
+
+    /// The second set of names is gone from every table: no screen can drift
+    /// back to it without a new translation.
+    func testTheRetiredNamesAreGone() throws {
+        let retired = [
+            "Space Explorer", "Duplicate Finder", "Similar Photos", "Apple Features",
+            "App Updates", "Orphaned Files", "Scan for Orphans", "Orphan Finder",
+            "App Uninstaller",
+        ]
+        for language in AppLanguage.allCases.map(\.rawValue) where language != "system" {
+            let path = try XCTUnwrap(Bundle.main.path(forResource: language, ofType: "lproj"))
+            let bundle = try XCTUnwrap(Bundle(path: path))
+            for key in retired {
+                let value = bundle.localizedString(forKey: key, value: nil, table: nil)
+                XCTAssertEqual(value, key, "\(language) still ships “\(key)” → “\(value)”")
+            }
+        }
+    }
 }
