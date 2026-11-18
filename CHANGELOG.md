@@ -6,6 +6,10 @@ All notable user-facing changes to Sift. Sift was called PureMac before 4.0.0.
 
 ### Fixed
 
+- The rail's schedule card keeps its title on one line when it fits — English
+  had started reading "Scheduled" / "scan" / "Off" on three lines — and wraps
+  only a title that really is wider than the card. The status line below the
+  title stays on one line, so "Off" and "Daily" are always visible.
 - The Leftovers page is called "Leftovers" above the heading and in the window
   title, and shows a count only once a scan has finished: it used to say
   "Orphaned Files (0)" on a page that had not looked yet.

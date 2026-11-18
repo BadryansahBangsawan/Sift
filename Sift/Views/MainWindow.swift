@@ -391,21 +391,28 @@ struct SiftRail: View {
     }
 
     private var scheduleCard: some View {
-        HStack(spacing: 8) {
+        let title = String(localized: String.LocalizationValue(scheduler.config.railTitleKey))
+        let column = ScheduleCardLayout.columnWidth(railWidth: SiftSpacing.railWidth)
+        let titleLines = ScheduleCardLayout.lineLimit(
+            labelWidth: ScheduleCardLayout.width(of: title, size: ScheduleCardLayout.titleSize),
+            available: column)
+        return HStack(spacing: ScheduleCardLayout.iconTrailing) {
             SiftIcon.calendarClock.image(16)
                 .foregroundStyle(SiftColor.accent)
-                .frame(width: 32, height: 32)
+                .frame(width: ScheduleCardLayout.iconWidth, height: ScheduleCardLayout.iconWidth)
                 .background(RoundedRectangle(cornerRadius: SiftRadius.tile, style: .continuous).fill(SiftColor.accentTint))
             VStack(alignment: .leading, spacing: 2) {
-                Text(LocalizedStringKey(scheduler.config.railTitleKey))
-                    .font(.sift(10.5))
+                Text(verbatim: title)
+                    .font(.sift(ScheduleCardLayout.titleSize))
                     .foregroundStyle(SiftColor.textTertiary)
-                    .lineLimit(2)
-                    .fixedSize(horizontal: false, vertical: true)
+                    .lineLimit(titleLines)
+                    // A measured single line cannot be re-wrapped by a
+                    // rounding error; a long one wraps instead of clipping.
+                    .fixedSize(horizontal: titleLines == 1, vertical: true)
                 scheduleSummary
                     .font(.sift(12.5, weight: 500))
                     .foregroundStyle(SiftColor.textPrimary)
-                    .lineLimit(2)
+                    .lineLimit(1)
                     .fixedSize(horizontal: false, vertical: true)
             }
             Spacer(minLength: 0)
@@ -417,7 +424,7 @@ struct SiftRail: View {
                 .labelsHidden()
                 .accessibilityLabel(Text(LocalizedStringKey(scheduler.config.railTitleKey)))
         }
-        .padding(12)
+        .padding(ScheduleCardLayout.padding)
         .background(RoundedRectangle(cornerRadius: 18, style: .continuous).fill(SiftColor.card))
         .overlay(RoundedRectangle(cornerRadius: 18, style: .continuous).strokeBorder(SiftColor.stroke, lineWidth: 1))
     }
@@ -481,6 +488,40 @@ private struct RailScrollOffsetKey: PreferenceKey {
 private struct RailContentHeightKey: PreferenceKey {
     static var defaultValue: CGFloat = 0
     static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) { value = nextValue() }
+}
+
+/// Geometry of the rail's schedule card. Its copy is written for a narrow
+/// column, so a title that fits keeps one line: wrapping English into
+/// "Scheduled" / "cleanup" turns a one-row label into three lines with the
+/// status word under it.
+enum ScheduleCardLayout {
+    static let padding: CGFloat = 10
+    static let iconWidth: CGFloat = 32
+    /// Gap between the tile and the text column.
+    static let iconTrailing: CGFloat = 6
+    /// The switch's track, plus the gap before it.
+    static let switchWidth: CGFloat = 40
+    static let switchLeading: CGFloat = 6
+    static let titleSize: CGFloat = 10.5
+
+    /// Width the title and the summary share inside the rail.
+    static func columnWidth(railWidth: CGFloat) -> CGFloat {
+        // The rail pads its contents by 14 pt on each side.
+        let card = railWidth - 28
+        return max(0, card - padding * 2 - iconWidth - iconTrailing - switchLeading - switchWidth)
+    }
+
+    /// Lines a card label takes: one when it fits, two otherwise.
+    static func lineLimit(labelWidth ideal: CGFloat, available: CGFloat) -> Int {
+        ideal <= available ? 1 : 2
+    }
+
+    /// Single-line width of `text` at the card's title size.
+    static func width(of text: String, size: CGFloat) -> CGFloat {
+        let font = SiftFonts.nsFont(SiftFonts.ui, size: size, weight: 400)
+            ?? NSFont.systemFont(ofSize: size)
+        return ceil(NSAttributedString(string: text, attributes: [.font: font]).size().width)
+    }
 }
 
 /// Geometry of a rail row. A rail label must never end in an ellipsis: at the
