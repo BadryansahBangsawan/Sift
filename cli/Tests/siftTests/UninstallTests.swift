@@ -132,6 +132,47 @@ final class UninstallTests: XCTestCase {
         )
     }
 
+    func testLeftoverPathsListAnAgentOnceWhenNameAndLabelBothMatch() throws {
+        let home = try temporaryDirectory()
+        defer { try? FileManager.default.removeItem(at: home) }
+
+        let agents = home.appendingPathComponent("Library/LaunchAgents", isDirectory: true)
+        try FileManager.default.createDirectory(at: agents, withIntermediateDirectories: true)
+        let agentPath = agents.appendingPathComponent("com.example.app.plist")
+        try launchAgent(label: "com.example.app").write(to: agentPath)
+
+        let ignore = try IgnoreStore(
+            fileURL: home.appendingPathComponent("ignore"),
+            legacyFileURL: nil,
+            currentDirectoryPath: home.path
+        )
+        XCTAssertEqual(
+            Uninstall.leftoverPaths(for: "com.example.app", home: home.path, ignore: ignore),
+            [agentPath.path]
+        )
+    }
+
+    func testLeftoverPathsSkipIgnoredLaunchAgentsAndNonPlistFiles() throws {
+        let home = try temporaryDirectory()
+        defer { try? FileManager.default.removeItem(at: home) }
+
+        let agents = home.appendingPathComponent("Library/LaunchAgents", isDirectory: true)
+        try FileManager.default.createDirectory(at: agents, withIntermediateDirectories: true)
+        let ignoredAgent = agents.appendingPathComponent("com.example.agent.plist")
+        try launchAgent(label: "com.example.app").write(to: ignoredAgent)
+        try Data("Label com.example.app".utf8)
+            .write(to: agents.appendingPathComponent("notes.txt"))
+
+        let ignoreFile = home.appendingPathComponent("ignore")
+        try Data((ignoredAgent.path + "\n").utf8).write(to: ignoreFile)
+        let ignore = try IgnoreStore(
+            fileURL: ignoreFile,
+            legacyFileURL: nil,
+            currentDirectoryPath: home.path
+        )
+        XCTAssertEqual(Uninstall.leftoverPaths(for: "com.example.app", home: home.path, ignore: ignore), [])
+    }
+
     func testLeftoverPathsSkipSymlinksAndIgnoredPaths() throws {
         let home = try temporaryDirectory()
         defer { try? FileManager.default.removeItem(at: home) }
