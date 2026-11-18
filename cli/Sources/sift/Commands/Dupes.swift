@@ -115,17 +115,32 @@ struct Dupes: ParsableCommand {
         return results
     }
 
+    /// Hashes a chunk stream.
+    ///
+    /// A read that fails returns nil rather than the hash of the bytes read so
+    /// far: a file that could not be read in full must never be treated as a
+    /// duplicate of another file that merely shares its prefix.
+    static func hashStream(_ next: () throws -> Data?) -> Data? {
+        var hasher = SHA256()
+        while true {
+            let chunk: Data?
+            do {
+                chunk = try next()
+            } catch {
+                return nil
+            }
+            guard let chunk, !chunk.isEmpty else { break }
+            hasher.update(data: chunk)
+        }
+        return Data(hasher.finalize())
+    }
+
     /// SHA-256 over the file contents. An unreadable file returns nil and is
     /// dropped from the comparison rather than being guessed at.
     static func contentHash(of path: String) -> Data? {
         guard let handle = FileHandle(forReadingAtPath: path) else { return nil }
         defer { try? handle.close() }
-        var hasher = SHA256()
-        while true {
-            guard let chunk = try? handle.read(upToCount: chunkSize), !chunk.isEmpty else { break }
-            hasher.update(data: chunk)
-        }
-        return Data(hasher.finalize())
+        return hashStream { try handle.read(upToCount: chunkSize) }
     }
 
     // MARK: - Hashing
