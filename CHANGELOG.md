@@ -6,6 +6,9 @@ All notable user-facing changes to Sift. Sift was called PureMac before 4.0.0.
 
 ### Fixed
 
+- The removal sheet and the selection bar list files in the same order as the
+  list (name, size or date) instead of the order the scan produced; the
+  dashboard's sheet, which has no sort control, reads largest first.
 - The Uninstaller footer now says what the selection is on a line of its own
   ("25 items, 1.12 GB") above the buttons; at the minimum window width the
   summary used to be squeezed to a few points between "Dry run" and "Review
