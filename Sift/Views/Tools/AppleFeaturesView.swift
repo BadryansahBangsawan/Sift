@@ -39,7 +39,6 @@ struct AppleFeaturesView: View {
     @State private var aiResult: AppleIntelligenceApplyResult?
     @State private var aiNotice: String?
     @State private var aiWorking = false
-    @State private var showingReview = false
 
     private var removalRunning: Bool { appState.deviceBackupRemovalInProgress }
 
@@ -106,11 +105,9 @@ struct AppleFeaturesView: View {
                 removeBackups(selection.backups)
             }
         }
-        .sheet(isPresented: $showingReview) {
-            if let plan = aiPlan {
-                AppleIntelligenceReviewSheet(plan: plan, onApply: applyAppleIntelligence) {
-                    showingReview = false
-                }
+        .sheet(item: $aiPlan) { plan in
+            AppleIntelligenceReviewSheet(plan: plan, onApply: applyAppleIntelligence) {
+                aiPlan = nil
             }
         }
         .onAppear(perform: refreshAppleIntelligence)
@@ -290,14 +287,14 @@ struct AppleFeaturesView: View {
                 }
             }
             Spacer(minLength: 12)
-            Toggle("Keep \(feature.title)", isOn: Binding(
+            Toggle(isOn: Binding(
                 get: { aiKeep.contains(feature.id) },
                 set: { keep in
                     if keep { aiKeep.insert(feature.id) } else { aiKeep.remove(feature.id) }
                 }
-            ))
-            .labelsHidden()
+            )) { EmptyView() }
             .toggleStyle(.siftSwitch)
+            .accessibilityLabel(Text("Keep \(feature.title)"))
             .disabled(aiWorking)
             .accessibilityIdentifier("appleFeatures.keep.\(feature.id)")
         }
@@ -344,14 +341,14 @@ struct AppleFeaturesView: View {
                             }
                         }
                         Spacer(minLength: 12)
-                        Toggle("Apply \(tweak.title)", isOn: Binding(
+                        Toggle(isOn: Binding(
                             get: { aiTweaks.contains(tweak.id) },
                             set: { apply in
                                 if apply { aiTweaks.insert(tweak.id) } else { aiTweaks.remove(tweak.id) }
                             }
-                        ))
-                        .labelsHidden()
+                        )) { EmptyView() }
                         .toggleStyle(.siftSwitch)
+                        .accessibilityLabel(Text("Apply \(tweak.title)"))
                         .disabled(aiWorking)
                         .accessibilityIdentifier("appleFeatures.tweak.\(tweak.id)")
                     }
@@ -430,9 +427,13 @@ struct AppleFeaturesView: View {
     private func reviewAppleIntelligence() {
         let service = aiService
         let selection = AppleIntelligenceSelection(keep: aiKeep, tweaks: aiTweaks)
-        aiPlan = service.plan(selection)
-        aiNotice = aiPlan?.isEmpty == true ? String(localized: "This Mac already matches the review.") : nil
-        showingReview = !(aiPlan?.isEmpty ?? true)
+        let plan = service.plan(selection)
+        if plan.isEmpty {
+            aiNotice = String(localized: "This Mac already matches the review.")
+        } else {
+            aiNotice = nil
+            aiPlan = plan
+        }
     }
 
     private func applyAppleIntelligence() {
@@ -446,7 +447,7 @@ struct AppleFeaturesView: View {
             }.value
             aiResult = result
             aiWorking = false
-            showingReview = false
+            aiPlan = nil
             aiStatus = service.status()
         }
     }
@@ -1073,7 +1074,7 @@ private struct AppleIntelligenceReviewSheet: View {
             }
         }
         .padding(24)
-        .frame(width: 620)
+        .frame(width: 620, height: 560, alignment: .topLeading)
         .background(SiftColor.card)
     }
 

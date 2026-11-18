@@ -140,7 +140,8 @@ struct AppleIntelligenceChange: Identifiable, Equatable {
     let isProfile: Bool
 }
 
-struct AppleIntelligencePlan {
+struct AppleIntelligencePlan: Identifiable {
+    let id = UUID()
     var featuresTurnedOff: [AppleIntelligenceFeature] = []
     var tweaks: [AppleTweak] = []
     var modelSets: [AppleIntelligenceModelSet] = []
