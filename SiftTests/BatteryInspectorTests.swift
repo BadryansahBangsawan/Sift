@@ -21,6 +21,20 @@ final class BatteryInspectorTests: XCTestCase {
         )
         XCTAssertNil(BatteryInspector.chargingState(fromPmset: output("AC attached")))
         XCTAssertNil(BatteryInspector.chargingState(fromPmset: ""))
+        XCTAssertEqual(
+            BatteryInspector.chargingState(fromPmset: "Now drawing from 'AC Power'\n -InternalBattery-0 100%; CHARGED; 0:00 remaining"),
+            true,
+            "pmset capitalisation must not change the answer"
+        )
+        XCTAssertEqual(
+            BatteryInspector.chargingState(fromPmset: "Now drawing from 'Battery Power'\n -InternalBattery-0 42%; DISCHARGING; 3:10 remaining"),
+            false
+        )
+        XCTAssertNil(BatteryInspector.chargingState(fromPmset: "Now drawing from 'AC Power'"))
+        XCTAssertNil(
+            BatteryInspector.chargingState(fromPmset: "-InternalBattery-0 42%; 3:10 remaining present: true"),
+            "A line without a state word leaves the state unknown rather than guessing"
+        )
     }
 
     func testPowerSourceReadsACStateAndMinutesToFullWhileCharging() {
