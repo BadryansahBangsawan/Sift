@@ -404,7 +404,7 @@ private struct ScanPathTicker: View {
 
 // MARK: - Where it sits
 
-private struct WhereItSitsCard: View {
+struct WhereItSitsCard: View {
     @EnvironmentObject var appState: AppState
     let onNavigate: (AppSection) -> Void
 
@@ -475,7 +475,7 @@ private struct WhereItSitsCard: View {
 
 /// Column widths for the Overview "Where it sits" rows.
 ///
-/// The card is ~292 pt wide at the 1080 pt minimum window width: icon tile 32 +
+/// The row is ~372 pt wide at the 1080 pt minimum window width: icon tile 32 +
 /// label + meter + size 72 + chevron 16 + spacing and padding leave the meter as
 /// the only column that can give way, so it collapsed to a dot and the
 /// proportion read as nothing. It keeps `meterMinWidth` instead and the label
@@ -483,9 +483,25 @@ private struct WhereItSitsCard: View {
 enum WhereRowLayout {
     static let meterMinWidth: CGFloat = 56
     static let meterIdealWidth: CGFloat = 120
+
+    /// Columns that never flex in a Where row: the row's own horizontal
+    /// padding, the icon tile, the four 14 pt gaps, the size column and the
+    /// chevron.
+    static let fixedChrome: CGFloat = 20 + 32 + 14 * 4 + 72 + 16
+
+    /// Width the Overview card's left column gives a Where row at
+    /// `windowWidth`: window gutter on both sides, the rail and its gap, the
+    /// fixed 392 pt right column and its gap, then the card's own padding.
+    static func rowWidth(atWindowWidth windowWidth: CGFloat) -> CGFloat {
+        let content = windowWidth - SiftSpacing.gutter * 2 - SiftSpacing.railWidth - SiftSpacing.gutter
+        let card = content - rightColumnWidth - SiftSpacing.gutter
+        return max(0, card - SiftSpacing.cardPadding * 2)
+    }
+
+    static let rightColumnWidth: CGFloat = 392
 }
 
-private struct WhereRow: View {
+struct WhereRow: View {
     let row: WhereItSitsCard.Row
     let fraction: Double
     let isLargest: Bool
