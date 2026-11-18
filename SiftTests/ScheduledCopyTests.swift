@@ -17,6 +17,14 @@ final class ScheduledCopyTests: XCTestCase {
         XCTAssertEqual(cleaning.railTitleKey, "Scheduled cleanup")
     }
 
+    func testAutoPurgeAloneStillOnlyScans() {
+        var config = ScheduleConfig()
+        config.isEnabled = true
+        config.autoPurge = true
+        XCTAssertEqual(config.railTitleKey, "Scheduled scan",
+                       "Purging after a scan does not clean the whole Mac")
+    }
+
     func testEveryLanguageNamesTheScan() throws {
         var checked = 0
         for language in AppLanguage.allCases.map(\.rawValue) where language != "system" {
