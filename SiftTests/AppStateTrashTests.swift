@@ -144,6 +144,29 @@ final class AppStateTrashTests: XCTestCase {
         XCTAssertEqual(state.cleanupHistory.first?.freedBytes, expected)
     }
 
+    func testTrashCategoryKeepsOnlyTheRowsTheUserCanSee() async throws {
+        let kept = trash.appendingPathComponent("keep.bin")
+        try Data(repeating: 6, count: 8_192).write(to: kept)
+
+        let saved = UserDefaults.standard.stringArray(forKey: CleanupExclusions.defaultsKey)
+        UserDefaults.standard.set([kept.path], forKey: CleanupExclusions.defaultsKey)
+        defer {
+            if let saved {
+                UserDefaults.standard.set(saved, forKey: CleanupExclusions.defaultsKey)
+            } else {
+                UserDefaults.standard.removeObject(forKey: CleanupExclusions.defaultsKey)
+            }
+        }
+
+        let state = makeState { nil }
+
+        await state.emptyTrash()
+
+        XCTAssertTrue(fileManager.fileExists(atPath: kept.path))
+        XCTAssertNil(state.categoryResults[.trash])
+        XCTAssertEqual(state.totalJunkSize, 0)
+    }
+
     func testFinderFailureKeepsTrashAndReportsTheError() async throws {
         try Data(repeating: 1, count: 8_192).write(to: trash.appendingPathComponent("old.bin"))
         let state = makeState { "Finder refused" }
