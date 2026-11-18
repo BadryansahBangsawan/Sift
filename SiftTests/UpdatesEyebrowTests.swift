@@ -26,6 +26,39 @@ final class UpdatesEyebrowTests: XCTestCase {
         XCTAssertTrue(text.contains("ago"), "Expected a relative date: \(text)")
     }
 
+    // MARK: - Range
+
+    /// The whole range a check can age through, including the named day
+    /// RelativeDateTimeFormatter switches to after 24 hours.
+    func testEveryAgeReadsNaturally() {
+        XCTAssertEqual(AppUpdatesView.checkedLabel(now.addingTimeInterval(-5), now: now),
+                       "Last checked just now")
+        XCTAssertEqual(AppUpdatesView.checkedLabel(now.addingTimeInterval(-60), now: now),
+                       "Last checked 1 minute ago")
+        XCTAssertEqual(AppUpdatesView.checkedLabel(now.addingTimeInterval(-2 * 3_600), now: now),
+                       "Last checked 2 hours ago")
+        XCTAssertEqual(AppUpdatesView.checkedLabel(now.addingTimeInterval(-26 * 3_600), now: now),
+                       "Last checked yesterday")
+    }
+
+    /// Russian puts the date after a colon and keeps its own wording; the
+    /// sentence is not assembled from English fragments.
+    func testRussianCarriesItsOwnWordOrder() throws {
+        let path = try XCTUnwrap(Bundle.main.path(forResource: "ru", ofType: "lproj"))
+        let ru = try XCTUnwrap(Bundle(path: path))
+        let template = ru.localizedString(forKey: "Last checked %@", value: nil, table: nil)
+        XCTAssertEqual(template, "Последняя проверка: %@")
+
+        let formatter = RelativeDateTimeFormatter()
+        formatter.locale = Locale(identifier: "ru")
+        formatter.unitsStyle = .full
+        formatter.dateTimeStyle = .named
+        let when = formatter.localizedString(
+            for: now.addingTimeInterval(-26 * 3_600), relativeTo: now)
+        XCTAssertEqual(String(format: template, when), "Последняя проверка: \(when)")
+        XCTAssertTrue(when.contains("вчера"), "Russian said “\(when)”")
+    }
+
     /// Every shipped language carries the sentence with its own word order.
     func testEveryLanguageHasTheSentence() throws {
         var checked = 0
