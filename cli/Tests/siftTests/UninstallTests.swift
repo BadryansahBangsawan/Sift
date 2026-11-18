@@ -110,6 +110,55 @@ final class UninstallTests: XCTestCase {
         XCTAssertEqual(found.sorted(), [plistPath.path, cachePath.path].sorted())
     }
 
+    func testLeftoverPathsSkipSymlinksAndIgnoredPaths() throws {
+        let home = try temporaryDirectory()
+        defer { try? FileManager.default.removeItem(at: home) }
+
+        let caches = home.appendingPathComponent("Library/Caches", isDirectory: true)
+        let logs = home.appendingPathComponent("Library/Logs", isDirectory: true)
+        try FileManager.default.createDirectory(at: caches, withIntermediateDirectories: true)
+        try FileManager.default.createDirectory(at: logs, withIntermediateDirectories: true)
+
+        let realTarget = home.appendingPathComponent("com.example.app.real")
+        try Data(repeating: 0x3, count: 16).write(to: realTarget)
+        try FileManager.default.createSymbolicLink(
+            atPath: caches.appendingPathComponent("com.example.app").path,
+            withDestinationPath: realTarget.path
+        )
+
+        let ignoredPath = logs.appendingPathComponent("com.example.app")
+        try Data(repeating: 0x4, count: 16).write(to: ignoredPath)
+        let ignoreFile = home.appendingPathComponent("ignore")
+        try Data((ignoredPath.path + "\n").utf8).write(to: ignoreFile)
+
+        let ignore = try IgnoreStore(
+            fileURL: ignoreFile,
+            legacyFileURL: nil,
+            currentDirectoryPath: home.path
+        )
+        XCTAssertEqual(Uninstall.leftoverPaths(for: "com.example.app", home: home.path, ignore: ignore), [])
+    }
+
+    func testLeftoverPathsHandleSpacesAndUnicodeInTheHomePath() throws {
+        let parent = try temporaryDirectory()
+        defer { try? FileManager.default.removeItem(at: parent) }
+        let home = parent.appendingPathComponent("fixture home ✓", isDirectory: true)
+        let applicationSupport = home.appendingPathComponent("Library/Application Support", isDirectory: true)
+        try FileManager.default.createDirectory(at: applicationSupport, withIntermediateDirectories: true)
+        let leftover = applicationSupport.appendingPathComponent("com.example.app")
+        try Data(repeating: 0x5, count: 16).write(to: leftover)
+
+        let ignore = try IgnoreStore(
+            fileURL: home.appendingPathComponent("ignore"),
+            legacyFileURL: nil,
+            currentDirectoryPath: home.path
+        )
+        XCTAssertEqual(
+            Uninstall.leftoverPaths(for: "com.example.app", home: home.path, ignore: ignore),
+            [leftover.path]
+        )
+    }
+
     private func plist(identifier: String) -> Data {
         Data("""
         <?xml version="1.0" encoding="UTF-8"?>
