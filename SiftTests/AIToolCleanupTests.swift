@@ -252,6 +252,34 @@ final class AIToolCleanupTests: XCTestCase {
         }
     }
 
+    func testCleanerRefusesATranscriptThatBecameActiveAfterTheScan() async throws {
+        // The scan offers only sessions untouched for ten minutes. The user can
+        // resume one between the scan and the click, and that transcript is
+        // live work, not history: the cleaner must re-check, like it re-checks
+        // the temp-entry policy and the Claude-running guard.
+        let relative = ".claude/projects/-Users-test-demo/22222222-2222-2222-2222-222222222222.jsonl"
+        let transcript = try createSession(relative, modified: oldDate)
+        let item = CleanableItem(
+            name: "demo session",
+            path: transcript,
+            size: 4096,
+            category: .aiApps,
+            isSelected: true,
+            lastModified: oldDate,
+            companionPaths: AIToolCleanupCatalog.sessionCompanions(for: transcript),
+            note: nil,
+            movesToTrash: true
+        )
+        try fileManager.setAttributes([.modificationDate: fixedNow], ofItemAtPath: transcript)
+
+        let result = await makeCleaner().cleanItems([item]) { _ in }
+
+        XCTAssertEqual(result.itemsCleaned, 0)
+        XCTAssertTrue(fileManager.fileExists(atPath: transcript), "A live session must stay where its agent writes it")
+        XCTAssertTrue(result.trashedPaths.isEmpty)
+        XCTAssertTrue(result.errors.contains { $0.localizedCaseInsensitiveContains("open") }, "\(result.errors)")
+    }
+
     // MARK: - Fixtures
 
     private var fixedNow: Date { Date(timeIntervalSince1970: 1_800_000_000) }
