@@ -20,6 +20,8 @@ All notable user-facing changes to Sift. Sift was called PureMac before 4.0.0.
 - `sift-cli dupes` no longer reports a file as a duplicate when it could not be
   read in full. A failed read used to hash only the bytes read so far, so two
   files that merely shared a prefix could be paired and one listed for removal.
+- `sift-cli` now prints an empty size as "0 KB" (as the app does) and a single
+  byte as "1 byte" instead of "1 bytes".
 
 ## 4.0.1
 
