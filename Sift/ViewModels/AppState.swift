@@ -15,6 +15,7 @@ enum AppSection: Hashable {
     case performance
     case appleFeatures
     case appUpdates
+    case projectJunk
     case settings
     case cleaning(CleaningCategory)
 }

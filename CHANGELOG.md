@@ -24,6 +24,12 @@ the new name, and the interface has been rebuilt around a new design system.
 
 ### New
 
+- Project junk: finds node_modules, .venv, target, .build and similar folders
+  in the project folders you choose. A folder is listed only when its project
+  file sits next to it, its contents look generated and git ignores it (never
+  when git tracks anything inside it); hidden tool folders such as agent
+  worktrees are left alone. Folders are checked again and moved to the Trash.
+  Never part of Smart Scan or scheduled cleanup.
 - Trash category: Sift measures `~/.Trash` and empties it through Finder after a
   confirmation. It is read-only inside Sift, never bulk-selected, scheduled or
   auto-cleaned.

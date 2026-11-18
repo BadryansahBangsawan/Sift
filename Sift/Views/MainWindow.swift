@@ -158,6 +158,8 @@ struct MainWindow: View {
             AppleFeaturesView()
         case .appUpdates:
             AppUpdatesView()
+        case .projectJunk:
+            ProjectJunkView()
         case .settings:
             SettingsView()
         case .cleaning(let category):
@@ -231,6 +233,8 @@ struct SiftRail: View {
              categories: CleaningCategory.systemJunkGroup.filter(CleaningCategory.scannable.contains)),
         Item(section: .cleaning(.xcodeJunk), label: "Developer caches", icon: .codeXml,
              categories: CleaningCategory.developerCaches.filter(CleaningCategory.scannable.contains)),
+        // Not a scan category: never part of Smart Scan or scheduled cleanup.
+        Item(section: .projectJunk, label: "Project junk", icon: .package),
         Item(section: .cleaning(.installers), label: "Installers", icon: .disc3, categories: [.installers]),
         Item(section: .cleaning(.largeFiles), label: "Large & old files", icon: .fileArchive, categories: [.largeFiles]),
         Item(section: .cleaning(.mailAttachments), label: "Mail files", icon: .mail, categories: [.mailAttachments]),
@@ -393,6 +397,7 @@ struct SiftRail: View {
         case .appleFeatures: return "sidebar.appleFeatures"
         case .settings: return "sidebar.settings"
         case .appUpdates: return "sidebar.appUpdates"
+        case .projectJunk: return "sidebar.projectJunk"
         case .cleaning(let category): return "sidebar.cleaning.\(category.id)"
         }
     }
