@@ -3,9 +3,20 @@ import Foundation
 actor ScanEngine {
     private let fileManager = FileManager.default
     private let home: String
+    /// Roots whose direct children are treated as system temporary space.
+    /// Injected by tests so they never enumerate the real /tmp on the host.
+    private let tmpRoots: [String]
+    /// Clock for the tmp staleness check, injected by tests.
+    private let now: () -> Date
 
-    init(homeDirectory: URL = FileManager.default.homeDirectoryForCurrentUser) {
+    init(
+        homeDirectory: URL = FileManager.default.homeDirectoryForCurrentUser,
+        tmpRoots: [String] = TmpJunkPolicy.roots,
+        now: @escaping () -> Date = Date.init
+    ) {
         home = XcodeBuildMCPDerivedDataSupport.canonicalHomeDirectory(homeDirectory).path
+        self.tmpRoots = tmpRoots
+        self.now = now
     }
 
     /// Live path reporter for the dashboard's scanning ticker. Throttled so
@@ -139,8 +150,6 @@ actor ScanEngine {
             "/Library/Logs",
             "/private/var/log",
             "\(home)/Library/Logs",
-            "/tmp",
-            "/private/var/tmp",
         ]
 
         for path in systemPaths {
@@ -148,8 +157,42 @@ actor ScanEngine {
             items.append(contentsOf: scanned)
         }
 
+        for root in tmpRoots {
+            items.append(contentsOf: scanTmpEntries(root: root))
+        }
+
         totalSize = items.reduce(0) { $0 + $1.size }
         return CategoryResult(category: .systemJunk, items: items, totalSize: totalSize)
+    }
+
+    /// Direct children of a system temp root are offered only when they are
+    /// provably unused (see `TmpJunkPolicy`) and always start unselected: the
+    /// user opts in, the scheduler and the auto clean never touch them.
+    private func scanTmpEntries(root: String) -> [CleanableItem] {
+        guard fileManager.fileExists(atPath: root),
+              fileManager.isReadableFile(atPath: root) else { return [] }
+
+        let entries = (try? fileManager.contentsOfDirectory(atPath: root)) ?? []
+        let clock = now()
+        var items: [CleanableItem] = []
+
+        for name in entries {
+            if Task.isCancelled { break }
+            let path = (root as NSString).appendingPathComponent(name)
+            report(path)
+            let inspection = TmpJunkPolicy.inspect(path: path, now: clock, fileManager: fileManager)
+            guard inspection.isOfferable, inspection.size > 1024 else { continue }
+            items.append(CleanableItem(
+                name: name,
+                path: path,
+                size: inspection.size,
+                category: .systemJunk,
+                isSelected: false,
+                lastModified: inspection.newestModification
+            ))
+        }
+
+        return items
     }
 
     private func scanUserCache() -> CategoryResult {

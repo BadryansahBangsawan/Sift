@@ -136,6 +136,25 @@ actor CleaningEngine {
                 continue
             }
 
+            // System temp entries are only offered when provably unused, and
+            // that can change between the scan and the click. Re-verify right
+            // before deleting: a repo, a socket, or a fresh write means live
+            // work, so the entry is left alone.
+            if item.category == .systemJunk, TmpJunkPolicy.contains(item.path) {
+                let inspection = TmpJunkPolicy.inspect(
+                    path: item.path,
+                    now: Date(),
+                    fileManager: fileManager
+                )
+                guard inspection.isOfferable else {
+                    let remainder = inspection.rejectionReason ?? "could not be verified"
+                    let msg = "Skipped temporary entry \(item.name) at \(item.path): it \(remainder)"
+                    Logger.shared.log(msg, level: .warning)
+                    result.errors.append(msg)
+                    continue
+                }
+            }
+
             do {
                 let itemURL = URL(fileURLWithPath: item.path)
                 guard !hasUnexpectedSymlink(in: item.path) else {

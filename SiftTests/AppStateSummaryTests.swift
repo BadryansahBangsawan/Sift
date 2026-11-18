@@ -47,6 +47,23 @@ final class AppStateSummaryTests: XCTestCase {
         XCTAssertEqual(state.biggestItems(limit: 10).map(\.name), ["DerivedData", "cache", "log"])
     }
 
+    func testBiggestItemsSkipsOptInItems() {
+        let state = makeState()
+        let selected = item("cache", size: 300, category: .userCache)
+        let optIn = CleanableItem(
+            name: "pd-wt",
+            path: "/private/tmp/pd-wt",
+            size: 52_000_000_000,
+            category: .systemJunk,
+            isSelected: false,
+            lastModified: nil
+        )
+        state.categoryResults[.systemJunk] = result(.systemJunk, [optIn])
+        state.categoryResults[.userCache] = result(.userCache, [selected])
+
+        XCTAssertEqual(state.biggestItems(limit: 3).map(\.name), ["cache"])
+    }
+
     func testCategoryGroupsMergeTheirMembers() {
         XCTAssertEqual(CleaningCategory.developerCaches, [.xcodeJunk, .brewCache, .nodeCache, .dockerCache])
         XCTAssertEqual(CleaningCategory.systemJunkGroup, [.systemJunk, .userCache, .aiApps])

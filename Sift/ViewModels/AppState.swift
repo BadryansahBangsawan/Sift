@@ -189,7 +189,10 @@ final class AppState: ObservableObject {
     /// first. Trash rows are left out (they can only be emptied through
     /// Finder), as are action rows such as Docker prune that have no file.
     func biggestItems(limit: Int) -> [CleanableItem] {
-        let items = allResults.flatMap(\.items).filter { !$0.isActionItem }
+        // Only rows that start selected: opt-in items (system temp entries,
+        // app cookies) are proof-checked junk at best, not a "biggest win"
+        // the dashboard may advertise.
+        let items = allResults.flatMap(\.items).filter { $0.isSelected && !$0.isActionItem }
         return Array(items.sorted { left, right in
             if left.size != right.size { return left.size > right.size }
             return left.name.localizedStandardCompare(right.name) == .orderedAscending
