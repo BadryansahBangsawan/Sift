@@ -32,6 +32,35 @@ final class DashboardChipSizeTests: XCTestCase {
         XCTAssertLessThan(size, 16_384 + 8_192 + 64 * 1024)
     }
 
+    func testPurgeableCategoryTotalMatchesTheRowsItLists() async {
+        var info = DiskInfo()
+        info.purgeableSpace = 5_000_000_000
+        let engine = ScanEngine(
+            homeDirectory: FileManager.default.temporaryDirectory,
+            diskInfoProvider: { info }
+        )
+
+        let result = await engine.scanCategory(.purgeableSpace)
+
+        XCTAssertEqual(result.items.count, 1, "The purge row is the only thing the purge reclaims")
+        XCTAssertEqual(result.items.first?.name, "APFS Purgeable Space")
+        XCTAssertEqual(result.items.first?.isSelected, true)
+        XCTAssertEqual(result.totalSize, result.items.reduce(Int64(0)) { $0 + $1.size })
+        XCTAssertEqual(result.totalSize, 5_000_000_000)
+    }
+
+    func testPurgeableCategoryIsEmptyWhenTheDiskReportsNone() async {
+        let engine = ScanEngine(
+            homeDirectory: FileManager.default.temporaryDirectory,
+            diskInfoProvider: { DiskInfo() }
+        )
+
+        let result = await engine.scanCategory(.purgeableSpace)
+
+        XCTAssertTrue(result.items.isEmpty)
+        XCTAssertEqual(result.totalSize, 0)
+    }
+
     func testMissingContainersFolderMeasuresZero() async {
         let size = await ScanEngine(homeDirectory: fixtureHome).containersSize()
         XCTAssertEqual(size, 0)
