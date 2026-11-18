@@ -135,10 +135,10 @@ struct GitCommandLine: ProjectGitInspecting {
 
     func status(ofItemAt relativePath: String, inRepository repository: URL) -> ProjectGitStatus {
         guard let executable = Self.locateExecutable(), !relativePath.isEmpty else { return .unavailable }
-        guard let tracked = run(executable, ["-C", repository.path, "ls-files", "-z", "--", relativePath]),
+        guard let tracked = run(executable, Self.safeOptions + ["-C", repository.path, "ls-files", "-z", "--", relativePath]),
               tracked.status == 0 else { return .unavailable }
         if !tracked.output.isEmpty { return .tracked }
-        guard let ignored = run(executable, ["-C", repository.path, "check-ignore", "-q", "--", relativePath]) else {
+        guard let ignored = run(executable, Self.safeOptions + ["-C", repository.path, "check-ignore", "-q", "--", relativePath]) else {
             return .unavailable
         }
         switch ignored.status {
@@ -147,6 +147,11 @@ struct GitCommandLine: ProjectGitInspecting {
         default: return .unavailable
         }
     }
+
+    /// A repository's own .git/config (for example from a downloaded archive)
+    /// can name an fsmonitor program that git runs whenever it reads the index.
+    /// Command-line settings beat every config file, so scanning never runs it.
+    static let safeOptions = ["-c", "core.fsmonitor=false"]
 
     static func locateExecutable(fileManager: FileManager = .default) -> URL? {
         var candidates = ["/opt/homebrew/bin/git", "/usr/local/bin/git"]

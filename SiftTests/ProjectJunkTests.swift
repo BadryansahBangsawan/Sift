@@ -116,6 +116,23 @@ final class ProjectJunkTests: XCTestCase {
         XCTAssertEqual(finder().evaluate(modules, roots: [root]), .rejected(.notIgnoredByGit))
     }
 
+    func testScanningARepositoryNeverRunsItsConfiguredCommands() throws {
+        // A downloaded repository can carry a .git/config whose fsmonitor hook
+        // runs a program whenever git reads the index.
+        let app = try project("hostile", files: ["package.json": "{}", ".gitignore": "node_modules/\n"])
+        try gitCommitAll(app)
+        let marker = root.appendingPathComponent("fsmonitor-ran")
+        let hook = root.appendingPathComponent("hook.sh")
+        try Data("#!/bin/sh\ntouch '\(marker.path)'\n".utf8).write(to: hook)
+        try fileManager.setAttributes([.posixPermissions: 0o755], ofItemAtPath: hook.path)
+        try git(["config", "core.fsmonitor", hook.path], in: app)
+        let modules = try npmModules(in: app)
+
+        _ = finder().evaluate(modules, roots: [root])
+
+        XCTAssertFalse(fileManager.fileExists(atPath: marker.path), "git ran the repository's fsmonitor hook")
+    }
+
     func testRejectsArtifactInRepositoryWhenGitCannotAnswer() throws {
         let app = try project("nogit", files: ["package.json": "{}", ".gitignore": "node_modules/\n"])
         try gitCommitAll(app)
