@@ -393,6 +393,37 @@ enum DiskMeterLayout {
         text.split(separator: " ").map { measure(String($0)) }.max() ?? 0
     }
 
+    /// Narrowest width at which `text` still lays out in at most `lines` lines.
+    /// A word list cannot answer this for every script, so ask the typesetter.
+    static func wrappedWidth(_ text: String, lines: Int, size: CGFloat, weight: CGFloat, family: String) -> CGFloat {
+        let font = SiftFonts.nsFont(family, size: size, weight: weight) ?? .systemFont(ofSize: size)
+        let attributed = NSAttributedString(string: text, attributes: [.font: font])
+        let typesetter = CTTypesetterCreateWithAttributedString(attributed)
+        let full = ceil(attributed.size().width)
+
+        func lineCount(_ width: CGFloat) -> Int {
+            var start = 0
+            var count = 0
+            while start < attributed.length {
+                let consumed = CTTypesetterSuggestLineBreak(typesetter, start, Double(width))
+                guard consumed > 0 else { return Int.max }
+                start += consumed
+                count += 1
+                if count > lines { return count }
+            }
+            return count
+        }
+
+        guard lineCount(full) > lines else { return full }
+        var low: CGFloat = 1
+        var high = full
+        for _ in 0..<20 {
+            let mid = (low + high) / 2
+            if lineCount(mid) <= lines { high = mid } else { low = mid }
+        }
+        return ceil(high)
+    }
+
     /// Width of the reclaimable capsule and the free capsule. Each keeps at
     /// least the width its own text needs, in whichever style that text takes,
     /// so no capsule has to clip a translated label.
@@ -404,7 +435,8 @@ enum DiskMeterLayout {
         labelWidth: CGFloat,
         valueWidth: CGFloat,
         freeTextWidth: CGFloat,
-        freeLongestWordWidth: CGFloat
+        freeLongestWordWidth: CGFloat,
+        freeTwoLineWidth: CGFloat
     ) -> (reclaimable: CGFloat?, free: CGFloat) {
         let available = available(total: total, hasReclaimable: reclaimable != nil)
         let diskTotal = max(disk, 1)
@@ -413,7 +445,7 @@ enum DiskMeterLayout {
         let freeOneLine = freeTextWidth + capsulePadding * 2
         let freeMinimum = proportionalFree >= freeOneLine
             ? freeOneLine
-            : max(freeLongestWordWidth + capsulePadding * 2, freeFloor * 0.5)
+            : max(freeLongestWordWidth + capsulePadding * 2, freeTwoLineWidth + capsulePadding * 2)
         let free = min(max(proportionalFree, freeMinimum), max(available * segmentCap, freeMinimum))
 
         guard let reclaimable else { return (nil, free) }
@@ -432,13 +464,17 @@ struct DiskMeter: View {
     let info: DiskInfo
     /// nil before a scan: the meter then shows only in use and free.
     let reclaimable: Int64?
+    /// The copy as the app shows it. Injectable so a test can render a
+    /// translation without changing the launch language.
+    var reclaimableTitle: String?
+    var freeTitle: String?
 
     var body: some View {
         GeometryReader { proxy in
             let total = proxy.size.width - DiskMeterLayout.spacing * 2
-            let label = String(localized: "Reclaimable")
+            let label = reclaimableTitle ?? String(localized: "Reclaimable")
             let value = reclaimable.map(SiftFormat.bytes) ?? ""
-            let free = String(localized: "\(SiftFormat.bytes(info.freeSpace)) free")
+            let free = freeTitle ?? String(localized: "\(SiftFormat.bytes(info.freeSpace)) free")
             let labelWidth = DiskMeterLayout.textWidth(label, size: 11, weight: 500, family: SiftFonts.ui)
             let valueWidth = DiskMeterLayout.textWidth(value, size: 16, weight: 400, family: SiftFonts.display)
             let freeWidth = DiskMeterLayout.textWidth(free, size: 16, weight: 500, family: SiftFonts.display)
@@ -453,7 +489,10 @@ struct DiskMeter: View {
                 labelWidth: labelWidth,
                 valueWidth: valueWidth,
                 freeTextWidth: freeWidth,
-                freeLongestWordWidth: freeWord
+                freeLongestWordWidth: freeWord,
+                freeTwoLineWidth: DiskMeterLayout.wrappedWidth(
+                    free, lines: 2, size: 16, weight: 500, family: SiftFonts.display
+                )
             )
             HStack(spacing: DiskMeterLayout.spacing) {
                 if let reclaimable, let width = widths.reclaimable {

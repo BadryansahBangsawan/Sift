@@ -34,7 +34,10 @@ final class DiskMeterWidthTests: XCTestCase {
                 freeTextWidth: freeWidth,
                 freeLongestWordWidth: DiskMeterLayout.longestWordWidth(freeText) {
                     self.measure($0, font: self.valueFont)
-                }
+                },
+                freeTwoLineWidth: DiskMeterLayout.wrappedWidth(
+                    freeText, lines: 2, size: 16, weight: 500, family: SiftFonts.display
+                )
             )
             let junkWidth = try XCTUnwrap(widths.reclaimable)
             let style = DiskMeterLayout.style(width: junkWidth, label: labelWidth, value: valueWidth)
@@ -74,7 +77,8 @@ final class DiskMeterWidthTests: XCTestCase {
             labelWidth: measure(label, font: labelFont),
             valueWidth: measure(value, font: valueFont),
             freeTextWidth: measure(freeText, font: valueFont),
-            freeLongestWordWidth: DiskMeterLayout.longestWordWidth(freeText) { self.measure($0, font: self.valueFont) }
+            freeLongestWordWidth: DiskMeterLayout.longestWordWidth(freeText) { self.measure($0, font: self.valueFont) },
+            freeTwoLineWidth: DiskMeterLayout.wrappedWidth(freeText, lines: 2, size: 16, weight: 500, family: SiftFonts.display)
         )
 
         let junkWidth = try XCTUnwrap(widths.reclaimable)
@@ -101,7 +105,8 @@ final class DiskMeterWidthTests: XCTestCase {
                 labelWidth: 108,
                 valueWidth: 60,
                 freeTextWidth: 143,
-                freeLongestWordWidth: 62
+                freeLongestWordWidth: 62,
+                freeTwoLineWidth: 120
             )
             let junk = widths.reclaimable ?? 0
             XCTAssertLessThanOrEqual(
