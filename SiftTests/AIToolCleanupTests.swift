@@ -111,6 +111,27 @@ final class AIToolCleanupTests: XCTestCase {
         XCTAssertFalse(result.trashedPaths.isEmpty, "Opt-in history must be moved to the Trash, not unlinked")
     }
 
+    func testTrashedHistoryIsNotCountedAsFreedSpace() async throws {
+        let transcript = try createSession(
+            ".claude/projects/-Users-test-demo/66666666-6666-6666-6666-666666666666.jsonl",
+            modified: oldDate
+        )
+        let scan = await makeScanner().scanCategory(.aiApps)
+        let session = try XCTUnwrap(scan.items.first { $0.path == transcript })
+        XCTAssertTrue(session.movesToTrash)
+
+        let result = await makeCleaner().cleanItems([session]) { _ in }
+
+        XCTAssertEqual(result.itemsCleaned, 1)
+        XCTAssertTrue(result.errors.isEmpty, "\(result.errors)")
+        XCTAssertFalse(result.trashedPaths.isEmpty, "Opt-in history must be moved to the Trash")
+        XCTAssertEqual(
+            result.freedSpace,
+            0,
+            "A file moved to the Trash still occupies disk; counting it as freed double-counts when the Trash is emptied"
+        )
+    }
+
     func testSessionModifiedJustNowIsNotOffered() async throws {
         _ = try createSession(
             ".claude/projects/-Users-test-demo/33333333-3333-3333-3333-333333333333.jsonl",
