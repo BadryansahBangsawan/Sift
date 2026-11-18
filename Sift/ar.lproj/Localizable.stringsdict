@@ -185,13 +185,13 @@
 			<key>many</key>
 			<string>%lld نسخة مطابقة · %@ لكل نسخة</string>
 			<key>one</key>
-			<string>نسخة مطابقة واحدة · %@</string>
+			<string>%lld نسخة مطابقة · %@</string>
 			<key>other</key>
 			<string>%lld نسخة مطابقة · %@ لكل نسخة</string>
 			<key>two</key>
-			<string>نسختان مطابقتان · %@</string>
+			<string>%lld نسختان مطابقتان · %@</string>
 			<key>zero</key>
-			<string>لا نسخ مطابقة · %@ لكل نسخة</string>
+			<string>%lld نسخ مطابقة · %@ لكل نسخة</string>
 		</dict>
 	</dict>
 	<key>%lld files</key>
@@ -257,13 +257,13 @@
 			<key>many</key>
 			<string>تم نقل %lld ملفًا بإجمالي %@. تبقى كل نسخة محمية في مكانها.</string>
 			<key>one</key>
-			<string>تم نقل ملف واحد بإجمالي %@. تبقى كل نسخة محمية في مكانها.</string>
+			<string>تم نقل %lld ملف بإجمالي %@. تبقى كل نسخة محمية في مكانها.</string>
 			<key>other</key>
 			<string>تم نقل %lld ملف بإجمالي %@. تبقى كل نسخة محمية في مكانها.</string>
 			<key>two</key>
-			<string>تم نقل ملفين بإجمالي %@. تبقى كل نسخة محمية في مكانها.</string>
+			<string>تم نقل %lld ملفان بإجمالي %@. تبقى كل نسخة محمية في مكانها.</string>
 			<key>zero</key>
-			<string>لم يُنقل أي ملف، بإجمالي %@. تبقى كل نسخة محمية في مكانها.</string>
+			<string>تم نقل %lld ملفات بإجمالي %@. تبقى كل نسخة محمية في مكانها.</string>
 		</dict>
 	</dict>
 	<key>%lld files totaling %@ will be moved to Trash. The protected copy in every group stays in place.</key>
@@ -281,13 +281,13 @@
 			<key>many</key>
 			<string>سيُنقل %lld ملفًا بإجمالي %@ إلى سلة المهملات. تبقى النسخة المحمية في كل مجموعة في مكانها.</string>
 			<key>one</key>
-			<string>سيُنقل ملف واحد بإجمالي %@ إلى سلة المهملات. تبقى النسخة المحمية في كل مجموعة في مكانها.</string>
+			<string>سيُنقل %lld ملف بإجمالي %@ إلى سلة المهملات. تبقى النسخة المحمية في كل مجموعة في مكانها.</string>
 			<key>other</key>
 			<string>سيُنقل %lld ملف بإجمالي %@ إلى سلة المهملات. تبقى النسخة المحمية في كل مجموعة في مكانها.</string>
 			<key>two</key>
-			<string>سيُنقل ملفان بإجمالي %@ إلى سلة المهملات. تبقى النسخة المحمية في كل مجموعة في مكانها.</string>
+			<string>سيُنقل %lld ملفان بإجمالي %@ إلى سلة المهملات. تبقى النسخة المحمية في كل مجموعة في مكانها.</string>
 			<key>zero</key>
-			<string>لن يُنقل أي ملف، بإجمالي %@، إلى سلة المهملات. تبقى النسخة المحمية في كل مجموعة في مكانها.</string>
+			<string>سيُنقل %lld ملفات بإجمالي %@ إلى سلة المهملات. تبقى النسخة المحمية في كل مجموعة في مكانها.</string>
 		</dict>
 	</dict>
 	<key>%lld folders</key>
@@ -353,13 +353,13 @@
 			<key>many</key>
 			<string>%lld مجلدًا بإجمالي %@ في سلة المهملات. أفرغ سلة المهملات لتحرير المساحة.</string>
 			<key>one</key>
-			<string>مجلد واحد بإجمالي %@ في سلة المهملات. أفرغ سلة المهملات لتحرير المساحة.</string>
+			<string>%lld مجلد بإجمالي %@ في سلة المهملات. أفرغ سلة المهملات لتحرير المساحة.</string>
 			<key>other</key>
 			<string>%lld مجلد بإجمالي %@ في سلة المهملات. أفرغ سلة المهملات لتحرير المساحة.</string>
 			<key>two</key>
-			<string>مجلدان بإجمالي %@ في سلة المهملات. أفرغ سلة المهملات لتحرير المساحة.</string>
+			<string>%lld مجلدان بإجمالي %@ في سلة المهملات. أفرغ سلة المهملات لتحرير المساحة.</string>
 			<key>zero</key>
-			<string>لا مجلدات، بإجمالي %@، في سلة المهملات.</string>
+			<string>%lld مجلدات بإجمالي %@ في سلة المهملات. أفرغ سلة المهملات لتحرير المساحة.</string>
 		</dict>
 	</dict>
 	<key>%lld folders totaling %@ will be moved to Trash. Sift checks each folder again first. Reinstall dependencies or rebuild to get them back.</key>
@@ -377,13 +377,13 @@
 			<key>many</key>
 			<string>سيُنقل %lld مجلدًا بإجمالي %@ إلى سلة المهملات. يتحقق Sift من كل مجلد مرة أخرى أولًا. أعد تثبيت التبعيات أو أعد البناء لاستعادتها.</string>
 			<key>one</key>
-			<string>سيُنقل مجلد واحد بإجمالي %@ إلى سلة المهملات. يتحقق Sift من كل مجلد مرة أخرى أولًا. أعد تثبيت التبعيات أو أعد البناء لاستعادته.</string>
+			<string>سيُنقل %lld مجلد بإجمالي %@ إلى سلة المهملات. يتحقق Sift من كل مجلد مرة أخرى أولًا. أعد تثبيت التبعيات أو أعد البناء لاستعادته.</string>
 			<key>other</key>
 			<string>سيُنقل %lld مجلد بإجمالي %@ إلى سلة المهملات. يتحقق Sift من كل مجلد مرة أخرى أولًا. أعد تثبيت التبعيات أو أعد البناء لاستعادتها.</string>
 			<key>two</key>
-			<string>سيُنقل مجلدان بإجمالي %@ إلى سلة المهملات. يتحقق Sift من كل مجلد مرة أخرى أولًا. أعد تثبيت التبعيات أو أعد البناء لاستعادتهما.</string>
+			<string>سيُنقل %lld مجلدان بإجمالي %@ إلى سلة المهملات. يتحقق Sift من كل مجلد مرة أخرى أولًا. أعد تثبيت التبعيات أو أعد البناء لاستعادتهما.</string>
 			<key>zero</key>
-			<string>لن يُنقل أي مجلد، بإجمالي %@، إلى سلة المهملات</string>
+			<string>سيُنقل %lld مجلدات بإجمالي %@ إلى سلة المهملات. يتحقق Sift من كل مجلد مرة أخرى أولًا. أعد تثبيت التبعيات أو أعد البناء لاستعادتها.</string>
 		</dict>
 	</dict>
 	<key>%lld items</key>
@@ -473,13 +473,13 @@
 			<key>many</key>
 			<string>%lld عنصرًا · %@</string>
 			<key>one</key>
-			<string>عنصر واحد · %@</string>
+			<string>%lld عنصر · %@</string>
 			<key>other</key>
 			<string>%lld عنصر · %@</string>
 			<key>two</key>
-			<string>عنصران · %@</string>
+			<string>%lld عنصران · %@</string>
 			<key>zero</key>
-			<string>لا عناصر · %@</string>
+			<string>%lld عناصر · %@</string>
 		</dict>
 	</dict>
 	<key>%lld items, %@</key>
@@ -497,13 +497,13 @@
 			<key>many</key>
 			<string>%lld عنصرًا، %@</string>
 			<key>one</key>
-			<string>عنصر واحد، %@</string>
+			<string>%lld عنصر، %@</string>
 			<key>other</key>
 			<string>%lld عنصر، %@</string>
 			<key>two</key>
-			<string>عنصران، %@</string>
+			<string>%lld عنصران، %@</string>
 			<key>zero</key>
-			<string>لا عناصر، %@</string>
+			<string>%lld عناصر، %@</string>
 		</dict>
 	</dict>
 	<key>%lld of %lld items, %@</key>
@@ -588,13 +588,13 @@
 			<key>many</key>
 			<string>%lld صورة · %@</string>
 			<key>one</key>
-			<string>صورة واحدة · %@</string>
+			<string>%lld صورة · %@</string>
 			<key>other</key>
 			<string>%lld صورة · %@</string>
 			<key>two</key>
-			<string>صورتان · %@</string>
+			<string>%lld صورتان · %@</string>
 			<key>zero</key>
-			<string>لا صور · %@</string>
+			<string>%lld صور · %@</string>
 		</dict>
 	</dict>
 	<key>%lld processes</key>
@@ -804,13 +804,13 @@
 			<key>many</key>
 			<string>سيحذف Finder %lld عنصرًا (%@) نهائيًا. لا يمكن التراجع عن هذا الإجراء.</string>
 			<key>one</key>
-			<string>سيحذف Finder عنصرًا واحدًا (%@) نهائيًا. لا يمكن التراجع عن هذا الإجراء.</string>
+			<string>سيحذف Finder %lld عنصر (%@) نهائيًا. لا يمكن التراجع عن هذا الإجراء.</string>
 			<key>other</key>
 			<string>سيحذف Finder %lld عنصر (%@) نهائيًا. لا يمكن التراجع عن هذا الإجراء.</string>
 			<key>two</key>
-			<string>سيحذف Finder عنصرين (%@) نهائيًا. لا يمكن التراجع عن هذا الإجراء.</string>
+			<string>سيحذف Finder %lld عنصران (%@) نهائيًا. لا يمكن التراجع عن هذا الإجراء.</string>
 			<key>zero</key>
-			<string>سيحذف Finder (%@) نهائيًا. لا يمكن التراجع عن هذا الإجراء.</string>
+			<string>سيحذف Finder %lld عناصر (%@) نهائيًا. لا يمكن التراجع عن هذا الإجراء.</string>
 		</dict>
 	</dict>
 	<key>Homebrew finished, but %lld selected apps still report updates.</key>
