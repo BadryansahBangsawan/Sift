@@ -71,10 +71,10 @@ enum SiftAccent: String, CaseIterable, Identifiable {
     /// Base color on light surfaces, darkened for contrast against white.
     var lightBase: NSColor {
         switch self {
-        case .brass: return NSColor(hex: 0xA8851A)
-        case .green: return NSColor(hex: 0x23955A)
+        case .brass: return NSColor(hex: 0x8F6F0F)
+        case .green: return NSColor(hex: 0x1E7D4B)
         case .blue: return NSColor(hex: 0x2F6FC4)
-        case .orange: return NSColor(hex: 0xC8611F)
+        case .orange: return NSColor(hex: 0xB35412)
         case .graphite: return NSColor(hex: 0x5D646A)
         }
     }
@@ -149,7 +149,12 @@ enum SiftColor {
 
     static let accent = accentColor { base, _ in base }
     static let accentHover = accentColor { base, dark in
-        AccentStore.current == .brass && dark ? NSColor(hex: 0xD9B23A) : base.mixed(with: .white, dark ? 0.12 : 0.1)
+        if dark {
+            return AccentStore.current == .brass ? NSColor(hex: 0xD9B23A) : base.mixed(with: .white, 0.12)
+        }
+        // Light bases are dark enough for white text; darkening on hover keeps
+        // that contrast instead of lifting the fill toward white.
+        return base.mixed(with: .black, 0.06)
     }
     /// Shortcut-key chip sitting on an accent button.
     static let accentPressed = accentColor { base, dark in
@@ -159,7 +164,11 @@ enum SiftColor {
     static let onAccent = accentColor { _, dark in dark ? NSColor(hex: 0x0D0F11) : .white }
     /// Secondary text placed on an accent fill.
     static let onAccentMuted = accentColor { base, dark in
-        AccentStore.current == .brass && dark ? NSColor(hex: 0x3A3115) : base.mixed(with: dark ? NSColor(hex: 0x0D0F11) : .white, 0.72)
+        if dark {
+            return AccentStore.current == .brass ? NSColor(hex: 0x3A3115) : base.mixed(with: NSColor(hex: 0x0D0F11), 0.72)
+        }
+        // Stays legible on the darker accentPressed chip behind key hints.
+        return base.mixed(with: .white, 0.8)
     }
     /// Soft accent background (icon tiles, selected rows).
     static let accentTint = accentColor { base, dark in

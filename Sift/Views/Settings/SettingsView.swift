@@ -465,8 +465,6 @@ struct CleaningSettingsView: View {
             .padding(14)
         }
 
-        AppearanceAccentSettings()
-
         SiftSettingsLabel(title: Text("Cleanup exclusions"), note: Text("Right-click a cleanup result to exclude it"))
         SiftSettingsGroup {
             if appState.excludedCleanupPaths.isEmpty {

@@ -5,6 +5,8 @@ import SwiftUI
 struct MainWindow: View {
     @EnvironmentObject var appState: AppState
     @ObservedObject private var permission = PermissionCoordinator.shared
+    /// Observed only so an accent change re-renders the shell. Do not rebuild the
+    /// tree with .id() for this: that reset the open section back to Overview.
     @ObservedObject private var accentStore = AccentStore.shared
     @State private var selectedSection: AppSection? = .cleaning(.smartScan)
     @FocusState private var focusedSection: AppSection?
@@ -27,7 +29,6 @@ struct MainWindow: View {
         .background(SiftColor.window.ignoresSafeArea())
         .ignoresSafeArea(.container, edges: .top)
         .tint(SiftColor.accent)
-        .id(accentStore.accent)
         .frame(minWidth: 1080, minHeight: 700)
         .onReceive(NotificationCenter.default.publisher(for: NSApplication.didBecomeActiveNotification)) { _ in
             appState.checkFullDiskAccess()
@@ -255,13 +256,24 @@ struct SiftRail: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             wordmark
-            ScrollView(.vertical, showsIndicators: false) {
-                VStack(alignment: .leading, spacing: 2) {
-                    ForEach(Self.primaryItems) { row($0) }
-                    groupLabel("Cleanup")
-                    ForEach(Self.cleanupItems) { row($0) }
-                    groupLabel("Tools")
-                    ForEach(Self.toolItems) { row($0) }
+            ScrollViewReader { proxy in
+                ScrollView(.vertical, showsIndicators: false) {
+                    VStack(alignment: .leading, spacing: 2) {
+                        ForEach(Self.primaryItems) { row($0) }
+                        groupLabel("Cleanup")
+                        ForEach(Self.cleanupItems) { row($0) }
+                        groupLabel("Tools")
+                        ForEach(Self.toolItems) { row($0) }
+                    }
+                }
+                // Arrow-key navigation can select a row below the fold; keep it
+                // on screen. scrollTo(anchor: nil) leaves visible rows alone.
+                .onChange(of: selection) { newValue in
+                    guard let newValue else { return }
+                    proxy.scrollTo(newValue, anchor: nil)
+                }
+                .onAppear {
+                    if let selection { proxy.scrollTo(selection, anchor: nil) }
                 }
             }
             Spacer(minLength: 12)
@@ -317,6 +329,7 @@ struct SiftRail: View {
             RailRow(item: item, badge: badge(item), shortcut: shortcut, isSelected: isSelected)
         }
         .buttonStyle(.plain)
+        .id(item.section)
         .focused(focusedSection, equals: item.section)
         .accessibilityLabel(Text(item.label))
         .accessibilityIdentifier(Self.accessibilityIdentifier(for: item.section))

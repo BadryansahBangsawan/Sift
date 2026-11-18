@@ -13,10 +13,10 @@ struct DashboardView: View {
     @State private var startupFailed = false
 
     var body: some View {
-        ViewThatFits(in: .vertical) {
-            content
-            ScrollView(.vertical, showsIndicators: false) { content }
-        }
+        // Always scrollable: ViewThatFits accepted `content` here even when the
+        // fixed-width side column overflowed the window, clipping the hero's
+        // top edge and the bottom cards.
+        ScrollView(.vertical, showsIndicators: false) { content }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .task { await loadSystemCards() }
         .sheet(isPresented: Binding(
