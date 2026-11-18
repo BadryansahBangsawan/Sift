@@ -338,7 +338,7 @@ struct AppFilesView: View {
 
     private var actionBar: some View {
         UninstallerActionBar(
-            summary: UninstallerActionBar.summary(count: appState.selectedFiles.count, size: totalSelectedSize),
+            summary: Text("\(appState.selectedFiles.count) items, \(SiftFormat.bytes(totalSelectedSize))"),
             canDryRun: !appState.selectedFiles.isEmpty,
             canReview: !appState.selectedFiles.isEmpty && !appIsRunning,
             runningAppName: appIsRunning ? app.appName : nil,
@@ -470,7 +470,7 @@ private struct DryRunSheet: View {
             HStack(spacing: 12) {
                 SiftFootnote(Text("Nothing has been removed."))
                 Spacer()
-                Text(verbatim: UninstallerActionBar.summary(count: plan.entries.count, size: plan.totalSize))
+                Text("\(plan.entries.count) items, \(SiftFormat.bytes(plan.totalSize))")
                     .font(.siftMono(12))
                     .foregroundStyle(SiftColor.textTertiary)
                 Button("Done", action: dismiss)

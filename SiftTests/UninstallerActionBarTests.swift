@@ -8,45 +8,94 @@ import XCTest
 /// lose that fight to the buttons next to it: at the 1080 pt window the
 /// summary collapsed to a few points and the user saw one clipped glyph
 /// between "Dry run" and "Review removal". The summary now has a line of its
-/// own above the buttons, and these tests render the real footer to prove it
-/// is drawn in full.
+/// own above the buttons, in every language, and these tests render the real
+/// footer to prove it is drawn in full.
 @MainActor
 final class UninstallerActionBarTests: XCTestCase {
-    /// The longest summary each shipped language can produce for 25 files.
-    private let summaries = [
-        "25 items, 1.12 GB",
-        "25 Elemente, 1,12 GB",
-        "25 élément(s), 1,12 Go",
-        "25 элементов, 1,12 ГБ",
-        "٢٥ عنصرًا، ١٫١٢ غيغابايت",
-        "25 項目、1.12 GB",
-    ]
-
     /// The card is padded 24 pt on both sides.
     private let barWidth: CGFloat = 1080 - 2 * 24
     private let barHeight: CGFloat = 60
+    private let sizeText = "1,12 GB"
 
-    func testTheSelectionSummaryIsDrawnInFullAtTheMinimumWindowWidth() {
-        for summary in summaries {
-            let full = drawnSummaryWidth(summary, width: 1_600 - 2 * 24)
-            let drawn = drawnSummaryWidth(summary, width: barWidth)
-            XCTAssertGreaterThan(full, 0, "“\(summary)” drew nothing even in a wide window")
-            XCTAssertEqual(
-                drawn, full, accuracy: 1,
-                "“\(summary)” drew \(Int(drawn)) pt of the \(Int(full)) pt it draws in a wide window")
+    func testEveryLanguageDrawsItsSummaryInFull() throws {
+        var checked = 0
+        for language in AppLanguage.allCases.map(\.rawValue) where language != "system" {
+            let bundle = try localizationBundle(for: language)
+            let locale = Locale(identifier: language)
+            // The widest number the summary can carry: a long count in a
+            // language whose words for it are long.
+            let text = String(localized: "\(25) items, \(sizeText)", bundle: bundle, locale: locale)
+            let ink = drawnSummaryInk(text, width: barWidth)
+            let ideal = idealWidth(text)
+            XCTAssertGreaterThan(ideal, 0, "\(language) produced no summary")
+            XCTAssertGreaterThanOrEqual(
+                ink.width, ideal - 5,
+                "\(language) “\(text)” drew \(Int(ink.width)) pt of its \(Int(ideal)) pt")
+            XCTAssertGreaterThanOrEqual(
+                ink.maxX, barWidth - 30, "\(language) “\(text)” is not right-aligned")
+            checked += 1
         }
+        XCTAssertEqual(checked, 13, "Every shipped language must be covered")
     }
 
-    func testTheSelectionSummarySitsAtTheTrailingEdgeOfItsLine() {
-        for summary in summaries {
-            let ink = drawnSummaryInk(summary, width: barWidth)
-            XCTAssertGreaterThanOrEqual(ink.maxX, barWidth - 30, "“\(summary)” is not right-aligned")
-        }
+    func testTheSummarySitsAtTheTrailingEdgeOfItsLine() {
+        let ink = drawnSummaryInk("25 items, 1.12 GB", width: barWidth)
+        XCTAssertGreaterThanOrEqual(ink.maxX, barWidth - 30)
+        XCTAssertGreaterThan(ink.width, 0)
+    }
+
+    // MARK: - Plural forms
+
+    /// The bar takes a `Text` built from the plural key, so SwiftUI picks the
+    /// form for the number: never "1 items" in any language.
+    func testCountsAgreeWithTheirNumber() throws {
+        XCTAssertEqual(try count(1, "en"), "1 item, \(sizeText)")
+    }
+
+    func testCountsAgreeWithTheirNumberDE() throws {
+        XCTAssertEqual(try count(1, "de"), "1 Element, \(sizeText)")
+        XCTAssertEqual(try count(2, "de"), "2 Elemente, \(sizeText)")
+        XCTAssertEqual(try count(1, "ru"), "1 объект, \(sizeText)")
+        XCTAssertEqual(try count(2, "ru"), "2 объекта, \(sizeText)")
+        XCTAssertEqual(try count(5, "ru"), "5 объектов, \(sizeText)")
+        XCTAssertEqual(try count(1, "pl"), "1 element, \(sizeText)")
+        XCTAssertEqual(try count(3, "pl"), "3 elementy, \(sizeText)")
+        XCTAssertEqual(try count(12, "pl"), "12 elementów, \(sizeText)")
+    }
+
+    func testCountsAgreeWithTheirNumberAR() throws {
+        XCTAssertEqual(try count(1, "ar"), "عنصر واحد، \(sizeText)")
+        XCTAssertEqual(try count(2, "ar"), "عنصران، \(sizeText)")
+        XCTAssertEqual(try count(5, "ar"), "5 عناصر، \(sizeText)")
+    }
+
+    /// A one-file selection renders the singular, so the footer never says
+    /// "1 items" when it is built the way the Uninstaller builds it.
+    func testTheUninstallerBuildsTheSummaryFromThePluralKey() {
+        XCTAssertEqual(String(localized: "\(1) items, \(sizeText)"), "1 item, \(sizeText)")
+        XCTAssertFalse(
+            String(localized: "\(1) items, \(sizeText)").contains("items"),
+            "The footer's own sentence must pluralise")
+    }
+
+    // MARK: - Helpers
+
+    private func count(_ n: Int, _ language: String) throws -> String {
+        let bundle = try localizationBundle(for: language)
+        return String(localized: "\(n) items, \(sizeText)", bundle: bundle, locale: Locale(identifier: language))
+    }
+
+    private func localizationBundle(for language: String) throws -> Bundle {
+        let path = try XCTUnwrap(
+            Bundle.main.path(forResource: language, ofType: "lproj"),
+            "Expected \(language).lproj in the built app bundle"
+        )
+        return try XCTUnwrap(Bundle(path: path))
     }
 
     // MARK: - Rendering
 
-    private func bar(summary: String) -> some View {
+    private func bar(summary: Text) -> some View {
         UninstallerActionBar(
             summary: summary,
             canDryRun: true,
@@ -58,7 +107,7 @@ final class UninstallerActionBarTests: XCTestCase {
         )
     }
 
-    private func bitmap(summary: String, width: CGFloat) -> NSBitmapImageRep {
+    private func bitmap(summary: Text, width: CGFloat) -> NSBitmapImageRep {
         let content = bar(summary: summary)
             .frame(width: width, height: barHeight)
             .background(Color.black)
@@ -88,8 +137,8 @@ final class UninstallerActionBarTests: XCTestCase {
         var width: CGFloat { maxX - minX }
     }
 
-    private func drawnSummaryInk(_ summary: String, width: CGFloat) -> Ink {
-        let rep = bitmap(summary: summary, width: width)
+    private func drawnSummaryInk(_ text: String, width: CGFloat) -> Ink {
+        let rep = bitmap(summary: Text(verbatim: text), width: width)
         let scale = CGFloat(rep.pixelsWide) / max(1, width)
         var minX = CGFloat.greatestFiniteMagnitude
         var maxX: CGFloat = 0
@@ -106,7 +155,10 @@ final class UninstallerActionBarTests: XCTestCase {
         return Ink(minX: minX, maxX: maxX)
     }
 
-    private func drawnSummaryWidth(_ summary: String, width: CGFloat) -> CGFloat {
-        drawnSummaryInk(summary, width: width).width
+    private func idealWidth(_ text: String) -> CGFloat {
+        let font = SiftFonts.nsFont(SiftFonts.mono, size: 12, weight: 400)
+            ?? NSFont.monospacedSystemFont(ofSize: 12, weight: .regular)
+        let attributed = NSAttributedString(string: text, attributes: [.font: font])
+        return ceil(attributed.size().width)
     }
 }

@@ -7,7 +7,10 @@ import SwiftUI
 /// window width and check that the selection summary is not squeezed out
 /// between the buttons.
 struct UninstallerActionBar: View {
-    let summary: String
+    /// Built by the caller from the plural key, e.g.
+    /// `Text("\(count) items, \(size)")`, so SwiftUI picks the form for the
+    /// current language and number.
+    let summary: Text
     let canDryRun: Bool
     let canReview: Bool
     /// The running app's name while it is open: reviewing is refused and the
@@ -21,7 +24,7 @@ struct UninstallerActionBar: View {
         VStack(alignment: .trailing, spacing: 8) {
             // The summary has a line of its own: between the two buttons it
             // was squeezed to a few points at the minimum window width.
-            Text(verbatim: summary)
+            summary
                 .font(.siftMono(12))
                 .foregroundStyle(SiftColor.textTertiary)
                 .lineLimit(1)
@@ -61,12 +64,6 @@ struct UninstallerActionBar: View {
                 .accessibilityIdentifier("uninstaller.reviewRemoval")
             }
         }
-    }
-
-    /// "25 items, 1.12 GB" — pluralised by the stringsdict entry, which carries
-    /// the number of files and the size they take.
-    static func summary(count: Int, size: Int64) -> String {
-        String(format: String(localized: "%lld items, %@"), count, SiftFormat.bytes(size))
     }
 
     private func barButtonLabel(_ title: LocalizedStringKey, icon: SiftIcon) -> some View {

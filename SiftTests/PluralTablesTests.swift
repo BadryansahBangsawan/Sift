@@ -56,7 +56,10 @@ final class PluralTablesTests: XCTestCase {
 
     /// Every form keeps the arguments of its key: the size, the second count
     /// and so on. Only the numeral of the plural variable itself may go, and
-    /// only where Arabic spells it out (zero, one, two).
+    /// only when the form carries no other argument (Arabic spells zero, one
+    /// and two out). Foundation binds a plural form's arguments by position,
+    /// so a form that drops the number *and* keeps the size hands the size to
+    /// the number's slot: it prints "(null)" and then crashes.
     func testEveryFormKeepsTheArgumentsOfItsKey() throws {
         for language in languages {
             for (key, entry) in try table(for: language) {
@@ -77,7 +80,9 @@ final class PluralTablesTests: XCTestCase {
                         XCTAssertEqual(formatSizes + formSizes, sizes,
                                        "\(language): \(key) (\(form)) dropped a %@ argument: \(text)")
                         if text.contains("%lld") == false {
-                            let spelledOut = language == "ar" && ["zero", "one", "two"].contains(form)
+                            let spelledOut = language == "ar"
+                                && ["zero", "one", "two"].contains(form)
+                                && sizes == 0
                             XCTAssertTrue(spelledOut,
                                           "\(language): \(key) (\(form)) prints no number: \(text)")
                         }
