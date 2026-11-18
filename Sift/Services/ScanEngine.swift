@@ -728,7 +728,7 @@ actor ScanEngine {
                         size: size,
                         category: .xcodeJunk,
                         isSelected: !isArchives,
-                        lastModified: nil,
+                        lastModified: fileModDate(path: path),
                         note: isArchives
                             ? String(localized: "Shipped builds and dSYMs — not selected by default")
                             : nil,
@@ -874,7 +874,7 @@ actor ScanEngine {
                         size: size,
                         category: .brewCache,
                         isSelected: true,
-                        lastModified: nil
+                        lastModified: fileModDate(path: path)
                     ))
                 }
             }
@@ -963,7 +963,7 @@ actor ScanEngine {
                     size: size,
                     category: .nodeCache,
                     isSelected: true,
-                    lastModified: nil
+                    lastModified: fileModDate(path: path)
                 ))
             }
         }
@@ -1116,7 +1116,7 @@ actor ScanEngine {
                 size: size,
                 category: .dockerCache,
                 isSelected: true,
-                lastModified: nil
+                lastModified: fileModDate(path: path)
             ))
         }
 
@@ -1192,7 +1192,7 @@ actor ScanEngine {
                 size: entry.size,
                 category: .languageFiles,
                 isSelected: false,
-                lastModified: nil
+                lastModified: fileModDate(path: entry.path)
             )
         }
 
