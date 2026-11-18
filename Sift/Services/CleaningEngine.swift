@@ -95,6 +95,21 @@ actor CleaningEngine {
                     Logger.shared.log("Skipped AI tool item: \(item.path) — \(detail)", level: .info)
                     continue
                 }
+                // A session the user resumed after the scan is live work. The
+                // scan only offers transcripts untouched for ten minutes, and
+                // that can change between the scan and the click.
+                if AIToolCleanupCatalog.isOpenSession(
+                    path: item.path,
+                    home: homeDirectory.path,
+                    listedAt: item.lastModified
+                ) {
+                    let detail = String(
+                        localized: "Skipped: this session is open. Quit the session and scan again."
+                    )
+                    result.errors.append(detail)
+                    Logger.shared.log("Skipped open AI session: \(item.path)", level: .info)
+                    continue
+                }
             }
 
             if item.category == .purgeableSpace {

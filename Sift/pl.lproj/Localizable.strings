@@ -1366,3 +1366,4 @@
 "Re-downloads when needed. Quit Claude to remove it." = "Pobierany ponownie w razie potrzeby. Zamknij Claude, aby go usunąć.";
 "Quit Claude to remove this." = "Zamknij Claude, aby to usunąć.";
 "Skipped: Claude is running. Quit Claude and scan again." = "Pominięto: Claude jest uruchomiony. Zamknij Claude i uruchom skanowanie ponownie.";
+"Skipped: this session is open. Quit the session and scan again." = "Pominięto: ta sesja jest otwarta. Zamknij sesję i uruchom skanowanie ponownie.";
