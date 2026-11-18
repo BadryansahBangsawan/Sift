@@ -6,6 +6,10 @@ All notable user-facing changes to Sift. Sift was called PureMac before 4.0.0.
 
 ### Fixed
 
+- Sizes no longer read "Zero KB" or "999 bytes" in the Uninstaller, its
+  leftovers, the History rows, the scan notification or `Sift scan`: every
+  size in the app now comes from the one formatter the dashboard uses, so an
+  empty folder reads "0 KB".
 - Overview "Where it sits" no longer clips its category names at the minimum
   window width. The row gave half the leftover space to the meter, so
   "Developer caches" read "Developer c…" while the meter still had room to
