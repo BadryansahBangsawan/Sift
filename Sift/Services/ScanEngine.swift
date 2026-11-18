@@ -161,8 +161,20 @@ actor ScanEngine {
             "\(home)/Library/Logs",
         ]
 
+        // AI tool log folders under ~/Library/Logs are rows in the AI tools
+        // category. Listing them here as well made the dashboard count the
+        // same bytes twice and offered the same folder for deletion twice.
+        let excludedHomeLogs = Self.rootsClaimedByAITools(home: home, under: "\(home)/Library/Logs")
+
         for path in systemPaths {
-            let scanned = scanDirectory(path: path, category: .systemJunk, recursive: true, maxDepth: 3)
+            let excluded = path == "\(home)/Library/Logs" ? excludedHomeLogs : []
+            let scanned = scanDirectory(
+                path: path,
+                category: .systemJunk,
+                recursive: true,
+                maxDepth: 3,
+                excluding: excluded
+            )
             items.append(contentsOf: scanned)
         }
 
@@ -310,6 +322,17 @@ actor ScanEngine {
         let uniqueItems = deduplicatedItems(items)
         let totalSize = uniqueItems.reduce(0) { $0 + $1.size }
         return CategoryResult(category: .userCache, items: uniqueItems, totalSize: totalSize)
+    }
+
+    /// Roots under `root` that a dedicated AI tools row already claims, in the
+    /// normalized form `scanDirectory(excluding:)` compares against.
+    nonisolated static func rootsClaimedByAITools(home: String, under root: String) -> Set<String> {
+        Set(
+            AIToolCleanupCatalog.specs(home: home)
+                .map(\.path)
+                .filter { $0.hasPrefix(root + "/") }
+                .map { ($0 as NSString).standardizingPath }
+        )
     }
 
     private func scanAIApps() -> CategoryResult {

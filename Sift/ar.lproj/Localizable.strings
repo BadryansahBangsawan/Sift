@@ -1366,3 +1366,4 @@
 "Re-downloads when needed. Quit Claude to remove it." = "يعاد تنزيلها عند الحاجة. أغلق Claude لإزالتها.";
 "Quit Claude to remove this." = "أغلق Claude لإزالة هذا.";
 "Skipped: Claude is running. Quit Claude and scan again." = "تم التخطي: Claude قيد التشغيل. أغلق Claude وأعد الفحص.";
+"Skipped: this session is open. Quit the session and scan again." = "تم التخطي: هذه الجلسة مفتوحة. أغلق الجلسة وأعد الفحص.";

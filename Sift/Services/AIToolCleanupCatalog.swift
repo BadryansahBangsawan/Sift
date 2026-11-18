@@ -353,6 +353,32 @@ enum AIToolCleanupCatalog {
         }
     }
 
+    /// Whether a session transcript is live work rather than history.
+    ///
+    /// The scan only offers transcripts untouched for `openSessionWindow`, and
+    /// it records that timestamp on the row. A transcript written again after
+    /// the scan belongs to a session the user resumed, so the cleaner refuses
+    /// it instead of moving it out of the folder its agent is appending to.
+    /// A row without a scan timestamp falls back to the window from `now`.
+    static func isOpenSession(
+        path: String,
+        home: String,
+        listedAt: Date?,
+        now: Date = Date(),
+        fileManager: FileManager = .default
+    ) -> Bool {
+        guard sessionSpec(for: path, home: home) != nil else { return false }
+        guard let attributes = try? fileManager.attributesOfItem(atPath: path),
+              let modified = attributes[.modificationDate] as? Date
+        else { return false }
+        if let listedAt {
+            // One second of tolerance: a metadata read can round the
+            // modification date written by the scan.
+            return modified.timeIntervalSince(listedAt) > 1
+        }
+        return now.timeIntervalSince(modified) < openSessionWindow
+    }
+
     /// Bundle identifier that must not be running while `path` is removed.
     static func quitRequiredBundleID(forPath path: String, home: String) -> String? {
         entry(for: path, home: home)?.requiresQuitBundleID

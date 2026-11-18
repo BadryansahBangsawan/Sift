@@ -6,6 +6,13 @@ All notable user-facing changes to Sift. Sift was called PureMac before 4.0.0.
 
 ### Fixed
 
+- AI tools no longer moves a session transcript to the Trash when you resumed
+  that session after the scan. The scan already treats a session touched in the
+  last ten minutes as open; cleanup now re-checks the transcript before
+  removing it, so a running agent keeps writing to its own history.
+- System Junk no longer repeats the AI tool log folders (for example
+  `~/Library/Logs/Claude`) that the AI tools category already lists, so the
+  total junk figure is no longer inflated by the same log bytes counted twice.
 - Cleaning no longer republishes progress for every removed item. A large
   cleanup asked the window to redraw thousands of times, which looked like the
   app freezing for seconds; it now updates about once per percent.

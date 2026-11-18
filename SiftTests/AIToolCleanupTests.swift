@@ -252,6 +252,106 @@ final class AIToolCleanupTests: XCTestCase {
         }
     }
 
+    func testCleanerRefusesATranscriptThatBecameActiveAfterTheScan() async throws {
+        // The scan offers only sessions untouched for ten minutes. The user can
+        // resume one between the scan and the click, and that transcript is
+        // live work, not history: the cleaner must re-check, like it re-checks
+        // the temp-entry policy and the Claude-running guard.
+        let relative = ".claude/projects/-Users-test-demo/22222222-2222-2222-2222-222222222222.jsonl"
+        let transcript = try createSession(relative, modified: oldDate)
+        let item = CleanableItem(
+            name: "demo session",
+            path: transcript,
+            size: 4096,
+            category: .aiApps,
+            isSelected: true,
+            lastModified: oldDate,
+            companionPaths: AIToolCleanupCatalog.sessionCompanions(for: transcript),
+            note: nil,
+            movesToTrash: true
+        )
+        try fileManager.setAttributes([.modificationDate: fixedNow], ofItemAtPath: transcript)
+
+        let result = await makeCleaner().cleanItems([item]) { _ in }
+
+        XCTAssertEqual(result.itemsCleaned, 0)
+        XCTAssertTrue(fileManager.fileExists(atPath: transcript), "A live session must stay where its agent writes it")
+        XCTAssertTrue(result.trashedPaths.isEmpty)
+        XCTAssertTrue(result.errors.contains { $0.localizedCaseInsensitiveContains("open") }, "\(result.errors)")
+    }
+
+    func testTouchedAfterTheScanBlocksASessionOnlyWithinOneSecondTolerance() async throws {
+        let relative = ".claude/projects/-Users-test-demo/55555555-5555-5555-5555-555555555555.jsonl"
+        let transcript = try createSession(relative, modified: oldDate)
+        let scan = await makeScanner().scanCategory(.aiApps)
+        let session = try XCTUnwrap(scan.items.first { $0.path == transcript })
+
+        // One second of drift is a metadata rounding, not a resumed session.
+        try fileManager.setAttributes([.modificationDate: oldDate.addingTimeInterval(1)], ofItemAtPath: transcript)
+        let tolerated = await makeCleaner().cleanItems([session]) { _ in }
+        XCTAssertEqual(tolerated.itemsCleaned, 1, "\(tolerated.errors)")
+        XCTAssertFalse(fileManager.fileExists(atPath: transcript))
+
+        let second = try createSession(
+            ".claude/projects/-Users-test-demo/55555555-5555-5555-5555-555555555556.jsonl",
+            modified: oldDate
+        )
+        let rescan = await makeScanner().scanCategory(.aiApps)
+        let rescanned = try XCTUnwrap(rescan.items.first { $0.path == second })
+        try fileManager.setAttributes([.modificationDate: oldDate.addingTimeInterval(2)], ofItemAtPath: second)
+        let refused = await makeCleaner().cleanItems([rescanned]) { _ in }
+        XCTAssertEqual(refused.itemsCleaned, 0)
+        XCTAssertTrue(fileManager.fileExists(atPath: second))
+    }
+
+    func testTouchedCacheIsStillCleanedBecauseOnlySessionsAreGuarded() async throws {
+        try createFile(".claude/shell-snapshots/snapshot.sh")
+        let cachePath = path(".claude/shell-snapshots")
+        let scan = await makeScanner().scanCategory(.aiApps)
+        let cache = try XCTUnwrap(scan.items.first { $0.path == cachePath })
+        try fileManager.setAttributes(
+            [.modificationDate: fixedNow.addingTimeInterval(3_600)],
+            ofItemAtPath: cachePath
+        )
+
+        let result = await makeCleaner().cleanItems([cache]) { _ in }
+
+        XCTAssertEqual(result.itemsCleaned, 1, "\(result.errors)")
+        XCTAssertFalse(fileManager.fileExists(atPath: cachePath))
+    }
+
+    func testSessionWithoutAScannedTimestampFallsBackToTheOpenWindow() throws {
+        let relative = ".claude/projects/-Users-test-demo/66666666-6666-6666-6666-666666666666.jsonl"
+        let transcript = try createSession(relative, modified: fixedNow)
+        try createFile(".claude/shell-snapshots/snapshot.sh")
+
+        XCTAssertTrue(
+            AIToolCleanupCatalog.isOpenSession(
+                path: transcript,
+                home: home.path,
+                listedAt: nil,
+                now: fixedNow
+            )
+        )
+        XCTAssertFalse(
+            AIToolCleanupCatalog.isOpenSession(
+                path: transcript,
+                home: home.path,
+                listedAt: nil,
+                now: fixedNow.addingTimeInterval(AIToolCleanupCatalog.openSessionWindow)
+            )
+        )
+        XCTAssertFalse(
+            AIToolCleanupCatalog.isOpenSession(
+                path: path(".claude/shell-snapshots"),
+                home: home.path,
+                listedAt: nil,
+                now: fixedNow
+            ),
+            "Only transcripts are sessions"
+        )
+    }
+
     // MARK: - Fixtures
 
     private var fixedNow: Date { Date(timeIntervalSince1970: 1_800_000_000) }
