@@ -47,10 +47,22 @@ actor CleaningEngine {
         var result = CleaningResult()
         let total = items.count
         let exclusions = CleanupExclusions.paths()
+        // Report at most once per percent, plus the final item. Every report
+        // wakes the main thread and republishes the cleanup state, and each
+        // publication redraws the window: one per item turned a few-thousand
+        // item clean into thousands of full redraws, which the user sees as
+        // the app freezing for seconds while it deletes.
+        var lastReportedStep = -1
 
         for (index, item) in items.enumerated() {
             let progress = Double(index + 1) / Double(total)
-            defer { progressHandler(progress) }
+            defer {
+                let step = Int(progress * 100)
+                if step != lastReportedStep || index == items.count - 1 {
+                    lastReportedStep = step
+                    progressHandler(progress)
+                }
+            }
             if CleanupExclusions.excludes(item.path, paths: exclusions) {
                 result.errors.append("Excluded from cleanup: \(item.name)")
                 continue
@@ -263,7 +275,12 @@ actor CleaningEngine {
                         result.errors.append(removalError)
                         Logger.shared.log("Clean failed: \(removalError)", level: .error)
                     } else {
-                        result.freedSpace += item.size
+                        // A Trash move reclaims nothing until the Trash is
+                        // emptied (emptyTrash records those bytes itself), so
+                        // only unlinked caches and logs count as freed here.
+                        if !useTrash {
+                            result.freedSpace += item.size
+                        }
                         result.itemsCleaned += 1
                         result.cleanedPaths.insert(item.path)
                     }
@@ -306,10 +323,13 @@ actor CleaningEngine {
                     if let trashedPath = resulting?.path {
                         result.trashedPaths.insert(trashedPath)
                     }
+                    // Trashed, not unlinked: the bytes are still on disk until
+                    // the Trash is emptied (which records them itself), so this
+                    // item must not add to freedSpace here.
                 } else {
                     try fileManager.removeItem(at: itemURL)
+                    result.freedSpace += item.size
                 }
-                result.freedSpace += item.size
                 result.itemsCleaned += 1
                 result.cleanedPaths.insert(item.path)
             } catch {

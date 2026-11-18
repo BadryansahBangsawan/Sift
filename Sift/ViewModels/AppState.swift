@@ -153,7 +153,7 @@ final class AppState: ObservableObject {
 
     var scheduler = SchedulerService()
     private let scanEngine: ScanEngine
-    private let cleaningEngine = CleaningEngine()
+    private let cleaningEngine: CleaningEngine
     private let locationsProvider: () -> Locations
     private let appFileScanner: AppFileScanner
     private let appFileTrasher: AppFileTrasher
@@ -235,6 +235,7 @@ final class AppState: ObservableObject {
         appFileScanner: @escaping AppFileScanner = AppState.defaultAppFileScanner,
         appFileTrasher: @escaping AppFileTrasher = AppState.defaultAppFileTrasher,
         scanEngine: ScanEngine = ScanEngine(),
+        cleaningEngine: CleaningEngine = CleaningEngine(),
         historyStore: CleanupHistoryStore = CleanupHistoryStore(),
         trashEmptier: @escaping TrashEmptier = AppState.finderEmptyTrash
     ) {
@@ -242,6 +243,7 @@ final class AppState: ObservableObject {
         self.appFileScanner = appFileScanner
         self.appFileTrasher = appFileTrasher
         self.scanEngine = scanEngine
+        self.cleaningEngine = cleaningEngine
         self.historyStore = historyStore
         self.trashEmptier = trashEmptier
         cleanupHistory = historyStore.load()
@@ -1223,14 +1225,17 @@ final class AppState: ObservableObject {
 
         // Measure before and after rather than trusting the last scan: the
         // Trash may have changed since, and Finder reports no byte count.
-        let before = await scanEngine.scanCategory(.trash).totalSize
+        // Both sides are measured over the rows the user sees, so an excluded
+        // item that survives the empty (Finder refused it, a file is in use)
+        // is never counted as freed.
+        let before = applyingCleanupExclusions(to: await scanEngine.scanCategory(.trash))
         let error = await trashEmptier()
         let after = applyingCleanupExclusions(to: await scanEngine.scanCategory(.trash))
 
         categoryResults[.trash] = after.items.isEmpty ? nil : after
         totalJunkSize = categoryResults.values.reduce(0) { $0 + $1.totalSize }
 
-        let freed = max(0, before - after.totalSize)
+        let freed = max(0, before.totalSize - after.totalSize)
         if freed > 0 {
             cleanupHistory = historyStore.record(
                 freedBytes: freed,

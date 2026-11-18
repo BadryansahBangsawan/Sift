@@ -162,6 +162,46 @@ final class CleaningEngineTests: XCTestCase {
         XCTAssertTrue(result.errors.contains { $0.contains("Trash") })
     }
 
+    func testLargeBatchReportsProgressAtMostOncePerPercent() async {
+        let items = (0..<250).map { makeItem(path: fixtureRoot.appendingPathComponent("gone-\($0)").path, size: 1) }
+        let recorder = FractionRecorder()
+
+        _ = await CleaningEngine().cleanItems(items) { recorder.record($0) }
+
+        let fractions = recorder.fractions
+        XCTAssertLessThanOrEqual(fractions.count, 105)
+        XCTAssertEqual(fractions.last, 1)
+        XCTAssertEqual(fractions, fractions.sorted(), "Progress must never go backwards")
+        XCTAssertEqual(Set(fractions).count, fractions.count, "No step may be reported twice")
+    }
+
+    func testSmallBatchStillReportsEveryStepItHas() async {
+        let items = (0..<8).map { makeItem(path: fixtureRoot.appendingPathComponent("gone-small-\($0)").path, size: 1) }
+        let recorder = FractionRecorder()
+
+        _ = await CleaningEngine().cleanItems(items) { recorder.record($0) }
+
+        XCTAssertEqual(recorder.fractions, (1...8).map { Double($0) / 8 })
+    }
+
+    func testEmptyBatchReportsNoProgress() async {
+        let recorder = FractionRecorder()
+
+        _ = await CleaningEngine().cleanItems([]) { recorder.record($0) }
+
+        XCTAssertTrue(recorder.fractions.isEmpty)
+    }
+
+    func testBatchOfRefusedItemsStillReachesFullProgress() async {
+        let items = (0..<120).map { makeItem(path: "/etc/sift-refused-\($0)", size: 1) }
+        let recorder = FractionRecorder()
+
+        _ = await CleaningEngine().cleanItems(items) { recorder.record($0) }
+
+        XCTAssertEqual(recorder.fractions.last, 1)
+        XCTAssertLessThanOrEqual(recorder.fractions.count, 105)
+    }
+
     private func makeItem(
         path: String,
         size: Int64,
@@ -175,5 +215,23 @@ final class CleaningEngineTests: XCTestCase {
             isSelected: true,
             lastModified: nil
         )
+    }
+}
+
+/// Thread-safe collector for progress fractions reported by CleaningEngine.
+private final class FractionRecorder: @unchecked Sendable {
+    private let lock = NSLock()
+    private var values: [Double] = []
+
+    func record(_ fraction: Double) {
+        lock.lock()
+        values.append(fraction)
+        lock.unlock()
+    }
+
+    var fractions: [Double] {
+        lock.lock()
+        defer { lock.unlock() }
+        return values
     }
 }

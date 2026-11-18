@@ -92,15 +92,28 @@ final class BatteryInspector {
                     status.chargePercent = Int((Double(currentMAh) / Double(maxMAh) * 100).rounded())
                 }
                 if status.isCharging == nil {
-                    if pmset.contains("discharging") {
-                        status.isCharging = false
-                    } else if pmset.contains("charging") || pmset.contains("charged") {
-                        status.isCharging = true
-                    }
+                    status.isCharging = Self.chargingState(fromPmset: pmset)
                 }
             }
             return status
         }.value
+    }
+
+    /// Charging state from `pmset -g batt`, nil when the line says neither.
+    ///
+    /// Order matters: "discharging" and "not charging" both contain the
+    /// substring "charging". Optimised charging reports
+    /// "AC attached; not charging" while it holds the battery at a
+    /// percentage, which is not a charge in progress. "charged" (full) counts
+    /// as charging so the UI can show its "Fully charged" state.
+    static func chargingState(fromPmset output: String) -> Bool? {
+        let text = output.lowercased()
+        if text.contains("discharging") { return false }
+        if text.contains("not charging") { return false }
+        if text.contains("finishing charge") { return true }
+        if text.contains("charging") { return true }
+        if text.contains("charged") { return true }
+        return nil
     }
 
     /// What the power-sources API says about the internal battery.

@@ -2,6 +2,29 @@
 
 All notable user-facing changes to Sift. Sift was called PureMac before 4.0.0.
 
+## Unreleased
+
+### Fixed
+
+- Cleaning no longer republishes progress for every removed item. A large
+  cleanup asked the window to redraw thousands of times, which looked like the
+  app freezing for seconds; it now updates about once per percent.
+- Purgeable Space lists the single purge row, so its total matches what the
+  category can reclaim; Time Machine snapshots stay on the Performance page
+  with their own delete action.
+- Emptied Trash no longer counts a file it could not delete — for example an
+  excluded, in-use item — as freed space.
+- Battery status no longer reports "Charging" while macOS is holding the charge
+  at a percentage — optimised charging's "AC attached; not charging".
+- AI tools no longer report space as freed when opt-in chat history and the
+  Claude VM image are moved to the Trash, where they still take up room until
+  the Trash is emptied.
+- Xcode Junk no longer reports XcodeBuildMCP DerivedData as freed while it sits
+  in the Trash; the bytes count once, when the Trash is emptied.
+- User Cache no longer repeats the Xcode caches and AI tool caches that Xcode
+  Junk and AI tools already list, so the total junk figure is no longer
+  inflated by the same bytes counted twice.
+
 ## 4.0.1
 
 ### Changed

@@ -11,6 +11,9 @@ actor ScanEngine {
     /// Whether an app with this bundle identifier is running. Injected so the
     /// Claude VM bundle guard can be tested without Claude installed.
     private let isAppRunning: (String) -> Bool
+    /// Disk capacity and purgeable space. Injected so the Purgeable Space
+    /// category can be tested without a disk that reports purgeable space.
+    private let diskInfoProvider: @Sendable () -> DiskInfo
 
     init(
         homeDirectory: URL = FileManager.default.homeDirectoryForCurrentUser,
@@ -18,12 +21,14 @@ actor ScanEngine {
         now: @escaping () -> Date = Date.init,
         isAppRunning: @escaping (String) -> Bool = { bundleID in
             RunningAppGuard.systemIsRunning(bundleIdentifier: bundleID, appURL: nil)
-        }
+        },
+        diskInfoProvider: @escaping @Sendable () -> DiskInfo = ScanEngine.readDiskInfo
     ) {
         home = XcodeBuildMCPDerivedDataSupport.canonicalHomeDirectory(homeDirectory).path
         self.tmpRoots = tmpRoots
         self.now = now
         self.isAppRunning = isAppRunning
+        self.diskInfoProvider = diskInfoProvider
     }
 
     /// Live path reporter for the dashboard's scanning ticker. Throttled so
@@ -101,7 +106,18 @@ actor ScanEngine {
     }
 
     func getDiskInfo() -> DiskInfo {
+        diskInfoProvider()
+    }
+
+    /// Reads capacity and APFS purgeable space from the startup volume.
+    ///
+    /// Purgeable is `volumeAvailableCapacityForImportantUsage` minus the plain
+    /// free capacity: the extra space macOS can reclaim when something
+    /// important needs it. That figure already counts local Time Machine
+    /// snapshots, so snapshot sizes must never be added on top.
+    nonisolated static func readDiskInfo() -> DiskInfo {
         var info = DiskInfo()
+        let fileManager = FileManager.default
         do {
             let attrs = try fileManager.attributesOfFileSystem(forPath: "/")
             if let total = attrs[.systemSize] as? Int64 {
@@ -193,14 +209,27 @@ actor ScanEngine {
         // Exclude cache roots claimed by dedicated categories to avoid double-counting,
         // plus cloud File Provider state, which lives under Caches but is a live
         // database rather than reclaimable junk (issue #142).
-        let excludedRootPaths = Set(([
-            "\(home)/Library/Caches/Homebrew",
-            "\(home)/Library/Caches/com.electron.ollama",
-            "\(home)/Library/Caches/ollama",
-            "\(home)/Library/Caches/npm",
-            "\(home)/Library/Caches/Yarn",
-            "\(home)/Library/Caches/dev.kdrag0n.MacVirt",
-        ] + ProviderPaths.deniedRoots(homeDirectory: URL(fileURLWithPath: home, isDirectory: true))).map(normalizePath))
+        //
+        // Two of those roots (com.apple.dt.Xcode and org.swift.swiftpm) belong
+        // to Xcode Junk, and every AI tool cache under ~/Library/Caches is
+        // already a row in the AI tools category. Without them here the same
+        // bytes were counted twice on the dashboard and cleaned twice.
+        let cachesRoot = "\(home)/Library/Caches"
+        let dedicatedCacheRoots = [
+            "\(cachesRoot)/Homebrew",
+            "\(cachesRoot)/npm",
+            "\(cachesRoot)/Yarn",
+            "\(cachesRoot)/dev.kdrag0n.MacVirt",
+            "\(cachesRoot)/com.apple.dt.Xcode",
+            "\(cachesRoot)/org.swift.swiftpm",
+        ] + AIToolCleanupCatalog.specs(home: home)
+            .map(\.path)
+            .filter { $0.hasPrefix(cachesRoot + "/") }
+        let excludedRootPaths = Set(
+            (dedicatedCacheRoots
+                + ProviderPaths.deniedRoots(homeDirectory: URL(fileURLWithPath: home, isDirectory: true)))
+                .map(normalizePath)
+        )
 
         // Dynamically enumerate ~/Library/Caches/ so every subdirectory is visible
         let cachePath = "\(home)/Library/Caches"
@@ -628,22 +657,11 @@ actor ScanEngine {
             totalSize = diskInfo.purgeableSpace
         }
 
-        // Also list Time Machine local snapshots if any exist
-        let snapshots = getLocalSnapshots()
-        for snapshot in snapshots {
-            let snapshotSize = snapshot.size > 0 ? snapshot.size : 0
-            if snapshotSize > 0 {
-                items.append(CleanableItem(
-                    name: "TM Snapshot: \(snapshot.name)",
-                    path: snapshot.name,
-                    size: snapshotSize,
-                    category: .purgeableSpace,
-                    isSelected: false,
-                    lastModified: snapshot.date
-                ))
-            }
-        }
-
+        // Local Time Machine snapshots are not listed here. APFS purgeable
+        // space already counts them, so a snapshot row would either repeat
+        // bytes the purge row claims or make the category total disagree with
+        // the rows on screen. The Performance page lists snapshots with their
+        // own delete action.
         return CategoryResult(category: .purgeableSpace, items: items, totalSize: totalSize)
     }
 
@@ -1419,99 +1437,4 @@ actor ScanEngine {
         return size
     }
 
-    // MARK: - Purgeable Space Helpers
-
-    struct SnapshotInfo {
-        let name: String
-        let size: Int64
-        let date: Date?
-    }
-
-    /// Get local Time Machine snapshots and their sizes
-    private func getLocalSnapshots() -> [SnapshotInfo] {
-        var snapshots: [SnapshotInfo] = []
-
-        let task = Process()
-        task.executableURL = URL(fileURLWithPath: "/usr/bin/tmutil")
-        task.arguments = ["listlocalsnapshots", "/"]
-        let pipe = Pipe()
-        task.standardOutput = pipe
-        task.standardError = Pipe()
-
-        do {
-            try task.run()
-            task.waitUntilExit()
-            let data = pipe.fileHandleForReading.readDataToEndOfFile()
-            guard let output = String(data: data, encoding: .utf8) else { return [] }
-
-            // Parse snapshot names (format: com.apple.TimeMachine.2026-04-08-123456.local)
-            let dateFormatter = DateFormatter()
-            dateFormatter.dateFormat = "yyyy-MM-dd-HHmmss"
-
-            for line in output.components(separatedBy: "\n") {
-                let trimmed = line.trimmingCharacters(in: .whitespaces)
-                guard !trimmed.isEmpty, trimmed.contains("TimeMachine") else { continue }
-
-                // Extract date from snapshot name
-                var snapshotDate: Date?
-                let parts = trimmed.components(separatedBy: ".")
-                for part in parts {
-                    if let date = dateFormatter.date(from: part) {
-                        snapshotDate = date
-                        break
-                    }
-                }
-
-                // Get snapshot size via tmutil
-                let sizeBytes = getSnapshotSize(name: trimmed)
-
-                if sizeBytes > 0 {
-                    snapshots.append(SnapshotInfo(
-                        name: trimmed,
-                        size: sizeBytes,
-                        date: snapshotDate
-                    ))
-                }
-            }
-        } catch {
-            Logger.shared.log("tmutil listlocalsnapshots failed: \(error.localizedDescription)", level: .info)
-        }
-
-        return snapshots
-    }
-
-    /// Get size of a specific local snapshot via APFS snapshot listing
-    private func getSnapshotSize(name: String) -> Int64 {
-        let task = Process()
-        task.executableURL = URL(fileURLWithPath: "/usr/sbin/diskutil")
-        task.arguments = ["apfs", "listSnapshots", "/", "-plist"]
-        let pipe = Pipe()
-        task.standardOutput = pipe
-        task.standardError = Pipe()
-
-        do {
-            try task.run()
-            task.waitUntilExit()
-            let data = pipe.fileHandleForReading.readDataToEndOfFile()
-            guard let plist = try? PropertyListSerialization.propertyList(from: data, format: nil) as? [String: Any],
-                  let snapshots = plist["Snapshots"] as? [[String: Any]] else {
-                Logger.shared.log("Could not parse APFS snapshot plist for \(name)", level: .info)
-                return 0
-            }
-
-            for snapshot in snapshots {
-                if let snapshotName = snapshot["SnapshotName"] as? String,
-                   snapshotName == name,
-                   let dataSize = snapshot["DataSize"] as? Int64 {
-                    return dataSize
-                }
-            }
-
-            Logger.shared.log("Snapshot \(name) not found in APFS listing", level: .info)
-        } catch {
-            Logger.shared.log("diskutil apfs listSnapshots failed: \(error.localizedDescription)", level: .warning)
-        }
-
-        return 0
-    }
 }

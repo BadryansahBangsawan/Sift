@@ -1,4 +1,5 @@
 import AppKit
+import Combine
 import XCTest
 @testable import Sift
 
@@ -172,6 +173,85 @@ final class AppStateTests: XCTestCase {
         CleanableItem(name: "Fixture", path: "/fixtures/\(UUID().uuidString)", size: 100, category: .userCache, isSelected: selected, lastModified: nil)
     }
 
+    func testCleaningManyJunkItemsDoesNotFloodTheMainThreadWithProgressUpdates() async throws {
+        let itemCount = 3000
+        let home = try makeUserCacheFixture(itemCount: itemCount)
+        defer { try? FileManager.default.removeItem(at: home) }
+
+        let state = AppState(
+            performStartupTasks: false,
+            scanEngine: ScanEngine(homeDirectory: home),
+            cleaningEngine: CleaningEngine(homeDirectory: home),
+            historyStore: CleanupHistoryStore(fileURL: home.appendingPathComponent("history.json"))
+        )
+
+        state.scanSingleCategory(.userCache)
+        try await waitUntil(timeout: 60) { state.scanState == .completed }
+        XCTAssertEqual(state.categoryResults[.userCache]?.items.count, itemCount)
+        XCTAssertTrue(state.categoryResults[.userCache]?.items.allSatisfy(\.isSelected) == true)
+
+        // Every assignment to scanState publishes, and each publication
+        // invalidates the whole window. Thousands of them while one cleanup
+        // runs are what the user feels as a freeze.
+        let publications = PublicationCounter()
+        let cancellable = state.$scanState.dropFirst().sink { _ in publications.increment() }
+        defer { withExtendedLifetime(cancellable) {} }
+
+        let probe = MainThreadProbe()
+        probe.start()
+        let cleanStarted = Date()
+        state.cleanAll()
+        try await waitUntil(timeout: 120) { !state.scanState.isActive }
+        let cleanSeconds = Date().timeIntervalSince(cleanStarted)
+        probe.stop()
+
+        print(
+            "[PERF] clean of \(itemCount) rows: \(String(format: "%.3f", cleanSeconds))s, "
+                + "\(publications.count) scanState publications, "
+                + "largest main-thread gap \(String(format: "%.1f", probe.maxGapMilliseconds))ms"
+        )
+        XCTAssertGreaterThan(state.totalFreedSpace, 0)
+        XCTAssertEqual(state.cleanupHistory.first?.freedBytes, state.totalFreedSpace)
+        XCTAssertLessThanOrEqual(
+            publications.count,
+            150,
+            "Cleaning \(itemCount) rows republished scanState \(publications.count) times, one full window redraw each"
+        )
+        // A loose ceiling: this environment shares the machine with other
+        // builds, so a few hundred ms of scheduler noise is not the bug. A
+        // genuinely blocked window (the ~4 s freeze users reported) trips it.
+        XCTAssertLessThanOrEqual(
+            probe.maxGapMilliseconds,
+            1_000,
+            "The window froze for \(Int(probe.maxGapMilliseconds))ms while cleaning \(itemCount) rows"
+        )
+    }
+
+    private func makeUserCacheFixture(itemCount: Int) throws -> URL {
+        let fileManager = FileManager.default
+        let home = fileManager.temporaryDirectory
+            .appendingPathComponent("SiftCleanPerf-\(UUID().uuidString)", isDirectory: true)
+            .resolvingSymlinksInPath()
+        let caches = home.appendingPathComponent("Library/Caches", isDirectory: true)
+        for index in 0..<itemCount {
+            let folder = caches.appendingPathComponent(String(format: "com.example.row%04d", index), isDirectory: true)
+            try fileManager.createDirectory(at: folder, withIntermediateDirectories: true)
+            try Data(repeating: 0x5A, count: 4_096).write(to: folder.appendingPathComponent("blob"))
+        }
+        return home
+    }
+
+    private func waitUntil(timeout: TimeInterval, _ condition: () -> Bool) async throws {
+        let deadline = Date().addingTimeInterval(timeout)
+        while !condition() {
+            guard Date() < deadline else {
+                XCTFail("Timed out after \(Int(timeout))s waiting for the cleanup to finish")
+                return
+            }
+            try await Task.sleep(for: .milliseconds(5))
+        }
+    }
+
     private func makeApp() -> InstalledApp {
         InstalledApp(
             id: UUID(),
@@ -188,5 +268,70 @@ private final class StubLocations: Locations {
     init(paths: [String]) {
         super.init()
         appSearch = SearchCategory(name: "Apps", paths: paths)
+    }
+}
+
+
+private final class PublicationCounter: @unchecked Sendable {
+    private let lock = NSLock()
+    private var value = 0
+
+    func increment() {
+        lock.lock()
+        value += 1
+        lock.unlock()
+    }
+
+    var count: Int {
+        lock.lock()
+        defer { lock.unlock() }
+        return value
+    }
+}
+
+/// Measures how long the main actor is ever unavailable while a cleanup runs.
+/// Each round trip records the time between asking for the main actor and
+/// getting it, so a multi-second stall anywhere in the clean shows up as a
+/// large gap. Used by the cleanup responsiveness test.
+private final class MainThreadProbe: @unchecked Sendable {
+    private let lock = NSLock()
+    private var stopped = false
+    private var maxGap: Double = 0
+    private var task: Task<Void, Never>?
+
+    func start() {
+        task = Task.detached(priority: .high) { [self] in
+            while !isStopped {
+                let started = ContinuousClock.now
+                await MainActor.run {}
+                let gap = started.duration(to: .now)
+                let milliseconds = Double(gap.components.seconds) * 1000
+                    + Double(gap.components.attoseconds) / 1_000_000_000_000_000
+                lock.lock()
+                if milliseconds > maxGap { maxGap = milliseconds }
+                lock.unlock()
+                try? await Task.sleep(for: .milliseconds(1))
+            }
+        }
+    }
+
+    private var isStopped: Bool {
+        lock.lock()
+        defer { lock.unlock() }
+        return stopped
+    }
+
+    func stop() {
+        lock.lock()
+        stopped = true
+        lock.unlock()
+        task?.cancel()
+        task = nil
+    }
+
+    var maxGapMilliseconds: Double {
+        lock.lock()
+        defer { lock.unlock() }
+        return maxGap
     }
 }

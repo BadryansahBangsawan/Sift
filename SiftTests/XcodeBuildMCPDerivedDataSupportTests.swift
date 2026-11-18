@@ -136,6 +136,35 @@ final class XcodeBuildMCPDerivedDataSupportTests: XCTestCase {
         XCTAssertFalse(item.isSelected)
     }
 
+    func testTrashedManagedDerivedDataIsNotCountedAsFreedSpace() async throws {
+        let fileManager = FileManager.default
+        let temporaryHome = fileManager.temporaryDirectory
+            .appendingPathComponent("PureMac-XcodeBuildMCP-TrashFreed-\(UUID().uuidString)", isDirectory: true)
+        defer { try? fileManager.removeItem(at: temporaryHome) }
+
+        let managedRoot = temporaryHome
+            .appendingPathComponent("Library/Developer/XcodeBuildMCP", isDirectory: true)
+        let derivedData = managedRoot.appendingPathComponent("DerivedData", isDirectory: true)
+        try fileManager.createDirectory(at: derivedData, withIntermediateDirectories: true)
+        try Data(repeating: 0xAB, count: 4_096)
+            .write(to: derivedData.appendingPathComponent("build-product"))
+
+        let scan = await ScanEngine(homeDirectory: temporaryHome).scanCategory(.xcodeJunk)
+        let item = try XCTUnwrap(scan.items.first { $0.name == "XcodeBuildMCP: Legacy DerivedData" })
+        let result = await CleaningEngine(homeDirectory: temporaryHome).cleanItems([item]) { _ in }
+
+        XCTAssertEqual(result.itemsCleaned, 1)
+        XCTAssertTrue(result.errors.isEmpty, "\(result.errors)")
+        let trashedPath = try XCTUnwrap(result.trashedPaths.first)
+        XCTAssertTrue(fileManager.fileExists(atPath: trashedPath))
+        XCTAssertEqual(
+            result.freedSpace,
+            0,
+            "The bundle sits in the Trash; its bytes are only freed when the Trash is emptied"
+        )
+        try? fileManager.removeItem(atPath: trashedPath)
+    }
+
     func testCleaningLegacySharedDerivedDataMovesToTrashWithoutWorkspaceLock() async throws {
         let fileManager = FileManager.default
         let temporaryHome = fileManager.temporaryDirectory
@@ -168,6 +197,90 @@ final class XcodeBuildMCPDerivedDataSupportTests: XCTestCase {
 
     func testCleaningMobileBuildMCPDerivedDataLeavesWorkspaceStateIntact() async throws {
         try await assertCleaningManagedDerivedDataLeavesWorkspaceStateIntact(tool: "MobileBuildMCP")
+    }
+
+    func testWorkspaceManagedDerivedDataTrashedCountsNoFreedSpace() async throws {
+        let fileManager = FileManager.default
+        let temporaryHome = fileManager.temporaryDirectory
+            .appendingPathComponent("PureMac-XcodeBuildMCP-WorkspaceFreed-\(UUID().uuidString)", isDirectory: true)
+        defer { try? fileManager.removeItem(at: temporaryHome) }
+
+        let workspaceRoot = temporaryHome
+            .appendingPathComponent("Library/Developer/XcodeBuildMCP/workspaces/PureMac-59316969cafe", isDirectory: true)
+        let derivedData = workspaceRoot.appendingPathComponent("DerivedData", isDirectory: true)
+        let logs = workspaceRoot.appendingPathComponent("logs", isDirectory: true)
+        try fileManager.createDirectory(at: derivedData, withIntermediateDirectories: true)
+        try fileManager.createDirectory(at: logs, withIntermediateDirectories: true)
+        try Data(repeating: 0xAB, count: 4_096)
+            .write(to: derivedData.appendingPathComponent("build-product"))
+        try Data(repeating: 0xCD, count: 256).write(to: logs.appendingPathComponent("build.log"))
+
+        let scan = await ScanEngine(homeDirectory: temporaryHome).scanCategory(.xcodeJunk)
+        let item = try XCTUnwrap(scan.items.first { $0.name == "XcodeBuildMCP: PureMac" })
+        let result = await CleaningEngine(homeDirectory: temporaryHome).cleanItems([item]) { _ in }
+
+        XCTAssertEqual(result.itemsCleaned, 1)
+        XCTAssertFalse(fileManager.fileExists(atPath: derivedData.path))
+        XCTAssertEqual(result.freedSpace, 0)
+        XCTAssertEqual(result.trashedPaths.count, 1)
+        XCTAssertTrue(fileManager.fileExists(atPath: logs.appendingPathComponent("build.log").path))
+        XCTAssertFalse(
+            fileManager.fileExists(atPath: workspaceRoot.appendingPathComponent("locks/filesystem-lifecycle.lock").path)
+        )
+        if let trashedPath = result.trashedPaths.first {
+            try? fileManager.removeItem(atPath: trashedPath)
+        }
+    }
+
+    func testOrdinaryXcodeDerivedDataStillCountsAsFreedSpace() async throws {
+        let fileManager = FileManager.default
+        let temporaryHome = fileManager.temporaryDirectory
+            .appendingPathComponent("PureMac-Xcode-DerivedDataFreed-\(UUID().uuidString)", isDirectory: true)
+        defer { try? fileManager.removeItem(at: temporaryHome) }
+
+        let derivedDataRoot = temporaryHome.appendingPathComponent("Library/Developer/Xcode/DerivedData", isDirectory: true)
+        let derivedData = derivedDataRoot.appendingPathComponent("Project-abc123", isDirectory: true)
+        try fileManager.createDirectory(at: derivedData, withIntermediateDirectories: true)
+        try Data(repeating: 0xEF, count: 4_096).write(to: derivedData.appendingPathComponent("build-product"))
+
+        let scan = await ScanEngine(homeDirectory: temporaryHome).scanCategory(.xcodeJunk)
+        let item = try XCTUnwrap(scan.items.first { $0.path == derivedDataRoot.path })
+        XCTAssertFalse(XcodeBuildMCPDerivedDataSupport.isManagedDerivedDataPath(item.path, homeDirectory: temporaryHome))
+
+        let result = await CleaningEngine(homeDirectory: temporaryHome).cleanItems([item]) { _ in }
+
+        XCTAssertEqual(result.itemsCleaned, 1)
+        XCTAssertFalse(fileManager.fileExists(atPath: derivedDataRoot.path))
+        XCTAssertEqual(result.freedSpace, item.size)
+        XCTAssertTrue(result.trashedPaths.isEmpty)
+    }
+
+    func testMixedBatchFreesOnlyTheUnlinkedBytes() async throws {
+        let fileManager = FileManager.default
+        let temporaryHome = fileManager.temporaryDirectory
+            .appendingPathComponent("PureMac-Xcode-MixedFreed-\(UUID().uuidString)", isDirectory: true)
+        defer { try? fileManager.removeItem(at: temporaryHome) }
+
+        let managed = temporaryHome.appendingPathComponent("Library/Developer/XcodeBuildMCP/DerivedData", isDirectory: true)
+        let ordinaryRoot = temporaryHome.appendingPathComponent("Library/Developer/Xcode/DerivedData", isDirectory: true)
+        let ordinary = ordinaryRoot.appendingPathComponent("Project-abc123", isDirectory: true)
+        try fileManager.createDirectory(at: managed, withIntermediateDirectories: true)
+        try fileManager.createDirectory(at: ordinary, withIntermediateDirectories: true)
+        try Data(repeating: 0x11, count: 4_096).write(to: managed.appendingPathComponent("managed"))
+        try Data(repeating: 0x22, count: 4_096).write(to: ordinary.appendingPathComponent("ordinary"))
+
+        let scan = await ScanEngine(homeDirectory: temporaryHome).scanCategory(.xcodeJunk)
+        let managedItem = try XCTUnwrap(scan.items.first { $0.path == managed.path })
+        let ordinaryItem = try XCTUnwrap(scan.items.first { $0.path == ordinaryRoot.path })
+        let result = await CleaningEngine(homeDirectory: temporaryHome)
+            .cleanItems([managedItem, ordinaryItem]) { _ in }
+
+        XCTAssertEqual(result.itemsCleaned, 2)
+        XCTAssertEqual(result.freedSpace, ordinaryItem.size)
+        XCTAssertEqual(result.trashedPaths.count, 1)
+        for trashedPath in result.trashedPaths {
+            try? fileManager.removeItem(atPath: trashedPath)
+        }
     }
 
     private func assertCleaningManagedDerivedDataLeavesWorkspaceStateIntact(tool: String) async throws {
