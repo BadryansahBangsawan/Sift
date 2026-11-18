@@ -47,6 +47,48 @@ final class ScheduleCardWidthTests: XCTestCase {
         }
     }
 
+    // MARK: - Wrapping and the status line
+
+    /// A title too wide for the column takes two lines and can break at a
+    /// space: no single word may be wider than the column, or the second line
+    /// would clip instead of wrapping.
+    func testLongTitlesWrapWithoutClipping() throws {
+        let column = ScheduleCardLayout.columnWidth(railWidth: SiftSpacing.railWidth)
+        let breakable = ["de", "es", "fr", "it", "pl", "pt-BR", "ru", "uk", "ar", "en"]
+        var wrapped = 0
+        for language in breakable {
+            for key in ["Scheduled scan", "Scheduled cleanup"] {
+                let title = try localized(key, in: language)
+                let ideal = ScheduleCardLayout.width(of: title, size: 10.5)
+                guard ideal > column else { continue }
+                wrapped += 1
+                XCTAssertEqual(ScheduleCardLayout.lineLimit(labelWidth: ideal, available: column), 2,
+                               "\(language) “\(title)” must wrap")
+                let widest = title.split(separator: " ")
+                    .map { ScheduleCardLayout.width(of: String($0), size: 10.5) }
+                    .max() ?? 0
+                XCTAssertLessThanOrEqual(
+                    widest, column,
+                    "\(language) “\(title)” has a \(Int(widest)) pt word in a \(Int(column)) pt column")
+            }
+        }
+        XCTAssertGreaterThan(wrapped, 4, "Expected several languages to wrap")
+    }
+
+    /// The status word under the title keeps its own line in every language,
+    /// so a wrapped title never hides "Off" or "Daily".
+    func testTheStatusLineFitsOneLine() throws {
+        let column = ScheduleCardLayout.columnWidth(railWidth: SiftSpacing.railWidth)
+        for language in languages {
+            for key in ["Off", "Daily", "Weekly"] {
+                let status = try localized(key, in: language)
+                XCTAssertLessThanOrEqual(
+                    ScheduleCardLayout.width(of: status, size: 12.5), column,
+                    "\(language) status “\(status)” does not fit")
+            }
+        }
+    }
+
     // MARK: - Fixtures
 
     private func localized(_ key: String, in language: String) throws -> String {
