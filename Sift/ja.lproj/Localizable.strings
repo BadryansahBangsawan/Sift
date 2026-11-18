@@ -1257,7 +1257,7 @@
 "The address bar no longer suggests searches as you type." = "入力中にアドレスバーが検索を提案しなくなります。";
 "The asset service did not answer in time." = "アセットサービスが時間内に応答しませんでした。";
 "This Mac already matches the review." = "この Mac はすでに確認内容と一致しています。";
-"Turbo-charged by Apple's own asset service. Sift asks macOS to delete the models and blocks their download URL." = "Apple のアセットサービスで高速化。Sift は macOS にモデルの削除を要求し、ダウンロード URL をブロックします。";
+"Sift asks macOS to delete the models and blocks their download URL." = "Sift は macOS にモデルの削除を要求し、ダウンロード URL をブロックします。";
 "Turn back on" = "再びオンにする";
 "Turn off" = "オフにする";
 "Turn off Apple Intelligence…" = "Apple Intelligence をオフにする…";

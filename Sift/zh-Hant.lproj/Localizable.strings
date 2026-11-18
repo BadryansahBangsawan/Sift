@@ -1257,7 +1257,7 @@
 "The address bar no longer suggests searches as you type." = "網址列在輸入時不再建議搜尋。";
 "The asset service did not answer in time." = "資源服務未及時回應。";
 "This Mac already matches the review." = "此 Mac 已與檢視內容一致。";
-"Turbo-charged by Apple's own asset service. Sift asks macOS to delete the models and blocks their download URL." = "由 Apple 自己的資源服務加速。Sift 要求 macOS 刪除模型並封鎖其下載 URL。";
+"Sift asks macOS to delete the models and blocks their download URL." = "Sift 要求 macOS 刪除模型並封鎖其下載 URL。";
 "Turn back on" = "重新開啟";
 "Turn off" = "關閉";
 "Turn off Apple Intelligence…" = "關閉 Apple Intelligence…";

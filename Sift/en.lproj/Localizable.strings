@@ -1257,7 +1257,7 @@
 "The address bar no longer suggests searches as you type." = "The address bar no longer suggests searches as you type.";
 "The asset service did not answer in time." = "The asset service did not answer in time.";
 "This Mac already matches the review." = "This Mac already matches the review.";
-"Turbo-charged by Apple's own asset service. Sift asks macOS to delete the models and blocks their download URL." = "Turbo-charged by Apple's own asset service. Sift asks macOS to delete the models and blocks their download URL.";
+"Sift asks macOS to delete the models and blocks their download URL." = "Sift asks macOS to delete the models and blocks their download URL.";
 "Turn back on" = "Turn back on";
 "Turn off" = "Turn off";
 "Turn off Apple Intelligence…" = "Turn off Apple Intelligence…";

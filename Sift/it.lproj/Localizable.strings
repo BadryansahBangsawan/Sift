@@ -1257,7 +1257,7 @@
 "The address bar no longer suggests searches as you type." = "La barra degli indirizzi non suggerisce più ricerche mentre digiti.";
 "The asset service did not answer in time." = "Il servizio risorse non ha risposto in tempo.";
 "This Mac already matches the review." = "Questo Mac corrisponde già alla revisione.";
-"Turbo-charged by Apple's own asset service. Sift asks macOS to delete the models and blocks their download URL." = "Accelerato dal servizio risorse di Apple. Sift chiede a macOS di eliminare i modelli e blocca il loro URL di download.";
+"Sift asks macOS to delete the models and blocks their download URL." = "Sift chiede a macOS di eliminare i modelli e blocca il loro URL di download.";
 "Turn back on" = "Riattiva";
 "Turn off" = "Disattiva";
 "Turn off Apple Intelligence…" = "Disattiva Apple Intelligence…";

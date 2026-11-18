@@ -237,7 +237,7 @@ struct AppleFeaturesView: View {
                             SiftStatusPill(Text("Profile installed"), tone: .info, showsDot: false)
                         }
                     }
-                    Text("Turbo-charged by Apple's own asset service. Sift asks macOS to delete the models and blocks their download URL.")
+                    Text("Sift asks macOS to delete the models and blocks their download URL.")
                         .siftStyle(.label)
                         .fixedSize(horizontal: false, vertical: true)
                 }
@@ -272,7 +272,8 @@ struct AppleFeaturesView: View {
         _ feature: AppleIntelligenceFeature, status: AppleIntelligenceStatus
     ) -> some View {
         let bytes = status.bytes(for: feature)
-        let size = bytes.map { ByteCountFormatter.string(fromByteCount: $0, countStyle: .file) }
+        // Most features share the foundation models; only show a size that is on disk.
+        let size = bytes.flatMap { $0 > 0 ? ByteCountFormatter.string(fromByteCount: $0, countStyle: .file) : nil }
         return HStack(alignment: .center, spacing: 14) {
             VStack(alignment: .leading, spacing: 3) {
                 Text(verbatim: feature.title)
@@ -419,9 +420,12 @@ struct AppleFeaturesView: View {
         }
     }
 
+    /// The asset service is a synchronous private API; never ask it on the main thread.
     private func refreshAppleIntelligence() {
         let service = aiService
-        aiStatus = service.status()
+        Task { @MainActor in
+            aiStatus = await Task.detached(priority: .userInitiated) { service.status() }.value
+        }
     }
 
     private func reviewAppleIntelligence() {
@@ -448,7 +452,7 @@ struct AppleFeaturesView: View {
             aiResult = result
             aiWorking = false
             aiPlan = nil
-            aiStatus = service.status()
+            aiStatus = await Task.detached(priority: .userInitiated) { service.status() }.value
         }
     }
 
@@ -463,7 +467,7 @@ struct AppleFeaturesView: View {
             aiWorking = false
             aiNotice = nil
             aiResult = AppleIntelligenceApplyResult(problems: result.problems)
-            aiStatus = service.status()
+            aiStatus = await Task.detached(priority: .userInitiated) { service.status() }.value
             openDestination("com.apple.Profiles-Settings.extension")
         }
     }
@@ -481,7 +485,7 @@ struct AppleFeaturesView: View {
                 ? String(localized: "Settings restored. Remove the Sift profile in System Settings > Privacy & Security > Profiles to turn Apple Intelligence back on.")
                 : result.problems.joined(separator: "\n")
             aiResult = nil
-            aiStatus = service.status()
+            aiStatus = await Task.detached(priority: .userInitiated) { service.status() }.value
         }
     }
 
