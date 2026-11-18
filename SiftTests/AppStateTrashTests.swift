@@ -47,6 +47,45 @@ final class AppStateTrashTests: XCTestCase {
         XCTAssertEqual(historyStore.load().count, 1)
     }
 
+    func testSurvivingExcludedTrashItemIsNotCountedAsFreed() async throws {
+        let gone = trash.appendingPathComponent("gone.bin")
+        let kept = trash.appendingPathComponent("keep.bin")
+        try Data(repeating: 1, count: 8_192).write(to: gone)
+        try Data(repeating: 2, count: 12_288).write(to: kept)
+
+        let scanned = await ScanEngine(homeDirectory: fixtureHome).scanCategory(.trash)
+        let goneSize = try XCTUnwrap(scanned.items.first { $0.name == "gone.bin" }?.size)
+
+        let saved = UserDefaults.standard.stringArray(forKey: CleanupExclusions.defaultsKey)
+        UserDefaults.standard.set([kept.path], forKey: CleanupExclusions.defaultsKey)
+        defer {
+            if let saved {
+                UserDefaults.standard.set(saved, forKey: CleanupExclusions.defaultsKey)
+            } else {
+                UserDefaults.standard.removeObject(forKey: CleanupExclusions.defaultsKey)
+            }
+        }
+
+        let state = makeState { [trash, fileManager] in
+            // Finder empties what it can; the excluded, in-use file survives.
+            for entry in try! fileManager.contentsOfDirectory(at: trash!, includingPropertiesForKeys: nil)
+            where entry.lastPathComponent != "keep.bin" {
+                try? fileManager.removeItem(at: entry)
+            }
+            return nil
+        }
+
+        await state.emptyTrash()
+
+        XCTAssertTrue(fileManager.fileExists(atPath: kept.path))
+        let record = try XCTUnwrap(state.cleanupHistory.first)
+        XCTAssertEqual(
+            record.freedBytes,
+            goneSize,
+            "Only the row the user saw removed was freed; the excluded survivor is still on disk"
+        )
+    }
+
     func testFinderFailureKeepsTrashAndReportsTheError() async throws {
         try Data(repeating: 1, count: 8_192).write(to: trash.appendingPathComponent("old.bin"))
         let state = makeState { "Finder refused" }
