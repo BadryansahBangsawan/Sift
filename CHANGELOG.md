@@ -9,6 +9,8 @@ All notable user-facing changes to Sift. Sift was called PureMac before 4.0.0.
 - Cleaning no longer republishes progress for every removed item. A large
   cleanup asked the window to redraw thousands of times, which looked like the
   app freezing for seconds; it now updates about once per percent.
+- Emptied Trash no longer counts a file it could not delete — for example an
+  excluded, in-use item — as freed space.
 - Battery status no longer reports "Charging" while macOS is holding the charge
   at a percentage — optimised charging's "AC attached; not charging".
 - AI tools no longer report space as freed when opt-in chat history and the
