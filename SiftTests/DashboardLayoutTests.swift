@@ -23,4 +23,40 @@ final class DashboardLayoutTests: XCTestCase {
     func testMeterDoesNotGrowPastItsIdealWidth() {
         XCTAssertLessThanOrEqual(WhereRowLayout.meterIdealWidth, 120)
     }
+
+    /// The label gets its text width first; the meter takes the rest, gives
+    /// way down to its minimum, and only then does the label lose points.
+    func testLabelWinsTheWidthBeforeTheMeterShrinks() {
+        let narrow = WhereRowLayout.rowWidth(atWindowWidth: 1080) - WhereRowLayout.fixedChrome
+        let ideal: CGFloat = 106
+        XCTAssertGreaterThanOrEqual(
+            WhereRowLayout.labelWidth(space: narrow, labelIdealWidth: ideal),
+            ideal,
+            "A 1080 pt window leaves room for the whole category name"
+        )
+        XCTAssertGreaterThanOrEqual(
+            WhereRowLayout.meterWidth(space: narrow, labelIdealWidth: ideal),
+            WhereRowLayout.meterMinWidth
+        )
+
+        let cramped: CGFloat = 150
+        XCTAssertEqual(WhereRowLayout.meterWidth(space: cramped, labelIdealWidth: ideal), WhereRowLayout.meterMinWidth)
+        XCTAssertEqual(WhereRowLayout.labelWidth(space: cramped, labelIdealWidth: ideal), cramped - WhereRowLayout.meterMinWidth)
+    }
+
+    func testRowWidthMatchesTheOverviewLayout() {
+        XCTAssertEqual(WhereRowLayout.rowWidth(atWindowWidth: 1080), 372)
+        XCTAssertEqual(
+            WhereRowLayout.rowWidth(atWindowWidth: 1_600),
+            892
+        )
+    }
+
+    func testWideRowKeepsTheMeterAtItsIdealWidth() {
+        let wide = WhereRowLayout.rowWidth(atWindowWidth: 1_600) - WhereRowLayout.fixedChrome
+        XCTAssertEqual(
+            WhereRowLayout.meterWidth(space: wide, labelIdealWidth: 106),
+            WhereRowLayout.meterIdealWidth
+        )
+    }
 }
