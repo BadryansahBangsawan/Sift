@@ -2,6 +2,14 @@
 
 All notable user-facing changes to Sift. Sift was called PureMac before 4.0.0.
 
+## Unreleased
+
+### Fixed
+
+- `sift-cli uninstall` now lists the app's leftover files under `~/Library`
+  (preferences, caches, containers and the rest). It previously reported only
+  the app bundle, so the data it promised to clean stayed on disk.
+
 ## 4.0.1
 
 ### Changed
