@@ -1225,14 +1225,17 @@ final class AppState: ObservableObject {
 
         // Measure before and after rather than trusting the last scan: the
         // Trash may have changed since, and Finder reports no byte count.
-        let before = await scanEngine.scanCategory(.trash).totalSize
+        // Both sides are measured over the rows the user sees, so an excluded
+        // item that survives the empty (Finder refused it, a file is in use)
+        // is never counted as freed.
+        let before = applyingCleanupExclusions(to: await scanEngine.scanCategory(.trash))
         let error = await trashEmptier()
         let after = applyingCleanupExclusions(to: await scanEngine.scanCategory(.trash))
 
         categoryResults[.trash] = after.items.isEmpty ? nil : after
         totalJunkSize = categoryResults.values.reduce(0) { $0 + $1.totalSize }
 
-        let freed = max(0, before - after.totalSize)
+        let freed = max(0, before.totalSize - after.totalSize)
         if freed > 0 {
             cleanupHistory = historyStore.record(
                 freedBytes: freed,
