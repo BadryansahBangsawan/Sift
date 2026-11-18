@@ -194,7 +194,6 @@ struct CategoryDetailView: View {
         HStack(spacing: 8) {
             SiftSearchField(text: $filter.query, prompt: Text("Filter by name or path"))
                 .frame(minWidth: 180, maxWidth: 340)
-                .accessibilityLabel("Filter cleanup files")
             if !isTrash {
                 presetPill
                 pill(.size, label: Text(LocalizedStringKey(filter.size.rawValue)))

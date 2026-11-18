@@ -687,6 +687,7 @@ struct SiftSearchField: View {
                 .font(.sift(13))
                 .foregroundStyle(SiftColor.textPrimary)
                 .focused($focused)
+                .accessibilityLabel(prompt)
             if !text.isEmpty {
                 Button { text = "" } label: {
                     SiftIcon.x.image(13).foregroundStyle(SiftColor.textTertiary)
