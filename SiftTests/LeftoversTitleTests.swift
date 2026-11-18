@@ -39,4 +39,20 @@ final class LeftoversTitleTests: XCTestCase {
         }
         XCTAssertEqual(checked, 13)
     }
+
+    /// The counted title composes in each language: its own word, its own
+    /// brackets, the number where the language puts it.
+    func testTheCountedTitleComposesEverywhere() throws {
+        for language in ["de", "ru", "ja", "ar", "zh-Hant"] {
+            let path = try XCTUnwrap(Bundle.main.path(forResource: language, ofType: "lproj"))
+            let bundle = try XCTUnwrap(Bundle(path: path))
+            let base = bundle.localizedString(forKey: "Leftovers", value: nil, table: nil)
+            let template = bundle.localizedString(forKey: "Leftovers (%lld)", value: nil, table: nil)
+            let composed = String(format: template, 7)
+            XCTAssertTrue(composed.contains("7"), "\(language): \(composed)")
+            XCTAssertTrue(composed.contains(base), "\(language): \(composed) lacks “\(base)”")
+            XCTAssertFalse(composed.localizedCaseInsensitiveContains("orphan"),
+                           "\(language): \(composed)")
+        }
+    }
 }
