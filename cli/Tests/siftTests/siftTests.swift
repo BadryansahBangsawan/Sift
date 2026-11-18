@@ -27,6 +27,13 @@ final class SiftCLITests: XCTestCase {
         XCTAssertEqual(ByteCount.memory(1_500_000_000), "1.4 GB")
     }
 
+    func testByteCountPromotesInsteadOfPrintingAThousand() {
+        XCTAssertEqual(ByteCount.human(999_960), "1 MB")
+        XCTAssertEqual(ByteCount.human(999_999), "1 MB")
+        XCTAssertEqual(ByteCount.human(999_999_999), "1 GB")
+        XCTAssertEqual(ByteCount.human(999_000), "999 KB")
+    }
+
     func testArtifactMatching() {
         XCTAssertTrue(Purger.isArtifact("node_modules"))
         XCTAssertTrue(Purger.isArtifact(".venv"))
