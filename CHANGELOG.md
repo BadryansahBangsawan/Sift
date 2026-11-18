@@ -6,6 +6,9 @@ All notable user-facing changes to Sift. Sift was called PureMac before 4.0.0.
 
 ### Fixed
 
+- The Leftovers page no longer says "No Orphaned Files" before it has looked:
+  it shows "Not scanned yet" first, and "Couldn't compare installed apps" when
+  the scan had no app list to compare against.
 - The window no longer freezes while a Leftovers scan fetches the app list.
   Listing every installed app ran on the main actor and took seconds; it now
   runs on the scan's background task.
