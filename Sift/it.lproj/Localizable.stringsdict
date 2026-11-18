@@ -34,6 +34,102 @@
 			<string>%lld app selezionate</string>
 		</dict>
 	</dict>
+	<key>%lld areas</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@value@</string>
+		<key>value</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>one</key>
+			<string>%lld area</string>
+			<key>other</key>
+			<string>%lld aree</string>
+		</dict>
+	</dict>
+	<key>%lld backup locations could not be included</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@value@</string>
+		<key>value</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>one</key>
+			<string>Impossibile includere %lld posizione di backup</string>
+			<key>other</key>
+			<string>Impossibile includere %lld posizioni di backup</string>
+		</dict>
+	</dict>
+	<key>%lld backups moved to the Trash</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@value@</string>
+		<key>value</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>one</key>
+			<string>%lld backup spostato nel Cestino</string>
+			<key>other</key>
+			<string>%lld backup spostati nel Cestino</string>
+		</dict>
+	</dict>
+	<key>%lld checks</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@value@</string>
+		<key>value</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>one</key>
+			<string>%lld controllo</string>
+			<key>other</key>
+			<string>%lld controlli</string>
+		</dict>
+	</dict>
+	<key>%lld cycles</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@value@</string>
+		<key>value</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>one</key>
+			<string>%lld ciclo</string>
+			<key>other</key>
+			<string>%lld cicli</string>
+		</dict>
+	</dict>
+	<key>%lld exact copies · %@ each</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@value@</string>
+		<key>value</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>one</key>
+			<string>%lld copia identica · %@ ciascuna</string>
+			<key>other</key>
+			<string>%lld copie identiche · %@ ciascuna</string>
+		</dict>
+	</dict>
 	<key>%lld files</key>
 	<dict>
 		<key>NSStringLocalizedFormatKey</key>
@@ -66,6 +162,102 @@
 			<string>%lld file esaminati</string>
 		</dict>
 	</dict>
+	<key>%lld files totaling %@ were moved. Every protected copy remains in place.</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@value@</string>
+		<key>value</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>one</key>
+			<string>È stato spostato %lld file per un totale di %@. Ogni copia protetta è rimasta al suo posto.</string>
+			<key>other</key>
+			<string>Sono stati spostati %lld file per un totale di %@. Ogni copia protetta è rimasta al suo posto.</string>
+		</dict>
+	</dict>
+	<key>%lld files totaling %@ will be moved to Trash. The protected copy in every group stays in place.</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@value@</string>
+		<key>value</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>one</key>
+			<string>%lld file, per un totale di %@, verrà spostato nel Cestino. La copia protetta di ogni gruppo resterà al suo posto.</string>
+			<key>other</key>
+			<string>%lld file, per un totale di %@, verranno spostati nel Cestino. La copia protetta di ogni gruppo resterà al suo posto.</string>
+		</dict>
+	</dict>
+	<key>%lld folders</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@value@</string>
+		<key>value</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>one</key>
+			<string>%lld cartella</string>
+			<key>other</key>
+			<string>%lld cartelle</string>
+		</dict>
+	</dict>
+	<key>%lld folders have a familiar name but Sift couldn't prove they are generated</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@value@</string>
+		<key>value</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>one</key>
+			<string>%lld cartella ha un nome noto, ma Sift non ha potuto dimostrare che è generata</string>
+			<key>other</key>
+			<string>%lld cartelle hanno un nome noto, ma Sift non ha potuto dimostrare che sono generate</string>
+		</dict>
+	</dict>
+	<key>%lld folders totaling %@ are in the Trash. Empty the Trash to free the space.</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@value@</string>
+		<key>value</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>one</key>
+			<string>%lld cartella per un totale di %@ è nel Cestino. Svuota il Cestino per liberare lo spazio.</string>
+			<key>other</key>
+			<string>%lld cartelle per un totale di %@ sono nel Cestino. Svuota il Cestino per liberare lo spazio.</string>
+		</dict>
+	</dict>
+	<key>%lld folders totaling %@ will be moved to Trash. Sift checks each folder again first. Reinstall dependencies or rebuild to get them back.</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@value@</string>
+		<key>value</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>one</key>
+			<string>%lld cartella, per un totale di %@, verrà spostata nel Cestino. Sift ricontrolla ogni cartella prima. Reinstalla le dipendenze o ricompila per riaverla.</string>
+			<key>other</key>
+			<string>%lld cartelle, per un totale di %@, verranno spostate nel Cestino. Sift ricontrolla ogni cartella prima. Reinstalla le dipendenze o ricompila per riaverle.</string>
+		</dict>
+	</dict>
 	<key>%lld items</key>
 	<dict>
 		<key>NSStringLocalizedFormatKey</key>
@@ -80,6 +272,22 @@
 			<string>%lld elemento</string>
 			<key>other</key>
 			<string>%lld elementi</string>
+		</dict>
+	</dict>
+	<key>%lld items found</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@value@</string>
+		<key>value</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>one</key>
+			<string>%lld elemento trovato</string>
+			<key>other</key>
+			<string>%lld elementi trovati</string>
 		</dict>
 	</dict>
 	<key>%lld items in the Trash</key>
@@ -130,6 +338,33 @@
 			<string>%lld elementi, %@</string>
 		</dict>
 	</dict>
+	<key>%lld of %lld items, %@</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@shown@ di %#@total@, %@</string>
+		<key>shown</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>one</key>
+			<string>%lld</string>
+			<key>other</key>
+			<string>%lld</string>
+		</dict>
+		<key>total</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>one</key>
+			<string>%lld elemento</string>
+			<key>other</key>
+			<string>%lld elementi</string>
+		</dict>
+	</dict>
 	<key>%lld photos</key>
 	<dict>
 		<key>NSStringLocalizedFormatKey</key>
@@ -162,6 +397,230 @@
 			<string>%lld foto · %@</string>
 		</dict>
 	</dict>
+	<key>%lld processes</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@value@</string>
+		<key>value</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>one</key>
+			<string>%lld processo</string>
+			<key>other</key>
+			<string>%lld processi</string>
+		</dict>
+	</dict>
+	<key>%lld runs</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@value@</string>
+		<key>value</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>one</key>
+			<string>%lld pulizia</string>
+			<key>other</key>
+			<string>%lld pulizie</string>
+		</dict>
+	</dict>
+	<key>%lld unsafe or unavailable items were not scanned</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@value@</string>
+		<key>value</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>one</key>
+			<string>%lld elemento non sicuro o non disponibile è stato escluso dalla scansione</string>
+			<key>other</key>
+			<string>%lld elementi non sicuri o non disponibili sono stati esclusi dalla scansione</string>
+		</dict>
+	</dict>
+	<key>%lld unsafe or unavailable items were skipped.</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@value@</string>
+		<key>value</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>one</key>
+			<string>%lld elemento non sicuro o non disponibile è stato ignorato.</string>
+			<key>other</key>
+			<string>%lld elementi non sicuri o non disponibili sono stati ignorati.</string>
+		</dict>
+	</dict>
+	<key>%lld/%lld protected locations accessible</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@value@</string>
+		<key>value</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>one</key>
+			<string>Posizione protetta accessibile: %lld/%lld</string>
+			<key>other</key>
+			<string>Posizioni protette accessibili: %lld/%lld</string>
+		</dict>
+	</dict>
+	<key>Checking %lld locations...</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@value@</string>
+		<key>value</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>one</key>
+			<string>Controllo di %lld posizione...</string>
+			<key>other</key>
+			<string>Controllo di %lld posizioni...</string>
+		</dict>
+	</dict>
+	<key>Clean %lld items</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@value@</string>
+		<key>value</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>one</key>
+			<string>Pulisci %lld elemento</string>
+			<key>other</key>
+			<string>Pulisci %lld elementi</string>
+		</dict>
+	</dict>
+	<key>Every %lld seconds</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@value@</string>
+		<key>value</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>one</key>
+			<string>Ogni %lld secondo</string>
+			<key>other</key>
+			<string>Ogni %lld secondi</string>
+		</dict>
+	</dict>
+	<key>Finder will permanently delete %lld items (%@). This can't be undone.</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@value@</string>
+		<key>value</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>one</key>
+			<string>Il Finder eliminerà definitivamente %lld elemento (%@). L'operazione non può essere annullata.</string>
+			<key>other</key>
+			<string>Il Finder eliminerà definitivamente %lld elementi (%@). L'operazione non può essere annullata.</string>
+		</dict>
+	</dict>
+	<key>Homebrew finished, but %lld selected apps still report updates.</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@value@</string>
+		<key>value</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>one</key>
+			<string>Homebrew ha terminato, ma risulta ancora un aggiornamento per %lld app selezionata.</string>
+			<key>other</key>
+			<string>Homebrew ha terminato, ma risultano ancora aggiornamenti per %lld app selezionate.</string>
+		</dict>
+	</dict>
+	<key>Homebrew updated the %lld selected apps.</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@value@</string>
+		<key>value</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>one</key>
+			<string>Homebrew ha aggiornato %lld app selezionata.</string>
+			<key>other</key>
+			<string>Homebrew ha aggiornato le %lld app selezionate.</string>
+		</dict>
+	</dict>
+	<key>Includes %lld selected items hidden by filters.</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@value@</string>
+		<key>value</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>one</key>
+			<string>Include %lld elemento selezionato nascosto dai filtri.</string>
+			<key>other</key>
+			<string>Include %lld elementi selezionati nascosti dai filtri.</string>
+		</dict>
+	</dict>
+	<key>Move %lld backups to the Trash?</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@value@</string>
+		<key>value</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>one</key>
+			<string>Spostare %lld backup nel Cestino?</string>
+			<key>other</key>
+			<string>Spostare %lld backup nel Cestino?</string>
+		</dict>
+	</dict>
+	<key>Permanently remove %lld items</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@value@</string>
+		<key>value</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>one</key>
+			<string>Rimuovi definitivamente %lld elemento</string>
+			<key>other</key>
+			<string>Rimuovi definitivamente %lld elementi</string>
+		</dict>
+	</dict>
 	<key>Remove %lld files</key>
 	<dict>
 		<key>NSStringLocalizedFormatKey</key>
@@ -192,6 +651,54 @@
 			<string>Rimuovi %lld elemento</string>
 			<key>other</key>
 			<string>Rimuovi %lld elementi</string>
+		</dict>
+	</dict>
+	<key>Upgrade %lld Apps</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@value@</string>
+		<key>value</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>one</key>
+			<string>Aggiorna %lld app</string>
+			<key>other</key>
+			<string>Aggiorna %lld app</string>
+		</dict>
+	</dict>
+	<key>across %lld categories</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@value@</string>
+		<key>value</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>one</key>
+			<string>in %lld categoria</string>
+			<key>other</key>
+			<string>in %lld categorie</string>
+		</dict>
+	</dict>
+	<key>of %lld cores</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@value@</string>
+		<key>value</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>one</key>
+			<string>di %lld core</string>
+			<key>other</key>
+			<string>di %lld core</string>
 		</dict>
 	</dict>
 </dict>
