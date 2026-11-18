@@ -153,6 +153,37 @@ final class DashboardChipSizeTests: XCTestCase {
         )
     }
 
+    func testSystemJunkKeepsLogFoldersThatOnlyShareTheClaudePrefix() async throws {
+        let logs = fixtureHome.appendingPathComponent("Library/Logs", isDirectory: true)
+        let lookAlike = logs.appendingPathComponent("ClaudeHelper", isDirectory: true)
+        try fileManager.createDirectory(at: lookAlike, withIntermediateDirectories: true)
+        try Data(repeating: 0x55, count: 8_192).write(to: lookAlike.appendingPathComponent("out.log"))
+
+        let systemJunk = await ScanEngine(homeDirectory: fixtureHome, tmpRoots: []).scanCategory(.systemJunk)
+
+        XCTAssertTrue(
+            systemJunk.items.contains { $0.path == lookAlike.resolvingSymlinksInPath().path },
+            "Only the exact folder AI tools claims is left to it"
+        )
+    }
+
+    func testSystemJunkTotalMatchesTheRowsItKeeps() async throws {
+        let logs = fixtureHome.appendingPathComponent("Library/Logs", isDirectory: true)
+        for name in ["Claude", "com.example.app"] {
+            let folder = logs.appendingPathComponent(name, isDirectory: true)
+            try fileManager.createDirectory(at: folder, withIntermediateDirectories: true)
+            try Data(repeating: 0x66, count: 8_192).write(to: folder.appendingPathComponent("out.log"))
+        }
+
+        let systemJunk = await ScanEngine(homeDirectory: fixtureHome, tmpRoots: []).scanCategory(.systemJunk)
+
+        XCTAssertEqual(
+            systemJunk.totalSize,
+            systemJunk.items.reduce(Int64(0)) { $0 + $1.size },
+            "The category total must be the rows it lists"
+        )
+    }
+
     func testUserCacheTotalMatchesTheRowsItKeeps() async throws {
         let caches = fixtureHome.appendingPathComponent("Library/Caches", isDirectory: true)
         for name in ["com.apple.dt.Xcode", "com.example.ordinary", "com.example.second"] {
