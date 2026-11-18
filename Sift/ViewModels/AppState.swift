@@ -153,7 +153,7 @@ final class AppState: ObservableObject {
 
     var scheduler = SchedulerService()
     private let scanEngine: ScanEngine
-    private let cleaningEngine = CleaningEngine()
+    private let cleaningEngine: CleaningEngine
     private let locationsProvider: () -> Locations
     private let appFileScanner: AppFileScanner
     private let appFileTrasher: AppFileTrasher
@@ -235,6 +235,7 @@ final class AppState: ObservableObject {
         appFileScanner: @escaping AppFileScanner = AppState.defaultAppFileScanner,
         appFileTrasher: @escaping AppFileTrasher = AppState.defaultAppFileTrasher,
         scanEngine: ScanEngine = ScanEngine(),
+        cleaningEngine: CleaningEngine = CleaningEngine(),
         historyStore: CleanupHistoryStore = CleanupHistoryStore(),
         trashEmptier: @escaping TrashEmptier = AppState.finderEmptyTrash
     ) {
@@ -242,6 +243,7 @@ final class AppState: ObservableObject {
         self.appFileScanner = appFileScanner
         self.appFileTrasher = appFileTrasher
         self.scanEngine = scanEngine
+        self.cleaningEngine = cleaningEngine
         self.historyStore = historyStore
         self.trashEmptier = trashEmptier
         cleanupHistory = historyStore.load()
