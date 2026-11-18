@@ -502,7 +502,7 @@ struct ProjectJunkView: View {
     }
 
     private func format(_ bytes: Int64) -> String {
-        ByteCountFormatter.string(fromByteCount: bytes, countStyle: .file)
+        SiftFormat.bytes(bytes)
     }
 }
 

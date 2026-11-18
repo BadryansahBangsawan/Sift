@@ -168,7 +168,7 @@ struct OrphanListView: View {
                     .font(.sift(13.5, weight: 500))
                     .foregroundStyle(SiftColor.textPrimary)
                 if !selectedOrphans.isEmpty {
-                    Text(verbatim: ByteCountFormatter.string(fromByteCount: selectedSize, countStyle: .file))
+                    Text(verbatim: SiftFormat.bytes(selectedSize))
                         .font(.siftMono(12.5))
                         .foregroundStyle(SiftColor.accent)
                 }
@@ -451,7 +451,7 @@ private struct OrphanRowView: View {
 
             Group {
                 if let size = fileSize {
-                    Text(ByteCountFormatter.string(fromByteCount: size, countStyle: .file))
+                    Text(SiftFormat.bytes(size))
                 } else {
                     Text(verbatim: "…")
                 }

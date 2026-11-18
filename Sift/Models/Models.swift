@@ -170,7 +170,7 @@ struct CleanableItem: Identifiable, Hashable {
     var movesToTrash: Bool = false
 
     var formattedSize: String {
-        ByteCountFormatter.string(fromByteCount: size, countStyle: .file)
+        SiftFormat.bytes(size)
     }
 
     /// True for action-only items (Docker prune, simctl runtimes) that have
@@ -203,7 +203,7 @@ struct CategoryResult: Identifiable {
     var totalSize: Int64
 
     var formattedSize: String {
-        ByteCountFormatter.string(fromByteCount: totalSize, countStyle: .file)
+        SiftFormat.bytes(totalSize)
     }
 
     var itemCount: Int { items.count }
@@ -230,7 +230,7 @@ struct CategoryGroupResult {
     var itemCount: Int { items.count }
 
     var formattedSize: String {
-        ByteCountFormatter.string(fromByteCount: totalSize, countStyle: .file)
+        SiftFormat.bytes(totalSize)
     }
 }
 
@@ -331,18 +331,18 @@ struct DiskInfo {
     var purgeableSpace: Int64 = 0
 
     var formattedTotal: String {
-        ByteCountFormatter.string(fromByteCount: totalSpace, countStyle: .file)
+        SiftFormat.bytes(totalSpace)
     }
 
     var formattedFree: String {
-        ByteCountFormatter.string(fromByteCount: freeSpace, countStyle: .file)
+        SiftFormat.bytes(freeSpace)
     }
 
     var formattedUsed: String {
-        ByteCountFormatter.string(fromByteCount: usedSpace, countStyle: .file)
+        SiftFormat.bytes(usedSpace)
     }
 
     var formattedPurgeable: String {
-        ByteCountFormatter.string(fromByteCount: purgeableSpace, countStyle: .file)
+        SiftFormat.bytes(purgeableSpace)
     }
 }

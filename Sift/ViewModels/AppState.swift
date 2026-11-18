@@ -1330,7 +1330,7 @@ final class AppState: ObservableObject {
     private func sendNotification(freed: Int64) {
         let content = UNMutableNotificationContent()
         content.title = "Sift"
-        let sizeStr = ByteCountFormatter.string(fromByteCount: freed, countStyle: .file)
+        let sizeStr = SiftFormat.bytes(freed)
         content.body = String(format: NSLocalizedString("Found %@ of junk files.", comment: ""), sizeStr)
         content.sound = .default
 

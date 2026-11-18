@@ -308,7 +308,7 @@ struct SpaceExplorerView: View {
     }
 
     private static func format(_ bytes: Int64) -> String {
-        ByteCountFormatter.string(fromByteCount: bytes, countStyle: .file)
+        SiftFormat.bytes(bytes)
     }
 }
 
@@ -430,7 +430,7 @@ private struct StorageEntryRow: View {
     }
 
     private static func format(_ bytes: Int64) -> String {
-        ByteCountFormatter.string(fromByteCount: bytes, countStyle: .file)
+        SiftFormat.bytes(bytes)
     }
 }
 

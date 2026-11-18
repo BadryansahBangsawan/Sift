@@ -289,7 +289,7 @@ struct SimilarPhotosView: View {
     }
 
     private static func format(_ bytes: Int64) -> String {
-        ByteCountFormatter.string(fromByteCount: bytes, countStyle: .file)
+        SiftFormat.bytes(bytes)
     }
 }
 
@@ -327,7 +327,7 @@ private struct SimilarPhotoGroupCard: View {
     }
 
     private static func format(_ bytes: Int64) -> String {
-        ByteCountFormatter.string(fromByteCount: bytes, countStyle: .file)
+        SiftFormat.bytes(bytes)
     }
 }
 
@@ -384,6 +384,6 @@ private struct SimilarPhotoTile: View {
     }
 
     private static func format(_ bytes: Int64) -> String {
-        ByteCountFormatter.string(fromByteCount: bytes, countStyle: .file)
+        SiftFormat.bytes(bytes)
     }
 }

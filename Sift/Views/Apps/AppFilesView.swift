@@ -204,7 +204,7 @@ struct AppFilesView: View {
             Spacer(minLength: 12)
             if !appState.discoveredFiles.isEmpty {
                 VStack(alignment: .trailing, spacing: 2) {
-                    Text(verbatim: ByteCountFormatter.string(fromByteCount: totalDiscoveredSize, countStyle: .file))
+                    Text(verbatim: SiftFormat.bytes(totalDiscoveredSize))
                         .font(.siftDisplay(40))
                         .tracking(-1)
                         .foregroundStyle(SiftColor.textPrimary)
@@ -357,7 +357,7 @@ struct AppFilesView: View {
 
             Spacer(minLength: 8)
 
-            Text("\(appState.selectedFiles.count) items, \(ByteCountFormatter.string(fromByteCount: totalSelectedSize, countStyle: .file))")
+            Text("\(appState.selectedFiles.count) items, \(SiftFormat.bytes(totalSelectedSize))")
                 .font(.siftMono(12))
                 .foregroundStyle(SiftColor.textTertiary)
                 .lineLimit(1)
@@ -437,7 +437,7 @@ private struct LeftoverRow: View {
                 .truncationMode(.middle)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .help(url.path)
-            Text(verbatim: size.map { ByteCountFormatter.string(fromByteCount: $0, countStyle: .file) } ?? "…")
+            Text(verbatim: size.map(SiftFormat.bytes) ?? "…")
                 .font(.siftMono(12))
                 .foregroundStyle(SiftColor.textSecondary)
                 .lineLimit(1)
@@ -494,7 +494,7 @@ private struct DryRunSheet: View {
                                 .truncationMode(.middle)
                                 .frame(maxWidth: .infinity, alignment: .leading)
                                 .textSelection(.enabled)
-                            Text(verbatim: ByteCountFormatter.string(fromByteCount: entry.size, countStyle: .file))
+                            Text(verbatim: SiftFormat.bytes(entry.size))
                                 .font(.siftMono(12))
                                 .foregroundStyle(SiftColor.textSecondary)
                                 .frame(width: 72, alignment: .trailing)
@@ -509,7 +509,7 @@ private struct DryRunSheet: View {
             HStack(spacing: 12) {
                 SiftFootnote(Text("Nothing has been removed."))
                 Spacer()
-                Text("\(plan.entries.count) items, \(ByteCountFormatter.string(fromByteCount: plan.totalSize, countStyle: .file))")
+                Text("\(plan.entries.count) items, \(SiftFormat.bytes(plan.totalSize))")
                     .font(.siftMono(12))
                     .foregroundStyle(SiftColor.textTertiary)
                 Button("Done", action: dismiss)
