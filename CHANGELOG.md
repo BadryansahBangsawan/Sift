@@ -6,6 +6,10 @@ All notable user-facing changes to Sift. Sift was called PureMac before 4.0.0.
 
 ### Fixed
 
+- App updates now says when it last checked ("Last checked 1 minute ago",
+  "Last checked just now") as one sentence in every language. The eyebrow used
+  to render a live duration — "1 min, 19 secs" — that ticked every second and
+  never said "ago", glued to a separate "Last checked" fragment.
 - Cleanup history now names each row the way the app names it today ("AI
   tools", "System junk", "Developer caches") and in the language on screen.
   Records written by an older build keep their meaning: their stored text is
