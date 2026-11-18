@@ -86,6 +86,64 @@ final class AppStateTrashTests: XCTestCase {
         )
     }
 
+    func testFullyExcludedTrashRecordsNoFreedSpace() async throws {
+        let kept = trash.appendingPathComponent("keep.bin")
+        try Data(repeating: 3, count: 8_192).write(to: kept)
+
+        let saved = UserDefaults.standard.stringArray(forKey: CleanupExclusions.defaultsKey)
+        UserDefaults.standard.set([kept.path], forKey: CleanupExclusions.defaultsKey)
+        defer {
+            if let saved {
+                UserDefaults.standard.set(saved, forKey: CleanupExclusions.defaultsKey)
+            } else {
+                UserDefaults.standard.removeObject(forKey: CleanupExclusions.defaultsKey)
+            }
+        }
+
+        let state = makeState { [trash, fileManager] in
+            for entry in try! fileManager.contentsOfDirectory(at: trash!, includingPropertiesForKeys: nil) {
+                try? fileManager.removeItem(at: entry)
+            }
+            return nil
+        }
+
+        await state.emptyTrash()
+
+        XCTAssertFalse(fileManager.fileExists(atPath: kept.path))
+        XCTAssertTrue(
+            state.cleanupHistory.isEmpty,
+            "Nothing the user could see was removed, so nothing may be recorded as freed"
+        )
+    }
+
+    func testVisibleTrashRowsStillRecordTheirFullSize() async throws {
+        try Data(repeating: 4, count: 8_192).write(to: trash.appendingPathComponent("a.bin"))
+        try Data(repeating: 5, count: 8_192).write(to: trash.appendingPathComponent("b.bin"))
+        let scanned = await ScanEngine(homeDirectory: fixtureHome).scanCategory(.trash)
+        let expected = scanned.totalSize
+
+        let saved = UserDefaults.standard.stringArray(forKey: CleanupExclusions.defaultsKey)
+        UserDefaults.standard.set([], forKey: CleanupExclusions.defaultsKey)
+        defer {
+            if let saved {
+                UserDefaults.standard.set(saved, forKey: CleanupExclusions.defaultsKey)
+            } else {
+                UserDefaults.standard.removeObject(forKey: CleanupExclusions.defaultsKey)
+            }
+        }
+
+        let state = makeState { [trash, fileManager] in
+            for entry in try! fileManager.contentsOfDirectory(at: trash!, includingPropertiesForKeys: nil) {
+                try? fileManager.removeItem(at: entry)
+            }
+            return nil
+        }
+
+        await state.emptyTrash()
+
+        XCTAssertEqual(state.cleanupHistory.first?.freedBytes, expected)
+    }
+
     func testFinderFailureKeepsTrashAndReportsTheError() async throws {
         try Data(repeating: 1, count: 8_192).write(to: trash.appendingPathComponent("old.bin"))
         let state = makeState { "Finder refused" }
