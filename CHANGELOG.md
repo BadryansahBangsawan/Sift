@@ -65,6 +65,11 @@ All notable user-facing changes to Sift. Sift was called PureMac before 4.0.0.
 - Counts now agree with their number in every language ("1 item", "2 объекта",
   "5 элементов"); Russian, Ukrainian, Polish and Arabic use their full plural
   rules instead of a single fixed form.
+- The same holds for the counts outside the dashboard and file totals: folder
+  rows, process rows, schedule runs, battery cycles, the selection bar, the
+  removal warnings and the details labels, in all 13 languages. The
+  "3 of 1 item" label carries two variables, so each language pluralises the
+  number it attaches the noun to.
 - The rail now fades the edge that hides rows, so a short window no longer
   looks like the list ends at the last visible item.
 - Settings no longer claims every change applies immediately next to a language
