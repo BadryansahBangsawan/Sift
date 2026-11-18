@@ -28,17 +28,18 @@ final class UninstallerActionBarTests: XCTestCase {
 
     func testTheSelectionSummaryIsDrawnInFullAtTheMinimumWindowWidth() {
         for summary in summaries {
-            let ideal = idealWidth(summary)
-            let drawn = drawnSummaryWidth(summary)
+            let full = drawnSummaryWidth(summary, width: 1_600 - 2 * 24)
+            let drawn = drawnSummaryWidth(summary, width: barWidth)
+            XCTAssertGreaterThan(full, 0, "“\(summary)” drew nothing even in a wide window")
             XCTAssertEqual(
-                drawn, ideal, accuracy: 2,
-                "“\(summary)” drew \(Int(drawn)) pt of its \(Int(ideal)) pt")
+                drawn, full, accuracy: 1,
+                "“\(summary)” drew \(Int(drawn)) pt of the \(Int(full)) pt it draws in a wide window")
         }
     }
 
     func testTheSelectionSummarySitsAtTheTrailingEdgeOfItsLine() {
         for summary in summaries {
-            let ink = drawnSummaryInk(summary)
+            let ink = drawnSummaryInk(summary, width: barWidth)
             XCTAssertGreaterThanOrEqual(ink.maxX, barWidth - 30, "“\(summary)” is not right-aligned")
         }
     }
@@ -57,13 +58,13 @@ final class UninstallerActionBarTests: XCTestCase {
         )
     }
 
-    private func bitmap(summary: String) -> NSBitmapImageRep {
+    private func bitmap(summary: String, width: CGFloat) -> NSBitmapImageRep {
         let content = bar(summary: summary)
-            .frame(width: barWidth, height: barHeight)
+            .frame(width: width, height: barHeight)
             .background(Color.black)
             .environment(\.colorScheme, .dark)
         let host = NSHostingView(rootView: AnyView(content))
-        host.frame = NSRect(x: 0, y: 0, width: barWidth, height: barHeight)
+        host.frame = NSRect(x: 0, y: 0, width: width, height: barHeight)
         host.layoutSubtreeIfNeeded()
         // SwiftUI settles on its first layout in a run-loop turn; without this
         // a fresh hosting view can rasterize blank.
@@ -87,9 +88,9 @@ final class UninstallerActionBarTests: XCTestCase {
         var width: CGFloat { maxX - minX }
     }
 
-    private func drawnSummaryInk(_ summary: String) -> Ink {
-        let rep = bitmap(summary: summary)
-        let scale = CGFloat(rep.pixelsWide) / max(1, barWidth)
+    private func drawnSummaryInk(_ summary: String, width: CGFloat) -> Ink {
+        let rep = bitmap(summary: summary, width: width)
+        let scale = CGFloat(rep.pixelsWide) / max(1, width)
         var minX = CGFloat.greatestFiniteMagnitude
         var maxX: CGFloat = 0
         for y in summaryBand {
@@ -105,14 +106,7 @@ final class UninstallerActionBarTests: XCTestCase {
         return Ink(minX: minX, maxX: maxX)
     }
 
-    private func drawnSummaryWidth(_ summary: String) -> CGFloat {
-        drawnSummaryInk(summary).width
-    }
-
-    private func idealWidth(_ summary: String) -> CGFloat {
-        let font = SiftFonts.nsFont(SiftFonts.mono, size: 12, weight: 400)
-            ?? NSFont.monospacedSystemFont(ofSize: 12, weight: .regular)
-        let text = NSAttributedString(string: summary, attributes: [.font: font])
-        return ceil(text.size().width)
+    private func drawnSummaryWidth(_ summary: String, width: CGFloat) -> CGFloat {
+        drawnSummaryInk(summary, width: width).width
     }
 }

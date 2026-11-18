@@ -338,7 +338,7 @@ struct AppFilesView: View {
 
     private var actionBar: some View {
         UninstallerActionBar(
-            summary: "\(appState.selectedFiles.count) items, \(SiftFormat.bytes(totalSelectedSize))",
+            summary: UninstallerActionBar.summary(count: appState.selectedFiles.count, size: totalSelectedSize),
             canDryRun: !appState.selectedFiles.isEmpty,
             canReview: !appState.selectedFiles.isEmpty && !appIsRunning,
             runningAppName: appIsRunning ? app.appName : nil,
@@ -349,14 +349,6 @@ struct AppFilesView: View {
                 showBulkConfirmation = true
             }
         )
-    }
-
-    private func barButtonLabel(_ title: LocalizedStringKey, icon: SiftIcon) -> some View {
-        HStack(spacing: 8) {
-            icon.image(15).foregroundStyle(SiftColor.textSecondary)
-            Text(title)
-        }
-        .fixedSize()
     }
 
     // MARK: - Helpers
@@ -478,7 +470,7 @@ private struct DryRunSheet: View {
             HStack(spacing: 12) {
                 SiftFootnote(Text("Nothing has been removed."))
                 Spacer()
-                Text("\(plan.entries.count) items, \(SiftFormat.bytes(plan.totalSize))")
+                Text(verbatim: UninstallerActionBar.summary(count: plan.entries.count, size: plan.totalSize))
                     .font(.siftMono(12))
                     .foregroundStyle(SiftColor.textTertiary)
                 Button("Done", action: dismiss)
