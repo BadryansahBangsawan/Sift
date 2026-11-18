@@ -132,6 +132,61 @@ final class AIToolCleanupTests: XCTestCase {
         )
     }
 
+    func testUnlinkedAICacheStillCountsAsFreedSpace() async throws {
+        try createFile(".claude/shell-snapshots/snapshot.sh")
+        let cachePath = path(".claude/shell-snapshots")
+        let scan = await makeScanner().scanCategory(.aiApps)
+        let cache = try XCTUnwrap(scan.items.first { $0.path == cachePath })
+        XCTAssertFalse(cache.movesToTrash)
+
+        let result = await makeCleaner().cleanItems([cache]) { _ in }
+
+        XCTAssertEqual(result.itemsCleaned, 1)
+        XCTAssertTrue(result.errors.isEmpty, "\(result.errors)")
+        XCTAssertEqual(result.freedSpace, cache.size)
+        XCTAssertTrue(result.trashedPaths.isEmpty)
+    }
+
+    func testMixedBatchFreesOnlyTheUnlinkedBytes() async throws {
+        try createFile(".claude/shell-snapshots/snapshot.sh")
+        try createSession(
+            ".claude/projects/-Users-test-demo/77777777-7777-7777-7777-777777777777.jsonl",
+            modified: oldDate
+        )
+        let cachePath = path(".claude/shell-snapshots")
+        let scan = await makeScanner().scanCategory(.aiApps)
+        let cache = try XCTUnwrap(scan.items.first { $0.path == cachePath })
+        let session = try XCTUnwrap(
+            scan.items.first {
+                $0.path == path(".claude/projects/-Users-test-demo/77777777-7777-7777-7777-777777777777.jsonl")
+            }
+        )
+
+        let result = await makeCleaner().cleanItems([cache, session]) { _ in }
+
+        XCTAssertEqual(result.itemsCleaned, 2)
+        XCTAssertEqual(result.freedSpace, cache.size)
+        XCTAssertFalse(result.trashedPaths.isEmpty)
+    }
+
+    func testRefusedAIItemFreesNothing() async throws {
+        let transcript = try createSession(
+            ".claude/projects/-Users-test-demo/88888888-8888-8888-8888-888888888888.jsonl",
+            modified: oldDate
+        )
+        try createFile(".claude/settings.json", size: 2048)
+
+        var item = aiItem(relative: ".claude/projects/-Users-test-demo/88888888-8888-8888-8888-888888888888.jsonl")
+        item.companionPaths = [path(".claude/settings.json")]
+
+        let result = await makeCleaner().cleanItems([item]) { _ in }
+
+        XCTAssertEqual(result.itemsCleaned, 0)
+        XCTAssertEqual(result.freedSpace, 0)
+        XCTAssertFalse(result.errors.isEmpty)
+        XCTAssertTrue(fileManager.fileExists(atPath: transcript))
+    }
+
     func testSessionModifiedJustNowIsNotOffered() async throws {
         _ = try createSession(
             ".claude/projects/-Users-test-demo/33333333-3333-3333-3333-333333333333.jsonl",
