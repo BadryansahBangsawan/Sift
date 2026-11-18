@@ -943,6 +943,7 @@
 "Your version, release checks and how to install updates." = "当前版本、版本检查以及更新的安装方式。";
 "macOS %@ or later" = "macOS %@ 或更高版本";
 "Changes apply immediately" = "更改立即生效";
+"Most changes apply immediately" = "大多数更改会立即生效";
 "Opens quietly when you sign in to your Mac" = "登录 Mac 时在后台静默打开";
 "A new language applies after Sift restarts" = "重新启动 Sift 后新语言才会生效";
 "Menu bar and sound" = "菜单栏和声音";
@@ -1065,6 +1066,8 @@
 "AC power" = "电源适配器";
 "battery power" = "电池供电";
 "%@ of %@ mAh, service below 80%%" = "%@ / %@ mAh，低于 80%% 需维修";
+"%@ of %@ mAh" = "%@ / %@ mAh";
+"%@, service below 80%%" = "%@，低于 80%% 需维修";
 "service below 80%" = "低于 80% 需维修";
 "%lld registered" = "已注册 %lld 项";
 "No launch agents or daemons were found outside macOS system folders." = "在 macOS 系统文件夹之外未找到启动代理或守护进程。";

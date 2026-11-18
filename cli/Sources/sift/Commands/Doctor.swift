@@ -45,8 +45,8 @@ struct Doctor: ParsableCommand {
             print("  " + Term.yellow("Storage capacity is unavailable for /"))
         }
         if let memory {
-            print("  " + Term.dim(Render.pad("Memory", 18)) + ByteCount.human(memory.total) + Term.dim(" total"))
-            print("  " + Term.dim(Render.pad("Free", 18)) + ByteCount.human(memory.free + memory.inactive))
+            print("  " + Term.dim(Render.pad("Memory", 18)) + ByteCount.memory(memory.total) + Term.dim(" total"))
+            print("  " + Term.dim(Render.pad("Free", 18)) + ByteCount.memory(memory.free + memory.inactive))
         } else {
             print("  " + Term.yellow("Memory statistics are unavailable"))
         }

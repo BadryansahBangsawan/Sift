@@ -560,7 +560,7 @@ final class AppState: ObservableObject {
     }
 
     private static func fileCountLabel(_ count: Int) -> String {
-        count == 1 ? String(localized: "1 file") : String(localized: "\(count) files")
+        String(localized: "\(count) files")
     }
 
     private nonisolated static func isMissingFileError(_ nsError: NSError) -> Bool {

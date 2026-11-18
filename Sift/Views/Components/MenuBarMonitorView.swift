@@ -47,10 +47,10 @@ struct MenuBarMonitorView: View {
                          detail: "\(Int((monitor.cpuUsage * 100).rounded()))%")
                 MeterRow(title: "Memory", fill: SiftColor.accentDim,
                          fraction: monitor.memoryFraction,
-                         detail: byteDetail(monitor.memoryUsed, monitor.memoryTotal))
+                         detail: Self.memoryDetail(used: monitor.memoryUsed, total: monitor.memoryTotal))
                 MeterRow(title: "Disk", fill: SiftColor.textTertiary,
                          fraction: monitor.diskFraction,
-                         detail: byteDetail(monitor.diskUsed, monitor.diskTotal))
+                         detail: Self.diskDetail(used: monitor.diskUsed, total: monitor.diskTotal))
             }
 
             Rectangle()
@@ -81,10 +81,21 @@ struct MenuBarMonitorView: View {
         // item and popover together, and releases it explicitly on teardown.
     }
 
-    private func byteDetail(_ used: Int64, _ total: Int64) -> String {
-        let u = ByteCountFormatter.string(fromByteCount: used, countStyle: .memory)
-        let t = ByteCountFormatter.string(fromByteCount: total, countStyle: .memory)
-        return "\(u) / \(t)"
+    /// Disk usage in the same decimal units the dashboard shows, so the popover
+    /// and the Overview quote one total for the same disk.
+    static func diskDetail(used: Int64, total: Int64) -> String {
+        "\(SiftFormat.bytes(used)) / \(SiftFormat.bytes(total))"
+    }
+
+    /// RAM is a binary quantity: a 16 GB Mac holds 17,179,869,184 bytes, which
+    /// macOS and the Performance screen show as 16 GB.
+    static func memoryDetail(used: Int64, total: Int64) -> String {
+        let formatter = ByteCountFormatter()
+        formatter.countStyle = .memory
+        formatter.allowsNonnumericFormatting = false
+        return formatter.string(fromByteCount: max(0, used))
+            + " / "
+            + formatter.string(fromByteCount: max(0, total))
     }
 
     /// Bring the app forward and surface the main window. The app stays alive

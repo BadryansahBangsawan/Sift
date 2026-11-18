@@ -436,7 +436,7 @@ private struct WhereItSitsCard: View {
         VStack(alignment: .leading, spacing: 14) {
             SiftCardHeader(Text("Where it sits")) {
                 if rows.contains(where: \.measured) {
-                    Text("\(SiftFormat.count(rows.reduce(0) { $0 + $1.count })) items")
+                    Text("\(rows.reduce(0) { $0 + $1.count }) items")
                         .siftStyle(.mono)
                 }
             }
@@ -473,6 +473,18 @@ private struct WhereItSitsCard: View {
     }
 }
 
+/// Column widths for the Overview "Where it sits" rows.
+///
+/// The card is ~292 pt wide at the 1080 pt minimum window width: icon tile 32 +
+/// label + meter + size 72 + chevron 16 + spacing and padding leave the meter as
+/// the only column that can give way, so it collapsed to a dot and the
+/// proportion read as nothing. It keeps `meterMinWidth` instead and the label
+/// column truncates, with the full name on hover.
+enum WhereRowLayout {
+    static let meterMinWidth: CGFloat = 56
+    static let meterIdealWidth: CGFloat = 120
+}
+
 private struct WhereRow: View {
     let row: WhereItSitsCard.Row
     let fraction: Double
@@ -490,15 +502,19 @@ private struct WhereRow: View {
                         .lineLimit(1)
                     Group {
                         if row.measured {
-                            Text("\(SiftFormat.count(row.count)) items")
+                            Text("\(row.count) items")
                         } else {
                             Text("not scanned")
                         }
                     }
                     .siftStyle(.monoSmall)
                 }
-                .frame(width: 170, alignment: .leading)
+                .frame(minWidth: 0, maxWidth: .infinity, alignment: .leading)
+                .help(row.item.label)
                 SiftMeterBar(fraction: row.measured ? fraction : 0, fill: isLargest ? SiftColor.accent : SiftColor.accentDim)
+                    .frame(minWidth: WhereRowLayout.meterMinWidth,
+                           idealWidth: WhereRowLayout.meterIdealWidth,
+                           maxWidth: WhereRowLayout.meterIdealWidth)
                 Text(verbatim: row.measured ? SiftFormat.bytes(row.size) : "–")
                     .font(.siftDisplay(16, weight: 500))
                     .foregroundStyle(isLargest ? SiftColor.accent : SiftColor.textPrimary)
