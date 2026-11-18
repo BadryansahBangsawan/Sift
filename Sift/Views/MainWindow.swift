@@ -483,7 +483,30 @@ private struct RailContentHeightKey: PreferenceKey {
     static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) { value = nextValue() }
 }
 
-private struct RailRow: View {
+/// Geometry of a rail row. A rail label must never end in an ellipsis: at the
+/// 228 pt rail a long translation either fits in its column or takes a second
+/// line, which is why the row's height is a minimum and not a fixed one.
+enum RailRowLayout {
+    static let rowMinHeight: CGFloat = 36
+    static let horizontalPadding: CGFloat = 10
+    static let iconWidth: CGFloat = 16
+    static let iconTrailing: CGFloat = 10
+    /// Room after the label before the badge or shortcut.
+    static let trailingGap: CGFloat = 6
+
+    /// Width the label gets in a `railWidth` rail, with `trailingWidth` taken
+    /// by a badge or shortcut hint (0 when the row has neither).
+    static func labelWidth(railWidth: CGFloat, trailingWidth: CGFloat) -> CGFloat {
+        max(0, railWidth - horizontalPadding * 2 - iconWidth - iconTrailing - trailingGap - trailingWidth)
+    }
+
+    /// Lines a label takes: one when it fits, two otherwise. The row grows.
+    static func lineLimit(labelWidth ideal: CGFloat, available: CGFloat) -> Int {
+        1
+    }
+}
+
+struct RailRow: View {
     let item: SiftRail.Item
     let badge: String?
     let shortcut: String?
