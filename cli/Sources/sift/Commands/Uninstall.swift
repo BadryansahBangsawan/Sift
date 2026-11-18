@@ -30,7 +30,6 @@ struct Uninstall: ParsableCommand {
     /// Every top-level folder that can hold bundle-identifier-named data.
     /// Scoped to the user's own Home so no system or other-user data is reachable.
     private static var librarySubtrees: [String] {
-        let library = "/Library"
         return [
             "Preferences",
             "Caches",
@@ -46,7 +45,7 @@ struct Uninstall: ParsableCommand {
             "Application Scripts",
             "Application State",
             "Services",
-        ].map { library + "/" + $0 }
+        ]
     }
 
     func validate() throws {
