@@ -42,6 +42,45 @@ final class VisibleItemsCacheTests: XCTestCase {
         XCTAssertEqual(updated.count, 15)
     }
 
+    /// A selection tick does not change which rows are visible, and the rows
+    /// compare by identity, so ticking a box must not pay for a new sort.
+    func testSelectionTicksDoNotRecompute() {
+        let cache = VisibleItemsCache()
+        var items = makeItems(12)
+
+        let before = cache.items(for: items, filter: CleanupReviewFilter())
+        for index in items.indices { items[index].isSelected = true }
+        let after = cache.items(for: items, filter: CleanupReviewFilter())
+
+        XCTAssertEqual(cache.recomputations, 1)
+        XCTAssertEqual(before.map(\.id), after.map(\.id))
+    }
+
+    /// Changing the sort order is a filter change, so the rows are rebuilt in
+    /// the new order instead of serving the cached order.
+    func testSortChangeRecomputesInTheNewOrder() {
+        let cache = VisibleItemsCache()
+        let items = makeItems(20)
+
+        let largestFirst = cache.items(for: items, filter: CleanupReviewFilter())
+        var smallestFirst = CleanupReviewFilter()
+        smallestFirst.order = .smallest
+        let smallest = cache.items(for: items, filter: smallestFirst)
+
+        XCTAssertEqual(cache.recomputations, 2)
+        XCTAssertNotEqual(largestFirst.map(\.id), smallest.map(\.id))
+        XCTAssertEqual(largestFirst.first?.size, items.map(\.size).max())
+        XCTAssertEqual(smallest.first?.size, items.map(\.size).min())
+    }
+
+    func testEmptyItemsAreCachedToo() {
+        let cache = VisibleItemsCache()
+
+        XCTAssertTrue(cache.items(for: [], filter: CleanupReviewFilter()).isEmpty)
+        XCTAssertTrue(cache.items(for: [], filter: CleanupReviewFilter()).isEmpty)
+        XCTAssertEqual(cache.recomputations, 1)
+    }
+
     // MARK: - Helpers
 
     private func makeItems(_ count: Int) -> [CleanableItem] {
