@@ -311,10 +311,13 @@ actor CleaningEngine {
                     if let trashedPath = resulting?.path {
                         result.trashedPaths.insert(trashedPath)
                     }
+                    // Trashed, not unlinked: the bytes are still on disk until
+                    // the Trash is emptied (which records them itself), so this
+                    // item must not add to freedSpace here.
                 } else {
                     try fileManager.removeItem(at: itemURL)
+                    result.freedSpace += item.size
                 }
-                result.freedSpace += item.size
                 result.itemsCleaned += 1
                 result.cleanedPaths.insert(item.path)
             } catch {
