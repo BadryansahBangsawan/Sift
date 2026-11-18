@@ -17,6 +17,9 @@ All notable user-facing changes to Sift. Sift was called PureMac before 4.0.0.
   Overview. A 245.1 GB disk no longer reads 228.4 GB there.
 - `sift-cli` no longer prints a rounded size as "1000 KB" or "1000 MB"; it
   moves up to "1 MB" and "1 GB" like the app does.
+- `sift-cli dupes` no longer reports a file as a duplicate when it could not be
+  read in full. A failed read used to hash only the bytes read so far, so two
+  files that merely shared a prefix could be paired and one listed for removal.
 
 ## 4.0.1
 
