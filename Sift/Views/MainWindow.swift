@@ -229,6 +229,8 @@ struct SiftRail: View {
     static let cleanupItems: [Item] = [
         Item(section: .cleaning(.systemJunk), label: "System junk", icon: .trash2,
              categories: CleaningCategory.systemJunkGroup.filter(CleaningCategory.scannable.contains)),
+        Item(section: .cleaning(.aiApps), label: "AI tools", icon: .sparkles,
+             categories: CleaningCategory.aiToolsGroup.filter(CleaningCategory.scannable.contains)),
         Item(section: .cleaning(.xcodeJunk), label: "Developer caches", icon: .codeXml,
              categories: CleaningCategory.developerCaches.filter(CleaningCategory.scannable.contains)),
         Item(section: .cleaning(.installers), label: "Installers", icon: .disc3, categories: [.installers]),

@@ -46,7 +46,7 @@ enum CleaningCategory: String, CaseIterable, Identifiable, Codable {
         case .smartScan: return "Scan everything at once"
         case .systemJunk: return "System caches, logs, and temporary files"
         case .userCache: return "Application caches and browser data"
-        case .aiApps: return "Local AI app logs, caches, and optional history"
+        case .aiApps: return "Caches, logs, and optional chat history of AI apps and coding agents"
         case .mailAttachments: return "Downloaded mail attachments"
         case .largeFiles: return "Files over 100 MB or older than 1 year"
         case .installers: return "Installer disk images and packages older than two weeks"
@@ -94,7 +94,12 @@ enum CleaningCategory: String, CaseIterable, Identifiable, Codable {
     static let developerCaches: [CleaningCategory] = [.xcodeJunk, .brewCache, .nodeCache, .dockerCache]
 
     /// Sidebar and dashboard group for general system and app junk.
-    static let systemJunkGroup: [CleaningCategory] = [.systemJunk, .userCache, .aiApps]
+    static let systemJunkGroup: [CleaningCategory] = [.systemJunk, .userCache]
+
+    /// AI app and coding agent caches, logs, and opt-in history. Its own rail
+    /// row, deliberately outside System junk: opt-in session history must not
+    /// be swept up with the pre-selected caches.
+    static let aiToolsGroup: [CleaningCategory] = [.aiApps]
 
     // Categories that rewrite app bundles in place (binary thinning,
     // localization stripping) instead of deleting junk.
@@ -152,6 +157,17 @@ struct CleanableItem: Identifiable, Hashable {
     let category: CleaningCategory
     var isSelected: Bool
     let lastModified: Date?
+    /// Extra paths removed together with `path`. Only AI tool sessions use it:
+    /// a Claude Code or omp transcript and its companion folder are one item,
+    /// so the UI keeps one row and the cleaner removes both. Every companion
+    /// is re-validated against the AI tools allow-list before removal.
+    var companionPaths: [String] = []
+    /// Opt-in explanation shown instead of the path in cleanup rows, e.g.
+    /// "Chat history — not selected by default".
+    var note: String?
+    /// Opt-in history items are moved to the Trash so they stay recoverable;
+    /// caches and logs are removed directly.
+    var movesToTrash: Bool = false
 
     var formattedSize: String {
         ByteCountFormatter.string(fromByteCount: size, countStyle: .file)
