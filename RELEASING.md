@@ -23,7 +23,7 @@ Until the signing secrets below exist, publish with **Actions > Release (unsigne
 | `HOMEBREW_TAP_DEPLOY_KEY` | workflow bumps the tap |
 | `BadryansahBangsawan/homebrew-tap` repo | `brew install --cask BadryansahBangsawan/tap/sift` |
 
-Versions in this branch: app `4.0.0` (`project.yml`, build `32`), CLI `1.2.0`
+Versions in this branch: app `4.0.1` (`project.yml`, build `33`), CLI `1.2.0`
 (`cli/Sources/sift/SiftCLI.swift`). The workflow refuses to run when
 `MARKETING_VERSION` does not match the tag.
 

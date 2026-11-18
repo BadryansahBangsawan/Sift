@@ -2,10 +2,14 @@
 
 All notable user-facing changes to Sift. Sift was called PureMac before 4.0.0.
 
-## Unreleased
+## 4.0.1
 
 ### Changed
 
+- New logo: a brass grain resting on a sieve while the small grains fall
+  through. Sift keeps what matters and lets only the junk go. It replaces
+  the "S" tile in the app icon, the sidebar, Settings, onboarding, the menu
+  bar monitor and the website, and the README screenshots show it.
 - Releases can be published without a Developer ID: an ad-hoc signed,
   not notarized build with first-launch instructions (Open Anyway).
 - Documentation rewritten for Sift 4: README, the six translated READMEs,

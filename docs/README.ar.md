@@ -29,7 +29,7 @@
 
 ## التثبيت
 
-نزّل `Sift-4.0.0.dmg` من [أحدث إصدار](https://github.com/BadryansahBangsawan/Sift/releases/latest) واسحب Sift إلى مجلد التطبيقات.
+نزّل `Sift-4.0.1.dmg` من [أحدث إصدار](https://github.com/BadryansahBangsawan/Sift/releases/latest) واسحب Sift إلى مجلد التطبيقات.
 
 هذا الإصدار غير موثّق من Apple بعد، لذلك يوقفه macOS في المرة الأولى:
 
