@@ -397,7 +397,7 @@ struct SiftRail: View {
                 .frame(width: 32, height: 32)
                 .background(RoundedRectangle(cornerRadius: SiftRadius.tile, style: .continuous).fill(SiftColor.accentTint))
             VStack(alignment: .leading, spacing: 2) {
-                Text("Scheduled cleanup")
+                Text(LocalizedStringKey(scheduler.config.railTitleKey))
                     .font(.sift(10.5))
                     .foregroundStyle(SiftColor.textTertiary)
                     .lineLimit(1)
@@ -415,7 +415,7 @@ struct SiftRail: View {
             )) { EmptyView() }
                 .toggleStyle(.siftSwitch)
                 .labelsHidden()
-                .accessibilityLabel(Text("Scheduled cleanup"))
+                .accessibilityLabel(Text(LocalizedStringKey(scheduler.config.railTitleKey)))
         }
         .padding(12)
         .background(RoundedRectangle(cornerRadius: 18, style: .continuous).fill(SiftColor.card))

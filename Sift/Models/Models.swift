@@ -277,6 +277,13 @@ struct ScheduleConfig: Codable {
     var notifyOnCompletion: Bool = true
     var minimumCleanSize: Int64 = 100 * 1024 * 1024 // 100 MB
 
+    /// What the schedule will do, in the rail's words: a schedule only scans
+    /// unless auto-clean is on, and Settings calls that switch "Enable
+    /// scheduled scanning".
+    var railTitleKey: String {
+        autoClean ? "Scheduled cleanup" : "Scheduled scan"
+    }
+
     var formattedLastRun: String {
         guard let date = lastRunDate else { return String(localized: "Never") }
         let formatter = RelativeDateTimeFormatter()

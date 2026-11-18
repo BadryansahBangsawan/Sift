@@ -1368,3 +1368,4 @@
 "Skipped: Claude is running. Quit Claude and scan again." = "Ignorado: o Claude está em execução. Encerre o Claude e escaneie novamente.";
 "Skipped: this session is open. Quit the session and scan again." = "Ignorado: esta sessão está aberta. Encerre a sessão e escaneie novamente.";
 "Last checked %@" = "Última verificação: %@";
+"Scheduled scan" = "Verificação agendada";

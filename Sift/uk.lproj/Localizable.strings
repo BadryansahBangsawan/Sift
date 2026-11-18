@@ -1368,3 +1368,4 @@
 "Skipped: Claude is running. Quit Claude and scan again." = "Пропущено: Claude запущено. Закрийте Claude і повторіть сканування.";
 "Skipped: this session is open. Quit the session and scan again." = "Пропущено: цю сесію відкрито. Завершіть сесію та повторіть сканування.";
 "Last checked %@" = "Остання перевірка: %@";
+"Scheduled scan" = "Запланована перевірка";

@@ -1368,3 +1368,4 @@
 "Skipped: Claude is running. Quit Claude and scan again." = "スキップしました: Claudeが実行中です。Claudeを終了して再スキャンしてください。";
 "Skipped: this session is open. Quit the session and scan again." = "スキップしました: このセッションは開いています。セッションを終了して再スキャンしてください。";
 "Last checked %@" = "最終確認: %@";
+"Scheduled scan" = "定期スキャン";
