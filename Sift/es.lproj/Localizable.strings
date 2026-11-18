@@ -1376,3 +1376,7 @@
 "Quit Claude to remove this." = "Cierra Claude para eliminar esto.";
 "Skipped: Claude is running. Quit Claude and scan again." = "Omitido: Claude se está ejecutando. Cierra Claude y vuelve a analizar.";
 "Skipped: this session is open. Quit the session and scan again." = "Omitido: esta sesión está abierta. Cierra la sesión y vuelve a analizar.";
+"Not scanned yet" = "Aún no analizado";
+"Scan to see whether uninstalled apps left files behind." = "Analiza para ver si las apps desinstaladas dejaron archivos.";
+"Couldn't compare installed apps" = "No se pudieron comparar las apps instaladas";
+"Sift needs the list of installed apps before it can call a file a leftover. Try again in a moment." = "Sift necesita la lista de apps instaladas antes de llamar a un archivo sobrante. Inténtalo en un momento.";

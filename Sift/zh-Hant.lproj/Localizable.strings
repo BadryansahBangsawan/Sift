@@ -1376,3 +1376,7 @@
 "Quit Claude to remove this." = "結束 Claude 後再刪除。";
 "Skipped: Claude is running. Quit Claude and scan again." = "已略過：Claude 正在執行。結束 Claude 後重新掃描。";
 "Skipped: this session is open. Quit the session and scan again." = "已略過：此工作階段處於開啟狀態。結束工作階段後重新掃描。";
+"Not scanned yet" = "尚未掃描";
+"Scan to see whether uninstalled apps left files behind." = "掃描以查看已解除安裝的應用程式是否留下了檔案。";
+"Couldn't compare installed apps" = "無法與已安裝的應用程式比較";
+"Sift needs the list of installed apps before it can call a file a leftover. Try again in a moment." = "Sift 需要已安裝應用程式的列表，才能判斷檔案是否為殘留。請稍後再試。";

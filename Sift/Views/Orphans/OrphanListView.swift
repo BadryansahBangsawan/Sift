@@ -32,11 +32,33 @@ struct OrphanListView: View {
                     }
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .siftSurface(.card)
-                } else if appState.orphanedFiles.isEmpty {
+                } else if !appState.orphanScanCompleted {
+                    // Nothing has been scanned yet: "No Orphaned Files" would
+                    // claim the app looked and found none.
+                    EmptyStateView(
+                        "Not scanned yet",
+                        systemImage: "magnifyingglass",
+                        description: "Scan to see whether uninstalled apps left files behind.",
+                        action: { appState.findOrphans() },
+                        actionLabel: "Scan for Orphans",
+                        tint: SiftColor.textSecondary
+                    )
+                    .siftSurface(.card)
+                } else if !appState.orphanedFiles.isEmpty {
+                    table
+                } else if appState.orphanScanNeedsAppList {
+                    EmptyStateView(
+                        "Couldn't compare installed apps",
+                        systemImage: "exclamationmark.triangle",
+                        description: "Sift needs the list of installed apps before it can call a file a leftover. Try again in a moment.",
+                        action: { appState.findOrphans() },
+                        actionLabel: "Scan for Orphans",
+                        tint: SiftColor.warning
+                    )
+                    .siftSurface(.card)
+                } else {
                     EmptyStateView("No Orphaned Files", systemImage: "checkmark.circle", description: "No leftover files from uninstalled apps were found.", action: { appState.findOrphans() }, actionLabel: "Scan for Orphans", tint: SiftColor.success)
                         .siftSurface(.card)
-                } else {
-                    table
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)

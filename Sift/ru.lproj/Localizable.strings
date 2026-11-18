@@ -1376,3 +1376,7 @@
 "Quit Claude to remove this." = "Закройте Claude, чтобы удалить это.";
 "Skipped: Claude is running. Quit Claude and scan again." = "Пропущено: Claude запущен. Закройте Claude и повторите сканирование.";
 "Skipped: this session is open. Quit the session and scan again." = "Пропущено: эта сессия открыта. Завершите сессию и повторите сканирование.";
+"Not scanned yet" = "Ещё не сканировано";
+"Scan to see whether uninstalled apps left files behind." = "Запустите сканирование, чтобы узнать, оставили ли удалённые приложения файлы.";
+"Couldn't compare installed apps" = "Не удалось сравнить установленные приложения";
+"Sift needs the list of installed apps before it can call a file a leftover. Try again in a moment." = "Sift нужен список установленных приложений, чтобы считать файл остатком. Повторите попытку через минуту.";

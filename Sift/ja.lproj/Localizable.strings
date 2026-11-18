@@ -1376,3 +1376,7 @@
 "Quit Claude to remove this." = "削除するにはClaudeを終了してください。";
 "Skipped: Claude is running. Quit Claude and scan again." = "スキップしました: Claudeが実行中です。Claudeを終了して再スキャンしてください。";
 "Skipped: this session is open. Quit the session and scan again." = "スキップしました: このセッションは開いています。セッションを終了して再スキャンしてください。";
+"Not scanned yet" = "まだスキャンしていません";
+"Scan to see whether uninstalled apps left files behind." = "スキャンして、削除したアプリがファイルを残していないか確認します。";
+"Couldn't compare installed apps" = "インストール済みアプリと比較できませんでした";
+"Sift needs the list of installed apps before it can call a file a leftover. Try again in a moment." = "Siftがファイルを残骸と判断するには、インストール済みアプリの一覧が必要です。しばらくしてから再度お試しください。";
