@@ -74,6 +74,20 @@ final class XcodeArchivesTests: XCTestCase {
         XCTAssertTrue(selected.contains { $0.path == path("Library/Developer/Xcode/DerivedData") })
     }
 
+    func testOtherXcodeRowsStillUnlinkAndCountAsFreed() async throws {
+        let scan = await makeScanner().scanCategory(.xcodeJunk)
+        let deviceSupport = try XCTUnwrap(
+            scan.items.first { $0.path == path("Library/Developer/Xcode/iOS DeviceSupport") }
+        )
+
+        let result = await makeCleaner().cleanItems([deviceSupport]) { _ in }
+
+        XCTAssertEqual(result.itemsCleaned, 1, "\(result.errors)")
+        XCTAssertTrue(result.trashedPaths.isEmpty, "Regenerable caches are unlinked, not recycled")
+        XCTAssertEqual(result.freedSpace, deviceSupport.size)
+        XCTAssertFalse(fileManager.fileExists(atPath: deviceSupport.path))
+    }
+
     // MARK: - Fixtures
 
     private func makeScanner() -> ScanEngine {

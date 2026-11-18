@@ -6,6 +6,10 @@ All notable user-facing changes to Sift. Sift was called PureMac before 4.0.0.
 
 ### Fixed
 
+- Xcode Archives are no longer pre-selected or deleted outright. They hold your
+  shipped builds and the dSYMs needed for crash reports and cannot be
+  regenerated, so the row is opt-in, says what it holds, moves to the Trash, and
+  stays out of an unattended scheduled clean unless you select it.
 - A cleanup that skipped a row on purpose (an excluded path, the Trash itself,
   Claude running, a session you resumed, a temp entry that turned live, a
   symlink or a path outside the folders Sift cleans) no longer reports
