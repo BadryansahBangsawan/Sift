@@ -1,9 +1,17 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# Signing identity comes from the environment, never from a default:
+#   SIFT_TEAM_ID  Apple Developer team ID, 10 characters (ABCDE12345)
+#   SIFT_SIGN_ID  Full codesign identity, e.g.
+#                 "Developer ID Application: Your Name (ABCDE12345)"
+# Usage: SIFT_TEAM_ID=... SIFT_SIGN_ID=... scripts/release-cli-local.sh <version> [notary_profile]
+
 VERSION="${1:?Usage: $0 <version> [notary_profile]}"
 NOTARY_PROFILE="${2:-AC_NOTARY}"
-SIGN_ID="Developer ID Application: Moamen Basel (H3WXHVTP97)"
+: "${SIFT_TEAM_ID:?SIFT_TEAM_ID is not set. Export your Apple Developer team ID (10 characters, e.g. ABCDE12345).}"
+: "${SIFT_SIGN_ID:?SIFT_SIGN_ID is not set. Export your signing identity, e.g. \"Developer ID Application: Your Name (ABCDE12345)\".}"
+SIGN_ID="${SIFT_SIGN_ID}"
 cd "$(dirname "$0")/.."
 
 SEMVER_RE='^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$'

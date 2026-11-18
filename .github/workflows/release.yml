@@ -26,7 +26,9 @@ concurrency:
 env:
   APP_NAME: Sift
   BUNDLE_ID: com.sift.app
-  TEAM_ID: H3WXHVTP97
+  # Repository variables, not code: Settings > Secrets and variables > Actions.
+  TEAM_ID: ${{ vars.SIFT_TEAM_ID }}
+  SIGN_ID: ${{ vars.SIFT_SIGN_ID }}
   SCHEME: Sift
   PROJECT: Sift.xcodeproj
   CONFIGURATION: Release
@@ -119,6 +121,19 @@ jobs:
       - name: Select Xcode
         run: sudo xcode-select -s /Applications/Xcode_16.4.app
 
+      - name: Verify signing configuration
+        run: |
+          set -euo pipefail
+          if [[ -z "${TEAM_ID:-}" ]]; then
+            echo "::error::Repository variable SIFT_TEAM_ID is not set (Settings > Secrets and variables > Actions > Variables)."
+            exit 1
+          fi
+          if [[ -z "${SIGN_ID:-}" ]]; then
+            echo "::error::Repository variable SIFT_SIGN_ID is not set (Settings > Secrets and variables > Actions > Variables)."
+            exit 1
+          fi
+          echo "Signing as ${SIGN_ID} for team ${TEAM_ID}"
+
       - name: Install release tools
         run: |
           brew install xcodegen create-dmg xcbeautify
@@ -147,7 +162,7 @@ jobs:
           done < <(security list-keychain -d user | sed -E 's/^[[:space:]]*"//; s/"[[:space:]]*$//')
           security list-keychain -d user -s "${KEYCHAIN_PATH}" "${CURRENT_KEYCHAINS[@]}"
           # Verify identity loaded
-          security find-identity -v -p codesigning "${KEYCHAIN_PATH}" | grep "Developer ID Application: Moamen Basel"
+          security find-identity -v -p codesigning "${KEYCHAIN_PATH}" | grep -F "Developer ID Application: " | grep -F "${TEAM_ID}"
 
       - name: Run tests before signing
         run: |
@@ -171,7 +186,7 @@ jobs:
             ARCHS="arm64 x86_64" \
             ONLY_ACTIVE_ARCH=NO \
             CODE_SIGN_STYLE=Manual \
-            CODE_SIGN_IDENTITY="Developer ID Application: Moamen Basel (H3WXHVTP97)" \
+            CODE_SIGN_IDENTITY="${SIGN_ID}" \
             DEVELOPMENT_TEAM="${TEAM_ID}" \
             OTHER_CODE_SIGN_FLAGS="--timestamp --options=runtime" \
             archive | xcbeautify
@@ -179,13 +194,13 @@ jobs:
       - name: Export signed app
         run: |
           set -euo pipefail
-          cat > build/ExportOptions.plist <<'PLIST'
+          cat > build/ExportOptions.plist <<PLIST
           <?xml version="1.0" encoding="UTF-8"?>
           <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
           <plist version="1.0">
           <dict>
             <key>method</key><string>developer-id</string>
-            <key>teamID</key><string>H3WXHVTP97</string>
+            <key>teamID</key><string>${TEAM_ID}</string>
             <key>signingStyle</key><string>manual</string>
             <key>signingCertificate</key><string>Developer ID Application</string>
           </dict>
@@ -253,7 +268,7 @@ jobs:
             --no-internet-enable \
             "${DMG}" \
             build/export/Sift.app
-          codesign --sign "Developer ID Application: Moamen Basel (H3WXHVTP97)" --timestamp "${DMG}"
+          codesign --sign "${SIGN_ID}" --timestamp "${DMG}"
           codesign --verify --verbose=2 "${DMG}"
 
       - name: Notarize, staple, and validate DMG
@@ -331,7 +346,12 @@ jobs:
               echo ""
               echo "Universal binary (Intel + Apple Silicon). Signed with Developer ID + notarized + stapled by Apple."
               echo ""
-              if [[ "${VERSION}" == "3.0.0" ]]; then
+              if [[ "${VERSION}" == "4.0.0" ]]; then
+                echo "### Sift 4.0.0"
+                echo ""
+                echo "PureMac is now Sift: a new interface, a new name and a new bundle identifier (com.sift.app). Settings and cleanup history migrate on first launch; Full Disk Access must be granted again. See CHANGELOG.md for the full list."
+                echo ""
+              elif [[ "${VERSION}" == "3.0.0" ]]; then
                 echo "### What changed"
                 echo "- Redesigned dashboard and navigation, with clearer storage and cleanup review."
                 echo "- New Space Explorer, exact Duplicate Finder, and Similar Photos review."
@@ -377,8 +397,7 @@ jobs:
               echo "### Install"
               echo ""
               echo "\`\`\`"
-              # TODO: point at the Sift tap once one exists; momenbasel/tap only has the PureMac cask.
-              echo "brew install --cask momenbasel/tap/sift"
+              echo "brew install --cask BadryansahBangsawan/tap/sift"
               echo "\`\`\`"
             } > "${NOTES_FILE}"
           }
@@ -397,7 +416,7 @@ jobs:
             codesign --verify --deep --strict --verbose=4 "${published_app}"
             xcrun stapler validate "${published_app}"
             spctl --assess --type execute --verbose=4 "${published_app}"
-            codesign -dvv "${published_app}" 2>&1 | grep -Fq 'TeamIdentifier=H3WXHVTP97'
+            codesign -dvv "${published_app}" 2>&1 | grep -Fq "TeamIdentifier=${TEAM_ID}"
             local app_archs app_version
             app_archs=$(lipo -archs "${published_app}/Contents/MacOS/Sift")
             grep -qw arm64 <<< "${app_archs}"
@@ -523,7 +542,7 @@ jobs:
               echo "::error::Refusing to downgrade Homebrew from ${current_version} to ${VERSION}."
               exit 1
             fi
-            if [[ "${VERSION}" == "${current_version}" && "${ZIP_SHA}" != "${current_sha}" ]]; then
+            if [[ "${VERSION}" == "${current_version}" && "${ZIP_SHA}" != "${current_sha}" && "${current_sha}" != "SHA256_PLACEHOLDER" ]]; then
               echo "::error::Homebrew already has ${VERSION} with a different SHA; refusing replacement."
               exit 1
             fi
@@ -594,7 +613,7 @@ jobs:
               echo "::error::Refusing to downgrade the tap from ${current_version} to ${VERSION}."
               exit 1
             fi
-            if [[ "${VERSION}" == "${current_version}" && "${ZIP_SHA}" != "${current_sha}" ]]; then
+            if [[ "${VERSION}" == "${current_version}" && "${ZIP_SHA}" != "${current_sha}" && "${current_sha}" != "SHA256_PLACEHOLDER" ]]; then
               echo "::error::The tap already has ${VERSION} with a different SHA; refusing replacement."
               exit 1
             fi
@@ -609,12 +628,12 @@ jobs:
           KNOWN_HOSTS="${RUNNER_TEMP}/tap_known_hosts"
           echo "github.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOMqqnkVzrm0SdG6UOoqKLsabgH5C9okWi0dh2l9GKJl" > "${KNOWN_HOSTS}"
           export GIT_SSH_COMMAND="ssh -i ${KEY_FILE} -o IdentitiesOnly=yes -o UserKnownHostsFile=${KNOWN_HOSTS} -o StrictHostKeyChecking=yes"
-          # TODO: point at the Sift release repository and tap. momenbasel/homebrew-tap
-          # only has Casks/puremac.rb, so this step fails until a Sift cask exists there.
+          # TODO: create BadryansahBangsawan/homebrew-tap with Casks/sift.rb
+          # before the first real release. See RELEASING.md.
           FORMULA=Casks/sift.rb
           for attempt in 1 2 3; do
             TAP_DIR="${RUNNER_TEMP}/homebrew-tap-${attempt}"
-            git clone --depth 1 --branch main git@github.com:momenbasel/homebrew-tap.git "${TAP_DIR}"
+            git clone --depth 1 --branch main git@github.com:BadryansahBangsawan/homebrew-tap.git "${TAP_DIR}"
             FORMULA_PATH="${TAP_DIR}/${FORMULA}"
             if [[ ! -f "${FORMULA_PATH}" ]]; then
               echo "::error::${FORMULA} not found in tap"

@@ -6,20 +6,29 @@
 #   - Developer ID Application identity in your login keychain
 #   - notarytool keychain profile already stored, e.g.:
 #       xcrun notarytool store-credentials AC_NOTARY \
-#         --key ~/.appstoreconnect/private_keys/AuthKey_5G7R52L8RK.p8 \
-#         --key-id 5G7R52L8RK --issuer 5de3898a-cd31-4061-850f-ae17b389e46a
+#         --key ~/.appstoreconnect/private_keys/AuthKey_XXXXXXXXXX.p8 \
+#         --key-id XXXXXXXXXX --issuer 00000000-0000-0000-0000-000000000000
 #   - xcodegen + create-dmg installed (brew install xcodegen create-dmg)
 #
+# Signing identity comes from the environment, never from a default:
+#   SIFT_TEAM_ID  Apple Developer team ID, 10 characters (ABCDE12345)
+#   SIFT_SIGN_ID  Full codesign identity, e.g.
+#                 "Developer ID Application: Your Name (ABCDE12345)"
+#
 # Usage: scripts/release-local.sh <version> [notary_profile]
-#        scripts/release-local.sh 2.2.0
-#        scripts/release-local.sh 2.2.0 AC_NOTARY
+#        SIFT_TEAM_ID=ABCDE12345 \
+#        SIFT_SIGN_ID="Developer ID Application: Your Name (ABCDE12345)" \
+#          scripts/release-local.sh 4.0.0
+#        scripts/release-local.sh 4.0.0 AC_NOTARY
 #
 set -euo pipefail
 
 VERSION="${1:?Usage: $0 <version> [notary_profile]}"
 NOTARY_PROFILE="${2:-AC_NOTARY}"
-TEAM_ID="H3WXHVTP97"
-SIGN_ID="Developer ID Application: Moamen Basel (${TEAM_ID})"
+: "${SIFT_TEAM_ID:?SIFT_TEAM_ID is not set. Export your Apple Developer team ID (10 characters, e.g. ABCDE12345).}"
+: "${SIFT_SIGN_ID:?SIFT_SIGN_ID is not set. Export your signing identity, e.g. \"Developer ID Application: Your Name (ABCDE12345)\".}"
+TEAM_ID="${SIFT_TEAM_ID}"
+SIGN_ID="${SIFT_SIGN_ID}"
 SCHEME="Sift"
 PROJECT="Sift.xcodeproj"
 APP="build/export/Sift.app"
