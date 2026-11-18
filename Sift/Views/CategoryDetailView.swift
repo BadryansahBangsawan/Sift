@@ -451,8 +451,12 @@ struct CategoryDetailView: View {
             Text(verbatim: "\(selected.count)")
                 .font(.sift(12, weight: 700))
                 .foregroundStyle(selected.isEmpty ? SiftColor.textTertiary : SiftColor.onAccent)
-                .frame(width: 28, height: 28)
-                .background(Circle().fill(selected.isEmpty ? SiftColor.track : SiftColor.accent))
+                .lineLimit(1)
+                .minimumScaleFactor(0.75)
+                .fixedSize(horizontal: true, vertical: false)
+                .padding(.horizontal, SelectionBadgeRule.horizontalPadding(for: selected.count))
+                .frame(minWidth: SelectionBadgeRule.minimumSize, minHeight: SelectionBadgeRule.minimumSize)
+                .background(Capsule().fill(selected.isEmpty ? SiftColor.track : SiftColor.accent))
             Text("selected")
                 .font(.sift(13.5, weight: 500))
                 .foregroundStyle(SiftColor.textPrimary)
@@ -640,6 +644,19 @@ final class VisibleItemsCache {
         output = computed
         recomputations += 1
         return computed
+    }
+}
+
+/// Width rule for the selected-count badge.
+///
+/// One and two digits sit in a 28 pt circle. From three digits the text needs
+/// more room than the circle gives and wrapped into a tall oval, so the badge
+/// widens into a capsule that keeps the count on one line.
+enum SelectionBadgeRule {
+    static let minimumSize: CGFloat = 28
+
+    static func horizontalPadding(for count: Int) -> CGFloat {
+        count > 99 ? 8 : 0
     }
 }
 
