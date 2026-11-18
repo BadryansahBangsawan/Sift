@@ -81,6 +81,18 @@ final class CategoryStateAfterCleanTests: XCTestCase {
         XCTAssertEqual(state.categoryResults[.trash]?.items.count, 0)
     }
 
+    func testCategoriesThatWereNeverScannedStayAbsent() async throws {
+        let state = makeState()
+
+        state.cleanCategory(.userCache)
+        await waitForClean(state)
+
+        XCTAssertNil(
+            state.categoryResults[.installers],
+            "Keeping emptied categories must not invent results for categories nobody scanned"
+        )
+    }
+
     // MARK: - Fixtures
 
     private func makeState() -> AppState {

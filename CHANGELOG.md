@@ -6,6 +6,9 @@ All notable user-facing changes to Sift. Sift was called PureMac before 4.0.0.
 
 ### Fixed
 
+- A category you just emptied stays scanned: the page says "No files found"
+  instead of "not scanned yet", the Overview row keeps its "0 items", and an
+  emptied Trash no longer claims it was never scanned.
 - Xcode Archives are no longer pre-selected or deleted outright. They hold your
   shipped builds and the dSYMs needed for crash reports and cannot be
   regenerated, so the row is opt-in, says what it holds, moves to the Trash, and
