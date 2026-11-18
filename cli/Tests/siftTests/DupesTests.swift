@@ -89,6 +89,42 @@ final class DupesTests: XCTestCase {
         XCTAssertEqual(hash, Data(SHA256.hash(data: Data())))
     }
 
+    /// Two files that share the first chunk but differ after it are not
+    /// duplicates. This is the shape a prefix hash would have collapsed.
+    func testSharedPrefixBeyondTheFirstChunkIsNotADuplicate() throws {
+        let directory = try temporaryDirectory()
+        defer { try? FileManager.default.removeItem(at: directory) }
+
+        let prefix = Data(repeating: 0x5A, count: 1_048_576)
+        let first = directory.appendingPathComponent("first.bin")
+        let second = directory.appendingPathComponent("second.bin")
+        try (prefix + Data(repeating: 0x01, count: 4_096)).write(to: first)
+        try (prefix + Data(repeating: 0x02, count: 4_096)).write(to: second)
+
+        let hashed = Dupes.hashCandidates([
+            Dupes.Candidate(path: first.path, size: 1_052_672, identity: FileIdentity(device: 1, inode: 11)),
+            Dupes.Candidate(path: second.path, size: 1_052_672, identity: FileIdentity(device: 1, inode: 12)),
+        ])
+
+        XCTAssertEqual(hashed.compactMap(\.hash).count, 2)
+        XCTAssertNotEqual(hashed[0].hash, hashed[1].hash)
+        XCTAssertTrue(Dupes.group(hashed).isEmpty)
+    }
+
+    func testEmptyFilesStillCompareByContent() throws {
+        let directory = try temporaryDirectory()
+        defer { try? FileManager.default.removeItem(at: directory) }
+
+        let one = directory.appendingPathComponent("one.bin")
+        let two = directory.appendingPathComponent("two.bin")
+        try Data().write(to: one)
+        try Data().write(to: two)
+
+        let groups = Dupes.group([try candidate(for: one), try candidate(for: two)])
+        XCTAssertEqual(groups.count, 1)
+        XCTAssertEqual(groups.first?.wastedBytes, 0)
+    }
+
     func testUnreadableFilesAreSkipped() {
         let identity = FileIdentity(device: 1, inode: 2)
         let groups = Dupes.group([
