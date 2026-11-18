@@ -36,7 +36,9 @@ struct CategoryDetailView: View {
     private var hasResult: Bool { !results.isEmpty }
     private var allItems: [CleanableItem] { results.flatMap(\.items) }
     private var visibleItems: [CleanableItem] { visibleCache.items(for: allItems, filter: filter) }
-    private var selectedItems: [CleanableItem] { isTrash ? [] : allItems.filter(appState.isItemSelected) }
+    private var selectedItems: [CleanableItem] {
+        isTrash ? [] : filter.ordered(allItems.filter(appState.isItemSelected))
+    }
     private var selectedSize: Int64 { selectedItems.reduce(0) { $0 + $1.size } }
     private var isScanning: Bool {
         if case .scanning = appState.scanState { return true }

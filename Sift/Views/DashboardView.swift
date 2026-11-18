@@ -66,7 +66,9 @@ struct DashboardView: View {
     }
 
     private var selectedItems: [CleanableItem] {
-        appState.allResults.flatMap(\.items).filter(appState.isItemSelected)
+        // The dashboard shows no sort control, so the sheet reads largest first.
+        CleanupReviewFilter(order: .largest)
+            .ordered(appState.allResults.flatMap(\.items).filter(appState.isItemSelected))
     }
 
     private func requestAccess() {
