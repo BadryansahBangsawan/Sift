@@ -380,7 +380,7 @@
 "Choose what to keep, then clean everything in one controlled pass." = "اختر ما تريد الاحتفاظ به، ثم نظّف كل شيء في مرور واحد تحت السيطرة.";
 "Cleaning safely…" = "جارٍ التنظيف بأمان…";
 "Cleanup complete. Your storage summary is refreshing." = "اكتمل التنظيف. يجري تحديث ملخص التخزين.";
-"Clear" = "مسح";
+"Clear" = "إلغاء التحديد";
 "Developer" = "المطور";
 "Installed apps" = "التطبيقات المثبتة";
 "LOW SPACE" = "مساحة منخفضة";

@@ -380,7 +380,7 @@
 "Choose what to keep, then clean everything in one controlled pass." = "選擇要保留的項目，然後在一次受控流程中清理所有內容。";
 "Cleaning safely…" = "正在安全地清理…";
 "Cleanup complete. Your storage summary is refreshing." = "清理完成。儲存空間摘要正在重新整理。";
-"Clear" = "清除";
+"Clear" = "取消選取";
 "Developer" = "開發者";
 "Installed apps" = "已安裝的 App";
 "LOW SPACE" = "空間不足";

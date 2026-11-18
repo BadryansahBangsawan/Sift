@@ -380,7 +380,7 @@
 "Choose what to keep, then clean everything in one controlled pass." = "Выберите, что сохранить, затем очистите всё за один контролируемый проход.";
 "Cleaning safely…" = "Безопасная очистка…";
 "Cleanup complete. Your storage summary is refreshing." = "Очистка завершена. Сводка хранилища обновляется.";
-"Clear" = "Очистить";
+"Clear" = "Снять выбор";
 "Developer" = "Разработчик";
 "Installed apps" = "Установленные приложения";
 "LOW SPACE" = "МАЛО МЕСТА";

@@ -374,7 +374,7 @@
 "Choose what to keep, then clean everything in one controlled pass." = "Choisissez ce que vous conservez, puis nettoyez tout en une seule passe contrôlée.";
 "Cleaning safely…" = "Nettoyage en toute sécurité…";
 "Cleanup complete. Your storage summary is refreshing." = "Nettoyage terminé. Le résumé du stockage s'actualise.";
-"Clear" = "Propre";
+"Clear" = "Désélectionner";
 "Developer" = "Développeur";
 "Installed apps" = "Apps installées";
 "LOW SPACE" = "ESPACE FAIBLE";

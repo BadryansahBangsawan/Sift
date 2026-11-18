@@ -380,7 +380,7 @@
 "Choose what to keep, then clean everything in one controlled pass." = "确认要保留的内容，再统一清理所选项目。";
 "Cleaning safely…" = "正在清理…";
 "Cleanup complete. Your storage summary is refreshing." = "清理已完成，正在更新存储信息。";
-"Clear" = "清除";
+"Clear" = "取消选择";
 "Developer" = "开发工具";
 "Installed apps" = "已安装的应用";
 "LOW SPACE" = "空间不足";

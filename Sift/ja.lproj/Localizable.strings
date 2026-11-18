@@ -380,7 +380,7 @@
 "Choose what to keep, then clean everything in one controlled pass." = "残すものを選んでから、1 回の管理された手順でまとめてクリーンアップします。";
 "Cleaning safely…" = "安全にクリーンアップ中…";
 "Cleanup complete. Your storage summary is refreshing." = "クリーンアップが完了しました。ストレージの概要を更新しています。";
-"Clear" = "クリア";
+"Clear" = "選択解除";
 "Developer" = "デベロッパ";
 "Installed apps" = "インストール済みのアプリ";
 "LOW SPACE" = "空き容量不足";
