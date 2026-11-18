@@ -480,12 +480,6 @@ final class PerformanceInspector {
         return labels?.contains(label.lowercased())
     }
 
-    /// Labels launchd reports as disabled. Lowercased, because launchd
-    /// compares labels case-insensitively.
-    static func parseDisabledLabels(_ output: String) -> Set<String> {
-        Set(parseDisabledStates(output).filter { $0.value }.keys)
-    }
-
     private static func scanSnapshots() async throws -> (
         snapshots: [PerformanceSnapshot],
         issues: [PerformanceInspectionIssue]

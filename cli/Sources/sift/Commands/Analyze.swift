@@ -140,10 +140,6 @@ struct Analyze: ParsableCommand {
         )
     }
 
-    func sizedChildren(of directory: String) -> [Child] {
-        scanFolder(directory).children
-    }
-
     private func measureChild(_ topURL: URL, ignore: IgnoreStore, context: inout MeasureContext) -> Child? {
         let path = topURL.path
         if Safety.ignoredPathProtectsCandidate(path, ignore: ignore) {

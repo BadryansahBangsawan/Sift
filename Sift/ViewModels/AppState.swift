@@ -174,10 +174,6 @@ final class AppState: ObservableObject {
         categoryResults[.userCache]?.totalSize
     }
 
-    var currentCategoryResult: CategoryResult? {
-        categoryResults[selectedCategory]
-    }
-
     var allResults: [CategoryResult] {
         CleaningCategory.scannable.compactMap { categoryResults[$0] }.filter { $0.totalSize > 0 }
     }
@@ -778,39 +774,7 @@ final class AppState: ObservableObject {
         }
     }
 
-    func selectedSizeInCategory(_ category: CleaningCategory) -> Int64 {
-        guard let result = categoryResults[category] else { return 0 }
-        return result.items.filter { isItemSelected($0) }.reduce(0) { $0 + $1.size }
-    }
-
-    func selectedCountInCategory(_ category: CleaningCategory) -> Int {
-        guard let result = categoryResults[category] else { return 0 }
-        return result.items.filter { isItemSelected($0) }.count
-    }
-
     // MARK: - Helper Methods
-
-    func categorySize(for category: CleaningCategory) -> String {
-        guard let result = categoryResults[category], result.totalSize > 0 else { return "" }
-        return result.formattedSize
-    }
-
-    func categoryBinding(for category: CleaningCategory) -> Binding<Bool> {
-        Binding<Bool>(
-            get: { [weak self] in
-                guard let self else { return false }
-                return self.selectedCountInCategory(category) > 0
-            },
-            set: { [weak self] newValue in
-                guard let self else { return }
-                if newValue {
-                    self.selectAllInCategory(category)
-                } else {
-                    self.deselectAllInCategory(category)
-                }
-            }
-        )
-    }
 
     func itemBinding(for item: CleanableItem) -> Binding<Bool> {
         Binding<Bool>(
@@ -1308,12 +1272,6 @@ final class AppState: ObservableObject {
                 }
             }
         }
-    }
-
-    // MARK: - Purgeable
-
-    func purgePurgeable() {
-        loadDiskInfo()
     }
 
     // MARK: - Scheduled Scan

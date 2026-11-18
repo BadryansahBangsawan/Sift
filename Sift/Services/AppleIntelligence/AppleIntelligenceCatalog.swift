@@ -364,8 +364,6 @@ enum AppleTweaks {
             changes: [.restriction("allowiPhoneMirroring")], since: (15, 0)),
     ]
 
-    static func tweak(_ id: String) -> AppleTweak? { all.first { $0.id == id } }
-
     /// Tweaks a preset selects on this macOS.
     static func preset(_ preset: AppleTweakPreset, on version: OperatingSystemVersion) -> [AppleTweak] {
         all.filter { $0.presets.contains(preset) && $0.isAvailable(on: version) }

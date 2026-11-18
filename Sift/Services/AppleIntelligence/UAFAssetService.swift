@@ -7,8 +7,6 @@ enum AppleAssetResetOutcome: Equatable {
     case noAnswer
     case failed(String)
 
-    var isDone: Bool { self == .done }
-
     var explanation: String {
         switch self {
         case .done: return ""
