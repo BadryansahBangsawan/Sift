@@ -980,7 +980,6 @@
 "Day" = "Day";
 "Time" = "Time";
 "After each scan" = "After each scan";
-"Moves what the scan selected to the Trash without asking" = "Moves what the scan selected to the Trash without asking";
 "Minimum size" = "Minimum size";
 "Auto-clean skips scans that would free less than this" = "Auto-clean skips scans that would free less than this";
 "A notification with what was found or cleaned" = "A notification with what was found or cleaned";
@@ -1380,3 +1379,4 @@
 "Scan to see whether uninstalled apps left files behind." = "Scan to see whether uninstalled apps left files behind.";
 "Couldn't compare installed apps" = "Couldn't compare installed apps";
 "Sift needs the list of installed apps before it can call a file a leftover. Try again in a moment." = "Sift needs the list of installed apps before it can call a file a leftover. Try again in a moment.";
+"Permanently deletes the junk the scan selected, without asking" = "Permanently deletes the junk the scan selected, without asking";

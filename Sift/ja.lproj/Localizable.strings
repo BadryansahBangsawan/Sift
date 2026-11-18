@@ -980,7 +980,6 @@
 "Day" = "曜日";
 "Time" = "時刻";
 "After each scan" = "スキャン後";
-"Moves what the scan selected to the Trash without asking" = "スキャンで選択された項目を確認なしでゴミ箱に移動します";
 "Minimum size" = "最小サイズ";
 "Auto-clean skips scans that would free less than this" = "解放される容量がこれより少ない場合、自動クリーンアップは実行されません";
 "A notification with what was found or cleaned" = "見つかった項目やクリーンアップした内容を通知します";
@@ -1380,3 +1379,4 @@
 "Scan to see whether uninstalled apps left files behind." = "スキャンして、削除したアプリがファイルを残していないか確認します。";
 "Couldn't compare installed apps" = "インストール済みアプリと比較できませんでした";
 "Sift needs the list of installed apps before it can call a file a leftover. Try again in a moment." = "Siftがファイルを残骸と判断するには、インストール済みアプリの一覧が必要です。しばらくしてから再度お試しください。";
+"Permanently deletes the junk the scan selected, without asking" = "スキャンで選択された不要なファイルを確認なしで完全に削除します";

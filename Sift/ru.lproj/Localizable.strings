@@ -980,7 +980,6 @@
 "Day" = "День";
 "Time" = "Время";
 "After each scan" = "После каждого сканирования";
-"Moves what the scan selected to the Trash without asking" = "Перемещает выбранное сканированием в Корзину без подтверждения";
 "Minimum size" = "Минимальный размер";
 "Auto-clean skips scans that would free less than this" = "Автоочистка не выполняется, если освободится меньше";
 "A notification with what was found or cleaned" = "Уведомление о том, что найдено или очищено";
@@ -1380,3 +1379,4 @@
 "Scan to see whether uninstalled apps left files behind." = "Запустите сканирование, чтобы узнать, оставили ли удалённые приложения файлы.";
 "Couldn't compare installed apps" = "Не удалось сравнить установленные приложения";
 "Sift needs the list of installed apps before it can call a file a leftover. Try again in a moment." = "Sift нужен список установленных приложений, чтобы считать файл остатком. Повторите попытку через минуту.";
+"Permanently deletes the junk the scan selected, without asking" = "Безвозвратно удаляет выбранный сканированием мусор, не спрашивая";

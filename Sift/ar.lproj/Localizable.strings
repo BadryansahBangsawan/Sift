@@ -980,7 +980,6 @@
 "Day" = "اليوم";
 "Time" = "الوقت";
 "After each scan" = "بعد كل فحص";
-"Moves what the scan selected to the Trash without asking" = "ينقل ما حدده الفحص إلى سلة المهملات دون سؤال";
 "Minimum size" = "الحد الأدنى للحجم";
 "Auto-clean skips scans that would free less than this" = "يتخطى التنظيف التلقائي عمليات الفحص التي ستحرّر مساحة أقل من هذا";
 "A notification with what was found or cleaned" = "إشعار بما تم العثور عليه أو تنظيفه";
@@ -1380,3 +1379,4 @@
 "Scan to see whether uninstalled apps left files behind." = "افحص لمعرفة ما إذا تركت التطبيقات المحذوفة ملفات.";
 "Couldn't compare installed apps" = "تعذّر مقارنة التطبيقات المثبتة";
 "Sift needs the list of installed apps before it can call a file a leftover. Try again in a moment." = "يحتاج Sift إلى قائمة التطبيقات المثبتة قبل اعتبار الملف مخلفًا. أعد المحاولة بعد قليل.";
+"Permanently deletes the junk the scan selected, without asking" = "يحذف نهائيًا الملفات غير الضرورية التي حددها الفحص دون سؤال";

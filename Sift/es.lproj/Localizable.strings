@@ -980,7 +980,6 @@
 "Day" = "Día";
 "Time" = "Hora";
 "After each scan" = "Tras cada análisis";
-"Moves what the scan selected to the Trash without asking" = "Mueve a la Papelera lo que seleccionó el análisis sin preguntar";
 "Minimum size" = "Tamaño mínimo";
 "Auto-clean skips scans that would free less than this" = "La limpieza automática omite los análisis que liberarían menos de esto";
 "A notification with what was found or cleaned" = "Una notificación con lo que se encontró o limpió";
@@ -1380,3 +1379,4 @@
 "Scan to see whether uninstalled apps left files behind." = "Analiza para ver si las apps desinstaladas dejaron archivos.";
 "Couldn't compare installed apps" = "No se pudieron comparar las apps instaladas";
 "Sift needs the list of installed apps before it can call a file a leftover. Try again in a moment." = "Sift necesita la lista de apps instaladas antes de llamar a un archivo sobrante. Inténtalo en un momento.";
+"Permanently deletes the junk the scan selected, without asking" = "Elimina definitivamente la basura que seleccionó el análisis, sin preguntar";
