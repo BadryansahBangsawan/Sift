@@ -91,12 +91,12 @@ struct Optimize: ParsableCommand {
     private func showMemory(includeHeading: Bool) throws {
         let status = try SystemInfo.memoryStatus()
         if includeHeading { print(Term.bold("Memory")) }
-        printMetric("Installed", ByteCount.human(status.total))
-        printMetric("Free now", ByteCount.human(status.free))
-        printMetric("Active", ByteCount.human(status.active))
-        printMetric("Inactive", ByteCount.human(status.inactive))
-        printMetric("Compressed", ByteCount.human(status.compressed))
-        printMetric("Wired", ByteCount.human(status.wired))
+        printMetric("Installed", ByteCount.memory(status.total))
+        printMetric("Free now", ByteCount.memory(status.free))
+        printMetric("Active", ByteCount.memory(status.active))
+        printMetric("Inactive", ByteCount.memory(status.inactive))
+        printMetric("Compressed", ByteCount.memory(status.compressed))
+        printMetric("Wired", ByteCount.memory(status.wired))
     }
 
     private func showStorage(includeHeading: Bool) throws {
