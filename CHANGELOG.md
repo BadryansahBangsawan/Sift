@@ -6,6 +6,9 @@ All notable user-facing changes to Sift. Sift was called PureMac before 4.0.0.
 
 ### Fixed
 
+- Biggest single wins no longer re-sorts every scanned row with locale-aware
+  comparison on each cleanup update; on a 3000-row cleanup that sort was the
+  main-thread stall behind the remaining freeze.
 - Cleaning no longer republishes progress for every removed item. A large
   cleanup asked the window to redraw thousands of times, which looked like the
   app freezing for seconds; it now updates about once per percent.
