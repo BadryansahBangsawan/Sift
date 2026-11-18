@@ -6,6 +6,9 @@ All notable user-facing changes to Sift. Sift was called PureMac before 4.0.0.
 
 ### Fixed
 
+- The window no longer freezes while a Leftovers scan fetches the app list.
+  Listing every installed app ran on the main actor and took seconds; it now
+  runs on the scan's background task.
 - Finder and WebKit metadata are no longer offered as leftovers: `.DS_Store`
   files, WebKit's shared LocalStorage folder and the SwiftPM cache belong to no
   app, so "the owner is uninstalled" said nothing about them.
