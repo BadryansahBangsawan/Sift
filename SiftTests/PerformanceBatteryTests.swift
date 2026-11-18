@@ -23,4 +23,25 @@ final class PerformanceBatteryTests: XCTestCase {
         )
         XCTAssertEqual(PerformanceView.batteryHealthDetail(status), "3200 of 4629 mAh, service below 80%")
     }
+
+    func testHealthCaptionHandlesTheBoundaryAndUnknownHealth() {
+        let atThreshold = BatteryStatus(
+            isInstalled: true,
+            maxCapacityMAh: 3703,
+            designCapacityMAh: 4629,
+            healthPercent: 80
+        )
+        XCTAssertEqual(PerformanceView.batteryHealthDetail(atThreshold), "3703 of 4629 mAh")
+
+        let unknown = BatteryStatus(isInstalled: true, maxCapacityMAh: 4024, designCapacityMAh: 4629)
+        XCTAssertEqual(PerformanceView.batteryHealthDetail(unknown), "4024 of 4629 mAh")
+    }
+
+    func testHealthCaptionWithoutCapacities() {
+        let healthy = BatteryStatus(isInstalled: true, healthPercent: 92)
+        XCTAssertEqual(PerformanceView.batteryHealthDetail(healthy), "")
+
+        let worn = BatteryStatus(isInstalled: true, healthPercent: 74)
+        XCTAssertEqual(PerformanceView.batteryHealthDetail(worn), "service below 80%")
+    }
 }
