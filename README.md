@@ -61,17 +61,15 @@ The screenshots in this README still show the PureMac interface.
 
 ## Install
 
-Sift 4.0.0 is prepared but **not published yet**: there is no tagged release and
-no DMG to download. [Build it from source](#build-from-source) for now.
+Download `Sift-4.0.0.dmg` from the [latest release](https://github.com/BadryansahBangsawan/Sift/releases/latest) and drag Sift to Applications.
 
-Once 4.0.0 is on the [releases page](https://github.com/BadryansahBangsawan/Sift/releases):
+This release is not notarized by Apple yet, so macOS stops it the first time you open it:
 
-```bash
-brew install --cask BadryansahBangsawan/tap/sift
-```
+1. Open Sift. macOS says it can't verify the app; click **Done**.
+2. Open **System Settings > Privacy & Security**, scroll down and click **Open Anyway** next to Sift, then confirm.
+3. Grant **Full Disk Access** when Sift asks. If you used PureMac, add Sift again: the permission belongs to the old bundle identifier.
 
-or download `Sift-4.0.0.dmg` from that release. Release steps live in
-[RELEASING.md](RELEASING.md).
+A Homebrew cask will follow once releases are signed and notarized. Release steps live in [RELEASING.md](RELEASING.md).
 
 ### Build from source
 

@@ -8,6 +8,11 @@ Everything below assumes you own the Apple Developer Team, the GitHub repository
 `BadryansahBangsawan/Sift`, and write access to `gh` for that repo. The secrets
 reference lives in [`scripts/SECRETS.md`](scripts/SECRETS.md).
 
+
+## Without a Developer ID: unsigned release
+
+Until the signing secrets below exist, publish with **Actions > Release (unsigned) > Run workflow** (`.github/workflows/release-unsigned.yml`) and enter the version from `project.yml`. It runs the tests, builds a universal app, ad-hoc signs it, packages `Sift-<version>.dmg` and `.zip`, and creates the `v<version>` release with first-launch instructions. It does not notarize and does not touch Homebrew. Users must click **Open Anyway** in System Settings > Privacy & Security once. Switch to the signed workflow below as soon as you can.
+
 ## 0. What the release needs
 
 | Item | Where it is used |

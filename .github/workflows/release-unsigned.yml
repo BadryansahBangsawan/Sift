@@ -1,0 +1,192 @@
+name: Release (unsigned)
+
+# Publishes a GitHub release without a Developer ID certificate. The app is
+# ad-hoc signed and not notarized, so macOS asks the user to allow it once
+# (System Settings > Privacy & Security > Open Anyway). Once the signing
+# secrets in RELEASING.md exist, use release.yml instead.
+#
+# Run it by hand: Actions > Release (unsigned) > Run workflow. The release
+# tag is created by this workflow with GITHUB_TOKEN, which does not start
+# release.yml.
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to release (e.g. 4.0.0). Must match project.yml MARKETING_VERSION.'
+        required: true
+        type: string
+      dry_run:
+        description: 'Build and package only; do not publish a release.'
+        required: false
+        default: false
+        type: boolean
+
+permissions:
+  contents: write
+
+concurrency:
+  group: sift-release
+  cancel-in-progress: false
+
+env:
+  SCHEME: Sift
+  PROJECT: Sift.xcodeproj
+  CONFIGURATION: Release
+  BUNDLE_ID: com.sift.app
+
+jobs:
+  release:
+    name: Build, ad-hoc sign, release
+    runs-on: macos-15
+    timeout-minutes: 45
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Validate version
+        id: ver
+        env:
+          VERSION: ${{ inputs.version }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          if [[ ! "${VERSION}" =~ ^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$ ]]; then
+            echo "::error::Version must look like 4.0.0, got '${VERSION}'."
+            exit 1
+          fi
+          PROJ_VERSION=$(sed -nE 's/^[[:space:]]*MARKETING_VERSION:[[:space:]]*"([^"]+)".*/\1/p' project.yml)
+          if [[ "${PROJ_VERSION}" != "${VERSION}" ]]; then
+            echo "::error::project.yml MARKETING_VERSION (${PROJ_VERSION}) != ${VERSION}."
+            exit 1
+          fi
+          if git ls-remote --exit-code --tags origin "refs/tags/v${VERSION}" >/dev/null 2>&1; then
+            echo "::error::Tag v${VERSION} already exists."
+            exit 1
+          fi
+          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
+
+      - name: Select Xcode
+        run: sudo xcode-select -s /Applications/Xcode_16.4.app
+
+      - name: Install release tools
+        run: brew install xcodegen create-dmg xcbeautify
+
+      - name: Generate Xcode project
+        run: xcodegen generate
+
+      - name: Run tests
+        run: |
+          set -euo pipefail
+          xcodebuild -project "${PROJECT}" -scheme "${SCHEME}" -configuration Debug \
+            -destination 'platform=macOS' -derivedDataPath build-tests \
+            CODE_SIGNING_ALLOWED=NO test | xcbeautify
+
+      - name: Archive (universal arm64 + x86_64, ad-hoc)
+        run: |
+          set -euo pipefail
+          xcodebuild \
+            -project "${PROJECT}" \
+            -scheme "${SCHEME}" \
+            -configuration "${CONFIGURATION}" \
+            -destination 'generic/platform=macOS' \
+            -archivePath build/Sift.xcarchive \
+            ARCHS="arm64 x86_64" \
+            ONLY_ACTIVE_ARCH=NO \
+            CODE_SIGN_STYLE=Manual \
+            CODE_SIGN_IDENTITY="-" \
+            DEVELOPMENT_TEAM="" \
+            archive | xcbeautify
+          mkdir -p build/export
+          ditto build/Sift.xcarchive/Products/Applications/Sift.app build/export/Sift.app
+
+      - name: Verify the app
+        env:
+          VERSION: ${{ steps.ver.outputs.version }}
+        run: |
+          set -euo pipefail
+          APP=build/export/Sift.app
+          codesign --verify --deep --strict --verbose=2 "${APP}"
+          codesign -d --entitlements - --xml "${APP}" 2>/dev/null | grep -q "com.apple.security.automation.apple-events"
+          archs=$(lipo -archs "${APP}/Contents/MacOS/Sift")
+          grep -qw arm64 <<< "${archs}"
+          grep -qw x86_64 <<< "${archs}"
+          test "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' "${APP}/Contents/Info.plist")" = "${VERSION}"
+          test "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleIdentifier' "${APP}/Contents/Info.plist")" = "${BUNDLE_ID}"
+          echo "Sift ${VERSION} (${archs}) ad-hoc signed"
+
+      - name: Build DMG and ZIP
+        env:
+          VERSION: ${{ steps.ver.outputs.version }}
+        run: |
+          set -euo pipefail
+          create-dmg \
+            --volname "Sift ${VERSION}" \
+            --window-size 540 360 \
+            --icon-size 100 \
+            --icon "Sift.app" 140 180 \
+            --hide-extension "Sift.app" \
+            --app-drop-link 400 180 \
+            --no-internet-enable \
+            "build/Sift-${VERSION}.dmg" \
+            build/export/Sift.app
+          hdiutil verify "build/Sift-${VERSION}.dmg"
+          ditto -c -k --keepParent --sequesterRsrc build/export/Sift.app "build/Sift-${VERSION}.zip"
+
+      - name: Write release notes
+        env:
+          VERSION: ${{ steps.ver.outputs.version }}
+        run: |
+          set -euo pipefail
+          DMG_SHA=$(shasum -a 256 "build/Sift-${VERSION}.dmg" | awk '{print $1}')
+          ZIP_SHA=$(shasum -a 256 "build/Sift-${VERSION}.zip" | awk '{print $1}')
+          {
+            echo "## Sift ${VERSION}"
+            echo ""
+            echo "PureMac is now Sift: a new interface, a new name and a new bundle identifier (\`com.sift.app\`). Settings and cleanup history migrate automatically on first launch. See [CHANGELOG.md](https://github.com/${GITHUB_REPOSITORY}/blob/v${VERSION}/CHANGELOG.md) for everything that changed."
+            echo ""
+            echo "### Opening Sift the first time"
+            echo ""
+            echo "This build is not notarized by Apple yet, so macOS stops it the first time:"
+            echo ""
+            echo "1. Download \`Sift-${VERSION}.dmg\` and drag Sift to Applications."
+            echo "2. Open Sift. macOS says it can't verify the app; click **Done**."
+            echo "3. Open **System Settings > Privacy & Security**, scroll down and click **Open Anyway** next to Sift, then confirm."
+            echo "4. Grant **Full Disk Access** when Sift asks (System Settings > Privacy & Security > Full Disk Access). If you used PureMac, add Sift there again: the permission belongs to the old bundle identifier."
+            echo ""
+            echo "Universal binary (Apple silicon and Intel), macOS 13 or later. Ad-hoc signed, not notarized."
+            echo ""
+            echo "## Checksums"
+            echo ""
+            echo "| Asset | SHA-256 |"
+            echo "|-------|---------|"
+            echo "| Sift-${VERSION}.dmg | \`${DMG_SHA}\` |"
+            echo "| Sift-${VERSION}.zip | \`${ZIP_SHA}\` |"
+          } > build/RELEASE_NOTES.md
+          cat build/RELEASE_NOTES.md
+
+      - name: Upload artifacts (always, for inspection)
+        uses: actions/upload-artifact@v4
+        with:
+          name: sift-${{ steps.ver.outputs.version }}-unsigned
+          path: |
+            build/Sift-${{ steps.ver.outputs.version }}.dmg
+            build/Sift-${{ steps.ver.outputs.version }}.zip
+            build/RELEASE_NOTES.md
+
+      - name: Publish GitHub release
+        if: ${{ !inputs.dry_run }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ steps.ver.outputs.version }}
+        run: |
+          set -euo pipefail
+          gh release create "v${VERSION}" \
+            "build/Sift-${VERSION}.dmg" \
+            "build/Sift-${VERSION}.zip" \
+            --target "${GITHUB_SHA}" \
+            --title "Sift ${VERSION}" \
+            --notes-file build/RELEASE_NOTES.md
