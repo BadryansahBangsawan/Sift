@@ -9,7 +9,9 @@
 //   body            824x824 centered, continuous-corner squircle (superellipse n=5,
 //                   equivalent to a ~185 px rounded rect), brass #C9A227 with a
 //                   subtle vertical gradient #D4AE36 -> #BE981F
-//   shadow          black 30%, y+10 px, blur 20 px, inside the canvas
+//   shadow          black 30%, y+10 px, blur 20 px, inside the canvas; both
+//                   scale with the output size (1024 px reference) and are
+//                   omitted at 32 px and below
 //   mark            "S" in Archivo Narrow Bold (wght 700), #0D0F11,
 //                   cap height 52% of the body height, ink-centered
 //
@@ -180,17 +182,24 @@ func renderIcon(pixels: Int, capRatio: CGFloat) -> Data {
         exit(1)
     }
     let scale = CGFloat(pixels) / canvas
+    let hasShadow = pixels > 32
     ctx.scaleBy(x: scale, y: scale)
     ctx.setShouldAntialias(true)
     ctx.interpolationQuality = .high
 
     // Body + drop shadow (the image's alpha supplies the shadow silhouette).
+    // Shadow offset and blur are in device pixels, not the scaled user space,
+    // so they are scaled explicitly from the 1024 px design values. At 32 px
+    // and below the shadow cannot resolve into a soft ramp and would read as a
+    // hard grey band, so those sizes rely on the tile edge alone.
     ctx.saveGState()
-    ctx.setShadow(
-        offset: CGSize(width: 0, height: -10),
-        blur: 20 * scale,
-        color: shadowColor
-    )
+    if hasShadow {
+        ctx.setShadow(
+            offset: CGSize(width: 0, height: -10 * scale),
+            blur: 20 * scale,
+            color: shadowColor
+        )
+    }
     ctx.draw(bodyImage, in: CGRect(x: 0, y: 0, width: canvas, height: canvas))
     ctx.restoreGState()
 
