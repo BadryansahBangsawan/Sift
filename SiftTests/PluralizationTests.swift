@@ -63,6 +63,87 @@ extension PluralizationTests {
         XCTAssertEqual(String(localized: "\(45) items", bundle: ja, locale: locale), "45件の項目")
     }
 
+    /// The counts outside the original twelve: folder rows, process rows,
+    /// schedule runs, battery cycles, the selection bar and the details labels.
+    func testRemainingCountsAgreeWithTheirNumber() throws {
+        let en = try localizationBundle(for: "en")
+        let english = Locale(identifier: "en")
+        let size = "2 MB"
+
+        XCTAssertEqual(String(localized: "\(1) folders", bundle: en, locale: english), "1 folder")
+        XCTAssertEqual(String(localized: "\(3) folders", bundle: en, locale: english), "3 folders")
+        XCTAssertEqual(String(localized: "\(1) processes", bundle: en, locale: english), "1 process")
+        XCTAssertEqual(String(localized: "\(1) runs", bundle: en, locale: english), "1 run")
+        XCTAssertEqual(String(localized: "\(1) cycles", bundle: en, locale: english), "1 cycle")
+        XCTAssertEqual(String(localized: "\(1) checks", bundle: en, locale: english), "1 check")
+        XCTAssertEqual(String(localized: "\(1) areas", bundle: en, locale: english), "1 area")
+        XCTAssertEqual(String(localized: "\(1) items found", bundle: en, locale: english), "1 item found")
+        XCTAssertEqual(String(localized: "\(1) exact copies · \(size) each", bundle: en, locale: english),
+                       "1 exact copy · 2 MB each")
+        XCTAssertEqual(String(localized: "Clean \(1) items", bundle: en, locale: english), "Clean 1 item")
+        XCTAssertEqual(String(localized: "Permanently remove \(1) items", bundle: en, locale: english),
+                       "Permanently remove 1 item")
+        XCTAssertEqual(String(localized: "Every \(1) seconds", bundle: en, locale: english), "Every 1 second")
+        XCTAssertEqual(String(localized: "of \(1) cores", bundle: en, locale: english), "of 1 core")
+        XCTAssertEqual(String(localized: "\(1) backup locations could not be included", bundle: en, locale: english),
+                       "1 backup location could not be included")
+        XCTAssertEqual(String(localized: "\(1) backups moved to the Trash", bundle: en, locale: english),
+                       "1 backup moved to the Trash")
+        XCTAssertEqual(
+            String(localized: "\(1) folders totaling \(size) will be moved to Trash. Sift checks each folder again first. Reinstall dependencies or rebuild to get them back.",
+                   bundle: en, locale: english),
+            "1 folder totaling 2 MB will be moved to Trash. Sift checks each folder again first. Reinstall dependencies or rebuild to get it back."
+        )
+        XCTAssertEqual(
+            String(localized: "\(1) folders totaling \(size) are in the Trash. Empty the Trash to free the space.",
+                   bundle: en, locale: english),
+            "1 folder totaling 2 MB is in the Trash. Empty the Trash to free the space."
+        )
+    }
+
+    /// The label whose noun follows the total, not the selected count.
+    func testOfTotalPluralisesTheTotal() throws {
+        let en = try localizationBundle(for: "en")
+        let english = Locale(identifier: "en")
+        XCTAssertEqual(String(localized: "\(3) of \(1) items, \("2 MB")", bundle: en, locale: english),
+                       "3 of 1 item, 2 MB")
+        XCTAssertEqual(String(localized: "\(1) of \(3) items, \("2 MB")", bundle: en, locale: english),
+                       "1 of 3 items, 2 MB")
+
+        // French attaches the noun to the selected count instead.
+        let fr = try localizationBundle(for: "fr")
+        let french = Locale(identifier: "fr")
+        XCTAssertEqual(String(localized: "\(1) of \(3) items, \("2 MB")", bundle: fr, locale: french),
+                       "1 élément sur 3, 2 MB")
+        XCTAssertEqual(String(localized: "\(3) of \(1) items, \("2 MB")", bundle: fr, locale: french),
+                       "3 éléments sur 1, 2 MB")
+    }
+
+    /// The Slavic and Arabic forms for the new keys, at their boundaries.
+    func testRemainingCountsFollowEachLanguage() throws {
+        let ru = try localizationBundle(for: "ru")
+        let russian = Locale(identifier: "ru")
+        XCTAssertEqual(String(localized: "\(1) folders", bundle: ru, locale: russian), "Папка: 1")
+        XCTAssertEqual(String(localized: "\(2) folders", bundle: ru, locale: russian), "Папки: 2")
+        XCTAssertEqual(String(localized: "\(5) folders", bundle: ru, locale: russian), "Папок: 5")
+        XCTAssertEqual(String(localized: "\(21) folders", bundle: ru, locale: russian), "Папка: 21")
+        XCTAssertEqual(String(localized: "\(11) folders", bundle: ru, locale: russian), "Папок: 11")
+
+        let pl = try localizationBundle(for: "pl")
+        let polish = Locale(identifier: "pl")
+        XCTAssertEqual(String(localized: "\(1) processes", bundle: pl, locale: polish), "1 proces")
+        XCTAssertEqual(String(localized: "\(3) processes", bundle: pl, locale: polish), "3 procesy")
+        XCTAssertEqual(String(localized: "\(12) processes", bundle: pl, locale: polish), "12 procesów")
+
+        let ar = try localizationBundle(for: "ar")
+        let arabic = Locale(identifier: "ar")
+        XCTAssertEqual(String(localized: "\(1) folders", bundle: ar, locale: arabic), "مجلد واحد")
+        XCTAssertEqual(String(localized: "\(2) folders", bundle: ar, locale: arabic), "مجلدان")
+        XCTAssertEqual(String(localized: "\(3) folders", bundle: ar, locale: arabic), "3 مجلدات")
+        XCTAssertEqual(String(localized: "\(11) folders", bundle: ar, locale: arabic), "11 مجلدًا")
+        XCTAssertEqual(String(localized: "\(100) folders", bundle: ar, locale: arabic), "100 مجلد")
+    }
+
     /// The composed labels keep their size suffix and pluralise the noun.
     func testComposedLabelsKeepTheSizeSuffix() throws {
         let ru = try localizationBundle(for: "ru")

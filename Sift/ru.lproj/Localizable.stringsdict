@@ -42,6 +42,126 @@
 			<string>выбрано %lld приложения</string>
 		</dict>
 	</dict>
+	<key>%lld areas</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@value@</string>
+		<key>value</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>few</key>
+			<string>Области: %lld</string>
+			<key>many</key>
+			<string>Областей: %lld</string>
+			<key>one</key>
+			<string>Область: %lld</string>
+			<key>other</key>
+			<string>Области: %lld</string>
+		</dict>
+	</dict>
+	<key>%lld backup locations could not be included</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@value@</string>
+		<key>value</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>few</key>
+			<string>Не удалось включить расположения резервных копий: %lld</string>
+			<key>many</key>
+			<string>Не удалось включить расположений резервных копий: %lld</string>
+			<key>one</key>
+			<string>Не удалось включить расположение резервной копии: %lld</string>
+			<key>other</key>
+			<string>Не удалось включить расположения резервных копий: %lld</string>
+		</dict>
+	</dict>
+	<key>%lld backups moved to the Trash</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@value@</string>
+		<key>value</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>few</key>
+			<string>Резервные копии перемещены в Корзину: %lld</string>
+			<key>many</key>
+			<string>Резервных копий перемещено в Корзину: %lld</string>
+			<key>one</key>
+			<string>Резервная копия перемещена в Корзину: %lld</string>
+			<key>other</key>
+			<string>Резервные копии перемещены в Корзину: %lld</string>
+		</dict>
+	</dict>
+	<key>%lld checks</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@value@</string>
+		<key>value</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>few</key>
+			<string>Проверки: %lld</string>
+			<key>many</key>
+			<string>Проверок: %lld</string>
+			<key>one</key>
+			<string>Проверка: %lld</string>
+			<key>other</key>
+			<string>Проверки: %lld</string>
+		</dict>
+	</dict>
+	<key>%lld cycles</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@value@</string>
+		<key>value</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>few</key>
+			<string>Цикла: %lld</string>
+			<key>many</key>
+			<string>Циклов: %lld</string>
+			<key>one</key>
+			<string>Цикл: %lld</string>
+			<key>other</key>
+			<string>Цикла: %lld</string>
+		</dict>
+	</dict>
+	<key>%lld exact copies · %@ each</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@value@</string>
+		<key>value</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>few</key>
+			<string>%lld точных копии · по %@</string>
+			<key>many</key>
+			<string>%lld точных копий · по %@</string>
+			<key>one</key>
+			<string>%lld точная копия · по %@</string>
+			<key>other</key>
+			<string>%lld точной копии · по %@</string>
+		</dict>
+	</dict>
 	<key>%lld files</key>
 	<dict>
 		<key>NSStringLocalizedFormatKey</key>
@@ -82,6 +202,126 @@
 			<string>проверено %lld файла</string>
 		</dict>
 	</dict>
+	<key>%lld files totaling %@ were moved. Every protected copy remains in place.</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@value@</string>
+		<key>value</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>few</key>
+			<string>Перемещено %lld файла, всего %@. Каждая защищённая копия остаётся на месте.</string>
+			<key>many</key>
+			<string>Перемещено файлов: %lld, всего %@. Каждая защищённая копия остаётся на месте.</string>
+			<key>one</key>
+			<string>Перемещён %lld файл, всего %@. Каждая защищённая копия остаётся на месте.</string>
+			<key>other</key>
+			<string>Перемещено %lld файла, всего %@. Каждая защищённая копия остаётся на месте.</string>
+		</dict>
+	</dict>
+	<key>%lld files totaling %@ will be moved to Trash. The protected copy in every group stays in place.</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@value@</string>
+		<key>value</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>few</key>
+			<string>%lld файла (всего %@) будут перемещены в Корзину. Защищённая копия в каждой группе останется на месте.</string>
+			<key>many</key>
+			<string>%lld файлов (всего %@) будут перемещены в Корзину. Защищённая копия в каждой группе останется на месте.</string>
+			<key>one</key>
+			<string>%lld файл (всего %@) будет перемещён в Корзину. Защищённая копия в каждой группе останется на месте.</string>
+			<key>other</key>
+			<string>%lld файла (всего %@) будут перемещены в Корзину. Защищённая копия в каждой группе останется на месте.</string>
+		</dict>
+	</dict>
+	<key>%lld folders</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@value@</string>
+		<key>value</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>few</key>
+			<string>Папки: %lld</string>
+			<key>many</key>
+			<string>Папок: %lld</string>
+			<key>one</key>
+			<string>Папка: %lld</string>
+			<key>other</key>
+			<string>Папки: %lld</string>
+		</dict>
+	</dict>
+	<key>%lld folders have a familiar name but Sift couldn't prove they are generated</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@value@</string>
+		<key>value</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>few</key>
+			<string>Папки: %lld — у них знакомое имя, но Sift не смог доказать, что они сгенерированы</string>
+			<key>many</key>
+			<string>Папок: %lld — у них знакомое имя, но Sift не смог доказать, что они сгенерированы</string>
+			<key>one</key>
+			<string>Папка: %lld — у неё знакомое имя, но Sift не смог доказать, что она сгенерирована</string>
+			<key>other</key>
+			<string>Папки: %lld — у них знакомое имя, но Sift не смог доказать, что они сгенерированы</string>
+		</dict>
+	</dict>
+	<key>%lld folders totaling %@ are in the Trash. Empty the Trash to free the space.</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@value@</string>
+		<key>value</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>few</key>
+			<string>Папки: %lld, всего %@ — в Корзине. Очистите Корзину, чтобы освободить место.</string>
+			<key>many</key>
+			<string>Папок: %lld, всего %@ — в Корзине. Очистите Корзину, чтобы освободить место.</string>
+			<key>one</key>
+			<string>Папка: %lld, всего %@ — в Корзине. Очистите Корзину, чтобы освободить место.</string>
+			<key>other</key>
+			<string>Папки: %lld, всего %@ — в Корзине. Очистите Корзину, чтобы освободить место.</string>
+		</dict>
+	</dict>
+	<key>%lld folders totaling %@ will be moved to Trash. Sift checks each folder again first. Reinstall dependencies or rebuild to get them back.</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@value@</string>
+		<key>value</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>few</key>
+			<string>Папки: %lld, всего %@ — будут перемещены в Корзину. Sift заново проверяет каждую папку перед перемещением. Чтобы вернуть их, переустановите зависимости или пересоберите проект.</string>
+			<key>many</key>
+			<string>Папок: %lld, всего %@ — будут перемещены в Корзину. Sift заново проверяет каждую папку перед перемещением. Чтобы вернуть их, переустановите зависимости или пересоберите проект.</string>
+			<key>one</key>
+			<string>Папка: %lld, всего %@ — будет перемещена в Корзину. Sift заново проверяет каждую папку перед перемещением. Чтобы вернуть её, переустановите зависимости или пересоберите проект.</string>
+			<key>other</key>
+			<string>Папки: %lld, всего %@ — будут перемещены в Корзину. Sift заново проверяет каждую папку перед перемещением. Чтобы вернуть их, переустановите зависимости или пересоберите проект.</string>
+		</dict>
+	</dict>
 	<key>%lld items</key>
 	<dict>
 		<key>NSStringLocalizedFormatKey</key>
@@ -100,6 +340,26 @@
 			<string>%lld объект</string>
 			<key>other</key>
 			<string>%lld объекта</string>
+		</dict>
+	</dict>
+	<key>%lld items found</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@value@</string>
+		<key>value</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>few</key>
+			<string>Найдено элементов: %lld</string>
+			<key>many</key>
+			<string>Найдено элементов: %lld</string>
+			<key>one</key>
+			<string>Найден элемент: %lld</string>
+			<key>other</key>
+			<string>Найдено элементов: %lld</string>
 		</dict>
 	</dict>
 	<key>%lld items in the Trash</key>
@@ -162,6 +422,41 @@
 			<string>%lld объекта, %@</string>
 		</dict>
 	</dict>
+	<key>%lld of %lld items, %@</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@shown@ из %#@total@, %@</string>
+		<key>shown</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>few</key>
+			<string>%lld объекта</string>
+			<key>many</key>
+			<string>%lld объектов</string>
+			<key>one</key>
+			<string>%lld объект</string>
+			<key>other</key>
+			<string>%lld объекта</string>
+		</dict>
+		<key>total</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>few</key>
+			<string>%lld</string>
+			<key>many</key>
+			<string>%lld</string>
+			<key>one</key>
+			<string>%lld</string>
+			<key>other</key>
+			<string>%lld</string>
+		</dict>
+	</dict>
 	<key>%lld photos</key>
 	<dict>
 		<key>NSStringLocalizedFormatKey</key>
@@ -202,6 +497,286 @@
 			<string>%lld фото · %@</string>
 		</dict>
 	</dict>
+	<key>%lld processes</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@value@</string>
+		<key>value</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>few</key>
+			<string>Процесса: %lld</string>
+			<key>many</key>
+			<string>Процессов: %lld</string>
+			<key>one</key>
+			<string>Процесс: %lld</string>
+			<key>other</key>
+			<string>Процесса: %lld</string>
+		</dict>
+	</dict>
+	<key>%lld runs</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@value@</string>
+		<key>value</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>few</key>
+			<string>Запуска: %lld</string>
+			<key>many</key>
+			<string>Запусков: %lld</string>
+			<key>one</key>
+			<string>Запуск: %lld</string>
+			<key>other</key>
+			<string>Запуска: %lld</string>
+		</dict>
+	</dict>
+	<key>%lld unsafe or unavailable items were not scanned</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@value@</string>
+		<key>value</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>few</key>
+			<string>%lld небезопасных или недоступных элемента не сканировались</string>
+			<key>many</key>
+			<string>%lld небезопасных или недоступных элементов не сканировались</string>
+			<key>one</key>
+			<string>%lld небезопасный или недоступный элемент не сканировался</string>
+			<key>other</key>
+			<string>%lld небезопасных или недоступных элемента не сканировались</string>
+		</dict>
+	</dict>
+	<key>%lld unsafe or unavailable items were skipped.</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@value@</string>
+		<key>value</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>few</key>
+			<string>Пропущено %lld небезопасных или недоступных элемента.</string>
+			<key>many</key>
+			<string>Пропущено %lld небезопасных или недоступных элементов.</string>
+			<key>one</key>
+			<string>Пропущен %lld небезопасный или недоступный элемент.</string>
+			<key>other</key>
+			<string>Пропущено %lld небезопасных или недоступных элемента.</string>
+		</dict>
+	</dict>
+	<key>%lld/%lld protected locations accessible</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@value@</string>
+		<key>value</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>few</key>
+			<string>Доступно защищённых расположения: %lld/%lld</string>
+			<key>many</key>
+			<string>Доступно защищённых расположений: %lld/%lld</string>
+			<key>one</key>
+			<string>Доступно защищённое расположение: %lld/%lld</string>
+			<key>other</key>
+			<string>Доступно защищённых расположения: %lld/%lld</string>
+		</dict>
+	</dict>
+	<key>Checking %lld locations...</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@value@</string>
+		<key>value</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>few</key>
+			<string>Проверка расположений (%lld)…</string>
+			<key>many</key>
+			<string>Проверка расположений (%lld)…</string>
+			<key>one</key>
+			<string>Проверка расположения (%lld)…</string>
+			<key>other</key>
+			<string>Проверка расположений (%lld)…</string>
+		</dict>
+	</dict>
+	<key>Clean %lld items</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@value@</string>
+		<key>value</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>few</key>
+			<string>Очистить выбранное (%lld)</string>
+			<key>many</key>
+			<string>Очистить выбранное (%lld)</string>
+			<key>one</key>
+			<string>Очистить выбранное (%lld)</string>
+			<key>other</key>
+			<string>Очистить выбранное (%lld)</string>
+		</dict>
+	</dict>
+	<key>Every %lld seconds</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@value@</string>
+		<key>value</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>few</key>
+			<string>Каждые %lld секунды</string>
+			<key>many</key>
+			<string>Каждые %lld секунд</string>
+			<key>one</key>
+			<string>Каждую %lld секунду</string>
+			<key>other</key>
+			<string>Каждые %lld секунды</string>
+		</dict>
+	</dict>
+	<key>Finder will permanently delete %lld items (%@). This can't be undone.</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@value@</string>
+		<key>value</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>few</key>
+			<string>Finder безвозвратно удалит %lld объекта (%@). Это действие нельзя отменить.</string>
+			<key>many</key>
+			<string>Finder безвозвратно удалит %lld объектов (%@). Это действие нельзя отменить.</string>
+			<key>one</key>
+			<string>Finder безвозвратно удалит %lld объект (%@). Это действие нельзя отменить.</string>
+			<key>other</key>
+			<string>Finder безвозвратно удалит %lld объекта (%@). Это действие нельзя отменить.</string>
+		</dict>
+	</dict>
+	<key>Homebrew finished, but %lld selected apps still report updates.</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@value@</string>
+		<key>value</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>few</key>
+			<string>Homebrew завершил работу, но %lld выбранных приложения всё ещё сообщают об обновлениях.</string>
+			<key>many</key>
+			<string>Homebrew завершил работу, но %lld выбранных приложений всё ещё сообщают об обновлениях.</string>
+			<key>one</key>
+			<string>Homebrew завершил работу, но %lld выбранное приложение всё ещё сообщает об обновлениях.</string>
+			<key>other</key>
+			<string>Homebrew завершил работу, но %lld выбранных приложения всё ещё сообщают об обновлениях.</string>
+		</dict>
+	</dict>
+	<key>Homebrew updated the %lld selected apps.</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@value@</string>
+		<key>value</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>few</key>
+			<string>Homebrew обновил %lld выбранных приложения.</string>
+			<key>many</key>
+			<string>Homebrew обновил %lld выбранных приложений.</string>
+			<key>one</key>
+			<string>Homebrew обновил %lld выбранное приложение.</string>
+			<key>other</key>
+			<string>Homebrew обновил %lld выбранных приложения.</string>
+		</dict>
+	</dict>
+	<key>Includes %lld selected items hidden by filters.</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@value@</string>
+		<key>value</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>few</key>
+			<string>Включает %lld выбранных элемента, скрытых фильтрами.</string>
+			<key>many</key>
+			<string>Включает %lld выбранных элементов, скрытых фильтрами.</string>
+			<key>one</key>
+			<string>Включает %lld выбранный элемент, скрытый фильтрами.</string>
+			<key>other</key>
+			<string>Включает %lld выбранных элемента, скрытых фильтрами.</string>
+		</dict>
+	</dict>
+	<key>Move %lld backups to the Trash?</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@value@</string>
+		<key>value</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>few</key>
+			<string>Переместить резервные копии (%lld) в Корзину?</string>
+			<key>many</key>
+			<string>Переместить резервные копии (%lld) в Корзину?</string>
+			<key>one</key>
+			<string>Переместить резервную копию (%lld) в Корзину?</string>
+			<key>other</key>
+			<string>Переместить резервные копии (%lld) в Корзину?</string>
+		</dict>
+	</dict>
+	<key>Permanently remove %lld items</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@value@</string>
+		<key>value</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>few</key>
+			<string>Безвозвратно удалить %lld элемента</string>
+			<key>many</key>
+			<string>Безвозвратно удалить %lld элементов</string>
+			<key>one</key>
+			<string>Безвозвратно удалить %lld элемент</string>
+			<key>other</key>
+			<string>Безвозвратно удалить %lld элемента</string>
+		</dict>
+	</dict>
 	<key>Remove %lld files</key>
 	<dict>
 		<key>NSStringLocalizedFormatKey</key>
@@ -240,6 +815,66 @@
 			<string>Удалить %lld объект</string>
 			<key>other</key>
 			<string>Удалить %lld объекта</string>
+		</dict>
+	</dict>
+	<key>Upgrade %lld Apps</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@value@</string>
+		<key>value</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>few</key>
+			<string>Обновить приложения: %lld</string>
+			<key>many</key>
+			<string>Обновить приложений: %lld</string>
+			<key>one</key>
+			<string>Обновить приложение: %lld</string>
+			<key>other</key>
+			<string>Обновить приложения: %lld</string>
+		</dict>
+	</dict>
+	<key>across %lld categories</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@value@</string>
+		<key>value</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>few</key>
+			<string>Категории: %lld</string>
+			<key>many</key>
+			<string>Категорий: %lld</string>
+			<key>one</key>
+			<string>Категория: %lld</string>
+			<key>other</key>
+			<string>Категории: %lld</string>
+		</dict>
+	</dict>
+	<key>of %lld cores</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@value@</string>
+		<key>value</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>few</key>
+			<string>из %lld ядер</string>
+			<key>many</key>
+			<string>из %lld ядер</string>
+			<key>one</key>
+			<string>из %lld ядра</string>
+			<key>other</key>
+			<string>из %lld ядер</string>
 		</dict>
 	</dict>
 </dict>
