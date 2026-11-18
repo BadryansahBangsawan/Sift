@@ -1,9 +1,9 @@
 <p align="center">
-  <img src="../screenshots/smart-care.png" alt="PureMac Smart Care - um escaneamento cobrindo 12 verificações de limpeza, com medidor de espaço livre" width="820">
+  <img src="../screenshots/smart-care.png" alt="Sift Smart Care - um escaneamento cobrindo 12 verificações de limpeza, com medidor de espaço livre" width="820">
 </p>
 
 <p align="center">
-  <img src="../screenshots/scanning.png" alt="Escaneamento do PureMac - progresso ao vivo com categorias e tamanhos conforme são encontrados" width="820">
+  <img src="../screenshots/scanning.png" alt="Escaneamento do Sift - progresso ao vivo com categorias e tamanhos conforme são encontrados" width="820">
 </p>
 
 <p align="center">
@@ -16,7 +16,9 @@
   <a href="README.zh-Hant.md">繁體中文</a>
 </p>
 
-<h1 align="center">PureMac</h1>
+<h1 align="center">Sift</h1>
+
+<p align="center"><sub>Sift é o novo nome do PureMac. Ainda não há uma versão publicada do Sift: compile a partir do código-fonte. Veja <a href="../README.md#renamed-from-puremac">Renamed from PureMac</a> sobre a migração das configurações e o Acesso Total ao Disco.</sub></p>
 
 <p align="center">
   <b>Recupere o seu Mac.</b><br>
@@ -24,13 +26,13 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/momenbasel/PureMac/releases/latest"><img src="https://img.shields.io/github/v/release/momenbasel/PureMac?style=flat-square&label=Baixar" alt="Última versão"></a>
+  <a href="https://github.com/BadryansahBangsawan/Sift/releases/latest"><img src="https://img.shields.io/github/v/release/BadryansahBangsawan/Sift?style=flat-square&label=Baixar" alt="Última versão"></a>
   <img src="https://img.shields.io/badge/macOS-13.0+-blue?style=flat-square" alt="macOS 13.0+">
   <img src="https://img.shields.io/badge/Signed%20%26%20Notarized-Apple-success?style=flat-square" alt="Assinado e notarizado pela Apple">
   <img src="https://img.shields.io/badge/telemetry-none-success?style=flat-square" alt="Sem telemetria">
-  <a href="../LICENSE"><img src="https://img.shields.io/github/license/momenbasel/PureMac?style=flat-square" alt="Licença MIT"></a>
-  <a href="https://github.com/momenbasel/PureMac/stargazers"><img src="https://img.shields.io/github/stars/momenbasel/PureMac?style=flat-square" alt="Estrelas"></a>
-  <a href="https://github.com/momenbasel/PureMac/releases"><img src="https://img.shields.io/github/downloads/momenbasel/PureMac/total?style=flat-square&label=Downloads" alt="Downloads"></a>
+  <a href="../LICENSE"><img src="https://img.shields.io/github/license/BadryansahBangsawan/Sift?style=flat-square" alt="Licença MIT"></a>
+  <a href="https://github.com/BadryansahBangsawan/Sift/stargazers"><img src="https://img.shields.io/github/stars/BadryansahBangsawan/Sift?style=flat-square" alt="Estrelas"></a>
+  <a href="https://github.com/BadryansahBangsawan/Sift/releases"><img src="https://img.shields.io/github/downloads/BadryansahBangsawan/Sift/total?style=flat-square&label=Downloads" alt="Downloads"></a>
 </p>
 
 <p align="center">
@@ -52,42 +54,42 @@
 ## Instalação
 
 ```bash
-brew install --cask puremac
+brew install --cask sift
 ```
 
-Ou baixe o `.dmg` assinado e notarizado em [Releases](https://github.com/momenbasel/PureMac/releases/latest) e arraste o PureMac para `/Applications`. Sem avisos do Gatekeeper, sem gambiarra de quarentena.
+Ou baixe o `.dmg` assinado e notarizado em [Releases](https://github.com/BadryansahBangsawan/Sift/releases/latest) e arraste o Sift para `/Applications`. Sem avisos do Gatekeeper, sem gambiarra de quarentena.
 
 ### Compilar do código-fonte
 
 ```bash
 brew install xcodegen
-git clone https://github.com/momenbasel/PureMac.git
-cd PureMac
+git clone https://github.com/BadryansahBangsawan/Sift.git
+cd Sift
 xcodegen generate
-xcodebuild -project PureMac.xcodeproj -scheme PureMac -configuration Release \
+xcodebuild -project Sift.xcodeproj -scheme Sift -configuration Release \
   -derivedDataPath build build
-open build/Build/Products/Release/PureMac.app
+open build/Build/Products/Release/Sift.app
 ```
 
 ### Linha de comando (beta)
 
-Prefere o terminal? O `puremac` é um companheiro de linha de comando
+Prefere o terminal? O `sift-cli` é um companheiro de linha de comando
 independente, com comandos de limpeza e verificações de segurança próprios.
 Alguns comandos removem permanentemente os arquivos selecionados; comece com
 `--dry-run`, revise cada caminho e só então confirme deliberadamente.
 
 ```bash
-brew install momenbasel/tap/puremac-cli
-puremac clean dev --dry-run
+brew install sift-cli
+sift-cli clean dev --dry-run
 ```
 
-![puremac escaneando e listando exatamente o que será removido antes de apagar qualquer item](../cli/screenshots/clean.png)
+![sift-cli escaneando e listando exatamente o que será removido antes de apagar qualquer item](../cli/screenshots/clean.png)
 
 Consulte [`cli/README.md`](../cli/README.md) para ver a referência completa de comandos.
 
 ## Comparativo
 
-|  | **PureMac** | CleanMyMac | Pearcleaner | Mole | OnyX |
+|  | **Sift** | CleanMyMac | Pearcleaner | Mole | OnyX |
 |---|:---:|:---:|:---:|:---:|:---:|
 | Preço | **Grátis** | US$ 40+/ano | Grátis | CLI grátis / GUI paga | Grátis |
 | Código aberto | **Sim (MIT)** | Não | Código-disponível¹ | Só a CLI | Não |
@@ -99,26 +101,26 @@ Consulte [`cli/README.md`](../cli/README.md) para ver a referência completa de 
 | Lixeira no desinstalador de apps | **Sim** | Parcial | Sim | Parcial | Não |
 | Honesto sobre espaço purgável | **Sim** | Não | n/a | n/a | n/a |
 
-<sub>¹ O Pearcleaner é Apache 2.0 **+ Commons Clause** - código-disponível, mas não aprovado pela OSI (você não pode vendê-lo). O PureMac é MIT de verdade. O comparativo reflete recursos documentados publicamente em 2026; correções são bem-vindas via PR.</sub>
+<sub>¹ O Pearcleaner é Apache 2.0 **+ Commons Clause** - código-disponível, mas não aprovado pela OSI (você não pode vendê-lo). O Sift é MIT de verdade. O comparativo reflete recursos documentados publicamente em 2026; correções são bem-vindas via PR.</sub>
 
 ## Nossa promessa
 
-Um limpador de Mac pede a permissão mais profunda que o macOS concede - o Acesso Total ao Disco - e depois apaga os seus arquivos. Isso exige um nível de confiança que a categoria passou vinte anos queimando. Este é o contrato que o PureMac assume consigo mesmo, e você pode verificar cada linha dele no código-fonte:
+Um limpador de Mac pede a permissão mais profunda que o macOS concede - o Acesso Total ao Disco - e depois apaga os seus arquivos. Isso exige um nível de confiança que a categoria passou vinte anos queimando. Este é o contrato que o Sift assume consigo mesmo, e você pode verificar cada linha dele no código-fonte:
 
 - **O comportamento de remoção é explícito.** Os fluxos do desinstalador tentam mover os arquivos de apps selecionados para a Lixeira. A limpeza do painel/das categorias, a limpeza automática agendada, a remoção de órfãos, o esvaziamento da Lixeira, a limpeza do Docker/de runtimes do Xcode, a limpeza autorizada como administrador e a CLI podem apagar dados permanentemente. Revise as seleções e use o modo de simulação da CLI.
 - **Sem telemetria, nunca.** Sem analytics, sem relatórios de falha, sem "estatísticas anônimas de uso", sem chamadas de rede para nós. O app não sabe que você existe.
 - **Sem urgência fabricada.** Nenhum selo dramático de "47 GB de lixo detectados!", nenhum contador vermelho de alarme, nenhum "seu Mac está em risco". Mostramos fatos neutros e deixamos você decidir.
 - **Sem promessas exageradas.** Não afirmamos "recuperar espaço purgável", "turbinar a RAM" nem "acelerar o seu Mac" - coisas que nenhum app consegue fazer de forma confiável. Veja a nota sobre espaço purgável abaixo.
 - **Seleção revisável.** A limpeza do painel/das categorias e a remoção de um único arquivo de app pedem confirmação. A remoção em lote de arquivos de apps e de órfãos age sobre a seleção explícita sem uma segunda confirmação. A limpeza automática agendada é executada sem interação depois de ativada, e linhas baseadas em ferramentas, como a limpeza do Docker, podem não ter um caminho revelável.
-- **Auditável.** É MIT. O código exato que decide o que é removido está em [`PureMac/Services`](../PureMac/Services) e [`PureMac/Logic/Scanning`](../PureMac/Logic/Scanning). Leia. Faça um fork. Publique o seu próprio.
+- **Auditável.** É MIT. O código exato que decide o que é removido está em [`Sift/Services`](../Sift/Services) e [`Sift/Logic/Scanning`](../Sift/Logic/Scanning). Leia. Faça um fork. Publique o seu próprio.
 
-Se algum dia o PureMac adicionar telemetria, um paywall sobre recursos essenciais ou um escaneamento baseado em medo, ele terá se tornado exatamente aquilo que foi criado para substituir. Cobre isso de nós.
+Se algum dia o Sift adicionar telemetria, um paywall sobre recursos essenciais ou um escaneamento baseado em medo, ele terá se tornado exatamente aquilo que foi criado para substituir. Cobre isso de nós.
 
 ## Por que isto existe
 
 A Apple vende Macs de entrada com SSDs de 256 GB que não podem ser expandidos. O Mac mini, o Air, todo MacBook Pro de entrada - o armazenamento vem soldado. O próximo nível de armazenamento custa mais do que um notebook Windows intermediário. Depois de pagar por ele, cada gigabyte que você já comprou importa.
 
-A maioria dos limpadores de Mac são apps por assinatura que escondem o uso do disco atrás de um paywall, embutem telemetria por padrão e lucram com FUD ("47 GB de lixo detectados!"). O PureMac é o oposto:
+A maioria dos limpadores de Mac são apps por assinatura que escondem o uso do disco atrás de um paywall, embutem telemetria por padrão e lucram com FUD ("47 GB de lixo detectados!"). O Sift é o oposto:
 
 - **Instalação única.** Sem assinatura, sem trial, sem conta.
 - **Sem telemetria.** Ele nunca liga para casa. Nem sequer sabe que você existe.
@@ -129,7 +131,7 @@ A maioria dos limpadores de Mac são apps por assinatura que escondem o uso do d
 ## O que ele faz
 
 ### Desinstalador de apps
-Descobre tudo em `/Applications` e `~/Applications` e usa um motor de correspondência de 10 níveis (bundle ID, team identifier, entitlements, metadados do Spotlight, descoberta de contêineres, heurísticas de nome da empresa, correspondências parciais de caminho) para encontrar cada arquivo que o app espalhou pelo disco. Três níveis de sensibilidade - Estrito, Aprimorado e Profundo - permitem escolher o quão agressiva é a correspondência. Apps de sistema da Apple são excluídos automaticamente da lista de desinstalação. Você também pode clicar com o botão direito em qualquer app no Finder e escolher **Serviços → Desinstalar com o PureMac** para ir direto ao escaneamento de arquivos relacionados.
+Descobre tudo em `/Applications` e `~/Applications` e usa um motor de correspondência de 10 níveis (bundle ID, team identifier, entitlements, metadados do Spotlight, descoberta de contêineres, heurísticas de nome da empresa, correspondências parciais de caminho) para encontrar cada arquivo que o app espalhou pelo disco. Três níveis de sensibilidade - Estrito, Aprimorado e Profundo - permitem escolher o quão agressiva é a correspondência. Apps de sistema da Apple são excluídos automaticamente da lista de desinstalação. Você também pode clicar com o botão direito em qualquer app no Finder e escolher **Serviços → Desinstalar com o Sift** para ir direto ao escaneamento de arquivos relacionados.
 
 ### Localizador de órfãos
 Percorre a `~/Library` e revela arquivos deixados para trás por apps que não existem mais no disco. O comparador confere com os bundle identifiers e nomes normalizados de todos os apps instalados, então um `~/Library/Containers/com.foo.bar` esquecido por um app que você apagou em 2022 aparece com clareza.
@@ -148,35 +150,35 @@ O Smart Scan executa todas as categorias em paralelo. Cada categoria é um scann
 - **Cache do Node** - npm, yarn clássico, armazenamento endereçado por conteúdo do pnpm
 - **Cache do Docker** - imagens, contêineres, cache de build
 
-> **Sobre o "espaço purgável":** o PureMac mostra o espaço purgável do APFS no detalhamento de armazenamento por transparência, mas deliberadamente **não** o lista como lixo a apagar. O espaço purgável é reservado e recuperado pelo próprio macOS - nenhum app de terceiros consegue liberá-lo de forma confiável, e até o número de espaço purgável do Finder é conhecido por ser impreciso. Limpadores que prometem "recuperar espaço purgável" estão prometendo demais. Preferimos ser honestos a ser impressionantes.
+> **Sobre o "espaço purgável":** o Sift mostra o espaço purgável do APFS no detalhamento de armazenamento por transparência, mas deliberadamente **não** o lista como lixo a apagar. O espaço purgável é reservado e recuperado pelo próprio macOS - nenhum app de terceiros consegue liberá-lo de forma confiável, e até o número de espaço purgável do Finder é conhecido por ser impreciso. Limpadores que prometem "recuperar espaço purgável" estão prometendo demais. Preferimos ser honestos a ser impressionantes.
 
 ### Limpeza agendada
 Opcional. Intervalo configurável (de a cada hora até mensal), com limite mínimo de auto-limpeza para que execuções em segundo plano só disparem quando houver algo significativo a remover.
 
 ## Permissões
 
-O PureMac precisa de **Acesso total ao Disco** para ler os locais que o macOS esconde de todos os apps por padrão - downloads do Mail, dados do Safari, o banco de dados do TCC, contêineres protegidos de apps. Sem ele, as categorias de limpeza deixam de encontrar cerca de 70% do que poderiam, e as desinstalações deixam para trás tudo o que está em `~/Library/Containers`.
+O Sift precisa de **Acesso total ao Disco** para ler os locais que o macOS esconde de todos os apps por padrão - downloads do Mail, dados do Safari, o banco de dados do TCC, contêineres protegidos de apps. Sem ele, as categorias de limpeza deixam de encontrar cerca de 70% do que poderiam, e as desinstalações deixam para trás tudo o que está em `~/Library/Containers`.
 
-O onboarding do primeiro uso guia a concessão da permissão com uma prévia animada do exato interruptor que você precisa acionar. Se você pular, o painel exibe uma pílula "Configurar" de um clique. Se uma limpeza falhar por questão de permissão, o PureMac abre os Ajustes do Sistema, revela seu bundle no Finder para você arrastá-lo à lista de Acesso Total ao Disco, monitora o estado da permissão a cada segundo e refaz automaticamente o lote que falhou assim que o acesso é concedido. Você nunca precisa selecionar nada de novo.
+O onboarding do primeiro uso guia a concessão da permissão com uma prévia animada do exato interruptor que você precisa acionar. Se você pular, o painel exibe uma pílula "Configurar" de um clique. Se uma limpeza falhar por questão de permissão, o Sift abre os Ajustes do Sistema, revela seu bundle no Finder para você arrastá-lo à lista de Acesso Total ao Disco, monitora o estado da permissão a cada segundo e refaz automaticamente o lote que falhou assim que o acesso é concedido. Você nunca precisa selecionar nada de novo.
 
-O que o PureMac *não* faz:
+O que o Sift *não* faz:
 - Não coleta telemetria, relatórios de falha nem análises de uso.
 - Não exige conexão de rede para funcionar.
 - Não envia nem transmite caminhos escaneados ou dados removidos.
 
 ## Solução de problemas
 
-### O Launchpad / Dock mostra um ícone desatualizado ou sem cor do PureMac
+### O Launchpad / Dock mostra um ícone desatualizado ou sem cor do Sift
 
-O macOS faz cache agressivo de ícones de apps no LaunchServices. Após uma **reinstalação ou atualização** via Homebrew, o Dock e o Launchpad podem continuar exibindo o ícone antigo em cache. O cask do PureMac executa `lsregister -f` na instalação para atualizá-lo automaticamente. Se o ícone desatualizado persistir, registre novamente apenas o PureMac e reinicie o Dock (ajuste o caminho se você instalou o app em outro local):
+O macOS faz cache agressivo de ícones de apps no LaunchServices. Após uma **reinstalação ou atualização** via Homebrew, o Dock e o Launchpad podem continuar exibindo o ícone antigo em cache. O cask do Sift executa `lsregister -f` na instalação para atualizá-lo automaticamente. Se o ícone desatualizado persistir, registre novamente apenas o Sift e reinicie o Dock (ajuste o caminho se você instalou o app em outro local):
 
 ```bash
 /System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/LaunchServices.framework/Versions/A/Support/lsregister \
-  -f "/Applications/PureMac.app"
+  -f "/Applications/Sift.app"
 killall Dock
 ```
 
-Dê um minuto para o cache se repovoar e abra o PureMac uma vez. Se ainda persistir, uma reinicialização (ou boot em Modo de Segurança) força a reconstrução completa.
+Dê um minuto para o cache se repovoar e abra o Sift uma vez. Se ainda persistir, uma reinicialização (ou boot em Modo de Segurança) força a reconstrução completa.
 
 ## Capturas de tela
 
@@ -199,7 +201,7 @@ Dê um minuto para o cache se repovoar e abra o PureMac uma vez. Se ainda persis
 ## Arquitetura
 
 ```
-PureMac/
+Sift/
   Logic/Scanning/     - Motor heurístico de escaneamento, banco de locais, condições
   Logic/Utilities/    - Logging estruturado
   Models/             - Modelos de dados, erros tipados
@@ -253,13 +255,13 @@ Especialmente bem-vindos:
 
 ## Histórico de estrelas
 
-Se o PureMac liberou espaço no seu disco, uma estrela ajuda outras pessoas a encontrá-lo.
+Se o Sift liberou espaço no seu disco, uma estrela ajuda outras pessoas a encontrá-lo.
 
-<a href="https://star-history.com/#momenbasel/PureMac&Date">
+<a href="https://star-history.com/#BadryansahBangsawan/Sift&Date">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=momenbasel/PureMac&type=Date&theme=dark" />
-    <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=momenbasel/PureMac&type=Date" />
-    <img alt="Gráfico do histórico de estrelas do PureMac" src="https://api.star-history.com/svg?repos=momenbasel/PureMac&type=Date" width="720" />
+    <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=BadryansahBangsawan/Sift&type=Date&theme=dark" />
+    <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=BadryansahBangsawan/Sift&type=Date" />
+    <img alt="Gráfico do histórico de estrelas do Sift" src="https://api.star-history.com/svg?repos=BadryansahBangsawan/Sift&type=Date" width="720" />
   </picture>
 </a>
 

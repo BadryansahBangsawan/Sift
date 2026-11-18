@@ -1,6 +1,6 @@
-# PureMac
+# Sift
 
-> PureMac is a free, native, open-source Mac utility for cleanup, app management, storage exploration, duplicate detection, and system checks.
+> Sift is a free, native, open-source Mac utility for cleanup, app management, storage exploration, duplicate detection, and system checks.
 
 ## Product
 - Current stable GUI release verified 24 October 2026: 3.1.0.
@@ -24,15 +24,16 @@ User-level app uninstalling, orphan removal, and exact-duplicate removal use Tra
 No telemetry, analytics, or crash reporting. Local scans and cleanup work offline. Scanned paths and file contents are not uploaded. GitHub release checks and Homebrew update operations use the network. Homebrew operations run with analytics disabled.
 
 ## Install
-- GUI: `brew install --cask puremac`
-- Signed DMG: https://github.com/momenbasel/PureMac/releases/latest
-- CLI: `brew install momenbasel/tap/puremac-cli`
+- Sift was renamed from PureMac and has no published release yet; build from source. The commands below apply once Sift releases exist.
+- GUI: `brew install --cask sift`
+- Signed DMG: https://github.com/BadryansahBangsawan/Sift/releases/latest
+- CLI: `brew install sift-cli`
 - If Homebrew requires tap trust: run `brew tap momenbasel/tap`, then `brew trust --tap momenbasel/tap`, then repeat the CLI install command.
-- CLI cleanup is permanent; preview with `puremac clean dev --dry-run`.
+- CLI cleanup is permanent; preview with `sift-cli clean dev --dry-run`.
 
 ## Links
 - Website: https://www.moamenbasel.com/PureMac/
-- Source: https://github.com/momenbasel/PureMac
-- Releases: https://github.com/momenbasel/PureMac/releases
-- CLI guide: https://github.com/momenbasel/PureMac/blob/main/cli/README.md
+- Source: https://github.com/BadryansahBangsawan/Sift
+- Releases: https://github.com/BadryansahBangsawan/Sift/releases
+- CLI guide: https://github.com/BadryansahBangsawan/Sift/blob/main/cli/README.md
 - Privacy: https://www.moamenbasel.com/PureMac/privacy.html

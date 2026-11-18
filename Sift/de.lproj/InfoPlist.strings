@@ -1,0 +1,8 @@
+/* macOS permission prompts */
+"NSAppleEventsUsageDescription" = "Sift verwendet Apple Events, um den Finder zu bitten, Dateien anzuzeigen und den Papierkorb zu entleeren.";
+"NSDesktopFolderUsageDescription" = "Sift benötigt Zugriff auf deinen Schreibtisch, um überflüssige und verwaiste Dateien zu finden.";
+"NSDocumentsFolderUsageDescription" = "Sift benötigt Zugriff auf deine Dokumente, um überflüssige und verwaiste Dateien zu finden.";
+"NSDownloadsFolderUsageDescription" = "Sift benötigt Zugriff auf deine Downloads, um überflüssige und verwaiste Dateien zu finden.";
+"NSRemovableVolumesUsageDescription" = "Sift benötigt Zugriff auf Wechselmedien, um nach überflüssigen Dateien zu suchen.";
+"NSSystemAdministrationUsageDescription" = "Sift benötigt Zugriff auf die Systemverwaltung, um Caches zu bereinigen und Apps vollständig zu deinstallieren.";
+"NSHumanReadableCopyright" = "Copyright 2026. MIT-Lizenz.";

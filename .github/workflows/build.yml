@@ -32,8 +32,8 @@ jobs:
 
       - name: Test
         run: |
-          xcodebuild -project PureMac.xcodeproj \
-            -scheme PureMac \
+          xcodebuild -project Sift.xcodeproj \
+            -scheme Sift \
             -configuration Debug \
             -destination 'platform=macOS' \
             -derivedDataPath build-tests \
@@ -41,8 +41,8 @@ jobs:
 
       - name: Build (Universal Binary)
         run: |
-          xcodebuild -project PureMac.xcodeproj \
-            -scheme PureMac \
+          xcodebuild -project Sift.xcodeproj \
+            -scheme Sift \
             -configuration Release \
             -derivedDataPath build \
             build \

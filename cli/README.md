@@ -1,39 +1,31 @@
-# PureMac CLI
+# Sift CLI
 
 Choose what to clean. See where your space goes.
 
-A native Swift command-line companion to [PureMac](https://github.com/momenbasel/PureMac), with a keyboard-driven workspace, individual file selection, and an interactive storage explorer. Free, open source, and no telemetry.
+A native Swift command-line companion to [Sift](../README.md) (formerly PureMac), with a keyboard-driven workspace, individual file selection, and an interactive storage explorer. Free, open source, and no telemetry.
 
-![PureMac CLI reviewing project artifacts with individual selections and a running size total](screenshots/clean.png)
+![Sift CLI reviewing project artifacts with individual selections and a running size total](screenshots/clean.png)
 
-Captured from the running CLI using sample projects.
+Captured from the running CLI using sample projects, before the rename to Sift.
 
 ## Install
 
-```bash
-brew install momenbasel/tap/puremac-cli
-puremac
-```
+The executable is `sift-cli`, not `sift`, because Homebrew already has an unrelated `sift` formula (a grep alternative) and the two would clash on your `PATH`.
 
-![PureMac CLI workspace with cleanup, storage, and system tools](screenshots/workspace.png)
+No Sift CLI release is published yet, so [build it from source](#build-from-source) and run `sift-cli`. Once a release exists, publish [`homebrew/sift-cli.rb`](../homebrew/sift-cli.rb) in a tap and install it with `brew install <tap>/sift-cli`.
 
-Already installed?
-
-```bash
-brew update
-brew upgrade momenbasel/tap/puremac-cli
-```
+![Sift CLI workspace with cleanup, storage, and system tools](screenshots/workspace.png)
 
 The release contains a universal binary for Apple Silicon and Intel, signed with Developer ID and submitted to Apple for notarization. Standalone command-line executables cannot carry stapled tickets; the release includes Apple's notarization result.
 
 ## Select, review, confirm
 
-Run `puremac` to choose a task, or go straight to a scan:
+Run `sift-cli` to choose a task, or go straight to a scan:
 
 ```bash
-puremac clean dev
-puremac purge ~/Projects
-puremac analyze ~/Projects
+sift-cli clean dev
+sift-cli purge ~/Projects
+sift-cli analyze ~/Projects
 ```
 
 Cleanup opens a selection screen. Nothing is selected when the interactive review begins. Move through the list, choose individual paths, and check the running size total. Press Return to review the selection, then confirm permanent deletion separately.
@@ -52,60 +44,60 @@ Use Left and Right to scroll a long focused path. The final confirmation prints 
 Prefer an ordinary scrolling terminal? Use `--plain` for numbered selection and a text review:
 
 ```bash
-puremac purge ~/Projects --plain
+sift-cli purge ~/Projects --plain
 ```
 
 The interface adapts to terminal size. `NO_COLOR` disables color. Redirected output and `TERM=dumb` use plain output.
 
 ## Explore storage
 
-`puremac analyze` opens a read-only browser sorted by size. Move into a folder with Return or Right, go back with Left or Backspace, and quit with Q. Browsing does not remove anything.
+`sift-cli analyze` opens a read-only browser sorted by size. Move into a folder with Return or Right, go back with Left or Backspace, and quit with Q. Browsing does not remove anything.
 
 ```bash
-puremac analyze ~/Projects
-puremac analyze ~/Library --plain --depth 2
-puremac analyze ~/Projects --json
+sift-cli analyze ~/Projects
+sift-cli analyze ~/Library --plain --depth 2
+sift-cli analyze ~/Projects --json
 ```
 
 ## Commands
 
 | Command | What it does |
 |---|---|
-| `puremac` | Open the interactive workspace |
-| `puremac clean` | Scan developer caches, user junk, AI-tool caches, and Trash |
-| `puremac clean dev` | Review package-manager and build-tool caches |
-| `puremac clean junk` | Review user logs and generated Xcode files |
-| `puremac clean ai` | Review AI-tool caches and logs |
-| `puremac clean trash` | Review user and mounted-volume Trash |
-| `puremac purge [path]` | Find generated artifacts inside project folders |
-| `puremac analyze [path]` | Browse disk usage without modifying files |
-| `puremac optimize` | Show factual memory and disk status |
-| `puremac ignore add <path>` | Protect a path from cleanup |
-| `puremac ignore remove <path>` | Remove that protection |
-| `puremac ignore list` | List protected paths |
-| `puremac doctor` | Report disk, memory, SMART status, launch agents, and Trash size |
-| `puremac dupes [path]` | Find files with identical contents, read-only |
-| `puremac uninstall <app>` | Remove an app bundle and the files named after its bundle identifier |
-| `puremac config` | Show settings and their storage locations |
+| `sift-cli` | Open the interactive workspace |
+| `sift-cli clean` | Scan developer caches, user junk, AI-tool caches, and Trash |
+| `sift-cli clean dev` | Review package-manager and build-tool caches |
+| `sift-cli clean junk` | Review user logs and generated Xcode files |
+| `sift-cli clean ai` | Review AI-tool caches and logs |
+| `sift-cli clean trash` | Review user and mounted-volume Trash |
+| `sift-cli purge [path]` | Find generated artifacts inside project folders |
+| `sift-cli analyze [path]` | Browse disk usage without modifying files |
+| `sift-cli optimize` | Show factual memory and disk status |
+| `sift-cli ignore add <path>` | Protect a path from cleanup |
+| `sift-cli ignore remove <path>` | Remove that protection |
+| `sift-cli ignore list` | List protected paths |
+| `sift-cli doctor` | Report disk, memory, SMART status, launch agents, and Trash size |
+| `sift-cli dupes [path]` | Find files with identical contents, read-only |
+| `sift-cli uninstall <app>` | Remove an app bundle and the files named after its bundle identifier |
+| `sift-cli config` | Show settings and their storage locations |
 
-Run `puremac <command> --help` for every option.
+Run `sift-cli <command> --help` for every option.
 
 ## Previews and scripts
 
 `--dry-run` and `--json` never delete files. They do not open the interactive interface, including when combined with `--force`.
 
 ```bash
-puremac clean dev --dry-run
-puremac purge ~/Projects --json
-puremac dupes ~/Downloads --json
-puremac uninstall /Applications/Some.app --dry-run
+sift-cli clean dev --dry-run
+sift-cli purge ~/Projects --json
+sift-cli dupes ~/Downloads --json
+sift-cli uninstall /Applications/Some.app --dry-run
 ```
 
 `--force` is an explicit unattended cleanup option. It skips selection and confirmation and permanently removes the scanner's default selection. Preview first. For project artifacts, the default selection uses the age threshold, seven days unless configured otherwise; recent artifacts remain excluded.
 
 ```bash
-puremac purge ~/Projects --older-than 30 --dry-run
-puremac purge ~/Projects --older-than 30 --force
+sift-cli purge ~/Projects --older-than 30 --dry-run
+sift-cli purge ~/Projects --older-than 30 --force
 ```
 
 Without `--force`, a noninteractive cleanup does not delete anything.
@@ -129,10 +121,12 @@ The CLI has its own scan engine and safety checks. Its coverage is separate from
 Protect a project or folder:
 
 ```bash
-puremac ignore add ~/Projects/important
+sift-cli ignore add ~/Projects/important
 ```
 
-PureMac does not claim to boost RAM or reliably reclaim APFS purgeable space. macOS manages both; `optimize` reports their state without forcing cleanup.
+Settings and protected paths live in `~/.config/sift/` (or `$XDG_CONFIG_HOME/sift/`). If that folder has no file yet, the CLI reads the one it used as PureMac, `~/.config/puremac/`, and the next change saves to the new folder. The old file is left as it was.
+
+Sift does not claim to boost RAM or reliably reclaim APFS purgeable space. macOS manages both; `optimize` reports their state without forcing cleanup.
 
 ## Build from source
 
@@ -142,7 +136,7 @@ Requires macOS 11 or later and a Swift 5.9+ toolchain.
 cd cli
 swift test
 swift build -c release
-.build/release/puremac
+.build/release/sift-cli
 ```
 
 See [the local release script](../scripts/release-cli-local.sh) for universal builds, signing, and Apple notarization. Publishing also requires updating the Homebrew formula to the checksum of the released archive.

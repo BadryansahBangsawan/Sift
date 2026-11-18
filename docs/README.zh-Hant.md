@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="../screenshots/smart-care.png" alt="PureMac" width="700">
+  <img src="../screenshots/smart-care.png" alt="Sift" width="700">
 </p>
 
 <p align="center">
@@ -12,7 +12,9 @@
   <b>繁體中文</b>
 </p>
 
-<h1 align="center">PureMac</h1>
+<h1 align="center">Sift</h1>
+
+<p align="center"><sub>Sift 是 PureMac 的新名稱。Sift 尚未發佈正式版本，請從原始碼建置。設定移轉與完整磁碟取用權限的說明請見 <a href="../README.md#renamed-from-puremac">Renamed from PureMac</a>。</sub></p>
 
 <p align="center">
   <b>免費、開源的 macOS 應用程式管理與系統清理工具。</b><br>
@@ -21,13 +23,13 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/momenbasel/PureMac/releases/latest"><img src="https://img.shields.io/github/v/release/momenbasel/PureMac?style=flat-square&label=%E4%B8%8B%E8%BC%89" alt="最新版本"></a>
-  <a href="https://github.com/momenbasel/PureMac/actions/workflows/build.yml"><img src="https://img.shields.io/github/actions/workflow/status/momenbasel/PureMac/build.yml?style=flat-square&label=Build" alt="建置狀態"></a>
+  <a href="https://github.com/BadryansahBangsawan/Sift/releases/latest"><img src="https://img.shields.io/github/v/release/BadryansahBangsawan/Sift?style=flat-square&label=%E4%B8%8B%E8%BC%89" alt="最新版本"></a>
+  <a href="https://github.com/BadryansahBangsawan/Sift/actions/workflows/build.yml"><img src="https://img.shields.io/github/actions/workflow/status/BadryansahBangsawan/Sift/build.yml?style=flat-square&label=Build" alt="建置狀態"></a>
   <img src="https://img.shields.io/badge/macOS-13.0+-blue?style=flat-square" alt="macOS 13.0+">
   <img src="https://img.shields.io/badge/Swift-5.9-orange?style=flat-square" alt="Swift 5.9">
-  <a href="../LICENSE"><img src="https://img.shields.io/github/license/momenbasel/PureMac?style=flat-square" alt="MIT 授權"></a>
-  <a href="https://github.com/momenbasel/PureMac/stargazers"><img src="https://img.shields.io/github/stars/momenbasel/PureMac?style=flat-square" alt="Stars"></a>
-  <a href="https://github.com/momenbasel/PureMac/releases"><img src="https://img.shields.io/github/downloads/momenbasel/PureMac/total?style=flat-square&label=%E4%B8%8B%E8%BC%89%E6%95%B8" alt="下載數"></a>
+  <a href="../LICENSE"><img src="https://img.shields.io/github/license/BadryansahBangsawan/Sift?style=flat-square" alt="MIT 授權"></a>
+  <a href="https://github.com/BadryansahBangsawan/Sift/stargazers"><img src="https://img.shields.io/github/stars/BadryansahBangsawan/Sift?style=flat-square" alt="Stars"></a>
+  <a href="https://github.com/BadryansahBangsawan/Sift/releases"><img src="https://img.shields.io/github/downloads/BadryansahBangsawan/Sift/total?style=flat-square&label=%E4%B8%8B%E8%BC%89%E6%95%B8" alt="下載數"></a>
 </p>
 
 <p align="center">
@@ -45,12 +47,12 @@
 
 ```bash
 brew update
-brew install --cask puremac
+brew install --cask sift
 ```
 
 ### 直接下載
 
-從 [Releases](https://github.com/momenbasel/PureMac/releases/latest) 下載最新的 `.dmg`,開啟後將 PureMac 拖曳到 `/Applications`。
+從 [Releases](https://github.com/BadryansahBangsawan/Sift/releases/latest) 下載最新的 `.dmg`,開啟後將 Sift 拖曳到 `/Applications`。
 
 > 已使用 Apple Developer ID 簽署並公證 — 安裝時不會出現 Gatekeeper 警告。
 
@@ -58,11 +60,11 @@ brew install --cask puremac
 
 ```bash
 brew install xcodegen
-git clone https://github.com/momenbasel/PureMac.git
-cd PureMac
+git clone https://github.com/BadryansahBangsawan/Sift.git
+cd Sift
 xcodegen generate
-xcodebuild -project PureMac.xcodeproj -scheme PureMac -configuration Release -derivedDataPath build build
-open build/Build/Products/Release/PureMac.app
+xcodebuild -project Sift.xcodeproj -scheme Sift -configuration Release -derivedDataPath build build
+open build/Build/Products/Release/Sift.app
 ```
 
 ## 功能
@@ -125,7 +127,7 @@ open build/Build/Products/Release/PureMac.app
 ## 架構
 
 ```
-PureMac/
+Sift/
   Logic/Scanning/     - 啟發式掃描引擎、位置資料庫、條件
   Logic/Utilities/    - 結構化記錄
   Models/             - 資料模型、型別化錯誤

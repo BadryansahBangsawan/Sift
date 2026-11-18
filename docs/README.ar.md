@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="../screenshots/smart-care.png" alt="PureMac" width="700">
+  <img src="../screenshots/smart-care.png" alt="Sift" width="700">
 </p>
 
 <p align="center">
@@ -12,7 +12,9 @@
   <a href="README.zh-Hant.md">繁體中文</a>
 </p>
 
-<h1 align="center">PureMac</h1>
+<h1 align="center">Sift</h1>
+
+<p align="center"><sub>Sift هو الاسم الجديد لـ PureMac. لا يوجد إصدار منشور من Sift بعد، لذا ابنِه من الشيفرة المصدرية. راجع <a href="../README.md#renamed-from-puremac">Renamed from PureMac</a> لمعرفة كيفية نقل الإعدادات ومنح صلاحية الوصول الكامل إلى القرص من جديد.</sub></p>
 
 <p align="center" dir="rtl">
   <b>أداة مجانية ومفتوحة المصدر لإدارة التطبيقات وتنظيف النظام على macOS.</b><br>
@@ -21,13 +23,13 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/momenbasel/PureMac/releases/latest"><img src="https://img.shields.io/github/v/release/momenbasel/PureMac?style=flat-square&label=%D8%AA%D9%86%D8%B2%D9%8A%D9%84" alt="أحدث إصدار"></a>
-  <a href="https://github.com/momenbasel/PureMac/actions/workflows/build.yml"><img src="https://img.shields.io/github/actions/workflow/status/momenbasel/PureMac/build.yml?style=flat-square&label=Build" alt="حالة البناء"></a>
+  <a href="https://github.com/BadryansahBangsawan/Sift/releases/latest"><img src="https://img.shields.io/github/v/release/BadryansahBangsawan/Sift?style=flat-square&label=%D8%AA%D9%86%D8%B2%D9%8A%D9%84" alt="أحدث إصدار"></a>
+  <a href="https://github.com/BadryansahBangsawan/Sift/actions/workflows/build.yml"><img src="https://img.shields.io/github/actions/workflow/status/BadryansahBangsawan/Sift/build.yml?style=flat-square&label=Build" alt="حالة البناء"></a>
   <img src="https://img.shields.io/badge/macOS-13.0+-blue?style=flat-square" alt="macOS 13.0+">
   <img src="https://img.shields.io/badge/Swift-5.9-orange?style=flat-square" alt="Swift 5.9">
-  <a href="../LICENSE"><img src="https://img.shields.io/github/license/momenbasel/PureMac?style=flat-square" alt="رخصة MIT"></a>
-  <a href="https://github.com/momenbasel/PureMac/stargazers"><img src="https://img.shields.io/github/stars/momenbasel/PureMac?style=flat-square" alt="النجوم"></a>
-  <a href="https://github.com/momenbasel/PureMac/releases"><img src="https://img.shields.io/github/downloads/momenbasel/PureMac/total?style=flat-square&label=%D8%A7%D9%84%D8%AA%D9%86%D8%B2%D9%8A%D9%84%D8%A7%D8%AA" alt="التنزيلات"></a>
+  <a href="../LICENSE"><img src="https://img.shields.io/github/license/BadryansahBangsawan/Sift?style=flat-square" alt="رخصة MIT"></a>
+  <a href="https://github.com/BadryansahBangsawan/Sift/stargazers"><img src="https://img.shields.io/github/stars/BadryansahBangsawan/Sift?style=flat-square" alt="النجوم"></a>
+  <a href="https://github.com/BadryansahBangsawan/Sift/releases"><img src="https://img.shields.io/github/downloads/BadryansahBangsawan/Sift/total?style=flat-square&label=%D8%A7%D9%84%D8%AA%D9%86%D8%B2%D9%8A%D9%84%D8%A7%D8%AA" alt="التنزيلات"></a>
 </p>
 
 <p align="center">
@@ -47,12 +49,12 @@
 
 ```bash
 brew update
-brew install --cask puremac
+brew install --cask sift
 ```
 
 ### التنزيل المباشر
 
-نزّل أحدث ملف `.dmg` من صفحة [Releases](https://github.com/momenbasel/PureMac/releases/latest)، ثم افتحه واسحب PureMac إلى `/Applications`.
+نزّل أحدث ملف `.dmg` من صفحة [Releases](https://github.com/BadryansahBangsawan/Sift/releases/latest)، ثم افتحه واسحب Sift إلى `/Applications`.
 
 > موقّع وموثّق باستخدام Apple Developer ID — يُثبَّت دون ظهور تحذيرات Gatekeeper.
 
@@ -60,11 +62,11 @@ brew install --cask puremac
 
 ```bash
 brew install xcodegen
-git clone https://github.com/momenbasel/PureMac.git
-cd PureMac
+git clone https://github.com/BadryansahBangsawan/Sift.git
+cd Sift
 xcodegen generate
-xcodebuild -project PureMac.xcodeproj -scheme PureMac -configuration Release -derivedDataPath build build
-open build/Build/Products/Release/PureMac.app
+xcodebuild -project Sift.xcodeproj -scheme Sift -configuration Release -derivedDataPath build build
+open build/Build/Products/Release/Sift.app
 ```
 
 ## الميزات
@@ -129,7 +131,7 @@ open build/Build/Products/Release/PureMac.app
 ## البنية المعمارية
 
 ```
-PureMac/
+Sift/
   Logic/Scanning/     - محرّك الفحص الاعتمادي وقاعدة المواقع والشروط
   Logic/Utilities/    - التسجيل المنظّم
   Models/             - نماذج البيانات والأخطاء المُنمّطة

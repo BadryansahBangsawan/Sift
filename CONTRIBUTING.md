@@ -1,6 +1,6 @@
-# Contributing to PureMac
+# Contributing to Sift
 
-Thanks for your interest in contributing to PureMac.
+Thanks for your interest in contributing to Sift.
 
 ## Getting Started
 
@@ -8,11 +8,11 @@ Thanks for your interest in contributing to PureMac.
 2. Clone your fork: `git clone https://github.com/YOUR_USERNAME/PureMac.git`
 3. Install prerequisites: `brew install xcodegen`
 4. Generate the Xcode project: `xcodegen generate`
-5. Open in Xcode: `open PureMac.xcodeproj`
+5. Open in Xcode: `open Sift.xcodeproj`
 
 ## Development
 
-- PureMac is built with **SwiftUI** and targets **macOS 13.0+**
+- Sift is built with **SwiftUI** and targets **macOS 13.0+**
 - Project structure is defined in `project.yml` (XcodeGen)
 - Run the app from Xcode with Cmd+R
 
@@ -36,7 +36,7 @@ Thanks for your interest in contributing to PureMac.
 
 Open an issue using the **Bug Report** template. Include:
 - macOS version
-- PureMac version
+- Sift version
 - Steps to reproduce
 - Expected vs actual behavior
 

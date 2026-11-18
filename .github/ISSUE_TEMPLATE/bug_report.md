@@ -23,5 +23,5 @@ If applicable, add screenshots.
 
 **Environment**
 - macOS version:
-- PureMac version:
+- Sift version:
 - Install method: (Homebrew / DMG / App Store / Source)
