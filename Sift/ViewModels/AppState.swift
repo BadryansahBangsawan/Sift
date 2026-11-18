@@ -129,6 +129,12 @@ final class AppState: ObservableObject {
     @Published var selectedFiles: Set<URL> = []
     @Published var orphanedFiles: [URL] = []
     @Published var isSearchingOrphans: Bool = false
+    /// Whether an orphan scan finished, so the page can tell "not scanned yet"
+    /// from "scanned, nothing found".
+    @Published var orphanScanCompleted: Bool = false
+    /// Set when the scan refused because the installed-app list was empty:
+    /// with no IDs known every folder would look orphaned.
+    @Published var orphanScanNeedsAppList: Bool = false
     @Published var isLoadingApps: Bool = false
     @Published var isScanningAppFiles: Bool = false
     @Published var isRemovingAppFiles = false
@@ -631,8 +637,28 @@ final class AppState: ObservableObject {
         isSearchingOrphans = true
         orphanedFiles = []
         Task.detached(priority: .userInitiated) {
-            let locations = Locations()
-            let knownApps = await MainActor.run { self.installedAppsProvider() }
+            let locations = await MainActor.run { self.locationsProvider() }
+            var knownApps = await MainActor.run { self.installedApps }
+            if knownApps.isEmpty {
+                // The list loads in the background at launch. With none of the
+                // IDs known every folder looks orphaned, so fetch it here
+                // instead of trusting an empty snapshot.
+                let fetched = await MainActor.run { self.installedAppsProvider() }
+                knownApps = fetched
+                await MainActor.run { [weak self] in
+                    if self?.installedApps.isEmpty == true { self?.installedApps = fetched }
+                }
+            }
+            guard !knownApps.isEmpty else {
+                // Still no app list: report nothing rather than calling every
+                // folder an orphan, and let the page say why.
+                await MainActor.run { [weak self] in
+                    self?.orphanScanNeedsAppList = true
+                    self?.orphanScanCompleted = true
+                    self?.isSearchingOrphans = false
+                }
+                return
+            }
             let knownIDs = Set(knownApps.map { $0.bundleIdentifier.normalizedForMatching() })
             let knownNames = Set(knownApps.map { $0.appName.normalizedForMatching() })
             // Paths the user marked "Always Ignore" (issue #114). These were
@@ -668,6 +694,8 @@ final class AppState: ObservableObject {
             let sorted = orphans.sorted { $0.lastPathComponent < $1.lastPathComponent }
             await MainActor.run { [weak self] in
                 self?.orphanedFiles = sorted
+                self?.orphanScanNeedsAppList = false
+                self?.orphanScanCompleted = true
                 self?.isSearchingOrphans = false
             }
         }
