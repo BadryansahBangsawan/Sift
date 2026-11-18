@@ -158,6 +158,8 @@ final class AppState: ObservableObject {
     private let appFileScanner: AppFileScanner
     private let appFileTrasher: AppFileTrasher
     private let trashEmptier: TrashEmptier
+    /// The installed-app list the orphan scan checks against.
+    private let installedAppsProvider: () -> [InstalledApp]
 
     // MARK: - Computed
 
@@ -244,7 +246,8 @@ final class AppState: ObservableObject {
         scanEngine: ScanEngine = ScanEngine(),
         cleaningEngine: CleaningEngine = CleaningEngine(),
         historyStore: CleanupHistoryStore = CleanupHistoryStore(),
-        trashEmptier: @escaping TrashEmptier = AppState.finderEmptyTrash
+        trashEmptier: @escaping TrashEmptier = AppState.finderEmptyTrash,
+        installedAppsProvider: @escaping () -> [InstalledApp] = { AppInfoFetcher.shared.fetchInstalledApps() }
     ) {
         self.locationsProvider = locationsProvider
         self.appFileScanner = appFileScanner
@@ -253,6 +256,7 @@ final class AppState: ObservableObject {
         self.cleaningEngine = cleaningEngine
         self.historyStore = historyStore
         self.trashEmptier = trashEmptier
+        self.installedAppsProvider = installedAppsProvider
         cleanupHistory = historyStore.load()
         lastScanDate = UserDefaults.standard.object(forKey: Self.lastScanDateKey) as? Date
 
@@ -628,7 +632,7 @@ final class AppState: ObservableObject {
         orphanedFiles = []
         Task.detached(priority: .userInitiated) {
             let locations = Locations()
-            let knownApps = await MainActor.run { self.installedApps }
+            let knownApps = await MainActor.run { self.installedAppsProvider() }
             let knownIDs = Set(knownApps.map { $0.bundleIdentifier.normalizedForMatching() })
             let knownNames = Set(knownApps.map { $0.appName.normalizedForMatching() })
             // Paths the user marked "Always Ignore" (issue #114). These were
