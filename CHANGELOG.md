@@ -15,6 +15,8 @@ All notable user-facing changes to Sift. Sift was called PureMac before 4.0.0.
   units macOS uses, so a 16 GB Mac reads 16 GB instead of 17.2 GB.
 - The menu bar popover now quotes disk usage in the same decimal units as the
   Overview. A 245.1 GB disk no longer reads 228.4 GB there.
+- `sift-cli` no longer prints a rounded size as "1000 KB" or "1000 MB"; it
+  moves up to "1 MB" and "1 GB" like the app does.
 
 ## 4.0.1
 
