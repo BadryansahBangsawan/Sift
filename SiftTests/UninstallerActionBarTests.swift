@@ -64,8 +64,8 @@ final class UninstallerActionBarTests: XCTestCase {
     }
 
     func testCountsAgreeWithTheirNumberAR() throws {
-        XCTAssertEqual(try count(1, "ar"), "عنصر واحد، \(sizeText)")
-        XCTAssertEqual(try count(2, "ar"), "عنصران، \(sizeText)")
+        XCTAssertEqual(try count(1, "ar"), "1 عنصر، \(sizeText)")
+        XCTAssertEqual(try count(2, "ar"), "2 عنصران، \(sizeText)")
         XCTAssertEqual(try count(5, "ar"), "5 عناصر، \(sizeText)")
     }
 
@@ -82,7 +82,11 @@ final class UninstallerActionBarTests: XCTestCase {
 
     private func count(_ n: Int, _ language: String) throws -> String {
         let bundle = try localizationBundle(for: language)
+        // Foundation wraps the size argument in first-strong isolates for
+        // right-to-left text; the marks are not part of the sentence.
         return String(localized: "\(n) items, \(sizeText)", bundle: bundle, locale: Locale(identifier: language))
+            .replacingOccurrences(of: "\u{2068}", with: "")
+            .replacingOccurrences(of: "\u{2069}", with: "")
     }
 
     private func localizationBundle(for language: String) throws -> Bundle {
