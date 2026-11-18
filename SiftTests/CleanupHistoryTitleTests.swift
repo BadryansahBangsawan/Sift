@@ -57,6 +57,38 @@ final class CleanupHistoryTitleTests: XCTestCase {
                        "Smart Scan cleanup")
     }
 
+    // MARK: - Edges
+
+    /// Every language's own wording of a category name reads back as that
+    /// category, so a history written under any of the thirteen languages
+    /// keeps its meaning.
+    func testEveryLanguageNamesTheSameCategory() throws {
+        for language in ["ar", "de", "es", "fr", "it", "ja", "pl", "pt-BR", "ru", "uk", "zh-Hans", "zh-Hant"] {
+            let stored = try translated("System Junk", in: language)
+            XCTAssertEqual(
+                CleanupHistoryTitle.text(for: record(category: nil, title: stored)),
+                "System junk",
+                "\(language) stored “\(stored)”")
+        }
+    }
+
+    /// A category wins over text the app cannot place, and an empty string is
+    /// no title at all.
+    func testACategoryBeatsAnUnknownTitle() {
+        XCTAssertEqual(CleanupHistoryTitle.text(for: record(category: .mailAttachments, title: "Mail")),
+                       "Mail files")
+        XCTAssertEqual(CleanupHistoryTitle.text(for: record(category: .trash, title: "")),
+                       "Trash")
+    }
+
+    /// The stored title of a batch is a key now, so the row keeps saying
+    /// "Scheduled cleanup" after a language switch.
+    func testTheBatchKeySurvivesALanguageSwitch() throws {
+        let key = try translated("Scheduled cleanup", in: "ja")
+        XCTAssertEqual(CleanupHistoryTitle.text(for: record(category: nil, title: key)),
+                       "Scheduled cleanup")
+    }
+
     // MARK: - Helpers
 
     private func record(
