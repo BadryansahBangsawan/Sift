@@ -380,13 +380,16 @@ struct PerformanceView: View {
     /// directly above this line, so a fixed suffix contradicted it.
     static func batteryHealthDetail(_ status: BatteryStatus) -> String {
         let needsService = (status.healthPercent ?? 100) < 80
-        let service = String(localized: "service below 80%")
         if let max = status.maxCapacityMAh, let design = status.designCapacityMAh {
             // Plain digits, as the design writes capacities ("4082 of 4629 mAh").
-            let capacities = String(localized: "\(String(max)) of \(String(design)) mAh")
-            return needsService ? "\(capacities), \(service)" : capacities
+            if needsService {
+                // One key, so a translation can put the threshold before the
+                // capacities if its word order needs that.
+                return String(localized: "\(String(max)) of \(String(design)) mAh, service below 80%")
+            }
+            return String(localized: "\(String(max)) of \(String(design)) mAh")
         }
-        return needsService ? service : ""
+        return needsService ? String(localized: "service below 80%") : ""
     }
 
     private func healthDetail(_ status: BatteryStatus) -> Text {
