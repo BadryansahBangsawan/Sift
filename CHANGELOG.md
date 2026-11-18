@@ -6,6 +6,9 @@ All notable user-facing changes to Sift. Sift was called PureMac before 4.0.0.
 
 ### Fixed
 
+- The rail's schedule card says "Scheduled scan" — matching Settings' "Enable
+  scheduled scanning" — until auto-clean is on, when it says "Scheduled
+  cleanup". It used to promise a cleanup for a schedule that only scans.
 - App updates now says when it last checked ("Last checked 1 minute ago",
   "Last checked just now") as one sentence in every language. The eyebrow used
   to render a live duration — "1 min, 19 secs" — that ticked every second and
