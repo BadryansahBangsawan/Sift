@@ -411,24 +411,24 @@
 "Simulator runtime" = "Runtime del simulatore";
 
 /* Current dashboard, tools, and cleanup review */
-"\nAnd %lld more." = "\nAnd %lld more.";
+"\nAnd %lld more." = "\nE altri %lld.";
 "%@ %@ to %@" = "%@ da %@ a %@";
 "%@ available" = "%@ disponibili";
 "%@ did not finish within the allowed time." = "%@ non ha terminato entro il tempo previsto.";
-"%@ exited with status %d%@" = "%@ exited with status %d%@";
+"%@ exited with status %d%@" = "%@ è terminato con stato %d%@";
 "%@ files inspected" = "%@ file esaminati";
 "%@ of %@" = "%@ di %@";
 "%@ of %@ candidates · %@ verified" = "%@ di %@ candidati · %@ verificati";
 "%@ reviewable" = "%@ da esaminare";
-"%@ selected. This permanently removes the selected files or runs the listed cleanup actions. It cannot be undone." = "%@ selected. This permanently removes the selected files or runs the listed cleanup actions. It cannot be undone.";
+"%@ selected. This permanently removes the selected files or runs the listed cleanup actions. It cannot be undone." = "%@ selezionati. Questa operazione elimina definitivamente i file selezionati o esegue le azioni di pulizia indicate. Non può essere annullata.";
 "%@ will move to Trash" = "%@ verranno spostati nel Cestino";
 "%lld analyzed" = "%lld analizzati";
 "%lld apps selected" = "%lld app selezionate";
 "%lld areas" = "%lld aree";
 "%lld compared" = "%lld confrontati";
 "%lld exact copies · %@ each" = "%lld copie identiche · %@ ciascuna";
-"%@ could not be removed with administrator privileges. The items may have changed or macOS denied access." = "%@ could not be removed with administrator privileges. The items may have changed or macOS denied access.";
-"%@ could not be removed. Check that the items still exist and are not in use." = "%@ could not be removed. Check that the items still exist and are not in use.";
+"%@ could not be removed with administrator privileges. The items may have changed or macOS denied access." = "Non è stato possibile rimuovere %@ con privilegi di amministratore. Gli elementi potrebbero essere cambiati o macOS ha negato l'accesso.";
+"%@ could not be removed. Check that the items still exist and are not in use." = "Non è stato possibile rimuovere %@. Verifica che gli elementi esistano ancora e non siano in uso.";
 "%lld files totaling %@ were moved. Every protected copy remains in place." = "Sono stati spostati %lld file per un totale di %@. Ogni copia protetta è rimasta al suo posto.";
 "%lld files totaling %@ will be moved to Trash. The protected copy in every group stays in place." = "%lld file, per un totale di %@, verranno spostati nel Cestino. La copia protetta di ogni gruppo resterà al suo posto.";
 "%lld folders" = "%lld cartelle";
@@ -451,10 +451,10 @@
 "A selected file is missing or changed: %@" = "Un file selezionato è mancante o è stato modificato: %@";
 "A selected file no longer matches its kept copy: %@" = "Un file selezionato non corrisponde più alla copia conservata: %@";
 "Access denied" = "Accesso negato";
-"Administrator removal failed: %@" = "Administrator removal failed: %@";
+"Administrator removal failed: %@" = "Rimozione con privilegi di amministratore non riuscita: %@";
 "Always exclude from cleanup" = "Escludi sempre dalla pulizia";
-"Any age" = "Any age";
-"Any size" = "Any size";
+"Any age" = "Qualsiasi età";
+"Any size" = "Qualsiasi dimensione";
 "App Updates" = "Aggiornamenti app";
 "App and document packages are excluded: %@" = "I pacchetti di app e documenti sono esclusi: %@";
 "App bundle missing" = "Bundle dell'app mancante";
@@ -558,11 +558,11 @@
 "Installed %@" = "Versione installata: %@";
 "Keep" = "Conserva";
 "Keep alive" = "Mantieni attivo";
-"Largest first" = "Largest first";
+"Largest first" = "Più grandi prima";
 "Largest items" = "Elementi più grandi";
 "Last checked" = "Ultima verifica";
 "Leftovers" = "File residui";
-"Live resources" = "Live resources";
+"Live resources" = "Risorse in tempo reale";
 "Local and private" = "Locale e riservato";
 "Local files" = "File locali";
 "Local snapshot" = "Istantanea locale";
@@ -570,10 +570,10 @@
 "Location" = "Posizione";
 "Login Items Settings" = "Impostazioni degli elementi login";
 "Looking through files" = "Esame dei file in corso";
-"Managed cleanup action" = "Managed cleanup action";
+"Managed cleanup action" = "Azione di pulizia gestita";
 "Matching files" = "File corrispondenti";
 "Measuring allocated space" = "Calcolo dello spazio allocato";
-"Memory pressure use" = "Memory pressure use";
+"Memory pressure use" = "Uso della pressione di memoria";
 "Microphone" = "Microfono";
 "Modified" = "Ultima modifica";
 "Move selected duplicates to Trash?" = "Spostare i duplicati selezionati nel Cestino?";
@@ -593,19 +593,19 @@
 "Nothing to clean" = "Niente da pulire";
 "Nothing was moved" = "Nessun file spostato";
 "Off" = "Disattivato";
-"Older than 30 days" = "Older than 30 days";
-"Older than 6 months" = "Older than 6 months";
-"Older than a year" = "Older than a year";
-"Oldest first" = "Oldest first";
+"Older than 30 days" = "Più di 30 giorni";
+"Older than 6 months" = "Più di 6 mesi";
+"Older than a year" = "Più di un anno";
+"Oldest first" = "Più vecchi prima";
 "On" = "Attivato";
 "Open App Store Updates" = "Apri gli aggiornamenti dell'App Store";
 "Open Folder" = "Apri cartella";
 "Open folder" = "Apri cartella";
 "Open the App Store updates page. Direct-download apps may provide their own updater." = "Apri la pagina degli aggiornamenti dell'App Store. Le app scaricate direttamente potrebbero avere un proprio sistema di aggiornamento.";
 "Opens a folder picker" = "Apre la selezione di una cartella";
-"Over 1 GB" = "Over 1 GB";
-"Over 10 GB" = "Over 10 GB";
-"Over 100 MB" = "Over 100 MB";
+"Over 1 GB" = "Oltre 1 GB";
+"Over 10 GB" = "Oltre 10 GB";
+"Over 100 MB" = "Oltre 100 MB";
 "Package" = "Pacchetto";
 "Package contents" = "Contenuto del pacchetto";
 "Package · %@" = "Pacchetto · %@";
@@ -624,7 +624,7 @@
 "Protection" = "Protezione";
 "Ready for protected locations" = "Accesso alle posizioni protette pronto";
 "Refreshing package data and comparing installed versions." = "Aggiornamento dei dati dei pacchetti e confronto delle versioni installate.";
-"Refused to delete %lld protected item(s) (home credential directory or similar)." = "Refused to delete %lld protected item(s) (home credential directory or similar).";
+"Refused to delete %lld protected item(s) (home credential directory or similar)." = "Eliminazione rifiutata per %lld elementi protetti (cartella delle credenziali o simile).";
 "Remove %lld files" = "Rimuovi %lld file";
 "Remove %lld items" = "Rimuovi %lld elementi";
 "Remove apps and their related files" = "Rimuovi le app e i file associati";
@@ -677,7 +677,7 @@
 "Similar Photos" = "Foto simili";
 "Similarity is a visual estimate, not proof that two files are identical. Use Show in Finder to compare originals at full quality." = "La somiglianza è una stima visiva, non la prova che due file siano identici. Usa Mostra nel Finder per confrontare gli originali alla massima qualità.";
 "Skipped items" = "Elementi ignorati";
-"Smallest first" = "Smallest first";
+"Smallest first" = "Più piccoli prima";
 "Snapshot could not be deleted" = "Impossibile eliminare l'istantanea";
 "Software Update" = "Aggiornamento Software";
 "Some contents were skipped or inaccessible" = "Alcuni contenuti sono stati ignorati o erano inaccessibili";
@@ -686,7 +686,7 @@
 "Some items need attention" = "Alcuni elementi richiedono attenzione";
 "Some locations are unavailable" = "Alcune posizioni non sono disponibili";
 "Some protected locations are unavailable. Full Disk Access allows a more complete scan." = "Alcune posizioni protette non sono disponibili. L'accesso completo al disco consente una scansione più completa.";
-"Some selected files" = "Some selected files";
+"Some selected files" = "Alcuni file selezionati";
 "Sort" = "Ordina";
 "Space Explorer" = "Esplora spazio";
 "Stop" = "Interrompi";
@@ -781,10 +781,10 @@
 "Settings to review" = "Impostazioni da controllare";
 "Show all apps and processes" = "Mostra tutte le app e i processi";
 "Show top 8" = "Mostra i primi 8";
-"Some of this app's processes have no CPU reading yet, so this total is partial." = "Some of this app's processes have no CPU reading yet, so this total is partial.";
-"Some processes started or stopped since the last sample. Their values appear in the next one." = "Some processes started or stopped since the last sample. Their values appear in the next one.";
+"Some of this app's processes have no CPU reading yet, so this total is partial." = "Alcuni processi di questa app non hanno ancora una lettura della CPU, quindi questo totale è parziale.";
+"Some processes started or stopped since the last sample. Their values appear in the next one." = "Alcuni processi sono stati avviati o arrestati dall'ultimo campione. I loro valori appariranno nel prossimo.";
 "Sort by" = "Ordina per";
-"System processes are not listed. Use Activity Monitor for those." = "System processes are not listed. Use Activity Monitor for those.";
+"System processes are not listed. Use Activity Monitor for those." = "I processi di sistema non sono elencati. Usa Monitoraggio Attività per quelli.";
 "The release service is unavailable. Please try again later." = "Il servizio delle versioni non è disponibile. Riprova più tardi.";
 "This build has no readable version. Open the releases page to check manually." = "Non è possibile leggere la versione di questa build. Apri la pagina delle versioni per verificare manualmente.";
 "To update with Homebrew, run this command in Terminal. The cask may follow the GitHub release a little later." = "Per aggiornare con Homebrew, esegui questo comando nel Terminale. Il cask potrebbe essere aggiornato poco dopo la pubblicazione della versione su GitHub.";
@@ -793,7 +793,7 @@
 "View releases" = "Visualizza versioni";
 
 /* Sift redesign */
-"%@ could not be removed because Sift does not have Full Disk Access. Grant Full Disk Access in System Settings, then try again." = "%@ could not be removed because Sift does not have Full Disk Access. Grant Full Disk Access in System Settings, then try again.";
+"%@ could not be removed because Sift does not have Full Disk Access. Grant Full Disk Access in System Settings, then try again." = "Non è stato possibile rimuovere %@ perché Sift non ha l'accesso completo al disco. Concedi l'accesso completo al disco in Impostazioni di Sistema, poi riprova.";
 "Sift" = "Sift";
 "Sift can now reach the locations macOS protects by default." = "Sift ora può accedere alle posizioni protette da macOS per impostazione predefinita.";
 "Open Settings & reveal Sift" = "Apri Impostazioni e Finder";
@@ -859,7 +859,7 @@
 "Filter by name or path" = "Filtra per nome o percorso";
 "%lld items, %@" = "%lld elementi, %@";
 "%lld of %lld items, %@" = "%lld di %lld elementi, %@";
-"Preset" = "Preset";
+"Preset" = "Preimpostazione";
 "Presets" = "Preset";
 "Apply a filter preset" = "Applica un preset di filtri";
 "Filter presets" = "Preset di filtri";
@@ -1049,7 +1049,7 @@
 "User" = "Utente";
 "Idle" = "Inattivo";
 "wired, active and compressed" = "wired, attiva e compressa";
-"Wired" = "Wired";
+"Wired" = "Cablata";
 "Active" = "Attiva";
 "Compressed" = "Compressa";
 "Battery" = "Batteria";
