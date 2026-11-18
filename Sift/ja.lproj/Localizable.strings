@@ -98,7 +98,7 @@
 "Remove" = "削除";
 
 /* Orphans */
-"Scanning for orphaned files..." = "孤立ファイルをスキャン中...";
+"Scanning for orphaned files..." = "残存ファイルをスキャン中...";
 "No Orphaned Files" = "孤立ファイルはありません";
 "No leftover files from uninstalled apps were found." = "アンインストール済みアプリの残存ファイルは見つかりませんでした。";
 "Orphaned Files (%lld)" = "孤立ファイル (%lld)";
@@ -1373,3 +1373,5 @@
 "Permanently deletes the junk the scan selected, without asking" = "スキャンで選択された不要なファイルを確認なしで完全に削除します";
 "Last checked %@" = "最終確認: %@";
 "Scheduled scan" = "定期スキャン";
+"No Leftovers" = "残存ファイルはありません";
+"Scan for leftover files" = "残存ファイルをスキャン";

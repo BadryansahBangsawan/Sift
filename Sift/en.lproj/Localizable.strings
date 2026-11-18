@@ -1373,3 +1373,5 @@
 "Permanently deletes the junk the scan selected, without asking" = "Permanently deletes the junk the scan selected, without asking";
 "Last checked %@" = "Last checked %@";
 "Scheduled scan" = "Scheduled scan";
+"No Leftovers" = "No Leftovers";
+"Scan for leftover files" = "Scan for leftover files";

@@ -1373,3 +1373,5 @@
 "Permanently deletes the junk the scan selected, without asking" = "Elimina definitivamente i file selezionati dalla scansione, senza chiedere";
 "Last checked %@" = "Ultimo controllo: %@";
 "Scheduled scan" = "Scansione pianificata";
+"No Leftovers" = "Nessun file residuo";
+"Scan for leftover files" = "Cerca file residui";

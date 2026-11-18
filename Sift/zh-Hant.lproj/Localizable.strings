@@ -98,7 +98,7 @@
 "Remove" = "移除";
 
 /* Orphans */
-"Scanning for orphaned files..." = "正在掃描孤立檔案...";
+"Scanning for orphaned files..." = "正在掃描殘留檔案...";
 "No Orphaned Files" = "沒有孤立檔案";
 "No leftover files from uninstalled apps were found." = "未發現已解除安裝應用程式的殘留檔案。";
 "Orphaned Files (%lld)" = "孤立檔案 (%lld)";
@@ -1373,3 +1373,5 @@
 "Permanently deletes the junk the scan selected, without asking" = "無需確認即可永久刪除掃描所選的垃圾檔案";
 "Last checked %@" = "上次檢查：%@";
 "Scheduled scan" = "定時掃描";
+"No Leftovers" = "沒有殘留檔案";
+"Scan for leftover files" = "掃描殘留檔案";

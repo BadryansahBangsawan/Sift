@@ -132,7 +132,7 @@
 "Remove" = "Supprimer";
 
 /* Orphans */
-"Scanning for orphaned files..." = "Recherche des fichiers orphelins...";
+"Scanning for orphaned files..." = "Recherche des résidus...";
 "No Orphaned Files" = "Aucun fichier orphelin";
 "No leftover files from uninstalled apps were found." = "Aucun fichier résiduel d'apps désinstallées n'a été trouvé.";
 "Orphaned Files (%lld)" = "Fichiers orphelins (%lld)";
@@ -1367,3 +1367,5 @@
 "Permanently deletes the junk the scan selected, without asking" = "Supprime définitivement les fichiers sélectionnés par l’analyse, sans demander";
 "Last checked %@" = "Dernière vérification : %@";
 "Scheduled scan" = "Analyse planifiée";
+"No Leftovers" = "Aucun résidu";
+"Scan for leftover files" = "Rechercher les fichiers restants";

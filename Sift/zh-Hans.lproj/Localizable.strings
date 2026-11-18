@@ -1372,3 +1372,5 @@
 "Permanently deletes the junk the scan selected, without asking" = "无需确认即可永久删除扫描所选的垃圾文件";
 "Last checked %@" = "上次检查：%@";
 "Scheduled scan" = "定时扫描";
+"No Leftovers" = "没有应用残留";
+"Scan for leftover files" = "扫描应用残留";

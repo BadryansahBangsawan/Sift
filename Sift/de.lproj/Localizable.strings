@@ -132,7 +132,7 @@
 "Remove" = "Entfernen";
 
 /* Orphans */
-"Scanning for orphaned files..." = "Suche nach verwaisten Dateien …";
+"Scanning for orphaned files..." = "Suche nach Restdateien …";
 "No Orphaned Files" = "Keine verwaisten Dateien";
 "No leftover files from uninstalled apps were found." = "Es wurden keine Überreste von deinstallierten Apps gefunden.";
 "Orphaned Files (%lld)" = "Verwaiste Dateien (%lld)";
@@ -1376,3 +1376,5 @@
 "Permanently deletes the junk the scan selected, without asking" = "Löscht den vom Scan ausgewählten Ballast endgültig, ohne Rückfrage";
 "Last checked %@" = "Zuletzt geprüft: %@";
 "Scheduled scan" = "Geplanter Scan";
+"No Leftovers" = "Keine Reste";
+"Scan for leftover files" = "Nach Restdateien suchen";

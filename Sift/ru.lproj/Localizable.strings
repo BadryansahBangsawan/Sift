@@ -1373,3 +1373,5 @@
 "Permanently deletes the junk the scan selected, without asking" = "Безвозвратно удаляет выбранный сканированием мусор, не спрашивая";
 "Last checked %@" = "Последняя проверка: %@";
 "Scheduled scan" = "Запланированная проверка";
+"No Leftovers" = "Остатков нет";
+"Scan for leftover files" = "Искать оставшиеся файлы";
