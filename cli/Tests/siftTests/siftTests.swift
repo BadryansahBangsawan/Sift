@@ -12,6 +12,12 @@ final class SiftCLITests: XCTestCase {
         XCTAssertEqual(ByteCount.human(358_700_000), "358.7 MB")
     }
 
+    func testMemoryCountsUseBinaryUnits() {
+        XCTAssertEqual(ByteCount.memory(17_179_869_184), "16 GB")
+        XCTAssertEqual(ByteCount.memory(536_870_912), "512 MB")
+        XCTAssertEqual(ByteCount.memory(4_294_967_296), "4 GB")
+    }
+
     func testArtifactMatching() {
         XCTAssertTrue(Purger.isArtifact("node_modules"))
         XCTAssertTrue(Purger.isArtifact(".venv"))
