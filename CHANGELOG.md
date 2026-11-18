@@ -6,6 +6,9 @@ All notable user-facing changes to Sift. Sift was called PureMac before 4.0.0.
 
 ### Fixed
 
+- Cleaning no longer republishes progress for every removed item. A large
+  cleanup asked the window to redraw thousands of times, which looked like the
+  app freezing for seconds; it now updates about once per percent.
 - AI tools no longer report space as freed when opt-in chat history and the
   Claude VM image are moved to the Trash, where they still take up room until
   the Trash is emptied.
