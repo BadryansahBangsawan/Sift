@@ -6,6 +6,10 @@ All notable user-facing changes to Sift. Sift was called PureMac before 4.0.0.
 
 ### Fixed
 
+- Pages are named the way the rail names them: "Space explorer", "Duplicates",
+  "Similar photos", "Apple features", "App updates", and the Leftovers screen
+  and onboarding rows ("Overview", "Uninstaller", "Leftovers") no longer use a
+  second set of names.
 - VoiceOver hears the cleanup search field and its clear button as two
   controls: the field is named by its prompt and the × is "Clear search", not
   both "Filter cleanup files".
