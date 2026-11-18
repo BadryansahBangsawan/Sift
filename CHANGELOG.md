@@ -6,6 +6,9 @@ All notable user-facing changes to Sift. Sift was called PureMac before 4.0.0.
 
 ### Fixed
 
+- Finder and WebKit metadata are no longer offered as leftovers: `.DS_Store`
+  files, WebKit's shared LocalStorage folder and the SwiftPM cache belong to no
+  app, so "the owner is uninstalled" said nothing about them.
 - Leftovers no longer lists installed apps' own data. The scan ran against
   whatever the launch refresh had loaded so far, so with the installed-app list
   still empty every folder looked orphaned (44 rows on a machine that has 20).
