@@ -6,6 +6,11 @@ All notable user-facing changes to Sift. Sift was called PureMac before 4.0.0.
 
 ### Fixed
 
+- A cleanup that skipped a row on purpose (an excluded path, the Trash itself,
+  Claude running, a session you resumed, a temp entry that turned live, a
+  symlink or a path outside the folders Sift cleans) no longer reports
+  "N item(s) need Full Disk Access" and offers a Grant Access retry that can
+  never work. It shows the reason instead.
 - Overview "Where it sits" no longer clips its category names at the minimum
   window width. The row gave half the leftover space to the meter, so
   "Developer caches" read "Developer c…" while the meter still had room to
