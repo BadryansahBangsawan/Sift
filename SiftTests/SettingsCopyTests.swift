@@ -27,6 +27,9 @@ final class SettingsCopyTests: XCTestCase {
             .filter { $0.hasSuffix(".lproj") }
         XCTAssertGreaterThanOrEqual(languages.count, 13)
 
+        let english = try englishTable()
+        let englishChip = try XCTUnwrap(english["Most changes apply immediately"])
+
         for folder in languages {
             let url = root.appendingPathComponent(folder).appendingPathComponent("Localizable.strings")
             let table = try parseStrings(at: url)
@@ -35,6 +38,9 @@ final class SettingsCopyTests: XCTestCase {
                 "\(folder) is missing the Settings chip string"
             )
             XCTAssertFalse(value.isEmpty, "\(folder) has an empty Settings chip string")
+            if folder != "en.lproj" {
+                XCTAssertNotEqual(value, englishChip, "\(folder) still shows the English chip string")
+            }
         }
     }
 
