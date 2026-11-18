@@ -652,7 +652,7 @@ private struct BatteryCard: View {
             parts.append(String(format: String(localized: "%lld cycles"), Int64(cycles)))
         }
         if let current = status.maxCapacityMAh, let design = status.designCapacityMAh {
-            parts.append("\(current) / \(design) mAh")
+            parts.append(String(format: String(localized: "%lld / %lld mAh"), Int64(current), Int64(design)))
         }
         return parts.isEmpty ? nil : parts.joined(separator: ", ")
     }

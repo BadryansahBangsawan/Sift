@@ -334,7 +334,7 @@ struct AppleFeaturesView: View {
                 try Task.checkCancellation()
                 inventory = result
             } catch is CancellationError {
-                inventoryNotice = inventory == nil ? "Storage measurement stopped." : "Storage measurement stopped. Previous results are still shown."
+                inventoryNotice = inventory == nil ? String(localized: "Storage measurement stopped.") : String(localized: "Storage measurement stopped. Previous results are still shown.")
             } catch {
                 errorMessage = error.localizedDescription
             }
@@ -359,7 +359,7 @@ struct AppleFeaturesView: View {
                 backupIssues = result.issues
                 backupsScanned = true
             } catch is CancellationError {
-                removalNotice = "Backup scan stopped. Scan again before selecting backups."
+                removalNotice = String(localized: "Backup scan stopped. Scan again before selecting backups.")
                 backups = []
                 backupsScanned = false
             } catch {
@@ -372,7 +372,7 @@ struct AppleFeaturesView: View {
     private func removeBackups(_ selection: [DeviceBackup]) {
         guard !backupsRunning else { return }
         guard appState.canRemoveDeviceBackups else {
-            removalNotice = "Backup removal is available after the current scan or cleanup finishes."
+            removalNotice = String(localized: "Backup removal is available after the current scan or cleanup finishes.")
             return
         }
         let sharedState = appState
@@ -390,7 +390,7 @@ struct AppleFeaturesView: View {
                 backupSelection = []
                 if !removed.isEmpty {
                     inventory = nil
-                    inventoryNotice = "Backups changed. Measure storage again for current sizes."
+                    inventoryNotice = String(localized: "Backups changed. Measure storage again for current sizes.")
                 }
             } catch {
                 sharedState.deviceBackupRemovalResult = DeviceBackupRemovalResult(
@@ -404,7 +404,7 @@ struct AppleFeaturesView: View {
         if destination.hasPrefix("application:") {
             let identifier = String(destination.dropFirst("application:".count))
             guard let url = NSWorkspace.shared.urlForApplication(withBundleIdentifier: identifier) else {
-                errorMessage = "The app could not be found. Open it manually and follow the steps shown."
+                errorMessage = String(localized: "The app could not be found. Open it manually and follow the steps shown.")
                 return
             }
             openURL(url)
@@ -413,23 +413,23 @@ struct AppleFeaturesView: View {
                 let fallback = URL(fileURLWithPath: "/System/Applications/System Settings.app")
                 let opened = NSWorkspace.shared.open(fallback)
                 errorMessage = opened
-                    ? "The settings shortcut could not be opened. System Settings is open; follow the steps shown to find the control."
-                    : "System Settings could not be opened. Open it from the Apple menu and follow the steps shown."
+                    ? String(localized: "The settings shortcut could not be opened. System Settings is open; follow the steps shown to find the control.")
+                    : String(localized: "System Settings could not be opened. Open it from the Apple menu and follow the steps shown.")
             }
         } else {
-            errorMessage = "The settings shortcut is unavailable. Open System Settings from the Apple menu."
+            errorMessage = String(localized: "The settings shortcut is unavailable. Open System Settings from the Apple menu.")
         }
     }
 
     private func openURL(_ url: URL) {
         if !NSWorkspace.shared.open(url) {
-            errorMessage = "Could not open \(url.absoluteString). Open the app or guide manually."
+            errorMessage = String(localized: "Could not open \(url.absoluteString). Open the app or guide manually.")
         }
     }
 
     private func reveal(_ url: URL) {
         guard FileManager.default.fileExists(atPath: url.path) else {
-            errorMessage = "This location is no longer available or cannot be accessed. Scan again to refresh the results."
+            errorMessage = String(localized: "This location is no longer available or cannot be accessed. Scan again to refresh the results.")
             return
         }
         NSWorkspace.shared.activateFileViewerSelecting([url])
