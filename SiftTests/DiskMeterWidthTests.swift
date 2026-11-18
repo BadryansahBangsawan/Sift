@@ -28,7 +28,13 @@ final class DiskMeterWidthTests: XCTestCase {
                 total: meter - DiskMeterLayout.spacing * 2,
                 disk: 494_000_000_000,
                 freeSpace: 28_480_000_000,
-                reclaimable: 41_200_000_000
+                reclaimable: 41_200_000_000,
+                labelWidth: labelWidth,
+                valueWidth: valueWidth,
+                freeTextWidth: freeWidth,
+                freeLongestWordWidth: DiskMeterLayout.longestWordWidth(freeText) {
+                    self.measure($0, font: self.valueFont)
+                }
             )
             let junkWidth = try XCTUnwrap(widths.reclaimable)
             let style = DiskMeterLayout.style(width: junkWidth, label: labelWidth, value: valueWidth)

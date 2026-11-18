@@ -373,13 +373,19 @@ enum DiskMeterLayout {
     }
 
     static func style(width: CGFloat, neededInline: CGFloat) -> Style {
-        .inline
+        width >= neededInline ? .inline : .stacked
+    }
+
+    /// Width of a run of text at the given font, rounded up.
+    static func textWidth(_ text: String, size: CGFloat, weight: CGFloat, family: String) -> CGFloat {
+        let font = SiftFonts.nsFont(family, size: size, weight: weight) ?? .systemFont(ofSize: size)
+        return ceil(NSAttributedString(string: text, attributes: [.font: font]).size().width)
     }
 
     /// Lines the free capsule's text takes: one when it fits, two otherwise.
     /// Two lines need room for the longest word, not for the whole sentence.
     static func freeLineLimit(textWidth: CGFloat, available: CGFloat) -> Int {
-        1
+        available >= textWidth + capsulePadding * 2 ? 1 : 2
     }
 
     /// Width a wrapped text needs: its longest word.
@@ -387,18 +393,36 @@ enum DiskMeterLayout {
         text.split(separator: " ").map { measure(String($0)) }.max() ?? 0
     }
 
-    /// Width of the reclaimable capsule and the free capsule.
+    /// Width of the reclaimable capsule and the free capsule. Each keeps at
+    /// least the width its own text needs, in whichever style that text takes,
+    /// so no capsule has to clip a translated label.
     static func segmentWidths(
         total: CGFloat,
         disk: Double,
         freeSpace: Int64,
-        reclaimable: Int64?
+        reclaimable: Int64?,
+        labelWidth: CGFloat,
+        valueWidth: CGFloat,
+        freeTextWidth: CGFloat,
+        freeLongestWordWidth: CGFloat
     ) -> (reclaimable: CGFloat?, free: CGFloat) {
         let available = available(total: total, hasReclaimable: reclaimable != nil)
         let diskTotal = max(disk, 1)
-        let free = min(max(available * CGFloat(Double(freeSpace) / diskTotal), freeFloor), available * segmentCap)
+
+        let proportionalFree = available * CGFloat(Double(freeSpace) / diskTotal)
+        let freeOneLine = freeTextWidth + capsulePadding * 2
+        let freeMinimum = proportionalFree >= freeOneLine
+            ? freeOneLine
+            : max(freeLongestWordWidth + capsulePadding * 2, freeFloor * 0.5)
+        let free = min(max(proportionalFree, freeMinimum), max(available * segmentCap, freeMinimum))
+
         guard let reclaimable else { return (nil, free) }
-        let junk = min(max(available * CGFloat(Double(reclaimable) / diskTotal), reclaimableFloor), available * segmentCap)
+        let proportionalJunk = available * CGFloat(Double(reclaimable) / diskTotal)
+        let inlineNeeded = inlineWidth(label: labelWidth, value: valueWidth)
+        let junkMinimum = proportionalJunk >= inlineNeeded
+            ? inlineNeeded
+            : stackedWidth(label: labelWidth, value: valueWidth)
+        let junk = min(max(proportionalJunk, junkMinimum), max(available * segmentCap, junkMinimum))
         return (junk, free)
     }
 }
@@ -412,24 +436,41 @@ struct DiskMeter: View {
     var body: some View {
         GeometryReader { proxy in
             let total = proxy.size.width - DiskMeterLayout.spacing * 2
+            let label = String(localized: "Reclaimable")
+            let value = reclaimable.map(SiftFormat.bytes) ?? ""
+            let free = String(localized: "\(SiftFormat.bytes(info.freeSpace)) free")
+            let labelWidth = DiskMeterLayout.textWidth(label, size: 11, weight: 500, family: SiftFonts.ui)
+            let valueWidth = DiskMeterLayout.textWidth(value, size: 16, weight: 400, family: SiftFonts.display)
+            let freeWidth = DiskMeterLayout.textWidth(free, size: 16, weight: 500, family: SiftFonts.display)
+            let freeWord = DiskMeterLayout.longestWordWidth(free) {
+                DiskMeterLayout.textWidth($0, size: 16, weight: 500, family: SiftFonts.display)
+            }
             let widths = DiskMeterLayout.segmentWidths(
                 total: total,
                 disk: Double(info.totalSpace),
                 freeSpace: info.freeSpace,
-                reclaimable: reclaimable
+                reclaimable: reclaimable,
+                labelWidth: labelWidth,
+                valueWidth: valueWidth,
+                freeTextWidth: freeWidth,
+                freeLongestWordWidth: freeWord
             )
             HStack(spacing: DiskMeterLayout.spacing) {
                 if let reclaimable, let width = widths.reclaimable {
-                    HStack {
-                        Text("Reclaimable")
-                            .font(.sift(11, weight: 500))
-                            .foregroundStyle(SiftColor.onAccentMuted)
-                            .lineLimit(1)
-                        Spacer(minLength: DiskMeterLayout.labelGap)
-                        Text(verbatim: SiftFormat.bytes(reclaimable))
-                            .font(.siftDisplay(16))
-                            .foregroundStyle(SiftColor.onAccent)
-                            .lineLimit(1)
+                    let style = DiskMeterLayout.style(width: width, label: labelWidth, value: valueWidth)
+                    Group {
+                        if style == .inline {
+                            HStack(spacing: DiskMeterLayout.labelGap) {
+                                labelText(label)
+                                Spacer(minLength: 0)
+                                valueText(value)
+                            }
+                        } else {
+                            VStack(alignment: .leading, spacing: 0) {
+                                labelText(label)
+                                valueText(value)
+                            }
+                        }
                     }
                     .padding(.horizontal, DiskMeterLayout.capsulePadding)
                     .frame(width: width)
@@ -440,13 +481,13 @@ struct DiskMeter: View {
                     .font(.siftDisplay(16, weight: 500))
                     .foregroundStyle(SiftColor.textPrimary)
                     .lineLimit(1)
-                    .padding(.horizontal, 16)
+                    .padding(.horizontal, DiskMeterLayout.capsulePadding)
                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
                     .background(Capsule(style: .continuous).fill(SiftColor.meterUsed))
-                Text("\(SiftFormat.bytes(info.freeSpace)) free")
+                Text(verbatim: free)
                     .font(.siftDisplay(16, weight: 500))
                     .foregroundStyle(SiftColor.textSecondary)
-                    .lineLimit(1)
+                    .lineLimit(DiskMeterLayout.freeLineLimit(textWidth: freeWidth, available: widths.free))
                     .padding(.horizontal, DiskMeterLayout.capsulePadding)
                     .frame(width: widths.free, alignment: .leading)
                     .frame(maxHeight: .infinity)
@@ -456,11 +497,27 @@ struct DiskMeter: View {
                             .strokeBorder(SiftColor.controlStroke, style: StrokeStyle(lineWidth: 1, dash: [4, 4]))
                     )
             }
-            .padding(4)
+            .padding(DiskMeterLayout.spacing)
         }
         .frame(height: 56)
         .background(Capsule(style: .continuous).fill(SiftColor.window))
         .accessibilityElement(children: .combine)
+    }
+
+    private func labelText(_ text: String) -> some View {
+        Text(verbatim: text)
+            .font(.sift(11, weight: 500))
+            .foregroundStyle(SiftColor.onAccentMuted)
+            .lineLimit(1)
+            .fixedSize(horizontal: true, vertical: false)
+    }
+
+    private func valueText(_ text: String) -> some View {
+        Text(verbatim: text)
+            .font(.siftDisplay(16))
+            .foregroundStyle(SiftColor.onAccent)
+            .lineLimit(1)
+            .fixedSize(horizontal: true, vertical: false)
     }
 
     private var used: Int64 { max(0, info.totalSpace - info.freeSpace) }

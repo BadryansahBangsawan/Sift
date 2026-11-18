@@ -22,18 +22,11 @@ final class RailLabelWidthTests: XCTestCase {
             for label in labels {
                 let ideal = measure(label)
                 let limit = RailRowLayout.lineLimit(labelWidth: ideal, available: card)
-                if limit == 1 {
-                    XCTAssertLessThanOrEqual(
-                        ideal, card,
-                        "\(language) “\(label)” is \(Int(ideal)) pt in a \(Int(card)) pt column and would be clipped"
-                    )
-                } else {
-                    let word = label.split(separator: " ").map { measure(String($0)) }.max() ?? 0
-                    XCTAssertLessThanOrEqual(
-                        word, card,
-                        "\(language) “\(label)” cannot wrap: its longest word is \(Int(word)) pt"
-                    )
-                }
+                let lines = lineCount(label, width: card)
+                XCTAssertLessThanOrEqual(
+                    lines, limit,
+                    "\(language) “\(label) at \(Int(ideal)) pt is clipped into \(lines) line(s) in a \(Int(card)) pt column"
+                )
             }
         }
     }
@@ -46,6 +39,24 @@ final class RailLabelWidthTests: XCTestCase {
         "Overview", "System junk", "Leftovers", "Large & old files", "Project junk",
         "Scheduled cleanup", "Settings",
     ]
+
+    /// Lines the label lays out in at `width`; wrapping is per word, and per
+    /// character for scripts without spaces.
+    private func lineCount(_ text: String, width: CGFloat) -> Int {
+        let font = SiftFonts.nsFont(SiftFonts.ui, size: 13, weight: 400) ?? .systemFont(ofSize: 13)
+        let attributed = NSAttributedString(string: text, attributes: [.font: font])
+        let typesetter = CTTypesetterCreateWithAttributedString(attributed)
+        var start = 0
+        var lines = 0
+        while start < attributed.length {
+            let consumed = CTTypesetterSuggestLineBreak(typesetter, start, Double(width))
+            guard consumed > 0 else { return Int.max }
+            start += consumed
+            lines += 1
+            if lines > 3 { return lines }
+        }
+        return lines
+    }
 
     private func measure(_ text: String) -> CGFloat {
         let font = SiftFonts.nsFont(SiftFonts.ui, size: 13, weight: 400) ?? .systemFont(ofSize: 13)
