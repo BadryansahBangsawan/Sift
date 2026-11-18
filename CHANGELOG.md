@@ -6,6 +6,9 @@ All notable user-facing changes to Sift. Sift was called PureMac before 4.0.0.
 
 ### Fixed
 
+- Arabic no longer loses the size in a count of zero, one or two files, and
+  no longer crashes there: a label such as "1 item, 2 MB" put the size in the
+  number's place and read `لا عناصر، (null)` before the crash.
 - Sizes no longer read "Zero KB" or "999 bytes" in the Uninstaller, its
   leftovers, the History rows, the scan notification or `Sift scan`: every
   size in the app now comes from the one formatter the dashboard uses, so an
