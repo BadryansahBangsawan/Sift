@@ -135,18 +135,47 @@ struct SiftTableHeader<Content: View>: View {
 
 // MARK: - Wordmark
 
-/// The rail's "S" tile and SIFT wordmark, for surfaces outside the shell.
+/// The app icon in miniature: an ink tile holding the Sift sieve mark, a
+/// grain resting on four sieve bars. It uses the logo's small cut (no falling
+/// grains), drawn on a 224 x 144 unit box.
+struct SiftAppTile: View {
+    var size: CGFloat = 28
+
+    private static let ink = Color(nsColor: NSColor(hex: 0x0D0F11))
+    private static let bar = Color(nsColor: NSColor(hex: 0xF1EFEA))
+
+    var body: some View {
+        let unit = size * 0.74 / 224
+        ZStack(alignment: .topLeading) {
+            ForEach(0..<4, id: \.self) { index in
+                Capsule()
+                    .fill(Self.bar)
+                    .frame(width: 41 * unit, height: 32 * unit)
+                    .offset(x: CGFloat(index) * 61 * unit, y: 112 * unit)
+            }
+            Circle()
+                .fill(SiftColor.accent)
+                .frame(width: 100 * unit, height: 100 * unit)
+                .offset(x: 62 * unit)
+        }
+        .frame(width: 224 * unit, height: 144 * unit, alignment: .topLeading)
+        .frame(width: size, height: size)
+        .background(RoundedRectangle(cornerRadius: size * 0.32, style: .continuous).fill(Self.ink))
+        .overlay(
+            RoundedRectangle(cornerRadius: size * 0.32, style: .continuous)
+                .strokeBorder(Color.white.opacity(0.08), lineWidth: 1)
+        )
+    }
+}
+
+/// The rail's app tile and SIFT wordmark, for surfaces outside the shell.
 struct SiftWordmark: View {
     var tile: CGFloat = 28
     var showsName = true
 
     var body: some View {
         HStack(spacing: tile * 0.36) {
-            Text(verbatim: "S")
-                .font(.siftDisplay(tile * 0.57, weight: 700))
-                .foregroundStyle(SiftColor.onAccent)
-                .frame(width: tile, height: tile)
-                .background(RoundedRectangle(cornerRadius: tile * 0.32, style: .continuous).fill(SiftColor.accent))
+            SiftAppTile(size: tile)
             if showsName {
                 Text(verbatim: "SIFT")
                     .font(.siftDisplay(tile * 0.6))

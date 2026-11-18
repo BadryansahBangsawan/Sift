@@ -301,11 +301,7 @@ struct SiftRail: View {
     /// Leaves room for the traffic lights above the wordmark.
     private var wordmark: some View {
         HStack(spacing: 10) {
-            Text(verbatim: "S")
-                .font(.siftDisplay(16, weight: 700))
-                .foregroundStyle(SiftColor.onAccent)
-                .frame(width: 28, height: 28)
-                .background(RoundedRectangle(cornerRadius: 9, style: .continuous).fill(SiftColor.accent))
+            SiftAppTile(size: 28)
             Text(verbatim: "SIFT")
                 .font(.siftDisplay(17))
                 .tracking(2.4)

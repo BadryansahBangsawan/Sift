@@ -151,11 +151,7 @@ private struct SettingsNav: View {
 
     private var footer: some View {
         HStack(spacing: 8) {
-            Text(verbatim: "S")
-                .font(.siftDisplay(12, weight: 700))
-                .foregroundStyle(SiftColor.onAccent)
-                .frame(width: 24, height: 24)
-                .background(RoundedRectangle(cornerRadius: 8, style: .continuous).fill(SiftColor.accent))
+            SiftAppTile(size: 24)
                 .accessibilityHidden(true)
             VStack(alignment: .leading, spacing: 1) {
                 Text("Version \(UpdateService.installedVersion)")
