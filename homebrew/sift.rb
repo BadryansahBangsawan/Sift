@@ -1,6 +1,8 @@
 cask "sift" do
-  version "3.2.0"
-  sha256 "5ba35fde0b60a645d61edacc8a8b8f198625ea91ac3750c60d41efe22a240a50"
+  version "4.0.0"
+  # sha256 is filled by the release workflow (release.yml bumps the cask after
+  # publishing the release assets).
+  sha256 "SHA256_PLACEHOLDER"
 
   url "https://github.com/BadryansahBangsawan/Sift/releases/download/v#{version}/Sift-#{version}.zip"
   name "Sift"

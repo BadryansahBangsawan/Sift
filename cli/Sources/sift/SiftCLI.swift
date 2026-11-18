@@ -1,7 +1,7 @@
 import ArgumentParser
 import Foundation
 
-let siftVersion = "1.1.1"
+let siftVersion = "1.2.0"
 
 @main
 struct SiftCLI: ParsableCommand {
