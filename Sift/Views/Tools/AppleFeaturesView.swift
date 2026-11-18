@@ -1005,3 +1005,109 @@ private struct DeviceBackupConfirmation: View {
         .background(SiftColor.card)
     }
 }
+
+/// The exact list of changes before anything is applied.
+private struct AppleIntelligenceReviewSheet: View {
+    let plan: AppleIntelligencePlan
+    let onApply: () -> Void
+    let onCancel: () -> Void
+
+    private var profileChanges: [AppleIntelligenceChange] { plan.changes.filter(\.isProfile) }
+    private var localChanges: [AppleIntelligenceChange] { plan.changes.filter { !$0.isProfile } }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            VStack(alignment: .leading, spacing: 4) {
+                Text("Review changes")
+                    .siftStyle(.metricSmall)
+                Text("Nothing is applied until you choose Turn off.")
+                    .siftStyle(.label)
+            }
+
+            ScrollView {
+                VStack(alignment: .leading, spacing: 16) {
+                    if !plan.featuresTurnedOff.isEmpty {
+                        section(
+                            "Apple Intelligence off",
+                            detail: "Locked by the profile: \(plan.featuresTurnedOff.count) features.",
+                            changes: profileChanges.filter { $0.id.hasPrefix("feature:") })
+                    }
+                    if !plan.tweaks.isEmpty {
+                        section(
+                            "Privacy and pop-ups",
+                            detail: "Journaled first, so undo puts the old values back.",
+                            changes: plan.changes.filter { $0.id.hasPrefix("tweak:") })
+                    }
+                    if !plan.modelSets.isEmpty {
+                        let size = plan.reportedModelBytes.map {
+                            ByteCountFormatter.string(fromByteCount: $0, countStyle: .file)
+                        }
+                        section(
+                            "Models to delete",
+                            detail: size.map { String(localized: "\(plan.modelSets.count) sets, about \($0) reported by the service.") }
+                                ?? String(localized: "\(plan.modelSets.count) sets; the service did not report every size."),
+                            changes: localChanges.filter { $0.id.hasPrefix("model:") })
+                    }
+                    if plan.profile != nil {
+                        section(
+                            "Configuration profile",
+                            detail: "The profile points the removed sets' download URL at a closed local port and holds the locked settings. You approve it in System Settings.",
+                            changes: profileChanges.filter { $0.id == "profile" })
+                    }
+                }
+            }
+            .frame(maxHeight: 380)
+
+            SiftFootnote(
+                Text("macOS asks you to approve the profile. Removing the profile turns Apple Intelligence back on; models come back only when macOS downloads them again."),
+                icon: .info)
+
+            HStack(spacing: 8) {
+                Spacer()
+                Button("Cancel", role: .cancel, action: onCancel)
+                    .keyboardShortcut(.cancelAction)
+                    .buttonStyle(.siftSecondary)
+                Button("Turn off", action: onApply)
+                    .keyboardShortcut(.defaultAction)
+                    .buttonStyle(.siftPrimary)
+            }
+        }
+        .padding(24)
+        .frame(width: 620)
+        .background(SiftColor.card)
+    }
+
+    private func section(
+        _ title: String, detail: String, changes: [AppleIntelligenceChange]
+    ) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(LocalizedStringKey(title))
+                .siftStyle(.cardTitle)
+            Text(verbatim: detail)
+                .siftStyle(.label)
+                .fixedSize(horizontal: false, vertical: true)
+            VStack(spacing: 0) {
+                ForEach(Array(changes.enumerated()), id: \.element.id) { index, change in
+                    HStack(alignment: .top, spacing: 10) {
+                        SiftDot(tone: change.isProfile ? .accent : .warning)
+                            .padding(.top, 5)
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(verbatim: change.title)
+                                .font(.sift(12.5, weight: 500))
+                                .foregroundStyle(SiftColor.textPrimary)
+                            Text(verbatim: change.detail)
+                                .siftStyle(.monoSmall)
+                                .textSelection(.enabled)
+                                .fixedSize(horizontal: false, vertical: true)
+                        }
+                        Spacer(minLength: 0)
+                    }
+                    .padding(.horizontal, 14)
+                    .padding(.vertical, 9)
+                    if index < changes.count - 1 { SiftRowDivider(inset: 14) }
+                }
+            }
+            .siftSurface(.inset, padding: 0)
+        }
+    }
+}

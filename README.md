@@ -297,6 +297,8 @@ Especially welcome:
 
 ## Acknowledgments
 
+- **Om Lahore** - [RemoveMacAI](https://github.com/omlahore/RemoveMacAI), whose Apple Intelligence catalog, asset-service reset and profile design Sift's Apple Intelligence tool is ported from (MIT).
+- **4evy** - [pared](https://github.com/4evy/pared), which first mapped Apple's asset service, model sets and settings keys that RemoveMacAI builds on (MIT). Licenses: [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md).
 - **[@nguyenhuy158](https://github.com/nguyenhuy158)** - Search and filter feature ([#18](https://github.com/momenbasel/PureMac/issues/18), [#29](https://github.com/momenbasel/PureMac/pull/29))
 - **[@edufalcao](https://github.com/edufalcao)** - Cleaning safety guards and confirmation dialogs ([#30](https://github.com/momenbasel/PureMac/pull/30))
 - **[@zeck00](https://github.com/zeck00)** - UI overhaul ([#31](https://github.com/momenbasel/PureMac/pull/31)), app uninstaller with system app protection ([#32](https://github.com/momenbasel/PureMac/pull/32)), onboarding experience ([#33](https://github.com/momenbasel/PureMac/pull/33))
