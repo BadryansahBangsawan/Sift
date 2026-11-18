@@ -41,6 +41,8 @@ final class PolicySkipReportingTests: XCTestCase {
             items: [session],
             totalSize: session.size
         )
+        // AI history is opt-in: the user ticked this row, then resumed it.
+        state.selectedCleanupItems.insert(session.id)
 
         state.cleanAll()
         await waitForClean(state)
@@ -61,7 +63,9 @@ final class PolicySkipReportingTests: XCTestCase {
     func testTemporaryEntryThatTurnedLiveIsReportedAsSkipped() async throws {
         // A temp entry holding a git repository is deliberately skipped: it is
         // live work, not a permission problem.
-        let folder = fileManager.temporaryDirectory
+        // TmpJunkPolicy only covers the real temp roots, so the fixture lives in
+        // /private/tmp like a temp entry the scan offered.
+        let folder = URL(fileURLWithPath: "/private/tmp")
             .appendingPathComponent("PureMac-PolicySkip-tmp-\(UUID().uuidString)", isDirectory: true)
             .resolvingSymlinksInPath()
         try fileManager.createDirectory(at: folder, withIntermediateDirectories: true)
@@ -93,7 +97,7 @@ final class PolicySkipReportingTests: XCTestCase {
         )
         XCTAssertFalse(state.cleanErrorIsFDAFixable)
         XCTAssertTrue(
-            (state.cleanError ?? "").localizedCaseInsensitiveContains("skipped"),
+            (state.cleanError ?? "").localizedCaseInsensitiveContains("in use"),
             "The user must see the real reason, got: \(state.cleanError ?? "nil")"
         )
         XCTAssertTrue(fileManager.fileExists(atPath: folder.path))
