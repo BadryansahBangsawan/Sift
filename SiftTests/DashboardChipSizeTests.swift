@@ -69,4 +69,33 @@ final class DashboardChipSizeTests: XCTestCase {
         let aiApps = await engine.scanCategory(.aiApps)
         XCTAssertTrue(aiApps.items.contains { $0.path == caches.appendingPathComponent("com.anthropic.claudefordesktop").path })
     }
+
+    func testUserCacheKeepsSiblingFoldersThatOnlyShareAClaimedRootPrefix() async throws {
+        let caches = fixtureHome.appendingPathComponent("Library/Caches", isDirectory: true)
+        let sibling = caches.appendingPathComponent("com.apple.dt.XcodeJunk", isDirectory: true)
+        try fileManager.createDirectory(at: sibling, withIntermediateDirectories: true)
+        try Data(repeating: 0x22, count: 8_192).write(to: sibling.appendingPathComponent("blob"))
+
+        let userCache = await ScanEngine(homeDirectory: fixtureHome).scanCategory(.userCache)
+
+        XCTAssertTrue(
+            userCache.items.contains { $0.path == sibling.path },
+            "Only the exact claimed root belongs to another category; a look-alike sibling stays in User Cache"
+        )
+    }
+
+    func testUserCacheTotalMatchesTheRowsItKeeps() async throws {
+        let caches = fixtureHome.appendingPathComponent("Library/Caches", isDirectory: true)
+        for name in ["com.apple.dt.Xcode", "com.example.ordinary", "com.example.second"] {
+            let folder = caches.appendingPathComponent(name, isDirectory: true)
+            try fileManager.createDirectory(at: folder, withIntermediateDirectories: true)
+            try Data(repeating: 0x33, count: 8_192).write(to: folder.appendingPathComponent("blob"))
+        }
+
+        let userCache = await ScanEngine(homeDirectory: fixtureHome).scanCategory(.userCache)
+
+        XCTAssertEqual(userCache.items.count, 2)
+        XCTAssertEqual(userCache.totalSize, userCache.items.reduce(0) { $0 + $1.size })
+        XCTAssertFalse(userCache.items.contains { $0.path == caches.appendingPathComponent("com.apple.dt.Xcode").path })
+    }
 }
