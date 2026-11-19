@@ -86,6 +86,152 @@ final class ScheduledAutoCleanTrashTests: XCTestCase {
         XCTAssertEqual(state.totalFreedSpace, item.size)
     }
 
+    // MARK: - Edges
+
+    /// Action rows have no file to move: a scheduled clean must leave them for
+    /// the user instead of running them unattended.
+    func testScheduledCleanLeavesActionRowsSelected() async throws {
+        let file = try makeFile(named: "junk.bin")
+        let junk = makeItem(for: file)
+        let docker = CleanableItem(
+            name: "Docker prune",
+            path: "",
+            size: 4_096,
+            category: .dockerCache,
+            isSelected: true,
+            lastModified: nil
+        )
+        let runtime = CleanableItem(
+            name: "iOS 18 Simulator",
+            path: CleanableItem.simctlRuntimePathPrefix + "A1B2-C3D4",
+            size: 8_192,
+            category: .xcodeJunk,
+            isSelected: true,
+            lastModified: nil
+        )
+        let state = makeState()
+        state.categoryResults[.systemJunk] = CategoryResult(
+            category: .systemJunk,
+            items: [junk],
+            totalSize: junk.size
+        )
+        state.categoryResults[.dockerCache] = CategoryResult(
+            category: .dockerCache,
+            items: [docker],
+            totalSize: docker.size
+        )
+        state.categoryResults[.xcodeJunk] = CategoryResult(
+            category: .xcodeJunk,
+            items: [runtime],
+            totalSize: runtime.size
+        )
+
+        state.cleanAll(scheduled: true)
+        try await waitUntil(timeout: 5) { !state.scanState.isActive }
+
+        XCTAssertTrue(fileManager.fileExists(atPath: fixtureTrash.appendingPathComponent("junk.bin").path),
+                      "Ordinary junk still goes to the Trash")
+        XCTAssertEqual(state.categoryResults[.dockerCache]?.items.map(\.id), [docker.id])
+        XCTAssertEqual(state.categoryResults[.xcodeJunk]?.items.map(\.id), [runtime.id])
+        XCTAssertTrue(state.isItemSelected(docker), "An action row stays selected for the next manual clean")
+        XCTAssertTrue(state.isItemSelected(runtime))
+        XCTAssertFalse(state.lastCleanupHadFailures)
+        XCTAssertNil(state.cleanError, "A row left for a manual clean is not an error")
+    }
+
+    /// A root-owned row cannot be moved to the Trash without a password, which
+    /// an unattended clean must never ask for. It stays put and stays selected.
+    func testScheduledCleanSkipsRowsThatNeedAdministratorPrivileges() async throws {
+        let blocked = fixtureRoot.appendingPathComponent("root-owned", isDirectory: true)
+        try fileManager.createDirectory(at: blocked, withIntermediateDirectories: true)
+        let file = blocked.appendingPathComponent("system.log")
+        try Data(repeating: 2, count: 8_192).write(to: file)
+        try fileManager.setAttributes([.posixPermissions: 0o500], ofItemAtPath: blocked.path)
+        defer { try? fileManager.setAttributes([.posixPermissions: 0o700], ofItemAtPath: blocked.path) }
+
+        let item = CleanableItem(
+            name: "system.log",
+            path: file.path,
+            size: 8_192,
+            category: .systemJunk,
+            isSelected: true,
+            lastModified: nil
+        )
+        let state = makeState()
+        state.categoryResults[.systemJunk] = CategoryResult(
+            category: .systemJunk,
+            items: [item],
+            totalSize: item.size
+        )
+
+        state.cleanAll(scheduled: true)
+        try await waitUntil(timeout: 5) { !state.scanState.isActive }
+
+        XCTAssertTrue(fileManager.fileExists(atPath: file.path), "A root-owned row is left alone")
+        XCTAssertEqual(state.categoryResults[.systemJunk]?.items.map(\.id), [item.id])
+        XCTAssertTrue(state.isItemSelected(item), "The row stays selected for the next manual clean")
+        XCTAssertFalse(state.lastCleanupHadFailures)
+        XCTAssertTrue(state.cleanupHistory.allSatisfy { $0.freedBytes == 0 && $0.trashedBytes == 0 })
+    }
+
+    /// A Trash move that fails is a failure: the row must never be unlinked as
+    /// a fallback, because that is exactly the unrecoverable delete an
+    /// unattended clean exists to avoid.
+    func testFailedTrashMoveIsAnErrorAndNeverAnUnlink() async throws {
+        let file = try makeFile(named: "junk.bin")
+        let item = makeItem(for: file)
+        let state = makeState { _ in
+            throw NSError(domain: "ScheduledAutoCleanTrashTests", code: 1,
+                          userInfo: [NSLocalizedDescriptionKey: "The Trash is full"])
+        }
+        state.categoryResults[.systemJunk] = CategoryResult(
+            category: .systemJunk,
+            items: [item],
+            totalSize: item.size
+        )
+
+        state.cleanAll(scheduled: true)
+        try await waitUntil(timeout: 5) { !state.scanState.isActive }
+
+        XCTAssertTrue(fileManager.fileExists(atPath: file.path), "No unlink fallback")
+        XCTAssertNotNil(state.cleanError)
+        XCTAssertTrue(state.lastCleanupHadFailures)
+        XCTAssertEqual(state.totalFreedSpace, 0)
+    }
+
+    func testScheduledHistoryRecordsTrashedBytesAsNotFreed() async throws {
+        let file = try makeFile(named: "junk.bin")
+        let item = makeItem(for: file)
+        let state = makeState()
+        state.categoryResults[.systemJunk] = CategoryResult(
+            category: .systemJunk,
+            items: [item],
+            totalSize: item.size
+        )
+
+        state.cleanAll(scheduled: true)
+        try await waitUntil(timeout: 5) { !state.scanState.isActive }
+
+        let record = try XCTUnwrap(state.cleanupHistory.first)
+        XCTAssertEqual(record.source, .scheduled)
+        XCTAssertEqual(record.freedBytes, 0, "Trashed bytes are not freed space")
+        XCTAssertEqual(record.trashedBytes, item.size)
+        XCTAssertEqual(record.category, .systemJunk)
+        XCTAssertEqual(historyStore.load().first?.trashedBytes, item.size)
+    }
+
+    /// History written before `trashedBytes` existed must still decode.
+    func testHistoryWithoutTrashedBytesDecodesAsZero() throws {
+        let json = """
+        [{"date":"2026-11-01T10:00:00Z","freedBytes":4096,"source":"manual","title":"Emptied Trash","category":"Trash"}]
+        """
+        try Data(json.utf8).write(to: historyFile)
+
+        let record = try XCTUnwrap(historyStore.load().first)
+        XCTAssertEqual(record.freedBytes, 4_096)
+        XCTAssertEqual(record.trashedBytes, 0)
+    }
+
     // MARK: - Fixtures
 
     private func makeFile(named name: String, size: Int = 8_192) throws -> URL {
