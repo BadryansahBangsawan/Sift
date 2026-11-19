@@ -331,6 +331,95 @@ final class UnattendedAICleanTests: XCTestCase {
         XCTAssertEqual(result.freedSpace, 0, "Bytes in the Trash are not freed")
     }
 
+    // MARK: - Edges
+
+    func testManualCleanOfAnAICacheStillUnlinksIt() async throws {
+        let cache = home.appendingPathComponent(".claude/shell-snapshots", isDirectory: true)
+        try fileManager.createDirectory(at: cache, withIntermediateDirectories: true)
+        try Data(repeating: 4, count: 8_192).write(to: cache.appendingPathComponent("snapshot.sh"))
+        let item = CleanableItem(
+            name: "Claude Code Shell Snapshots",
+            path: cache.path,
+            size: 8_192,
+            category: .aiApps,
+            isSelected: true,
+            lastModified: nil
+        )
+
+        let result = await makeEngine().cleanItems([item]) { _ in }
+
+        XCTAssertEqual(result.itemsCleaned, 1)
+        XCTAssertFalse(fileManager.fileExists(atPath: cache.path))
+        XCTAssertTrue(result.trashedPaths.isEmpty, "A watched manual clean keeps the unlink")
+        XCTAssertEqual(result.freedSpace, 8_192)
+        XCTAssertEqual(result.trashedSpace, 0)
+    }
+
+    func testOptInAIHistoryGoesToTheTrashInBothModes() async throws {
+        let bundles = home.appendingPathComponent("Library/Application Support/Claude/vm_bundles", isDirectory: true)
+        let item = CleanableItem(
+            name: "Claude VM image",
+            path: bundles.path,
+            size: 4_096,
+            category: .aiApps,
+            isSelected: true,
+            lastModified: nil
+        )
+
+        for unattended in [false, true] {
+            try? fileManager.removeItem(at: bundles)
+            try? fileManager.removeItem(at: trash.appendingPathComponent("vm_bundles"))
+            try fileManager.createDirectory(at: bundles, withIntermediateDirectories: true)
+            try Data(repeating: 5, count: 4_096).write(to: bundles.appendingPathComponent("image.bin"))
+
+            let result = await makeEngine().cleanItems([item], unattended: unattended) { _ in }
+
+            XCTAssertEqual(result.itemsCleaned, 1, "unattended: \(unattended), skipped: \(result.skippedPaths), errors: \(result.errors)")
+            XCTAssertTrue(
+                fileManager.fileExists(atPath: trash.appendingPathComponent("vm_bundles").path),
+                "Opt-in history stays recoverable in both modes (unattended: \(unattended))"
+            )
+            XCTAssertEqual(result.freedSpace, 0)
+            XCTAssertEqual(result.trashedSpace, 4_096)
+        }
+    }
+
+    func testUnattendedCleanTrashesASessionCompanionFolder() async throws {
+        let project = home.appendingPathComponent(".claude/projects/-Users-demo", isDirectory: true)
+        try fileManager.createDirectory(at: project, withIntermediateDirectories: true)
+        let transcript = project.appendingPathComponent("11111111-1111-1111-1111-111111111111.jsonl")
+        try Data(repeating: 6, count: 8_192).write(to: transcript)
+        let listedAt = Date().addingTimeInterval(-3_600)
+        try fileManager.setAttributes([.modificationDate: listedAt], ofItemAtPath: transcript.path)
+        let companion = project.appendingPathComponent("11111111-1111-1111-1111-111111111111", isDirectory: true)
+        try fileManager.createDirectory(at: companion, withIntermediateDirectories: true)
+        try Data(repeating: 7, count: 512).write(to: companion.appendingPathComponent("step.log"))
+
+        let item = CleanableItem(
+            name: "demo session",
+            path: transcript.path,
+            size: 8_192,
+            category: .aiApps,
+            isSelected: true,
+            lastModified: listedAt,
+            companionPaths: AIToolCleanupCatalog.sessionCompanions(for: transcript.path),
+            note: nil,
+            movesToTrash: true
+        )
+
+        let result = await makeEngine().cleanItems([item], unattended: true) { _ in }
+
+        XCTAssertEqual(result.itemsCleaned, 1, "skipped: \(result.skippedPaths), errors: \(result.errors)")
+        XCTAssertTrue(result.errors.isEmpty, "\(result.errors)")
+        XCTAssertFalse(fileManager.fileExists(atPath: transcript.path))
+        XCTAssertFalse(fileManager.fileExists(atPath: companion.path))
+        XCTAssertEqual(
+            result.trashedPaths.count, 2,
+            "The transcript and its companion folder both go to the Trash"
+        )
+        XCTAssertEqual(result.freedSpace, 0)
+    }
+
     // MARK: - Fixtures
 
     private func makeEngine() -> CleaningEngine {
