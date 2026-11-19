@@ -2,6 +2,18 @@
 
 All notable user-facing changes to Sift. Sift was called PureMac before 4.0.0.
 
+## Unreleased
+
+### Changed
+
+- Arabic lays out right-to-left: the rail sits on the right, chevrons and the
+  Back arrow point the other way, the storage meter and the progress bars fill
+  from the right, and the Where-it-sits rows, the excluded-folder chips, the
+  Settings slider and the menu-bar popover mirror with the window. macOS gives
+  an app the system's direction and not its own, so every window, the Settings
+  scene and the popover now state the direction of the language they resolved;
+  the other twelve languages stay left-to-right.
+
 ## 4.0.2
 
 ### Fixed
