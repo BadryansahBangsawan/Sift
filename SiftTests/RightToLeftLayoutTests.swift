@@ -43,6 +43,43 @@ final class RightToLeftLayoutTests: XCTestCase {
         XCTAssertEqual(AppLayoutDirection.direction(for: []), .leftToRight)
     }
 
+    // MARK: - Presented roots
+
+    /// A sheet or popover is its own hosting root on macOS and does not inherit
+    /// the window's direction, so its content re-applies it.
+    func testAPresentedRootTakesTheDirectionItIsGiven() {
+        let rtl = render(twoPaneShell.siftPresentedLayout(.rightToLeft), size: CGSize(width: 240, height: 40))
+        let rail = inkBounds(rtl) { $0.redComponent > 0.9 && $0.greenComponent < 0.2 }
+        XCTAssertGreaterThanOrEqual(rail.minX, 199, "A sheet keeps the window's left-to-right order")
+
+        let ltr = render(twoPaneShell.siftPresentedLayout(.leftToRight), size: CGSize(width: 240, height: 40))
+        let railLTR = inkBounds(ltr) { $0.redComponent > 0.9 && $0.greenComponent < 0.2 }
+        XCTAssertLessThanOrEqual(railLTR.maxX, 41)
+    }
+
+    /// Nothing presented may skip the helper: a sheet that forgets it opens
+    /// left-to-right inside an Arabic window.
+    func testEverySheetReappliesTheDirection() throws {
+        let root = URL(fileURLWithPath: #filePath)
+            .deletingLastPathComponent()
+            .deletingLastPathComponent()
+            .appendingPathComponent("Sift")
+        let files = try FileManager.default.subpathsOfDirectory(atPath: root.path)
+            .filter { $0.hasSuffix(".swift") }
+        var sheets = 0
+        for file in files {
+            let text = try String(contentsOf: root.appendingPathComponent(file), encoding: .utf8)
+            for chunk in text.components(separatedBy: ".sheet(").dropFirst() {
+                sheets += 1
+                XCTAssertTrue(
+                    String(chunk.prefix(900)).contains("siftPresentedLayout"),
+                    "\(file): a sheet does not re-apply the layout direction"
+                )
+            }
+        }
+        XCTAssertGreaterThanOrEqual(sheets, 7, "The review, dry-run, permission and Apple-feature sheets are all covered")
+    }
+
     // MARK: - Shell
 
     /// The window is a rail and a detail pane. Applying the direction the way
