@@ -82,6 +82,49 @@ final class RightToLeftLayoutTests: XCTestCase {
         XCTAssertLessThanOrEqual(iconLTR.maxX, 32)
     }
 
+    // MARK: - Edge cases
+
+    func testDirectionCoversIdentifiersASystemCanReport() {
+        XCTAssertEqual(AppLayoutDirection.direction(forLanguage: "AR"), .rightToLeft)
+        XCTAssertEqual(AppLayoutDirection.direction(forLanguage: "ar-EG"), .rightToLeft)
+        XCTAssertEqual(AppLayoutDirection.direction(forLanguage: "ar_SA"), .rightToLeft)
+        XCTAssertEqual(AppLayoutDirection.direction(forLanguage: "he"), .rightToLeft)
+        XCTAssertEqual(AppLayoutDirection.direction(forLanguage: "zh-Hant"), .leftToRight)
+        XCTAssertEqual(AppLayoutDirection.direction(forLanguage: ""), .leftToRight)
+    }
+
+    /// The chips in a settings group wrap from the leading edge; Arabic starts
+    /// each line at the right and wraps to a second line above.
+    func testTheFlowLayoutFillsFromTheRightInArabic() {
+        let rtl = render(flowRow(direction: .rightToLeft), size: CGSize(width: 100, height: 60))
+        // Both red chips are the first line: one at the right edge, one 8 pt in.
+        let firstLine = inkBounds(rtl) { $0.redComponent > 0.9 && $0.greenComponent < 0.2 }
+        XCTAssertGreaterThanOrEqual(firstLine.maxX, 90, "The first chip must touch the right edge")
+        XCTAssertGreaterThanOrEqual(firstLine.minX, 8)
+
+        let wrapped = inkBounds(rtl) { $0.blueComponent > 0.9 && $0.redComponent < 0.2 }
+        XCTAssertGreaterThanOrEqual(wrapped.minX, 55, "The second line must start at the right edge too")
+        XCTAssertGreaterThan(wrapped.minY, 20, "The third chip is on a second line")
+    }
+
+    /// Only icons that point along the reading order turn. A folder does not.
+    func testNonDirectionalIconsStayPut() {
+        let ltr = render(folderIcon, size: CGSize(width: 16, height: 16), direction: .leftToRight)
+        let rtl = render(folderIcon, size: CGSize(width: 16, height: 16), direction: .rightToLeft)
+        XCTAssertEqual(inkCenterX(rtl), inkCenterX(ltr), accuracy: 0.5)
+    }
+
+    /// The settings slider's thumb starts at the right in Arabic; dragging
+    /// toward the left raises the value.
+    func testTheSliderThumbStartsOnTheRightInArabic() {
+        let rtl = render(slider, size: CGSize(width: 200, height: 22), direction: .rightToLeft)
+        let ltr = render(slider, size: CGSize(width: 200, height: 22), direction: .leftToRight)
+        // The thumb is near-white and the accent fill is bright; the track is dim.
+        let bright: (NSColor) -> Bool = { ($0.redComponent + $0.greenComponent + $0.blueComponent) / 3 > 0.45 }
+        XCTAssertGreaterThan(inkBounds(rtl, matching: bright).midX, 120)
+        XCTAssertLessThan(inkBounds(ltr, matching: bright).midX, 80)
+    }
+
     // MARK: - Fixtures
 
     /// A colour of its own, not SwiftUI's system red: the matchers below look
@@ -109,6 +152,31 @@ final class RightToLeftLayoutTests: XCTestCase {
         SiftMeterBar(fraction: 0.25, fill: .red)
             .frame(width: 200)
             .background(Color.black)
+    }
+
+    /// A quarter-full slider: thumb near the leading edge.
+    private var slider: some View {
+        SiftSlider(value: .constant(0.25), range: 0...1)
+            .frame(width: 200, height: 22)
+            .background(Color.black)
+    }
+
+    private var folderIcon: some View {
+        SiftIcon.folder.image(16)
+            .foregroundStyle(Color.white)
+            .frame(width: 16, height: 16)
+            .background(Color.black)
+    }
+
+    /// Three 40 pt chips in a 100 pt column: two on the first line, one below.
+    private func flowRow(direction: LayoutDirection) -> some View {
+        SiftFlowLayout(layoutDirection: direction) {
+            Self.pigment.frame(width: 40, height: 20)
+            Self.pigment.frame(width: 40, height: 20)
+            Color(.sRGB, red: 0, green: 0, blue: 1, opacity: 1).frame(width: 40, height: 20)
+        }
+        .frame(width: 100, height: 60)
+        .background(Color.black)
     }
 
     private func whereRow(direction: LayoutDirection) -> some View {
