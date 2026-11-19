@@ -523,7 +523,9 @@ actor ScanEngine {
                         size: size,
                         category: .largeFiles,
                         isSelected: false, // Don't auto-select large files
-                        lastModified: modDate
+                        lastModified: modDate,
+                        // The user's own file: it leaves through the Trash.
+                        movesToTrash: true
                     ))
                 }
             }
@@ -600,7 +602,8 @@ actor ScanEngine {
                     size: size,
                     category: .installers,
                     isSelected: false,
-                    lastModified: modDate
+                    lastModified: modDate,
+                    movesToTrash: true
                 ))
             }
         }

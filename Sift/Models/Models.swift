@@ -61,6 +61,14 @@ enum CleaningCategory: String, CaseIterable, Identifiable, Codable {
         }
     }
 
+    /// Whether this category's bytes belong in the junk total. Large & old
+    /// files and the Trash are the user's own files: they show their own
+    /// sizes, but the Overview headline and the meter's reclaimable slice must
+    /// not call them junk.
+    var countsAsJunk: Bool {
+        self != .largeFiles && self != .trash
+    }
+
     // Categories to scan in Smart Scan mode.
     //
     // `purgeableSpace` is deliberately excluded: APFS purgeable space is
