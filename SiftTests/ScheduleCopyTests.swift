@@ -2,28 +2,29 @@ import Foundation
 import XCTest
 @testable import Sift
 
-/// Settings > Schedule promises "Moves what the scan selected to the Trash".
-/// An unattended clean unlinks most rows outright, so the copy has to say so.
+/// Settings > Schedule describes what an unattended clean does. It moves the
+/// selection to the Trash, so the copy must say so and must not promise a
+/// permanent delete.
 final class ScheduleCopyTests: XCTestCase {
-    func testAutoCleanCopyDoesNotPromiseATrashMove() throws {
+    private let key = "Moves the junk the scan selected to the Trash, without asking"
+
+    func testAutoCleanCopyPromisesATrashMove() throws {
         let english = try localizedStrings(for: "en")
-        let key = "Permanently deletes the junk the scan selected, without asking"
         let copy = try XCTUnwrap(english[key])
         let lowered = copy.lowercased()
 
-        XCTAssertFalse(
-            lowered.contains("to the trash"),
-            "Auto-clean unlinks most rows: the copy must not claim they go to the Trash"
-        )
         XCTAssertTrue(
+            lowered.contains("to the trash"),
+            "A scheduled clean now moves every row to the Trash: the copy must say so"
+        )
+        XCTAssertFalse(
             lowered.contains("permanent") || lowered.contains("delete"),
-            "The copy must say the rows are deleted for good"
+            "The copy must not claim the rows are deleted for good"
         )
     }
 
     func testAutoCleanCopyExistsInEveryLanguageAndKeepsItsFormat() throws {
         let english = try localizedStrings(for: "en")
-        let key = "Permanently deletes the junk the scan selected, without asking"
         XCTAssertNotNil(english[key])
 
         for language in ["de", "es", "fr", "it", "ja", "pl", "pt-BR", "ru", "uk", "zh-Hans", "zh-Hant", "ar"] {
