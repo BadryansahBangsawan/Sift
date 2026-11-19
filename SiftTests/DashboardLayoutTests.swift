@@ -14,7 +14,9 @@ final class DashboardLayoutTests: XCTestCase {
     /// chevron 16 + the meter minimum must still leave the label something to
     /// show inside the ~292 pt card at the 1080 pt window minimum.
     func testMinimumCardWidthLeavesRoomForTheLabel() {
-        let fixed = 32 + 14 * 3 + 20 + 72 + 16 + WhereRowLayout.meterMinWidth
+        let iconTile: CGFloat = 32, gaps: CGFloat = 14 * 3, padding: CGFloat = 20
+        let sizeColumn: CGFloat = 72, chevron: CGFloat = 16
+        let fixed = iconTile + gaps + padding + sizeColumn + chevron + WhereRowLayout.meterMinWidth
         XCTAssertLessThan(fixed, 292)
         XCTAssertGreaterThanOrEqual(292 - fixed, 40)
     }

@@ -664,7 +664,13 @@ enum WhereRowLayout {
     /// Columns that never flex in a Where row: the row's own horizontal
     /// padding, the icon tile, the four 14 pt gaps, the size column and the
     /// chevron.
-    static let fixedChrome: CGFloat = 20 + 32 + 14 * 4 + 72 + 16
+    static let fixedChrome: CGFloat = {
+        // Typed one term at a time: the all-literal sum timed out Xcode 16's
+        // type checker ("unable to type-check this expression in reasonable time").
+        let padding: CGFloat = 20, iconTile: CGFloat = 32, gaps: CGFloat = 14 * 4
+        let sizeColumn: CGFloat = 72, chevron: CGFloat = 16
+        return padding + iconTile + gaps + sizeColumn + chevron
+    }()
 
     /// Width the Overview card's left column gives a Where row at
     /// `windowWidth`: window gutter on both sides, the rail and its gap, the

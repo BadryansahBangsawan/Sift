@@ -114,7 +114,9 @@ final class WhereRowWidthTests: XCTestCase {
     private func drawnMeterWidth(label: String, rowWidth: CGFloat) -> CGFloat {
         let bitmap = renderRow(label: label, rowWidth: rowWidth)
         let scale = CGFloat(bitmap.rep.pixelsWide) / max(1, rowWidth)
-        let rightEdge = rowWidth - 10 - 16 - 14 - 72 - 14
+        let padding: CGFloat = 10, chevron: CGFloat = 16, gap: CGFloat = 14, sizeColumn: CGFloat = 72
+        let trailingChrome = padding + chevron + gap + sizeColumn + gap
+        let rightEdge = rowWidth - trailingChrome
         var widths: [CGFloat] = []
         for y in stride(from: 0, to: bitmap.rep.pixelsHigh, by: 1) {
             let centerY = CGFloat(y) / scale
