@@ -280,3 +280,68 @@ final class ScheduledAutoCleanTrashTests: XCTestCase {
         }
     }
 }
+
+/// AI tool caches and logs are not opt-in rows, so a manual clean unlinks them.
+/// That is fine with the user watching; an unattended clean has to keep them
+/// recoverable like every other row it touches.
+final class UnattendedAICleanTests: XCTestCase {
+    private let fileManager = FileManager.default
+    private var home: URL!
+    private var trash: URL!
+
+    override func setUpWithError() throws {
+        try super.setUpWithError()
+        home = fileManager.temporaryDirectory
+            .appendingPathComponent("ScheduledAIClean-\(UUID().uuidString)", isDirectory: true)
+            .resolvingSymlinksInPath()
+        try fileManager.createDirectory(at: home, withIntermediateDirectories: true)
+        trash = fileManager.temporaryDirectory
+            .appendingPathComponent("ScheduledAICleanTrash-\(UUID().uuidString)", isDirectory: true)
+        try fileManager.createDirectory(at: trash, withIntermediateDirectories: true)
+    }
+
+    override func tearDownWithError() throws {
+        if let home { try? fileManager.removeItem(at: home) }
+        if let trash { try? fileManager.removeItem(at: trash) }
+        try super.tearDownWithError()
+    }
+
+    func testUnattendedCleanMovesAnAICacheToTheTrash() async throws {
+        let cache = home.appendingPathComponent(".claude/shell-snapshots", isDirectory: true)
+        try fileManager.createDirectory(at: cache, withIntermediateDirectories: true)
+        try Data(repeating: 3, count: 8_192).write(to: cache.appendingPathComponent("snapshot.sh"))
+        let item = CleanableItem(
+            name: "Claude Code Shell Snapshots",
+            path: cache.path,
+            size: 8_192,
+            category: .aiApps,
+            isSelected: true,
+            lastModified: nil
+        )
+
+        let result = await makeEngine().cleanItems([item], unattended: true) { _ in }
+
+        XCTAssertEqual(result.itemsCleaned, 1)
+        XCTAssertFalse(fileManager.fileExists(atPath: cache.path))
+        XCTAssertTrue(
+            fileManager.fileExists(atPath: trash.appendingPathComponent("shell-snapshots").path),
+            "An unattended clean must keep an AI cache recoverable"
+        )
+        XCTAssertEqual(result.trashedSpace, 8_192)
+        XCTAssertEqual(result.freedSpace, 0, "Bytes in the Trash are not freed")
+    }
+
+    // MARK: - Fixtures
+
+    private func makeEngine() -> CleaningEngine {
+        CleaningEngine(
+            homeDirectory: home,
+            isAppRunning: { _ in false },
+            trashOperation: { [trash, fileManager] url in
+                let destination = try XCTUnwrap(trash).appendingPathComponent(url.lastPathComponent)
+                try fileManager.moveItem(at: url, to: destination)
+                return destination.path
+            }
+        )
+    }
+}
