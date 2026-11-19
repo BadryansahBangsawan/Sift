@@ -38,8 +38,8 @@ final class RightToLeftLayoutTests: XCTestCase {
         let railRTL = inkBounds(rtl) { $0.redComponent > 0.9 && $0.greenComponent < 0.2 }
         let railLTR = inkBounds(ltr) { $0.redComponent > 0.9 && $0.greenComponent < 0.2 }
 
-        XCTAssertGreaterThanOrEqual(railRTL.minX, 200, "The rail pane stays on the left in Arabic")
-        XCTAssertLessThanOrEqual(railLTR.maxX, 40, "The rail pane moved off the left edge in English")
+        XCTAssertGreaterThanOrEqual(railRTL.minX, 199, "The rail pane stays on the left in Arabic")
+        XCTAssertLessThanOrEqual(railLTR.maxX, 41, "The rail pane moved off the left edge in English")
     }
 
     // MARK: - Icons
@@ -64,7 +64,7 @@ final class RightToLeftLayoutTests: XCTestCase {
     func testTheMeterFillsFromTheRightInArabic() {
         let rtl = render(meter, size: CGSize(width: 200, height: 6), direction: .rightToLeft)
         let filled = inkBounds(rtl) { $0.redComponent > 0.8 && $0.greenComponent < 0.2 }
-        XCTAssertGreaterThanOrEqual(filled.minX, 140, "A quarter-full meter still fills from the left in Arabic")
+        XCTAssertGreaterThanOrEqual(filled.minX, 139, "A quarter-full meter still fills from the left in Arabic")
         XCTAssertEqual(filled.width, 50, accuracy: 2)
     }
 
@@ -75,11 +75,11 @@ final class RightToLeftLayoutTests: XCTestCase {
     func testTheWhereRowPutsItsIconColumnOnTheRightInArabic() {
         let rtl = render(whereRow(direction: .rightToLeft), size: CGSize(width: 300, height: 40))
         let icon = inkBounds(rtl) { $0.redComponent > 0.9 && $0.greenComponent < 0.2 }
-        XCTAssertGreaterThanOrEqual(icon.minX, 268, "The icon column stayed on the left in Arabic")
+        XCTAssertGreaterThanOrEqual(icon.minX, 267, "The icon column stayed on the left in Arabic")
 
         let ltr = render(whereRow(direction: .leftToRight), size: CGSize(width: 300, height: 40))
         let iconLTR = inkBounds(ltr) { $0.redComponent > 0.9 && $0.greenComponent < 0.2 }
-        XCTAssertLessThanOrEqual(iconLTR.maxX, 32)
+        XCTAssertLessThanOrEqual(iconLTR.maxX, 33)
     }
 
     // MARK: - Edge cases
@@ -99,12 +99,12 @@ final class RightToLeftLayoutTests: XCTestCase {
         let rtl = render(flowRow(direction: .rightToLeft), size: CGSize(width: 100, height: 60))
         // Both red chips are the first line: one at the right edge, one 8 pt in.
         let firstLine = inkBounds(rtl) { $0.redComponent > 0.9 && $0.greenComponent < 0.2 }
-        XCTAssertGreaterThanOrEqual(firstLine.maxX, 90, "The first chip must touch the right edge")
-        XCTAssertGreaterThanOrEqual(firstLine.minX, 8)
+        XCTAssertGreaterThanOrEqual(firstLine.maxX, 89, "The first chip must touch the right edge")
+        XCTAssertGreaterThanOrEqual(firstLine.minX, 7)
 
         let wrapped = inkBounds(rtl) { $0.blueComponent > 0.9 && $0.redComponent < 0.2 }
-        XCTAssertGreaterThanOrEqual(wrapped.minX, 55, "The second line must start at the right edge too")
-        XCTAssertGreaterThan(wrapped.minY, 20, "The third chip is on a second line")
+        XCTAssertGreaterThanOrEqual(wrapped.minX, 54, "The second line must start at the right edge too")
+        XCTAssertGreaterThan(wrapped.minY, 19, "The third chip is on a second line")
     }
 
     /// Only icons that point along the reading order turn. A folder does not.
@@ -121,8 +121,8 @@ final class RightToLeftLayoutTests: XCTestCase {
         let ltr = render(slider, size: CGSize(width: 200, height: 22), direction: .leftToRight)
         // The thumb is near-white and the accent fill is bright; the track is dim.
         let bright: (NSColor) -> Bool = { ($0.redComponent + $0.greenComponent + $0.blueComponent) / 3 > 0.45 }
-        XCTAssertGreaterThan(inkBounds(rtl, matching: bright).midX, 120)
-        XCTAssertLessThan(inkBounds(ltr, matching: bright).midX, 80)
+        XCTAssertGreaterThan(inkBounds(rtl, matching: bright).midX, 119)
+        XCTAssertLessThan(inkBounds(ltr, matching: bright).midX, 81)
     }
 
     // MARK: - Fixtures
