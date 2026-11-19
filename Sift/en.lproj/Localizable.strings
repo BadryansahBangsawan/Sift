@@ -972,7 +972,7 @@
 "Time" = "Time";
 "After each scan" = "After each scan";
 "Minimum size" = "Minimum size";
-"Auto-clean skips scans that would free less than this" = "Auto-clean skips scans that would free less than this";
+"Auto-clean skips scans under this size" = "Auto-clean skips scans under this size";
 "A notification with what was found or cleaned" = "A notification with what was found or cleaned";
 "Runs" = "Runs";
 "Next run" = "Next run";
@@ -1369,9 +1369,12 @@
 "Scan to see whether uninstalled apps left files behind." = "Scan to see whether uninstalled apps left files behind.";
 "Couldn't compare installed apps" = "Couldn't compare installed apps";
 "Sift needs the list of installed apps before it can call a file a leftover. Try again in a moment." = "Sift needs the list of installed apps before it can call a file a leftover. Try again in a moment.";
-"Permanently deletes the junk the scan selected, without asking" = "Permanently deletes the junk the scan selected, without asking";
+"Moves the junk the scan selected to the Trash, without asking" = "Moves the junk the scan selected to the Trash, without asking";
 "Last checked %@" = "Last checked %@";
 "Scheduled scan" = "Scheduled scan";
 "No Leftovers" = "No Leftovers";
 "Scan for leftover files" = "Scan for leftover files";
 "Leftovers (%lld)" = "Leftovers (%lld)";
+"Moved to Trash: %@" = "Moved to Trash: %@";
+"Left for a manual clean: it can only be removed by hand." = "Left for a manual clean: it can only be removed by hand.";
+"Left for a manual clean: it needs administrator privileges." = "Left for a manual clean: it needs administrator privileges.";

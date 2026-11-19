@@ -972,7 +972,7 @@
 "Time" = "Время";
 "After each scan" = "После каждого сканирования";
 "Minimum size" = "Минимальный размер";
-"Auto-clean skips scans that would free less than this" = "Автоочистка не выполняется, если освободится меньше";
+"Auto-clean skips scans under this size" = "Автоочистка пропускает сканирования меньше этого размера";
 "A notification with what was found or cleaned" = "Уведомление о том, что найдено или очищено";
 "Runs" = "Запуски";
 "Next run" = "Следующий запуск";
@@ -1369,9 +1369,12 @@
 "Scan to see whether uninstalled apps left files behind." = "Запустите сканирование, чтобы узнать, оставили ли удалённые приложения файлы.";
 "Couldn't compare installed apps" = "Не удалось сравнить установленные приложения";
 "Sift needs the list of installed apps before it can call a file a leftover. Try again in a moment." = "Sift нужен список установленных приложений, чтобы считать файл остатком. Повторите попытку через минуту.";
-"Permanently deletes the junk the scan selected, without asking" = "Безвозвратно удаляет выбранный сканированием мусор, не спрашивая";
+"Moves the junk the scan selected to the Trash, without asking" = "Перемещает выбранный сканированием мусор в Корзину без запроса";
 "Last checked %@" = "Последняя проверка: %@";
 "Scheduled scan" = "Запланированная проверка";
 "No Leftovers" = "Остатков нет";
 "Scan for leftover files" = "Искать оставшиеся файлы";
 "Leftovers (%lld)" = "Остатки (%lld)";
+"Moved to Trash: %@" = "Перемещено в Корзину: %@";
+"Left for a manual clean: it can only be removed by hand." = "Оставлено для ручной очистки: удалить можно только вручную.";
+"Left for a manual clean: it needs administrator privileges." = "Оставлено для ручной очистки: нужны права администратора.";
