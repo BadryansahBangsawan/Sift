@@ -160,6 +160,7 @@ struct SpaceExplorerView: View {
                 Image(systemName: "chevron.left")
                     .font(.system(size: 13, weight: .medium))
                     .foregroundStyle(SiftColor.textSecondary)
+                    .flipsForRightToLeftLayoutDirection(true)
             }
             .buttonStyle(.siftQuiet)
             .disabled(!model.canGoBack)

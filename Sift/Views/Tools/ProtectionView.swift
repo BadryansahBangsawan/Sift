@@ -188,10 +188,20 @@ struct ProtectionView: View {
 
             HStack(spacing: 8) {
                 Link(destination: URL(string: "https://support.apple.com/guide/safari/sfri35610/mac")!) {
-                    Label("Safari privacy guide", systemImage: "arrow.up.right.square")
+                    Label {
+                        Text("Safari privacy guide")
+                    } icon: {
+                        Image(systemName: "arrow.up.right.square")
+                            .flipsForRightToLeftLayoutDirection(true)
+                    }
                 }
                 Link(destination: URL(string: "https://support.google.com/chrome/answer/17561599?hl=en")!) {
-                    Label("Chrome privacy guide", systemImage: "arrow.up.right.square")
+                    Label {
+                        Text("Chrome privacy guide")
+                    } icon: {
+                        Image(systemName: "arrow.up.right.square")
+                            .flipsForRightToLeftLayoutDirection(true)
+                    }
                 }
             }
             .buttonStyle(.sift(.secondary, compact: true))

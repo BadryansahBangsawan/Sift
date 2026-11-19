@@ -109,6 +109,7 @@ extension SiftEmptyState where Actions == EmptyView {
 struct SiftProgressBar: View {
     var fraction: Double?
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.layoutDirection) private var layoutDirection
     @State private var sweep: CGFloat = 0
 
     var body: some View {
@@ -118,12 +119,13 @@ struct SiftProgressBar: View {
             GeometryReader { proxy in
                 let width = proxy.size.width
                 let segment = max(width * 0.28, 24)
+                let direction: CGFloat = layoutDirection == .rightToLeft ? -1 : 1
                 ZStack(alignment: .leading) {
                     Capsule().fill(SiftColor.track)
                     Capsule()
                         .fill(SiftColor.accent)
                         .frame(width: segment)
-                        .offset(x: reduceMotion ? (width - segment) / 2 : -segment + (width + segment) * sweep)
+                        .offset(x: direction * (reduceMotion ? (width - segment) / 2 : -segment + (width + segment) * sweep))
                 }
                 .clipShape(Capsule())
             }
@@ -230,6 +232,7 @@ struct SiftPathBar<Leading: View, Actions: View>: View {
                 .foregroundStyle(SiftColor.textPrimary)
                 .lineLimit(1)
                 .truncationMode(.middle)
+                .siftLeftToRightValue()
                 .textSelection(.enabled)
             Spacer(minLength: 8)
             actions
