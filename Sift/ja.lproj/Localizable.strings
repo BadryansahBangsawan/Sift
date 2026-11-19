@@ -972,7 +972,7 @@
 "Time" = "時刻";
 "After each scan" = "スキャン後";
 "Minimum size" = "最小サイズ";
-"Auto-clean skips scans that would free less than this" = "解放される容量がこれより少ない場合、自動クリーンアップは実行されません";
+"Auto-clean skips scans under this size" = "このサイズ未満のスキャンでは自動クリーンアップを実行しません";
 "A notification with what was found or cleaned" = "見つかった項目やクリーンアップした内容を通知します";
 "Runs" = "実行履歴";
 "Next run" = "次回実行";
@@ -1369,9 +1369,12 @@
 "Scan to see whether uninstalled apps left files behind." = "スキャンして、削除したアプリがファイルを残していないか確認します。";
 "Couldn't compare installed apps" = "インストール済みアプリと比較できませんでした";
 "Sift needs the list of installed apps before it can call a file a leftover. Try again in a moment." = "Siftがファイルを残骸と判断するには、インストール済みアプリの一覧が必要です。しばらくしてから再度お試しください。";
-"Permanently deletes the junk the scan selected, without asking" = "スキャンで選択された不要なファイルを確認なしで完全に削除します";
+"Moves the junk the scan selected to the Trash, without asking" = "スキャンで選択された不要なファイルを確認なしでゴミ箱に移動します";
 "Last checked %@" = "最終確認: %@";
 "Scheduled scan" = "定期スキャン";
 "No Leftovers" = "残存ファイルはありません";
 "Scan for leftover files" = "残存ファイルをスキャン";
 "Leftovers (%lld)" = "残存ファイル（%lld）";
+"Moved to Trash: %@" = "%@ をゴミ箱に移動しました";
+"Left for a manual clean: it can only be removed by hand." = "手動クリーンアップ用に残しました: 手作業でのみ削除できます。";
+"Left for a manual clean: it needs administrator privileges." = "手動クリーンアップ用に残しました: 管理者権限が必要です。";

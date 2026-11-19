@@ -33,6 +33,7 @@ struct DashboardView: View {
                     appState.cleanAll(itemIDs: ids)
                 }
             )
+            .siftPresentedLayout()
         }
     }
 
@@ -155,7 +156,14 @@ private struct DashboardHero: View {
             guard hasResults else {
                 return Text("\(SiftFormat.bytes(appState.diskInfo.freeSpace)) free")
             }
-            guard appState.totalJunkSize > 0 else { return Text("Nothing to clean") }
+            guard appState.totalJunkSize > 0 || appState.personalFilesSize > 0 else {
+                return Text("Nothing to clean")
+            }
+            // Large & old files and the Trash are not junk, but saying
+            // "Nothing to clean" while their rows exist would be a lie.
+            guard appState.totalJunkSize > 0 else {
+                return Text("\(SiftFormat.bytes(appState.personalFilesSize)) reviewable")
+            }
             return Text("\(SiftFormat.bytes(appState.totalJunkSize)) is junk")
         }
     }
@@ -781,6 +789,7 @@ struct WhereRow: View {
                     .lineLimit(1)
                     .minimumScaleFactor(0.8)
                     .frame(width: 72, alignment: .trailing)
+                    .siftLeftToRightValue()
                 SiftIcon.chevronRight.image(16)
                     .foregroundStyle(isLargest ? SiftColor.accent : SiftColor.faint)
             }
@@ -1114,12 +1123,24 @@ private struct HistoryRow: View {
                 }
             }
             .frame(maxWidth: .infinity, alignment: .leading)
-            Text(verbatim: SiftFormat.bytes(record.freedBytes))
+            Text(verbatim: amountText)
                 .font(.siftMono(11.5))
                 .foregroundStyle(SiftColor.accent)
         }
         .frame(height: 38)
         .accessibilityElement(children: .combine)
+    }
+
+    /// A Trash move frees nothing yet, so the row says where the bytes went
+    /// instead of labelling them freed space.
+    private var amountText: String {
+        guard record.freedBytes == 0, record.trashedBytes > 0 else {
+            return SiftFormat.bytes(record.freedBytes)
+        }
+        return String(
+            format: String(localized: "Moved to Trash: %@"),
+            SiftFormat.bytes(record.trashedBytes)
+        )
     }
 
     /// "Developer caches · 3 hours ago"; the group name when the record has a

@@ -11,6 +11,10 @@ enum CleanupSource: String, Codable {
 struct CleanupRecord: Codable, Identifiable, Equatable {
     let date: Date
     let freedBytes: Int64
+    /// Bytes moved to the Trash by this cleanup. They are not freed — the
+    /// Trash emptier records them when it removes them — so the history must
+    /// report them apart from `freedBytes` rather than add them up.
+    let trashedBytes: Int64
     let source: CleanupSource
     /// Short label for the history row, e.g. a category name or "Emptied
     /// Trash". Absent in records written before titles existed.
@@ -26,8 +30,20 @@ struct CleanupRecord: Codable, Identifiable, Equatable {
     }
 
     private enum CodingKeys: String, CodingKey {
-        case date, freedBytes, source, title
+        case date, freedBytes, source, title, trashedBytes
         case categoryRawValue = "category"
+    }
+
+    /// Records written before scheduled cleans went to the Trash have no
+    /// `trashedBytes`; they decode as zero freed by a Trash move.
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        date = try container.decode(Date.self, forKey: .date)
+        freedBytes = try container.decode(Int64.self, forKey: .freedBytes)
+        trashedBytes = try container.decodeIfPresent(Int64.self, forKey: .trashedBytes) ?? 0
+        source = try container.decode(CleanupSource.self, forKey: .source)
+        title = try container.decodeIfPresent(String.self, forKey: .title)
+        categoryRawValue = try container.decodeIfPresent(String.self, forKey: .categoryRawValue)
     }
 
     init(
@@ -35,10 +51,12 @@ struct CleanupRecord: Codable, Identifiable, Equatable {
         freedBytes: Int64,
         source: CleanupSource,
         title: String? = nil,
-        category: CleaningCategory? = nil
+        category: CleaningCategory? = nil,
+        trashedBytes: Int64 = 0
     ) {
         self.date = date
         self.freedBytes = freedBytes
+        self.trashedBytes = trashedBytes
         self.source = source
         self.title = title
         self.categoryRawValue = category?.rawValue
@@ -94,6 +112,7 @@ final class CleanupHistoryStore {
     @discardableResult
     func record(
         freedBytes: Int64,
+        trashedBytes: Int64 = 0,
         source: CleanupSource,
         title: String? = nil,
         category: CleaningCategory? = nil,
@@ -101,7 +120,14 @@ final class CleanupHistoryStore {
     ) -> [CleanupRecord] {
         var records = load()
         records.insert(
-            CleanupRecord(date: date, freedBytes: freedBytes, source: source, title: title, category: category),
+            CleanupRecord(
+                date: date,
+                freedBytes: freedBytes,
+                source: source,
+                title: title,
+                category: category,
+                trashedBytes: trashedBytes
+            ),
             at: 0
         )
         if records.count > Self.maxRecords {

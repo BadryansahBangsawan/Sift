@@ -82,6 +82,7 @@ struct MainWindow: View {
             set: { if !$0 && permission.presentation == .mainWindow { permission.dismiss(callRetry: false) } }
         )) {
             PermissionSheet()
+                .siftPresentedLayout()
         }
     }
 
@@ -575,6 +576,7 @@ struct RailRow: View {
                 Text(verbatim: shortcut)
                     .font(.siftMono(10.5))
                     .foregroundStyle(SiftColor.textTertiary)
+                    .siftLeftToRightValue()
             }
         }
         .padding(.horizontal, RailRowLayout.horizontalPadding)

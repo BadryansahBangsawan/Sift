@@ -2,6 +2,28 @@
 
 All notable user-facing changes to Sift. Sift was called PureMac before 4.0.0.
 
+## Unreleased
+
+### Changed
+
+- Large & old files and Installers move to the Trash instead of being deleted
+  permanently, so they can be recovered until the Trash is emptied.
+- The “X is junk” headline and the disk meter count only junk. Large & old files
+  and the Trash keep their own sizes and no longer inflate that total; when the
+  only rows found are personal files, the Overview says they are reviewable.
+- A scheduled auto-clean moves what it removes to the Trash instead of deleting
+  it: it runs while nobody is watching, so its cleanup stays recoverable. Rows
+  it cannot trash — Docker prune, simulator runtimes, anything that needs an
+  administrator password — stay selected for the next manual clean, and the
+  history says "Moved to Trash" instead of counting those bytes as freed.
+- Arabic lays out right-to-left: the rail sits on the right, chevrons and the
+  Back arrow point the other way, the storage meter and the progress bars fill
+  from the right, and the Where-it-sits rows, the excluded-folder chips, the
+  Settings slider and the menu-bar popover mirror with the window. macOS gives
+  an app the system's direction and not its own, so every window, the Settings
+  scene and the popover now state the direction of the language they resolved;
+  the other twelve languages stay left-to-right.
+
 ## 4.0.2
 
 ### Fixed

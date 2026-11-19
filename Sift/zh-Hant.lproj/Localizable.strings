@@ -972,7 +972,7 @@
 "Time" = "時間";
 "After each scan" = "每次掃描後";
 "Minimum size" = "最小大小";
-"Auto-clean skips scans that would free less than this" = "可釋放空間小於此值時，略過自動清理";
+"Auto-clean skips scans under this size" = "自動清理會略過小於此大小的掃描";
 "A notification with what was found or cleaned" = "傳送通知，告知找到或清理的內容";
 "Runs" = "執行紀錄";
 "Next run" = "下次執行";
@@ -1369,9 +1369,12 @@
 "Scan to see whether uninstalled apps left files behind." = "掃描以查看已解除安裝的應用程式是否留下了檔案。";
 "Couldn't compare installed apps" = "無法與已安裝的應用程式比較";
 "Sift needs the list of installed apps before it can call a file a leftover. Try again in a moment." = "Sift 需要已安裝應用程式的列表，才能判斷檔案是否為殘留。請稍後再試。";
-"Permanently deletes the junk the scan selected, without asking" = "無需確認即可永久刪除掃描所選的垃圾檔案";
+"Moves the junk the scan selected to the Trash, without asking" = "將掃描選取的無用檔案移到垃圾桶，不會詢問";
 "Last checked %@" = "上次檢查：%@";
 "Scheduled scan" = "定時掃描";
 "No Leftovers" = "沒有殘留檔案";
 "Scan for leftover files" = "掃描殘留檔案";
 "Leftovers (%lld)" = "殘留檔案（%lld）";
+"Moved to Trash: %@" = "已移到垃圾桶：%@";
+"Left for a manual clean: it can only be removed by hand." = "已留待手動清理：只能手動刪除。";
+"Left for a manual clean: it needs administrator privileges." = "已留待手動清理：需要管理員權限。";

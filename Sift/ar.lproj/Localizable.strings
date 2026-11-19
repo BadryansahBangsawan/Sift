@@ -972,7 +972,7 @@
 "Time" = "الوقت";
 "After each scan" = "بعد كل فحص";
 "Minimum size" = "الحد الأدنى للحجم";
-"Auto-clean skips scans that would free less than this" = "يتخطى التنظيف التلقائي عمليات الفحص التي ستحرّر مساحة أقل من هذا";
+"Auto-clean skips scans under this size" = "يتخطى التنظيف التلقائي عمليات الفحص التي تقل عن هذا الحجم";
 "A notification with what was found or cleaned" = "إشعار بما تم العثور عليه أو تنظيفه";
 "Runs" = "عمليات التشغيل";
 "Next run" = "التشغيل التالي";
@@ -1369,9 +1369,12 @@
 "Scan to see whether uninstalled apps left files behind." = "افحص لمعرفة ما إذا تركت التطبيقات المحذوفة ملفات.";
 "Couldn't compare installed apps" = "تعذّر مقارنة التطبيقات المثبتة";
 "Sift needs the list of installed apps before it can call a file a leftover. Try again in a moment." = "يحتاج Sift إلى قائمة التطبيقات المثبتة قبل اعتبار الملف مخلفًا. أعد المحاولة بعد قليل.";
-"Permanently deletes the junk the scan selected, without asking" = "يحذف نهائيًا الملفات غير الضرورية التي حددها الفحص دون سؤال";
+"Moves the junk the scan selected to the Trash, without asking" = "ينقل الملفات غير الضرورية التي حددها الفحص إلى سلة المهملات دون سؤال";
 "Last checked %@" = "آخر فحص: %@";
 "Scheduled scan" = "فحص مجدول";
 "No Leftovers" = "لا بقايا";
 "Scan for leftover files" = "فحص الملفات المتبقية";
 "Leftovers (%lld)" = "البقايا (%lld)";
+"Moved to Trash: %@" = "تم النقل إلى سلة المهملات: %@";
+"Left for a manual clean: it can only be removed by hand." = "تُرك للتنظيف اليدوي: لا يمكن حذفه إلا يدويًا.";
+"Left for a manual clean: it needs administrator privileges." = "تُرك للتنظيف اليدوي: يتطلب امتيازات المسؤول.";

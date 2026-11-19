@@ -71,6 +71,15 @@ enum SiftIcon: String {
         }
     }
 
+    /// Icons that point along the reading order. They turn with the layout;
+    /// a folder, a switch or a chart does not.
+    var mirrorsInRightToLeft: Bool {
+        switch self {
+        case .chevronRight, .externalLink: return true
+        default: return false
+        }
+    }
+
     private static func available(_ name: String) -> Bool {
         NSImage(systemSymbolName: name, accessibilityDescription: nil) != nil
     }
@@ -81,5 +90,6 @@ enum SiftIcon: String {
         Image(systemName: Self.available(symbol) ? symbol : "circle")
             .font(.system(size: size * 0.9, weight: .regular))
             .frame(width: size, height: size)
+            .flipsForRightToLeftLayoutDirection(mirrorsInRightToLeft)
     }
 }

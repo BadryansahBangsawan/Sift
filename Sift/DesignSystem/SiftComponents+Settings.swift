@@ -164,6 +164,7 @@ struct SiftValueBox: View {
             Text(verbatim: value).font(.siftMono(13)).foregroundStyle(SiftColor.textPrimary)
             unit.font(.sift(11)).foregroundStyle(SiftColor.textTertiary)
         }
+        .siftLeftToRightValue()
         .frame(minWidth: 92, minHeight: 36)
         .background(RoundedRectangle(cornerRadius: 12, style: .continuous).fill(SiftColor.window))
         .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous).strokeBorder(SiftColor.accentStroke, lineWidth: 1))
@@ -276,7 +277,9 @@ private final class SiftMenuItem: NSMenuItem {
 
 // MARK: - Path chips
 
-/// Wraps children onto new lines, left-aligned, like CSS `flex-wrap`.
+/// Wraps children onto new lines from the leading edge, like CSS `flex-wrap`.
+/// SwiftUI mirrors a custom `Layout`'s placements for a right-to-left layout,
+/// so the rows need no direction of their own.
 struct SiftFlowLayout: Layout {
     var spacing: CGFloat = 8
     var lineSpacing: CGFloat = 8
@@ -337,6 +340,7 @@ struct SiftPathChip: View {
                 .lineLimit(1)
                 .truncationMode(.middle)
                 .frame(maxWidth: 360, alignment: .leading)
+                .siftLeftToRightValue()
                 .help(path)
             Button(action: remove) {
                 SiftIcon.x.image(12)

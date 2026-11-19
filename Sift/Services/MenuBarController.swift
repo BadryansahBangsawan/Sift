@@ -61,7 +61,9 @@ final class MenuBarController: NSObject, NSPopoverDelegate {
 
         popover.behavior = .transient
         popover.contentSize = NSSize(width: 248, height: 230)
-        popover.contentViewController = NSHostingController(rootView: MenuBarMonitorView())
+        popover.contentViewController = NSHostingController(
+            rootView: MenuBarMonitorView().siftLayoutDirection(AppLayoutDirection.current)
+        )
         popover.delegate = self
 
         // Refresh the menu-bar CPU readout each time the monitor samples.

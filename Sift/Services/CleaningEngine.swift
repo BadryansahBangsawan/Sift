@@ -1,5 +1,14 @@
 import Foundation
 
+/// The real Trash move. NSError from this call is what makes a Trash failure
+/// an error: nothing falls back to unlinking the path.
+func systemTrashItem(_ url: URL) throws -> String? {
+    var resulting: NSURL?
+    try FileManager.default.trashItem(at: url, resultingItemURL: &resulting)
+    guard let resulting else { return nil }
+    return resulting.path
+}
+
 actor CleaningEngine {
     private let fileManager = FileManager.default
     /// Always symlink-resolved so allow-listed roots agree with ScanEngine and
@@ -9,19 +18,29 @@ actor CleaningEngine {
     /// Whether an app with this bundle identifier is running. The Claude VM
     /// bundle is refused while Claude runs; injectable for tests.
     private let isAppRunning: (String) -> Bool
+    /// Moves a path to the Trash and returns its destination. Injectable so a
+    /// test can point the Trash at a temporary directory instead of the real
+    /// one in the user's home.
+    private let trashOperation: (URL) throws -> String?
 
     init(
         homeDirectory: URL = FileManager.default.homeDirectoryForCurrentUser,
         isAppRunning: @escaping (String) -> Bool = { bundleID in
             RunningAppGuard.systemIsRunning(bundleIdentifier: bundleID, appURL: nil)
-        }
+        },
+        trashOperation: @escaping (URL) throws -> String? = systemTrashItem
     ) {
         self.homeDirectory = XcodeBuildMCPDerivedDataSupport.canonicalHomeDirectory(homeDirectory)
         self.isAppRunning = isAppRunning
+        self.trashOperation = trashOperation
     }
 
     struct CleaningResult {
         var freedSpace: Int64 = 0
+        /// Bytes moved to the Trash. Not freed: they stay on disk until the
+        /// Trash is emptied, which records those bytes itself. Reported
+        /// separately so a cleanup never claims freed space it did not free.
+        var trashedSpace: Int64 = 0
         var itemsCleaned: Int = 0
         var errors: [String] = []
         var cleanedPaths: Set<String> = []
@@ -48,7 +67,15 @@ actor CleaningEngine {
 
     // MARK: - Public API
 
-    func cleanItems(_ items: [CleanableItem], progressHandler: @Sendable (Double) -> Void) async -> CleaningResult {
+    /// `unattended` is the scheduled clean: nobody is watching, so everything
+    /// it touches has to stay recoverable. Every row goes to the Trash, and a
+    /// row that cannot (an action, a simulator runtime, anything root-owned)
+    /// is left for the user's next manual clean instead of being deleted.
+    func cleanItems(
+        _ items: [CleanableItem],
+        unattended: Bool = false,
+        progressHandler: @Sendable (Double) -> Void
+    ) async -> CleaningResult {
         var result = CleaningResult()
         let total = items.count
         let exclusions = CleanupExclusions.paths()
@@ -67,6 +94,14 @@ actor CleaningEngine {
                     lastReportedStep = step
                     progressHandler(progress)
                 }
+            }
+            if unattended && item.isActionItem {
+                // Docker prune, the purgeable-space entry, a simulator
+                // runtime: nothing on disk to move to the Trash.
+                result.skippedPaths[item.path] = String(
+                    localized: "Left for a manual clean: it can only be removed by hand."
+                )
+                continue
             }
             if CleanupExclusions.excludes(item.path, paths: exclusions) {
                 result.skippedPaths[item.path] = String(
@@ -265,13 +300,14 @@ actor CleaningEngine {
 
                 if item.category == .aiApps {
                     // Caches/logs are unlinked; opt-in history is moved to the
-                    // Trash so it stays recoverable. A session's companion
-                    // folder goes with the transcript, and the item only
-                    // counts as cleaned when both are gone.
-                    let useTrash = AIToolCleanupCatalog.entry(
+                    // Trash so it stays recoverable. An unattended clean moves
+                    // every AI row there, cache or history. A session's
+                    // companion folder goes with the transcript, and the item
+                    // only counts as cleaned when both are gone.
+                    let useTrash = unattended || (AIToolCleanupCatalog.entry(
                         for: item.path,
                         home: homeDirectory.path
-                    )?.isOptIn ?? false
+                    )?.isOptIn ?? false)
                     if let trashed = try removeAIPath(at: resolvedURL, useTrash: useTrash) {
                         result.trashedPaths.insert(trashed)
                     }
@@ -302,7 +338,9 @@ actor CleaningEngine {
                         // A Trash move reclaims nothing until the Trash is
                         // emptied (emptyTrash records those bytes itself), so
                         // only unlinked caches and logs count as freed here.
-                        if !useTrash {
+                        if useTrash {
+                            result.trashedSpace += item.size
+                        } else {
                             result.freedSpace += item.size
                         }
                         result.itemsCleaned += 1
@@ -345,23 +383,22 @@ actor CleaningEngine {
                     }
                     // Sift's safety contract is Trash-only for recoverable
                     // cleanup. XcodeBuildMCP DerivedData must not be unlinked.
-                    var resulting: NSURL?
-                    try fileManager.trashItem(at: resolvedURL, resultingItemURL: &resulting)
-                    if let trashedPath = resulting?.path {
+                    if let trashedPath = try trashOperation(resolvedURL) {
                         result.trashedPaths.insert(trashedPath)
                     }
                     // Trashed, not unlinked: the bytes are still on disk until
                     // the Trash is emptied (which records them itself), so this
                     // item must not add to freedSpace here.
-                } else if item.movesToTrash {
+                    result.trashedSpace += item.size
+                } else if item.movesToTrash || unattended {
                     // Rows the user opted into that hold work rather than junk
                     // (Xcode Archives) leave through the Trash so they stay
-                    // recoverable.
-                    var resulting: NSURL?
-                    try fileManager.trashItem(at: resolvedURL, resultingItemURL: &resulting)
-                    if let trashedPath = resulting?.path {
+                    // recoverable. An unattended clean sends every row there
+                    // for the same reason: nobody is watching to undo it.
+                    if let trashedPath = try trashOperation(resolvedURL) {
                         result.trashedPaths.insert(trashedPath)
                     }
+                    result.trashedSpace += item.size
                 } else {
                     try fileManager.removeItem(at: itemURL)
                     result.freedSpace += item.size
@@ -376,7 +413,26 @@ actor CleaningEngine {
                          nsError.code == NSFileReadNoPermissionError)) ||
                     (nsError.domain == NSPOSIXErrorDomain &&
                         (nsError.code == Int(EACCES) || nsError.code == Int(EPERM)))
+                if item.movesToTrash {
+                    // A recoverable row must never be escalated to the admin
+                    // pass, which unlinks with /bin/rm: if the Trash move
+                    // failed, report it and leave the file where it is.
+                    let detail = "\(item.name) at \(item.path): \(error.localizedDescription)"
+                    result.errors.append(detail)
+                    Logger.shared.log("Clean failed: \(detail)", level: .error)
+                    continue
+                }
                 if isPermissionDenied {
+                    if unattended {
+                        // A scheduled clean cannot ask for an administrator
+                        // password, and it must not leave a delete half-done:
+                        // the row stays where it is for the next manual review.
+                        result.skippedPaths[item.path] = String(
+                            localized: "Left for a manual clean: it needs administrator privileges."
+                        )
+                        Logger.shared.log("Scheduled clean left a root-owned path: \(item.path)", level: .info)
+                        continue
+                    }
                     if item.category == .aiApps {
                         let detail = "AI app cleanup requires access as the current user: \(item.path)"
                         result.errors.append(detail)
@@ -745,9 +801,7 @@ actor CleaningEngine {
     /// an opt-in history item was moved instead of unlinked.
     private func removeAIPath(at url: URL, useTrash: Bool) throws -> String? {
         if useTrash {
-            var resulting: NSURL?
-            try fileManager.trashItem(at: url, resultingItemURL: &resulting)
-            return resulting?.path
+            return try trashOperation(url)
         }
         try fileManager.removeItem(at: url)
         return nil

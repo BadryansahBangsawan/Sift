@@ -972,7 +972,7 @@
 "Time" = "Hora";
 "After each scan" = "Tras cada análisis";
 "Minimum size" = "Tamaño mínimo";
-"Auto-clean skips scans that would free less than this" = "La limpieza automática omite los análisis que liberarían menos de esto";
+"Auto-clean skips scans under this size" = "La limpieza automática omite los análisis por debajo de este tamaño";
 "A notification with what was found or cleaned" = "Una notificación con lo que se encontró o limpió";
 "Runs" = "Ejecuciones";
 "Next run" = "Próxima ejecución";
@@ -1369,9 +1369,12 @@
 "Scan to see whether uninstalled apps left files behind." = "Analiza para ver si las apps desinstaladas dejaron archivos.";
 "Couldn't compare installed apps" = "No se pudieron comparar las apps instaladas";
 "Sift needs the list of installed apps before it can call a file a leftover. Try again in a moment." = "Sift necesita la lista de apps instaladas antes de llamar a un archivo sobrante. Inténtalo en un momento.";
-"Permanently deletes the junk the scan selected, without asking" = "Elimina definitivamente la basura que seleccionó el análisis, sin preguntar";
+"Moves the junk the scan selected to the Trash, without asking" = "Mueve a la papelera la basura que seleccionó el análisis, sin preguntar";
 "Last checked %@" = "Última comprobación: %@";
 "Scheduled scan" = "Análisis programado";
 "No Leftovers" = "Sin restos";
 "Scan for leftover files" = "Buscar archivos restantes";
 "Leftovers (%lld)" = "Restos (%lld)";
+"Moved to Trash: %@" = "Movido a la papelera: %@";
+"Left for a manual clean: it can only be removed by hand." = "Se deja para una limpieza manual: solo se puede eliminar a mano.";
+"Left for a manual clean: it needs administrator privileges." = "Se deja para una limpieza manual: requiere privilegios de administrador.";

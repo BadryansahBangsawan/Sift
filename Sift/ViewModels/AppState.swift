@@ -77,6 +77,13 @@ final class AppState: ObservableObject {
     @Published var categoryResults: [CleaningCategory: CategoryResult] = [:]
     @Published var diskInfo = DiskInfo()
     @Published var totalJunkSize: Int64 = 0
+    /// Large & old files and the Trash, shown with their own sizes but kept
+    /// out of `totalJunkSize` because they are the user's own files.
+    var personalFilesSize: Int64 {
+        categoryResults.values
+            .filter { !$0.category.countsAsJunk }
+            .reduce(0) { $0 + $1.totalSize }
+    }
     @Published var totalFreedSpace: Int64 = 0
     /// Completed cleanups, newest first. Persisted by `CleanupHistoryStore`
     /// outside the app bundle so the dashboard survives relaunches.
@@ -741,6 +748,15 @@ final class AppState: ObservableObject {
         objectWillChange.send()
     }
 
+    /// Recomputes the junk headline from every category that counts as junk.
+    /// The rule lives in `CleaningCategory.countsAsJunk`, so no cleanup, scan,
+    /// or Trash path can drift from it.
+    func recomputeTotalJunkSize() {
+        totalJunkSize = categoryResults.values
+            .filter { $0.category.countsAsJunk }
+            .reduce(0) { $0 + $1.totalSize }
+    }
+
     var excludedCleanupPaths: [String] {
         CleanupExclusions.paths()
     }
@@ -751,7 +767,7 @@ final class AppState: ObservableObject {
         for (category, result) in categoryResults {
             categoryResults[category] = applyingCleanupExclusions(to: result)
         }
-        totalJunkSize = categoryResults.values.reduce(0) { $0 + $1.totalSize }
+        recomputeTotalJunkSize()
     }
 
     func removeCleanupExclusion(_ path: String) {
@@ -940,7 +956,7 @@ final class AppState: ObservableObject {
                 totalSize: remaining.reduce(0) { $0 + $1.size }
             )
         }
-        totalJunkSize = categoryResults.values.reduce(0) { $0 + $1.totalSize }
+        recomputeTotalJunkSize()
 
         // Route survivors back through the same outcome path the original
         // cleanup uses. Without this, an FDA revocation between grant and
@@ -1013,7 +1029,7 @@ final class AppState: ObservableObject {
                 }
                 guard !Task.isCancelled, scanGeneration == generation else { return }
                 categoryResults[category] = applyingCleanupExclusions(to: result)
-                totalJunkSize = categoryResults.values.reduce(0) { $0 + $1.totalSize }
+                recomputeTotalJunkSize()
             }
             if replacingResults {
                 let containers = await scanEngine.containersSize { [weak self] path in
@@ -1042,10 +1058,16 @@ final class AppState: ObservableObject {
         let itemsToClean = allResults.flatMap { $0.items }.filter { item in
             guard itemIDs?.contains(item.id) ?? true else { return false }
             guard isItemSelected(item) else { return false }
-            if scheduled && XcodeBuildMCPDerivedDataSupport.isManagedDerivedDataPath(item.path) {
-                // Scheduled XcodeBuildMCP cleanup is intentionally stricter
-                // than ordinary Xcode Junk: only old, unlocked rows qualify.
-                return XcodeBuildMCPDerivedDataSupport.isEligibleForScheduledAutoClean(item)
+            if scheduled {
+                // Nobody is watching a scheduled clean, so a row that cannot
+                // go to the Trash stays where it is: the user can remove it in
+                // the next manual review.
+                guard !item.isActionItem else { return false }
+                if XcodeBuildMCPDerivedDataSupport.isManagedDerivedDataPath(item.path) {
+                    // Scheduled XcodeBuildMCP cleanup is intentionally stricter
+                    // than ordinary Xcode Junk: only old, unlocked rows qualify.
+                    return XcodeBuildMCPDerivedDataSupport.isEligibleForScheduledAutoClean(item)
+                }
             }
             return true
         }
@@ -1057,7 +1079,7 @@ final class AppState: ObservableObject {
         cleanProgress = 0
 
         Task {
-            var result = await cleaningEngine.cleanItems(itemsToClean) { [weak self] progress in
+            var result = await cleaningEngine.cleanItems(itemsToClean, unattended: scheduled) { [weak self] progress in
                 Task { @MainActor [weak self] in
                     guard let self, self.cleanupGeneration == generation, case .cleaning = self.scanState else { return }
                     self.cleanProgress = progress
@@ -1066,8 +1088,10 @@ final class AppState: ObservableObject {
             }
 
             // Escalate root-owned items via "with administrator privileges".
-            // One auth prompt covers the entire batch.
-            if !result.requiresAdmin.isEmpty {
+            // One auth prompt covers the entire batch. An unattended clean
+            // never escalates: it cannot stop to ask, so those rows are left
+            // for the next manual review instead.
+            if !scheduled, !result.requiresAdmin.isEmpty {
                 let admin = await cleaningEngine.cleanWithAdminPrivileges(items: result.requiresAdmin)
                 result.cleanedPaths.formUnion(admin.cleanedPaths)
                 result.itemsCleaned += admin.itemsCleaned
@@ -1078,7 +1102,7 @@ final class AppState: ObservableObject {
             }
 
             totalFreedSpace = result.freedSpace
-            if result.freedSpace > 0 {
+            if result.freedSpace > 0 || result.trashedSpace > 0 {
                 recordCleanup(of: itemsToClean, result: result, source: scheduled ? .scheduled : .manual)
             }
             if result.itemsCleaned > 0 { lastCleanedDate = Date() }
@@ -1099,7 +1123,7 @@ final class AppState: ObservableObject {
                     totalSize: remaining.reduce(0) { $0 + $1.size }
                 )
             }
-            totalJunkSize = categoryResults.values.reduce(0) { $0 + $1.totalSize }
+            recomputeTotalJunkSize()
 
             handleCleanOutcome(errors: result.errors, survivors: survivors, skips: result.skippedPaths)
 
@@ -1158,7 +1182,7 @@ final class AppState: ObservableObject {
                     totalSize: remaining.reduce(0) { $0 + $1.size }
                 )
             }
-            totalJunkSize = categoryResults.values.reduce(0) { $0 + $1.totalSize }
+            recomputeTotalJunkSize()
 
             let survivors = survivingItems(from: selectedItems, result: cleanResult)
             handleCleanOutcome(errors: cleanResult.errors, survivors: survivors, skips: cleanResult.skippedPaths)
@@ -1189,6 +1213,7 @@ final class AppState: ObservableObject {
         }
         cleanupHistory = historyStore.record(
             freedBytes: result.freedSpace,
+            trashedBytes: result.trashedSpace,
             source: source,
             title: title,
             category: category
@@ -1294,7 +1319,7 @@ final class AppState: ObservableObject {
 
         // Keep the scanned state: an emptied Trash is empty, not unscanned.
         categoryResults[.trash] = after
-        totalJunkSize = categoryResults.values.reduce(0) { $0 + $1.totalSize }
+        recomputeTotalJunkSize()
 
         let freed = max(0, before.totalSize - after.totalSize)
         if freed > 0 {
@@ -1349,8 +1374,8 @@ final class AppState: ObservableObject {
             && !PermissionCoordinator.shared.isRequesting
     }
 
-    func runScheduledScan() async {
-        guard canRunScheduledScan(isAppActive: NSApp.isActive) else { return }
+    func runScheduledScan(isAppActive: Bool = NSApp.isActive) async {
+        guard canRunScheduledScan(isAppActive: isAppActive) else { return }
         let categories = scheduler.config.categoriesToScan.filter { CleaningCategory.scannable.contains($0) }
         guard !categories.isEmpty else { return }
         let generation = UUID()
@@ -1367,7 +1392,7 @@ final class AppState: ObservableObject {
             let result = applyingCleanupExclusions(to: await scanEngine.scanCategory(category))
             guard scanGeneration == generation, !Task.isCancelled else { return }
             categoryResults[category] = result
-            totalJunkSize += result.totalSize
+            recomputeTotalJunkSize()
         }
         scanProgress = 1
         lastScanDate = Date()
