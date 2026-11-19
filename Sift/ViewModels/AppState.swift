@@ -1365,8 +1365,8 @@ final class AppState: ObservableObject {
             && !PermissionCoordinator.shared.isRequesting
     }
 
-    func runScheduledScan() async {
-        guard canRunScheduledScan(isAppActive: NSApp.isActive) else { return }
+    func runScheduledScan(isAppActive: Bool = NSApp.isActive) async {
+        guard canRunScheduledScan(isAppActive: isAppActive) else { return }
         let categories = scheduler.config.categoriesToScan.filter { CleaningCategory.scannable.contains($0) }
         guard !categories.isEmpty else { return }
         let generation = UUID()
