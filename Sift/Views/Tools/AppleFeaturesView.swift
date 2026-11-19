@@ -104,11 +104,13 @@ struct AppleFeaturesView: View {
                 pendingRemoval = nil
                 removeBackups(selection.backups)
             }
+            .siftPresentedLayout()
         }
         .sheet(item: $aiPlan) { plan in
             AppleIntelligenceReviewSheet(plan: plan, onApply: applyAppleIntelligence) {
                 aiPlan = nil
             }
+            .siftPresentedLayout()
         }
         .onAppear(perform: refreshAppleIntelligence)
         .onDisappear {

@@ -106,6 +106,7 @@ struct CategoryDetailView: View {
                     remove(selection.items)
                 }
             )
+            .siftPresentedLayout()
         }
         .confirmationDialog(
             Text("Empty the Trash?"),

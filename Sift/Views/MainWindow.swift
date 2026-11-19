@@ -82,6 +82,7 @@ struct MainWindow: View {
             set: { if !$0 && permission.presentation == .mainWindow { permission.dismiss(callRetry: false) } }
         )) {
             PermissionSheet()
+                .siftPresentedLayout()
         }
     }
 

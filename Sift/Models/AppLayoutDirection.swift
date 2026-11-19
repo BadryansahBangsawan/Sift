@@ -45,6 +45,14 @@ extension View {
         environment(\.layoutDirection, direction)
     }
 
+    /// A sheet or popover is its own hosting root on macOS: it does not inherit
+    /// the window's `layoutDirection`, so every presentation wraps its content
+    /// with this. (`NSAlert`-drawn alerts take the system direction regardless
+    /// of the SwiftUI environment and cannot be turned here.)
+    func siftPresentedLayout(_ direction: LayoutDirection = AppLayoutDirection.current) -> some View {
+        siftLayoutDirection(direction)
+    }
+
     /// Values that read the same in every language — byte counts, paths,
     /// bundle ids, key equivalents — keep their order inside an RTL row.
     func siftLeftToRightValue() -> some View {

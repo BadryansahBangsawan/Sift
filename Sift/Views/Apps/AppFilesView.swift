@@ -141,6 +141,7 @@ struct AppFilesView: View {
         )) {
             if let plan = dryRunPlan {
                 DryRunSheet(appName: app.appName, plan: plan) { dryRunPlan = nil }
+                    .siftPresentedLayout()
             }
         }
         .onChange(of: appState.removalNeedsFullDiskAccess) { needs in
