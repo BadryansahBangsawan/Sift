@@ -2,6 +2,16 @@
 
 All notable user-facing changes to Sift. Sift was called PureMac before 4.0.0.
 
+## Unreleased
+
+### Changed
+
+- A scheduled auto-clean moves what it removes to the Trash instead of deleting
+  it: it runs while nobody is watching, so its cleanup stays recoverable. Rows
+  it cannot trash — Docker prune, simulator runtimes, anything that needs an
+  administrator password — stay selected for the next manual clean, and the
+  history says "Moved to Trash" instead of counting those bytes as freed.
+
 ## 4.0.2
 
 ### Fixed
