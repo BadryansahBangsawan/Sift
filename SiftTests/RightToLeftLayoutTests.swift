@@ -9,6 +9,22 @@ import XCTest
 /// the hand-drawn bars to it.
 @MainActor
 final class RightToLeftLayoutTests: XCTestCase {
+    // MARK: - Live hosting
+
+    /// The window sets the direction at its root, so the Overview row gets it
+    /// from the environment only — the way the app hosts it. A custom `Layout`
+    /// is already mirrored by SwiftUI; the row must not mirror its columns too.
+    func testTheOverviewRowPutsTheIconTileOnTheRightInArabic() {
+        let rtl = render(overviewRow, size: CGSize(width: 600, height: 48), direction: .rightToLeft)
+        XCTAssertGreaterThanOrEqual(
+            tileMinX(rtl), 520,
+            "The Overview row runs left-to-right inside an RTL window: icon tile at \(Int(tileMinX(rtl))) pt"
+        )
+
+        let ltr = render(overviewRow, size: CGSize(width: 600, height: 48), direction: .leftToRight)
+        XCTAssertLessThanOrEqual(tileMinX(ltr), 40, "The English row moved off the left edge")
+    }
+
     // MARK: - Root direction
 
     func testArabicResolvesToARightToLeftRoot() {
@@ -70,14 +86,14 @@ final class RightToLeftLayoutTests: XCTestCase {
 
     // MARK: - Custom layout
 
-    /// `WhereRowLayout.Row` places its five columns by hand, so it must read
-    /// the direction itself: the icon column goes on the right in Arabic.
+    /// `WhereRowLayout.Row` places its five columns by hand; SwiftUI mirrors
+    /// those placements itself, so the icon column goes on the right in Arabic.
     func testTheWhereRowPutsItsIconColumnOnTheRightInArabic() {
-        let rtl = render(whereRow(direction: .rightToLeft), size: CGSize(width: 300, height: 40))
+        let rtl = render(whereRowBlocks, size: CGSize(width: 300, height: 40), direction: .rightToLeft)
         let icon = inkBounds(rtl) { $0.redComponent > 0.9 && $0.greenComponent < 0.2 }
         XCTAssertGreaterThanOrEqual(icon.minX, 267, "The icon column stayed on the left in Arabic")
 
-        let ltr = render(whereRow(direction: .leftToRight), size: CGSize(width: 300, height: 40))
+        let ltr = render(whereRowBlocks, size: CGSize(width: 300, height: 40), direction: .leftToRight)
         let iconLTR = inkBounds(ltr) { $0.redComponent > 0.9 && $0.greenComponent < 0.2 }
         XCTAssertLessThanOrEqual(iconLTR.maxX, 33)
     }
@@ -96,7 +112,7 @@ final class RightToLeftLayoutTests: XCTestCase {
     /// The chips in a settings group wrap from the leading edge; Arabic starts
     /// each line at the right and wraps to a second line above.
     func testTheFlowLayoutFillsFromTheRightInArabic() {
-        let rtl = render(flowRow(direction: .rightToLeft), size: CGSize(width: 100, height: 60))
+        let rtl = render(flowRow, size: CGSize(width: 100, height: 60), direction: .rightToLeft)
         // Both red chips are the first line: one at the right edge, one 8 pt in.
         let firstLine = inkBounds(rtl) { $0.redComponent > 0.9 && $0.greenComponent < 0.2 }
         XCTAssertGreaterThanOrEqual(firstLine.maxX, 89, "The first chip must touch the right edge")
@@ -154,6 +170,15 @@ final class RightToLeftLayoutTests: XCTestCase {
             .background(Color.black)
     }
 
+    /// The Overview card's real row at a width where every column has room.
+    private var overviewRow: some View {
+        let item = SiftRail.Item(section: .cleaning(.xcodeJunk), label: "Developer caches", icon: .codeXml)
+        let row = WhereItSitsCard.Row(item: item, size: 2_000_000_000, count: 12, measured: true)
+        return WhereRow(row: row, fraction: 0.5, isLargest: false) {}
+            .frame(width: 600, height: 48)
+            .background(Color.black)
+    }
+
     /// A quarter-full slider: thumb near the leading edge.
     private var slider: some View {
         SiftSlider(value: .constant(0.25), range: 0...1)
@@ -169,8 +194,8 @@ final class RightToLeftLayoutTests: XCTestCase {
     }
 
     /// Three 40 pt chips in a 100 pt column: two on the first line, one below.
-    private func flowRow(direction: LayoutDirection) -> some View {
-        SiftFlowLayout(layoutDirection: direction) {
+    private var flowRow: some View {
+        SiftFlowLayout {
             Self.pigment.frame(width: 40, height: 20)
             Self.pigment.frame(width: 40, height: 20)
             Color(.sRGB, red: 0, green: 0, blue: 1, opacity: 1).frame(width: 40, height: 20)
@@ -179,8 +204,8 @@ final class RightToLeftLayoutTests: XCTestCase {
         .background(Color.black)
     }
 
-    private func whereRow(direction: LayoutDirection) -> some View {
-        WhereRowLayout.Row(spacing: 10, layoutDirection: direction) {
+    private var whereRowBlocks: some View {
+        WhereRowLayout.Row(spacing: 10) {
             Self.pigment.frame(width: 32, height: 32)
             Color.green.frame(width: 100, height: 20)
             Color.blue.frame(width: 56, height: 6)
@@ -210,6 +235,36 @@ final class RightToLeftLayoutTests: XCTestCase {
         }
         host.cacheDisplay(in: host.bounds, to: rep)
         return rep
+    }
+
+    /// Left edge of the first run of columns at least 28 pt wide that carry the
+    /// icon tile's uniform dark fill, in the row's middle band. The tile is the
+    /// only such block: text is bright, the chevron is thinner, the background
+    /// is black.
+    private func tileMinX(_ rep: NSBitmapImageRep) -> CGFloat {
+        let scale = CGFloat(rep.pixelsWide) / max(1, rep.size.width)
+        let band = Int(12 * scale)..<min(Int(36 * scale), rep.pixelsHigh)
+        func isTileFill(_ color: NSColor) -> Bool {
+            let red = color.redComponent, green = color.greenComponent, blue = color.blueComponent
+            let luma = (red + green + blue) / 3
+            return luma > 0.04 && luma < 0.22 && max(red, green, blue) - min(red, green, blue) < 0.06
+        }
+        var runStart: Int?
+        for x in 0..<rep.pixelsWide {
+            var hits = 0
+            for y in band {
+                guard let color = rep.colorAt(x: x, y: y)?.usingColorSpace(.deviceRGB), isTileFill(color) else { continue }
+                hits += 1
+            }
+            let isTileColumn = hits >= max(2, band.count / 3)
+            if isTileColumn, runStart == nil {
+                runStart = x
+            } else if !isTileColumn, let start = runStart {
+                if CGFloat(x - start) / scale >= 28 { return CGFloat(start) / scale }
+                runStart = nil
+            }
+        }
+        return -1
     }
 
     private func inkBounds(_ rep: NSBitmapImageRep, matching: (NSColor) -> Bool) -> CGRect {
