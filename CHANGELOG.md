@@ -8,6 +8,9 @@ All notable user-facing changes to Sift. Sift was called PureMac before 4.0.0.
 
 - Large & old files and Installers move to the Trash instead of being deleted
   permanently, so they can be recovered until the Trash is emptied.
+- The “X is junk” headline and the disk meter count only junk. Large & old files
+  and the Trash keep their own sizes and no longer inflate that total; when the
+  only rows found are personal files, the Overview says they are reviewable.
 
 ## 4.0.2
 
