@@ -164,6 +164,7 @@ struct SiftValueBox: View {
             Text(verbatim: value).font(.siftMono(13)).foregroundStyle(SiftColor.textPrimary)
             unit.font(.sift(11)).foregroundStyle(SiftColor.textTertiary)
         }
+        .siftLeftToRightValue()
         .frame(minWidth: 92, minHeight: 36)
         .background(RoundedRectangle(cornerRadius: 12, style: .continuous).fill(SiftColor.window))
         .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous).strokeBorder(SiftColor.accentStroke, lineWidth: 1))
@@ -276,10 +277,14 @@ private final class SiftMenuItem: NSMenuItem {
 
 // MARK: - Path chips
 
-/// Wraps children onto new lines, left-aligned, like CSS `flex-wrap`.
+/// Wraps children onto new lines, from the leading edge, like CSS
+/// `flex-wrap`. Rows fill from the right in a right-to-left layout.
 struct SiftFlowLayout: Layout {
     var spacing: CGFloat = 8
     var lineSpacing: CGFloat = 8
+    /// A `Layout` sees no environment; the view that builds it passes the
+    /// direction it resolved.
+    var layoutDirection: LayoutDirection = .leftToRight
 
     func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {
         let rows = arrange(width: proposal.width ?? .infinity, subviews: subviews)
@@ -289,12 +294,14 @@ struct SiftFlowLayout: Layout {
     }
 
     func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) {
+        let mirrored = layoutDirection == .rightToLeft
         var y = bounds.minY
         for row in arrange(width: bounds.width, subviews: subviews) {
             var x = bounds.minX
             for index in row.indices {
                 let size = subviews[index].sizeThatFits(.unspecified)
-                subviews[index].place(at: CGPoint(x: x, y: y + (row.height - size.height) / 2), proposal: ProposedViewSize(size))
+                let originX = mirrored ? bounds.maxX - (x - bounds.minX) - size.width : x
+                subviews[index].place(at: CGPoint(x: originX, y: y + (row.height - size.height) / 2), proposal: ProposedViewSize(size))
                 x += size.width + spacing
             }
             y += row.height + lineSpacing
@@ -337,6 +344,7 @@ struct SiftPathChip: View {
                 .lineLimit(1)
                 .truncationMode(.middle)
                 .frame(maxWidth: 360, alignment: .leading)
+                .siftLeftToRightValue()
                 .help(path)
             Button(action: remove) {
                 SiftIcon.x.image(12)

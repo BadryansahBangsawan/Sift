@@ -112,6 +112,9 @@ struct SiftApp: App {
                 }
             }
             .environmentObject(theme)
+            // macOS keeps the system's direction even when the bundle resolves
+            // Arabic, so the window states its own. Sheets and alerts inherit.
+            .siftLayoutDirection(AppLayoutDirection.current)
             // Record the openWindow action so the menu-bar popover can reopen
             // this window after it's been closed (the popover lives outside the
             // scene graph and can't use openWindow itself).
@@ -137,6 +140,7 @@ struct SiftApp: App {
             SettingsView(standalone: true)
                 .environmentObject(appState)
                 .environmentObject(theme)
+                .siftLayoutDirection(AppLayoutDirection.current)
                 .frame(minWidth: 680, idealWidth: 760, minHeight: 580, idealHeight: 700)
         }
 

@@ -614,11 +614,13 @@ struct SiftSlider: View {
     @Binding var value: Double
     let range: ClosedRange<Double>
     var step: Double = 1
+    @Environment(\.layoutDirection) private var layoutDirection
 
     var body: some View {
         GeometryReader { proxy in
             let width = max(proxy.size.width - 22, 1)
             let fraction = (value - range.lowerBound) / max(range.upperBound - range.lowerBound, .ulpOfOne)
+            let mirrored = layoutDirection == .rightToLeft
             ZStack(alignment: .leading) {
                 Capsule().fill(SiftColor.controlStroke).frame(height: 6).padding(.horizontal, 11)
                 Capsule().fill(SiftColor.accent).frame(width: max(6, width * fraction), height: 6).padding(.leading, 11)
@@ -627,12 +629,15 @@ struct SiftSlider: View {
                     .overlay(Circle().strokeBorder(SiftColor.accent, lineWidth: 4))
                     .background(Circle().fill(SiftColor.accent.opacity(0.2)).padding(-6))
                     .frame(width: 22, height: 22)
-                    .offset(x: width * fraction)
+                    // The track's leading edge is the right one in Arabic.
+                    .offset(x: (mirrored ? -1 : 1) * width * fraction)
             }
             .frame(height: 22)
             .contentShape(Rectangle())
             .gesture(DragGesture(minimumDistance: 0).onChanged { drag in
-                let raw = range.lowerBound + Double((drag.location.x - 11) / width) * (range.upperBound - range.lowerBound)
+                let travelled = (drag.location.x - 11) / width
+                let position = mirrored ? 1 - travelled : travelled
+                let raw = range.lowerBound + Double(position) * (range.upperBound - range.lowerBound)
                 let stepped = (raw / step).rounded() * step
                 value = min(max(stepped, range.lowerBound), range.upperBound)
             })

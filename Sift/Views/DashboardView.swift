@@ -709,6 +709,9 @@ enum WhereRowLayout {
     /// category name while the meter still had slack.
     struct Row: Layout {
         var spacing: CGFloat = 14
+        /// A `Layout` sees no environment, so the row reads the direction from
+        /// the view that builds it.
+        var layoutDirection: LayoutDirection = .leftToRight
 
         func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {
             let rowWidth = proposal.width ?? 0
@@ -719,11 +722,15 @@ enum WhereRowLayout {
 
         func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) {
             let widths = columnWidths(rowWidth: bounds.width, subviews: subviews)
+            let mirrored = layoutDirection == .rightToLeft
             var x = bounds.minX
             for (index, subview) in subviews.enumerated() {
                 let size = subview.sizeThatFits(ProposedViewSize(width: widths[index], height: nil))
+                let originX = mirrored
+                    ? bounds.maxX - (x - bounds.minX) - widths[index]
+                    : x
                 subview.place(
-                    at: CGPoint(x: x, y: bounds.midY - size.height / 2),
+                    at: CGPoint(x: originX, y: bounds.midY - size.height / 2),
                     proposal: ProposedViewSize(width: widths[index], height: nil)
                 )
                 x += widths[index] + spacing
@@ -756,6 +763,7 @@ enum WhereRowLayout {
 }
 
 struct WhereRow: View {
+    @Environment(\.layoutDirection) private var layoutDirection
     let row: WhereItSitsCard.Row
     let fraction: Double
     let isLargest: Bool
@@ -763,7 +771,7 @@ struct WhereRow: View {
 
     var body: some View {
         Button(action: open) {
-            WhereRowLayout.Row(spacing: 14) {
+            WhereRowLayout.Row(spacing: 14, layoutDirection: layoutDirection) {
                 SiftIconTile(icon: row.item.icon, tone: isLargest ? .accent : .neutral, size: 32)
                 VStack(alignment: .leading, spacing: 2) {
                     Text(row.item.label)
@@ -788,6 +796,7 @@ struct WhereRow: View {
                     .lineLimit(1)
                     .minimumScaleFactor(0.8)
                     .frame(width: 72, alignment: .trailing)
+                    .siftLeftToRightValue()
                 SiftIcon.chevronRight.image(16)
                     .foregroundStyle(isLargest ? SiftColor.accent : SiftColor.faint)
             }

@@ -575,6 +575,7 @@ struct RailRow: View {
                 Text(verbatim: shortcut)
                     .font(.siftMono(10.5))
                     .foregroundStyle(SiftColor.textTertiary)
+                    .siftLeftToRightValue()
             }
         }
         .padding(.horizontal, RailRowLayout.horizontalPadding)

@@ -181,28 +181,45 @@ extension View {
         @ViewBuilder panel: @escaping (ID) -> Panel
     ) -> some View {
         overlayPreferenceValue(SiftMenuAnchorKey<ID>.self) { anchors in
-            GeometryReader { proxy in
-                if let id = open.wrappedValue, let anchor = anchors[id] {
-                    let rect = proxy[anchor]
-                    ZStack(alignment: .topLeading) {
-                        Color.clear
-                            .contentShape(Rectangle())
-                            .onTapGesture { open.wrappedValue = nil }
-                        panel(id)
-                            .fixedSize()
-                            .offset(x: rect.minX, y: rect.maxY + 8)
-                            .onExitCommand { open.wrappedValue = nil }
-                    }
-                    .frame(width: proxy.size.width, height: proxy.size.height, alignment: .topLeading)
-                    .transition(.opacity)
-                }
-            }
+            SiftMenuHost(open: open, anchors: anchors, panel: panel)
         }
     }
 
     /// Registers this pill as the anchor for menu `id`.
     func siftMenuAnchor<ID: Hashable>(_ id: ID) -> some View {
         anchorPreference(key: SiftMenuAnchorKey<ID>.self, value: .bounds) { [id: $0] }
+    }
+}
+
+/// Floats the panel under its pill, opening towards the reading order: from
+/// the pill's left edge in English, its right edge in Arabic.
+private struct SiftMenuHost<ID: Hashable, Panel: View>: View {
+    @Binding var open: ID?
+    let anchors: [ID: Anchor<CGRect>]
+    let panel: (ID) -> Panel
+    @Environment(\.layoutDirection) private var layoutDirection
+
+    var body: some View {
+        GeometryReader { proxy in
+            if let id = open, let anchor = anchors[id] {
+                let rect = proxy[anchor]
+                let mirrored = layoutDirection == .rightToLeft
+                ZStack(alignment: mirrored ? .topTrailing : .topLeading) {
+                    Color.clear
+                        .contentShape(Rectangle())
+                        .onTapGesture { open = nil }
+                    panel(id)
+                        .fixedSize()
+                        .offset(x: mirrored ? rect.maxX - proxy.size.width : rect.minX, y: rect.maxY + 8)
+                        .onExitCommand { open = nil }
+                }
+                .frame(
+                    width: proxy.size.width, height: proxy.size.height,
+                    alignment: mirrored ? .topTrailing : .topLeading
+                )
+                .transition(.opacity)
+            }
+        }
     }
 }
 
