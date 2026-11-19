@@ -6,6 +6,7 @@ import XCTest
 /// second: `Text(date, style: .relative)` is a live duration, not "when". It
 /// also concatenated three fragments, which breaks word order in Japanese,
 /// Chinese and Arabic.
+@MainActor
 final class UpdatesEyebrowTests: XCTestCase {
     private let now = Date(timeIntervalSince1970: 1_800_000_000)
 

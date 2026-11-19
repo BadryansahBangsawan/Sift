@@ -4,6 +4,7 @@ import XCTest
 /// Xcode Archives hold the app's shipped builds and the dSYMs needed to
 /// symbolicate crash reports, so they are the user's work: never pre-selected,
 /// and moved to the Trash rather than unlinked.
+@MainActor
 final class XcodeArchivesTests: XCTestCase {
     private let fileManager = FileManager.default
     private var home: URL!
