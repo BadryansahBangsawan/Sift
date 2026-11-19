@@ -1,5 +1,14 @@
 import Foundation
 
+/// The real Trash move. NSError from this call is what makes a Trash failure
+/// an error: nothing falls back to unlinking the path.
+func systemTrashItem(_ url: URL) throws -> String? {
+    var resulting: NSURL?
+    try FileManager.default.trashItem(at: url, resultingItemURL: &resulting)
+    guard let resulting else { return nil }
+    return resulting.path
+}
+
 actor CleaningEngine {
     private let fileManager = FileManager.default
     /// Always symlink-resolved so allow-listed roots agree with ScanEngine and
@@ -9,15 +18,21 @@ actor CleaningEngine {
     /// Whether an app with this bundle identifier is running. The Claude VM
     /// bundle is refused while Claude runs; injectable for tests.
     private let isAppRunning: (String) -> Bool
+    /// Moves a path to the Trash and returns its destination. Injectable so a
+    /// test can point the Trash at a temporary directory instead of the real
+    /// one in the user's home.
+    private let trashOperation: (URL) throws -> String?
 
     init(
         homeDirectory: URL = FileManager.default.homeDirectoryForCurrentUser,
         isAppRunning: @escaping (String) -> Bool = { bundleID in
             RunningAppGuard.systemIsRunning(bundleIdentifier: bundleID, appURL: nil)
-        }
+        },
+        trashOperation: @escaping (URL) throws -> String? = systemTrashItem
     ) {
         self.homeDirectory = XcodeBuildMCPDerivedDataSupport.canonicalHomeDirectory(homeDirectory)
         self.isAppRunning = isAppRunning
+        self.trashOperation = trashOperation
     }
 
     struct CleaningResult {
