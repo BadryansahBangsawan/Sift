@@ -2,6 +2,13 @@
 
 All notable user-facing changes to Sift. Sift was called PureMac before 4.0.0.
 
+## Unreleased
+
+### Changed
+
+- Large & old files and Installers move to the Trash instead of being deleted
+  permanently, so they can be recovered until the Trash is emptied.
+
 ## 4.0.2
 
 ### Fixed
