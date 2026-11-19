@@ -85,7 +85,7 @@ struct SettingsView: View {
         .sheet(isPresented: Binding(
             get: { standalone && permission.isRequesting && permission.presentation == .settingsWindow },
             set: { if !$0 && standalone && permission.presentation == .settingsWindow { permission.dismiss(callRetry: false) } }
-        )) { PermissionSheet() }
+        )) { PermissionSheet().siftPresentedLayout() }
     }
 
     /// Where Sift keeps its own files (cleanup history), shortened with `~`.

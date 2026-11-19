@@ -33,6 +33,7 @@ struct DashboardView: View {
                     appState.cleanAll(itemIDs: ids)
                 }
             )
+            .siftPresentedLayout()
         }
     }
 
