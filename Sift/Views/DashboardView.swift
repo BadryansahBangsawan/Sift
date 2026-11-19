@@ -155,7 +155,14 @@ private struct DashboardHero: View {
             guard hasResults else {
                 return Text("\(SiftFormat.bytes(appState.diskInfo.freeSpace)) free")
             }
-            guard appState.totalJunkSize > 0 else { return Text("Nothing to clean") }
+            guard appState.totalJunkSize > 0 || appState.personalFilesSize > 0 else {
+                return Text("Nothing to clean")
+            }
+            // Large & old files and the Trash are not junk, but saying
+            // "Nothing to clean" while their rows exist would be a lie.
+            guard appState.totalJunkSize > 0 else {
+                return Text("\(SiftFormat.bytes(appState.personalFilesSize)) reviewable")
+            }
             return Text("\(SiftFormat.bytes(appState.totalJunkSize)) is junk")
         }
     }
