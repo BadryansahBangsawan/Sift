@@ -376,6 +376,15 @@ actor CleaningEngine {
                          nsError.code == NSFileReadNoPermissionError)) ||
                     (nsError.domain == NSPOSIXErrorDomain &&
                         (nsError.code == Int(EACCES) || nsError.code == Int(EPERM)))
+                if item.movesToTrash {
+                    // A recoverable row must never be escalated to the admin
+                    // pass, which unlinks with /bin/rm: if the Trash move
+                    // failed, report it and leave the file where it is.
+                    let detail = "\(item.name) at \(item.path): \(error.localizedDescription)"
+                    result.errors.append(detail)
+                    Logger.shared.log("Clean failed: \(detail)", level: .error)
+                    continue
+                }
                 if isPermissionDenied {
                     if item.category == .aiApps {
                         let detail = "AI app cleanup requires access as the current user: \(item.path)"
