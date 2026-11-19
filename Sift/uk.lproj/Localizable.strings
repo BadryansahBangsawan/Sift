@@ -972,7 +972,7 @@
 "Time" = "Час";
 "After each scan" = "Після кожного сканування";
 "Minimum size" = "Мінімальний розмір";
-"Auto-clean skips scans that would free less than this" = "Автоочищення пропускається, якщо звільниться менше";
+"Auto-clean skips scans under this size" = "Автоочищення пропускає сканування, менші за цей розмір";
 "A notification with what was found or cleaned" = "Сповіщення про те, що знайдено чи очищено";
 "Runs" = "Запуски";
 "Next run" = "Наступний запуск";
@@ -1369,7 +1369,7 @@
 "Scan to see whether uninstalled apps left files behind." = "Запустіть сканування, щоб дізнатися, чи залишили видалені програми файли.";
 "Couldn't compare installed apps" = "Не вдалося порівняти встановлені програми";
 "Sift needs the list of installed apps before it can call a file a leftover. Try again in a moment." = "Sift потрібен список встановлених програм, щоб вважати файл залишком. Спробуйте ще раз за мить.";
-"Permanently deletes the junk the scan selected, without asking" = "Остаточно видаляє вибране скануванням сміття, не питаючи";
+"Moves the junk the scan selected to the Trash, without asking" = "Переміщує вибране скануванням сміття в Кошик без запиту";
 "Last checked %@" = "Остання перевірка: %@";
 "Scheduled scan" = "Запланована перевірка";
 "No Leftovers" = "Залишків немає";

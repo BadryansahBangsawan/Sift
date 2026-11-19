@@ -645,10 +645,10 @@ struct ScheduleSettingsView: View {
             SiftSettingsLabel(title: Text("After each scan"))
             SiftSettingsGroup {
                 SiftSettingsToggleRow(Text("Auto-clean after scan"),
-                                      detail: Text("Permanently deletes the junk the scan selected, without asking"),
+                                      detail: Text("Moves the junk the scan selected to the Trash, without asking"),
                                       isOn: $scheduler.config.autoClean)
                 SiftSettingsDivider()
-                SiftSettingsRow(Text("Minimum size"), detail: Text("Auto-clean skips scans that would free less than this")) {
+                SiftSettingsRow(Text("Minimum size"), detail: Text("Auto-clean skips scans under this size")) {
                     SiftDropdown(selection: $scheduler.config.minimumCleanSize, options: minimumSizeOptions) {
                         ByteCountFormatter.string(fromByteCount: $0, countStyle: .memory)
                     }

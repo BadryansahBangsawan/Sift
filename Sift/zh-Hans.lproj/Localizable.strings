@@ -971,7 +971,7 @@
 "Time" = "时间";
 "After each scan" = "每次扫描后";
 "Minimum size" = "最小大小";
-"Auto-clean skips scans that would free less than this" = "可释放空间小于此值时，跳过自动清理";
+"Auto-clean skips scans under this size" = "自动清理会跳过小于此大小的扫描";
 "A notification with what was found or cleaned" = "发送通知，告知发现或清理的内容";
 "Runs" = "运行记录";
 "Next run" = "下次运行";
@@ -1368,7 +1368,7 @@
 "Scan to see whether uninstalled apps left files behind." = "扫描以查看已卸载的应用是否留下了文件。";
 "Couldn't compare installed apps" = "无法与已安装的应用比较";
 "Sift needs the list of installed apps before it can call a file a leftover. Try again in a moment." = "Sift 需要已安装应用的列表，才能判断文件是否为残留。请稍后重试。";
-"Permanently deletes the junk the scan selected, without asking" = "无需确认即可永久删除扫描所选的垃圾文件";
+"Moves the junk the scan selected to the Trash, without asking" = "将扫描选中的无用文件移到废纸篓，不会询问";
 "Last checked %@" = "上次检查：%@";
 "Scheduled scan" = "定时扫描";
 "No Leftovers" = "没有应用残留";
