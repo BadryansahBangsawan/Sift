@@ -27,7 +27,7 @@ Sift は Moamen Basel によるオープンソースのクリーナー PureMac �
 
 ## インストール
 
-[最新リリース](https://github.com/BadryansahBangsawan/Sift/releases/latest)から `Sift-4.0.2.dmg` をダウンロードし、Sift を「アプリケーション」にドラッグします。
+[最新リリース](https://github.com/BadryansahBangsawan/Sift/releases/latest)から `Sift-4.1.0.dmg` をダウンロードし、Sift を「アプリケーション」にドラッグします。
 
 このリリースはまだ Apple の公証を受けていないため、初回は macOS に止められます：
 

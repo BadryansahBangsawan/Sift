@@ -53,7 +53,7 @@ Sift started as a fork of PureMac, the open-source Mac cleaner by [Moamen Basel]
 
 ## Install
 
-Download `Sift-4.0.2.dmg` from the [latest release](https://github.com/BadryansahBangsawan/Sift/releases/latest) and drag Sift to Applications.
+Download `Sift-4.1.0.dmg` from the [latest release](https://github.com/BadryansahBangsawan/Sift/releases/latest) and drag Sift to Applications.
 
 This release is not notarized by Apple yet, so macOS stops it the first time you open it:
 
