@@ -134,7 +134,7 @@ final class RightToLeftLayoutTests: XCTestCase {
     /// Rails are 228 pt; the probe keeps the same proportions in a small frame.
     private var twoPaneShell: some View {
         HStack(spacing: 12) {
-            Rectangle().fill(Color.red).frame(width: 40)
+            Rectangle().fill(Self.pigment).frame(width: 40)
             Rectangle().fill(Color.green)
         }
         .frame(width: 240, height: 40)
@@ -149,7 +149,7 @@ final class RightToLeftLayoutTests: XCTestCase {
     }
 
     private var meter: some View {
-        SiftMeterBar(fraction: 0.25, fill: .red)
+        SiftMeterBar(fraction: 0.25, fill: Self.pigment)
             .frame(width: 200)
             .background(Color.black)
     }
@@ -181,7 +181,7 @@ final class RightToLeftLayoutTests: XCTestCase {
 
     private func whereRow(direction: LayoutDirection) -> some View {
         WhereRowLayout.Row(spacing: 10, layoutDirection: direction) {
-            Color.red.frame(width: 32, height: 32)
+            Self.pigment.frame(width: 32, height: 32)
             Color.green.frame(width: 100, height: 20)
             Color.blue.frame(width: 56, height: 6)
             Color.yellow.frame(width: 72, height: 20)
