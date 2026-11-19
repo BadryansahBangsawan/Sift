@@ -15,11 +15,19 @@ final class WhereRowWidthTests: XCTestCase {
         let rowWidth = WhereRowLayout.rowWidth(atWindowWidth: 1080)
         for label in ["Developer caches", "Large & old files"] {
             let ideal = idealTitleWidth(label)
+            // Compared ink to ink: the same title drawn in a wide row. The ink
+            // of a last "s" ends a point or two before its typographic advance
+            // on a 1x display (CI), which is not clipping.
+            let full = drawnTitleWidth(
+                label: label,
+                rowWidth: WhereRowLayout.rowWidth(atWindowWidth: 1_600),
+                limit: ideal + 40
+            )
             let drawn = drawnTitleWidth(label: label, rowWidth: rowWidth, limit: ideal + 40)
             XCTAssertGreaterThanOrEqual(
                 drawn,
-                ideal - 1,
-                "“\(label)” is clipped to \(Int(drawn)) pt of its \(Int(ideal)) pt in a \(Int(rowWidth)) pt row"
+                full - 1,
+                "“\(label)” is clipped to \(Int(drawn)) pt of the \(Int(full)) pt it draws in a wide row (\(Int(rowWidth)) pt row)"
             )
         }
     }
