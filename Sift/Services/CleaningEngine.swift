@@ -300,13 +300,14 @@ actor CleaningEngine {
 
                 if item.category == .aiApps {
                     // Caches/logs are unlinked; opt-in history is moved to the
-                    // Trash so it stays recoverable. A session's companion
-                    // folder goes with the transcript, and the item only
-                    // counts as cleaned when both are gone.
-                    let useTrash = AIToolCleanupCatalog.entry(
+                    // Trash so it stays recoverable. An unattended clean moves
+                    // every AI row there, cache or history. A session's
+                    // companion folder goes with the transcript, and the item
+                    // only counts as cleaned when both are gone.
+                    let useTrash = unattended || (AIToolCleanupCatalog.entry(
                         for: item.path,
                         home: homeDirectory.path
-                    )?.isOptIn ?? false
+                    )?.isOptIn ?? false)
                     if let trashed = try removeAIPath(at: resolvedURL, useTrash: useTrash) {
                         result.trashedPaths.insert(trashed)
                     }
