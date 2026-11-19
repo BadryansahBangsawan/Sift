@@ -406,7 +406,6 @@ struct GeneralSettingsView: View {
 
 struct CleaningSettingsView: View {
     @EnvironmentObject var appState: AppState
-    @Environment(\.layoutDirection) private var layoutDirection
     @AppStorage("settings.cleaning.skipHiddenFiles") private var skipHiddenFiles = true
     @AppStorage("settings.cleaning.largeFileThreshold") private var largeFileThresholdMB: Int = 100
     @AppStorage("settings.cleaning.oldFileMonths") private var oldFileMonths: Int = 12
@@ -451,7 +450,7 @@ struct CleaningSettingsView: View {
 
         SiftSettingsLabel(title: Text("Excluded folders"), note: Text("Never scanned"))
         SiftSettingsGroup {
-            SiftFlowLayout(layoutDirection: layoutDirection) {
+            SiftFlowLayout {
                 ForEach(excludedFolders, id: \.self) { folder in
                     SiftPathChip(path: folder, removeLabel: Text("Remove from exclusions")) {
                         removeExcludedFolder(folder)
@@ -468,7 +467,7 @@ struct CleaningSettingsView: View {
                 SiftSettingsRow(Text("No excluded paths"),
                                 detail: Text("Excluded paths and folders containing them stay out of manual and scheduled cleanup."))
             } else {
-                SiftFlowLayout(layoutDirection: layoutDirection) {
+                SiftFlowLayout {
                     ForEach(appState.excludedCleanupPaths, id: \.self) { path in
                         SiftPathChip(path: path, removeLabel: Text("Remove")) {
                             appState.removeCleanupExclusion(path)
