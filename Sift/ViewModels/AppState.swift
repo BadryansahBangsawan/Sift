@@ -1042,10 +1042,16 @@ final class AppState: ObservableObject {
         let itemsToClean = allResults.flatMap { $0.items }.filter { item in
             guard itemIDs?.contains(item.id) ?? true else { return false }
             guard isItemSelected(item) else { return false }
-            if scheduled && XcodeBuildMCPDerivedDataSupport.isManagedDerivedDataPath(item.path) {
-                // Scheduled XcodeBuildMCP cleanup is intentionally stricter
-                // than ordinary Xcode Junk: only old, unlocked rows qualify.
-                return XcodeBuildMCPDerivedDataSupport.isEligibleForScheduledAutoClean(item)
+            if scheduled {
+                // Nobody is watching a scheduled clean, so a row that cannot
+                // go to the Trash stays where it is: the user can remove it in
+                // the next manual review.
+                guard !item.isActionItem else { return false }
+                if XcodeBuildMCPDerivedDataSupport.isManagedDerivedDataPath(item.path) {
+                    // Scheduled XcodeBuildMCP cleanup is intentionally stricter
+                    // than ordinary Xcode Junk: only old, unlocked rows qualify.
+                    return XcodeBuildMCPDerivedDataSupport.isEligibleForScheduledAutoClean(item)
+                }
             }
             return true
         }
@@ -1057,7 +1063,7 @@ final class AppState: ObservableObject {
         cleanProgress = 0
 
         Task {
-            var result = await cleaningEngine.cleanItems(itemsToClean) { [weak self] progress in
+            var result = await cleaningEngine.cleanItems(itemsToClean, unattended: scheduled) { [weak self] progress in
                 Task { @MainActor [weak self] in
                     guard let self, self.cleanupGeneration == generation, case .cleaning = self.scanState else { return }
                     self.cleanProgress = progress
@@ -1066,8 +1072,10 @@ final class AppState: ObservableObject {
             }
 
             // Escalate root-owned items via "with administrator privileges".
-            // One auth prompt covers the entire batch.
-            if !result.requiresAdmin.isEmpty {
+            // One auth prompt covers the entire batch. An unattended clean
+            // never escalates: it cannot stop to ask, so those rows are left
+            // for the next manual review instead.
+            if !scheduled, !result.requiresAdmin.isEmpty {
                 let admin = await cleaningEngine.cleanWithAdminPrivileges(items: result.requiresAdmin)
                 result.cleanedPaths.formUnion(admin.cleanedPaths)
                 result.itemsCleaned += admin.itemsCleaned
@@ -1078,7 +1086,7 @@ final class AppState: ObservableObject {
             }
 
             totalFreedSpace = result.freedSpace
-            if result.freedSpace > 0 {
+            if result.freedSpace > 0 || result.trashedSpace > 0 {
                 recordCleanup(of: itemsToClean, result: result, source: scheduled ? .scheduled : .manual)
             }
             if result.itemsCleaned > 0 { lastCleanedDate = Date() }
@@ -1189,6 +1197,7 @@ final class AppState: ObservableObject {
         }
         cleanupHistory = historyStore.record(
             freedBytes: result.freedSpace,
+            trashedBytes: result.trashedSpace,
             source: source,
             title: title,
             category: category

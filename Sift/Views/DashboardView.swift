@@ -1108,12 +1108,24 @@ private struct HistoryRow: View {
                 }
             }
             .frame(maxWidth: .infinity, alignment: .leading)
-            Text(verbatim: SiftFormat.bytes(record.freedBytes))
+            Text(verbatim: amountText)
                 .font(.siftMono(11.5))
                 .foregroundStyle(SiftColor.accent)
         }
         .frame(height: 38)
         .accessibilityElement(children: .combine)
+    }
+
+    /// A Trash move frees nothing yet, so the row says where the bytes went
+    /// instead of labelling them freed space.
+    private var amountText: String {
+        guard record.freedBytes == 0, record.trashedBytes > 0 else {
+            return SiftFormat.bytes(record.freedBytes)
+        }
+        return String(
+            format: String(localized: "Moved to Trash: %@"),
+            SiftFormat.bytes(record.trashedBytes)
+        )
     }
 
     /// "Developer caches · 3 hours ago"; the group name when the record has a

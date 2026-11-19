@@ -1375,3 +1375,6 @@
 "No Leftovers" = "لا بقايا";
 "Scan for leftover files" = "فحص الملفات المتبقية";
 "Leftovers (%lld)" = "البقايا (%lld)";
+"Moved to Trash: %@" = "تم النقل إلى سلة المهملات: %@";
+"Left for a manual clean: it can only be removed by hand." = "تُرك للتنظيف اليدوي: لا يمكن حذفه إلا يدويًا.";
+"Left for a manual clean: it needs administrator privileges." = "تُرك للتنظيف اليدوي: يتطلب امتيازات المسؤول.";

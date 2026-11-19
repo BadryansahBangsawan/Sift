@@ -1375,3 +1375,6 @@
 "No Leftovers" = "No Leftovers";
 "Scan for leftover files" = "Scan for leftover files";
 "Leftovers (%lld)" = "Leftovers (%lld)";
+"Moved to Trash: %@" = "Moved to Trash: %@";
+"Left for a manual clean: it can only be removed by hand." = "Left for a manual clean: it can only be removed by hand.";
+"Left for a manual clean: it needs administrator privileges." = "Left for a manual clean: it needs administrator privileges.";

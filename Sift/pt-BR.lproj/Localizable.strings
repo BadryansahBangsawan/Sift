@@ -1375,3 +1375,6 @@
 "No Leftovers" = "Nenhum resíduo";
 "Scan for leftover files" = "Buscar arquivos restantes";
 "Leftovers (%lld)" = "Resíduos (%lld)";
+"Moved to Trash: %@" = "Movido para o Lixo: %@";
+"Left for a manual clean: it can only be removed by hand." = "Deixado para uma limpeza manual: só pode ser removido à mão.";
+"Left for a manual clean: it needs administrator privileges." = "Deixado para uma limpeza manual: requer privilégios de administrador.";

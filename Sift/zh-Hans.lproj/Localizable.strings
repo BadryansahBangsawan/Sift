@@ -1374,3 +1374,6 @@
 "No Leftovers" = "没有应用残留";
 "Scan for leftover files" = "扫描应用残留";
 "Leftovers (%lld)" = "应用残留（%lld）";
+"Moved to Trash: %@" = "已移到废纸篓：%@";
+"Left for a manual clean: it can only be removed by hand." = "已留待手动清理：只能手动删除。";
+"Left for a manual clean: it needs administrator privileges." = "已留待手动清理：需要管理员权限。";

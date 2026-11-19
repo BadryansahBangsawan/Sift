@@ -1378,3 +1378,6 @@
 "No Leftovers" = "Keine Reste";
 "Scan for leftover files" = "Nach Restdateien suchen";
 "Leftovers (%lld)" = "Reste (%lld)";
+"Moved to Trash: %@" = "In den Papierkorb verschoben: %@";
+"Left for a manual clean: it can only be removed by hand." = "Für eine manuelle Bereinigung aufgehoben: lässt sich nur von Hand entfernen.";
+"Left for a manual clean: it needs administrator privileges." = "Für eine manuelle Bereinigung aufgehoben: erfordert Administratorrechte.";

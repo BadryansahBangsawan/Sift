@@ -1375,3 +1375,6 @@
 "No Leftovers" = "Залишків немає";
 "Scan for leftover files" = "Шукати залишкові файли";
 "Leftovers (%lld)" = "Залишки (%lld)";
+"Moved to Trash: %@" = "Переміщено в Кошик: %@";
+"Left for a manual clean: it can only be removed by hand." = "Залишено для ручного очищення: видалити можна лише вручну.";
+"Left for a manual clean: it needs administrator privileges." = "Залишено для ручного очищення: потрібні права адміністратора.";

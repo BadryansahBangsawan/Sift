@@ -1375,3 +1375,6 @@
 "No Leftovers" = "沒有殘留檔案";
 "Scan for leftover files" = "掃描殘留檔案";
 "Leftovers (%lld)" = "殘留檔案（%lld）";
+"Moved to Trash: %@" = "已移到垃圾桶：%@";
+"Left for a manual clean: it can only be removed by hand." = "已留待手動清理：只能手動刪除。";
+"Left for a manual clean: it needs administrator privileges." = "已留待手動清理：需要管理員權限。";
