@@ -3,7 +3,6 @@
 "Cleanup" = "クリーンアップ";
 "Dashboard" = "ダッシュボード";
 "Installed Apps" = "インストール済みアプリ";
-"Orphaned Files" = "孤立ファイル";
 "Ready to clean" = "クリーンアップ可能";
 "Limited access" = "アクセスが制限されています";
 "Full Disk Access granted" = "フルディスクアクセスが許可されています";
@@ -99,11 +98,9 @@
 "Remove" = "削除";
 
 /* Orphans */
-"Scanning for orphaned files..." = "孤立ファイルをスキャン中...";
+"Scanning for orphaned files..." = "残存ファイルをスキャン中...";
 "No Orphaned Files" = "孤立ファイルはありません";
 "No leftover files from uninstalled apps were found." = "アンインストール済みアプリの残存ファイルは見つかりませんでした。";
-"Scan for Orphans" = "孤立ファイルをスキャン";
-"Orphaned Files (%lld)" = "孤立ファイル (%lld)";
 "Remove Selected (%lld)" = "選択した項目を削除 (%lld)";
 "Some files could not be removed" = "一部のファイルを削除できませんでした";
 "blocked by safety policy" = "安全ポリシーによりブロック";
@@ -115,9 +112,7 @@
 "Get Started" = "始める";
 "Free, open-source macOS app manager and system cleaner." = "無料・オープンソースのmacOSアプリ管理&システムクリーナー。";
 "Find junk files across your system" = "システム全体のジャンクファイルを検出";
-"App Uninstaller" = "アプリアンインストーラ";
 "Remove apps and all their files" = "アプリと関連ファイルをすべて削除";
-"Orphan Finder" = "孤立ファイル検出";
 "Find leftovers from deleted apps" = "削除済みアプリの残存物を検出";
 "Full Disk Access" = "フルディスクアクセス";
 "We'll guide you through the next steps." = "次のステップへご案内します。";
@@ -455,7 +450,6 @@
 "Always exclude from cleanup" = "常にクリーンアップから除外";
 "Any age" = "すべての作成時期";
 "Any size" = "すべてのサイズ";
-"App Updates" = "アプリのアップデート";
 "App and document packages are excluded: %@" = "アプリと書類のパッケージは除外されます: %@";
 "App bundle missing" = "アプリバンドルが見つかりません";
 "App downloads are checked before opening." = "ダウンロードしたアプリは開く前にチェックされます。";
@@ -508,7 +502,6 @@
 "Delete local snapshot?" = "ローカルスナップショットを削除しますか?";
 "Disabled" = "無効";
 "Downloaded apps are not being assessed by Gatekeeper." = "ダウンロードしたアプリは Gatekeeper による評価を受けていません。";
-"Duplicate Finder" = "重複ファイル検索";
 "Duplicate groups" = "重複グループ";
 "Every %lld seconds" = "%lld 秒ごと";
 "Every eligible file was checked." = "対象となるすべてのファイルをチェックしました。";
@@ -674,7 +667,6 @@
 "Show %@ in Finder" = "Finder で %@ を表示";
 "Show in Finder" = "Finder で表示";
 "Shows a confirmation before moving the selected copies" = "選択したコピーを移動する前に確認を表示します";
-"Similar Photos" = "類似写真";
 "Similarity is a visual estimate, not proof that two files are identical. Use Show in Finder to compare originals at full quality." = "類似度は見た目の推定であり、2 つのファイルが同一である証明ではありません。オリジナルを最大品質で比較するには「Finder で表示」を使用してください。";
 "Skipped items" = "スキップした項目";
 "Smallest first" = "小さい順";
@@ -688,7 +680,6 @@
 "Some protected locations are unavailable. Full Disk Access allows a more complete scan." = "一部の保護された場所を利用できません。フルディスクアクセスを許可すると、より完全なスキャンができます。";
 "Some selected files" = "選択した一部のファイル";
 "Sort" = "並べ替え";
-"Space Explorer" = "スペースエクスプローラ";
 "Stop" = "停止";
 "Stop scan" = "スキャンを停止";
 "Stopping keeps the results found so far." = "停止しても、これまでに見つかった結果は保持されます。";
@@ -944,6 +935,7 @@
 "Your version, release checks and how to install updates." = "現在のバージョン、リリースの確認、アップデートのインストール方法。";
 "macOS %@ or later" = "macOS %@ 以降";
 "Changes apply immediately" = "変更はすぐに適用されます";
+"Most changes apply immediately" = "ほとんどの変更はすぐに適用されます";
 "Opens quietly when you sign in to your Mac" = "Mac へのログイン時に目立たずに起動します";
 "A new language applies after Sift restarts" = "新しい言語は Sift の再起動後に適用されます";
 "Menu bar and sound" = "メニューバーとサウンド";
@@ -979,7 +971,6 @@
 "Day" = "曜日";
 "Time" = "時刻";
 "After each scan" = "スキャン後";
-"Moves what the scan selected to the Trash without asking" = "スキャンで選択された項目を確認なしでゴミ箱に移動します";
 "Minimum size" = "最小サイズ";
 "Auto-clean skips scans that would free less than this" = "解放される容量がこれより少ない場合、自動クリーンアップは実行されません";
 "A notification with what was found or cleaned" = "見つかった項目やクリーンアップした内容を通知します";
@@ -993,7 +984,6 @@
 "Found a problem?" = "問題が見つかりましたか?";
 "Issues are tracked on GitHub" = "問題は GitHub で管理されています";
 "Features" = "機能";
-"Apple Features" = "Apple の機能";
 "Review optional features and the storage used by Apple downloads." = "オプション機能と、Apple のダウンロードが使用しているストレージを確認します。";
 "Apple Features section" = "Apple の機能セクション";
 "Finishing backup removal. New scans are available when it stops." = "バックアップの削除を完了しています。終了すると新しいスキャンを開始できます。";
@@ -1066,6 +1056,8 @@
 "AC power" = "電源アダプタ";
 "battery power" = "バッテリー電源";
 "%@ of %@ mAh, service below 80%%" = "%@ / %@ mAh、80%% 未満で修理推奨";
+"%@ of %@ mAh" = "%@ / %@ mAh";
+"%@, service below 80%%" = "%@、80%% 未満で修理推奨";
 "service below 80%" = "80% 未満で修理推奨";
 "%lld registered" = "%lld 件登録済み";
 "No launch agents or daemons were found outside macOS system folders." = "macOS のシステムフォルダ以外に起動エージェントやデーモンは見つかりませんでした。";
@@ -1357,9 +1349,29 @@
 "Codex Sessions (Optional)" = "Codexのセッション（任意）";
 "Gemini CLI Temp Files" = "Gemini CLIの一時ファイル";
 "Chat history — not selected by default" = "チャット履歴 — デフォルトでは選択されません";
+"Shipped builds and dSYMs — not selected by default" = "出荷済みビルドとdSYM — デフォルトでは選択されません";
+"Excluded from cleanup: %@" = "クリーンアップから除外: %@";
+"The Trash is emptied through Finder." = "ゴミ箱はFinderから空にします。";
+"Not a supported AI tool path." = "サポートされていないAIツールのパスです。";
+"Temporary entry is in use: it %@" = "一時エントリが使用中です: %@";
+"Unsafe path: a symlink points elsewhere." = "安全でないパス: シンボリックリンクが別の場所を指しています。";
+"Outside the folders Sift cleans." = "Siftがクリーンアップするフォルダの外です。";
+"In use by a running Xcode build." = "実行中のXcodeビルドが使用しています。";
+"%lld item(s) skipped: %@" = "%lld件をスキップしました: %@";
 "Prompt history — not selected by default" = "プロンプト履歴 — デフォルトでは選択されません";
 "Session history — not selected by default" = "セッション履歴 — デフォルトでは選択されません";
 "Recoverable rewind data — not selected by default" = "復元可能な巻き戻しデータ — デフォルトでは選択されません";
 "Re-downloads when needed. Quit Claude to remove it." = "必要に応じて再ダウンロードされます。削除するにはClaudeを終了してください。";
 "Quit Claude to remove this." = "削除するにはClaudeを終了してください。";
 "Skipped: Claude is running. Quit Claude and scan again." = "スキップしました: Claudeが実行中です。Claudeを終了して再スキャンしてください。";
+"Skipped: this session is open. Quit the session and scan again." = "スキップしました: このセッションは開いています。セッションを終了して再スキャンしてください。";
+"Not scanned yet" = "まだスキャンしていません";
+"Scan to see whether uninstalled apps left files behind." = "スキャンして、削除したアプリがファイルを残していないか確認します。";
+"Couldn't compare installed apps" = "インストール済みアプリと比較できませんでした";
+"Sift needs the list of installed apps before it can call a file a leftover. Try again in a moment." = "Siftがファイルを残骸と判断するには、インストール済みアプリの一覧が必要です。しばらくしてから再度お試しください。";
+"Permanently deletes the junk the scan selected, without asking" = "スキャンで選択された不要なファイルを確認なしで完全に削除します";
+"Last checked %@" = "最終確認: %@";
+"Scheduled scan" = "定期スキャン";
+"No Leftovers" = "残存ファイルはありません";
+"Scan for leftover files" = "残存ファイルをスキャン";
+"Leftovers (%lld)" = "残存ファイル（%lld）";

@@ -235,7 +235,7 @@ private struct SettingsPanel: View {
                     .foregroundStyle(SiftColor.textTertiary)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
-            SiftCheckPill(text: Text("Changes apply immediately"))
+            SiftCheckPill(text: Text("Most changes apply immediately"))
         }
         .padding(.bottom, 4)
     }
@@ -645,7 +645,7 @@ struct ScheduleSettingsView: View {
             SiftSettingsLabel(title: Text("After each scan"))
             SiftSettingsGroup {
                 SiftSettingsToggleRow(Text("Auto-clean after scan"),
-                                      detail: Text("Moves what the scan selected to the Trash without asking"),
+                                      detail: Text("Permanently deletes the junk the scan selected, without asking"),
                                       isOn: $scheduler.config.autoClean)
                 SiftSettingsDivider()
                 SiftSettingsRow(Text("Minimum size"), detail: Text("Auto-clean skips scans that would free less than this")) {

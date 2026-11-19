@@ -32,11 +32,33 @@ struct OrphanListView: View {
                     }
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .siftSurface(.card)
-                } else if appState.orphanedFiles.isEmpty {
-                    EmptyStateView("No Orphaned Files", systemImage: "checkmark.circle", description: "No leftover files from uninstalled apps were found.", action: { appState.findOrphans() }, actionLabel: "Scan for Orphans", tint: SiftColor.success)
-                        .siftSurface(.card)
-                } else {
+                } else if !appState.orphanScanCompleted {
+                    // Nothing has been scanned yet: "No Orphaned Files" would
+                    // claim the app looked and found none.
+                    EmptyStateView(
+                        "Not scanned yet",
+                        systemImage: "magnifyingglass",
+                        description: "Scan to see whether uninstalled apps left files behind.",
+                        action: { appState.findOrphans() },
+                        actionLabel: "Scan for leftover files",
+                        tint: SiftColor.textSecondary
+                    )
+                    .siftSurface(.card)
+                } else if !appState.orphanedFiles.isEmpty {
                     table
+                } else if appState.orphanScanNeedsAppList {
+                    EmptyStateView(
+                        "Couldn't compare installed apps",
+                        systemImage: "exclamationmark.triangle",
+                        description: "Sift needs the list of installed apps before it can call a file a leftover. Try again in a moment.",
+                        action: { appState.findOrphans() },
+                        actionLabel: "Scan for leftover files",
+                        tint: SiftColor.warning
+                    )
+                    .siftSurface(.card)
+                } else {
+                    EmptyStateView("No Leftovers", systemImage: "checkmark.circle", description: "No leftover files from uninstalled apps were found.", action: { appState.findOrphans() }, actionLabel: "Scan for leftover files", tint: SiftColor.success)
+                        .siftSurface(.card)
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -94,7 +116,7 @@ struct OrphanListView: View {
                     appState.findOrphans()
                 } label: {
                     Label {
-                        Text("Scan for Orphans")
+                        Text("Scan for leftover files")
                     } icon: {
                         SiftIcon.rotateCw.image(15).foregroundStyle(SiftColor.textSecondary)
                     }
@@ -168,7 +190,7 @@ struct OrphanListView: View {
                     .font(.sift(13.5, weight: 500))
                     .foregroundStyle(SiftColor.textPrimary)
                 if !selectedOrphans.isEmpty {
-                    Text(verbatim: ByteCountFormatter.string(fromByteCount: selectedSize, countStyle: .file))
+                    Text(verbatim: SiftFormat.bytes(selectedSize))
                         .font(.siftMono(12.5))
                         .foregroundStyle(SiftColor.accent)
                 }
@@ -208,7 +230,9 @@ struct OrphanListView: View {
     }
 
     private var orphanedFilesTitle: String {
-        String(format: String(localized: "Orphaned Files (%lld)"), Int64(appState.orphanedFiles.count))
+        LeftoversTitle.text(
+            count: appState.orphanedFiles.count,
+            scanned: appState.orphanScanCompleted)
     }
 
     private var removeSelectedLabel: String {
@@ -451,7 +475,7 @@ private struct OrphanRowView: View {
 
             Group {
                 if let size = fileSize {
-                    Text(ByteCountFormatter.string(fromByteCount: size, countStyle: .file))
+                    Text(SiftFormat.bytes(size))
                 } else {
                     Text(verbatim: "…")
                 }

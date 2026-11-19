@@ -119,7 +119,7 @@ struct SimilarPhotosView: View {
             content
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-        .navigationTitle("Similar Photos")
+        .navigationTitle("Similar photos")
         .onDisappear {
             model.cancel()
         }
@@ -127,7 +127,7 @@ struct SimilarPhotosView: View {
 
     private var header: some View {
         SiftToolHeader(
-            Text("Similar Photos"),
+            Text("Similar photos"),
             eyebrow: Text("Tools"),
             subtitle: Text("Find visually related shots in a folder and review them side by side.")
         ) {
@@ -289,7 +289,7 @@ struct SimilarPhotosView: View {
     }
 
     private static func format(_ bytes: Int64) -> String {
-        ByteCountFormatter.string(fromByteCount: bytes, countStyle: .file)
+        SiftFormat.bytes(bytes)
     }
 }
 
@@ -327,7 +327,7 @@ private struct SimilarPhotoGroupCard: View {
     }
 
     private static func format(_ bytes: Int64) -> String {
-        ByteCountFormatter.string(fromByteCount: bytes, countStyle: .file)
+        SiftFormat.bytes(bytes)
     }
 }
 
@@ -384,6 +384,6 @@ private struct SimilarPhotoTile: View {
     }
 
     private static func format(_ bytes: Int64) -> String {
-        ByteCountFormatter.string(fromByteCount: bytes, countStyle: .file)
+        SiftFormat.bytes(bytes)
     }
 }

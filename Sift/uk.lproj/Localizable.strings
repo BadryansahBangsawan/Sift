@@ -3,7 +3,6 @@
 "Cleanup" = "Очищення";
 "Dashboard" = "Головна панель";
 "Installed Apps" = "Встановлені програми";
-"Orphaned Files" = "Залишкові файли";
 "Ready to clean" = "Готово до очищення";
 "Limited access" = "Обмежений доступ";
 "Full Disk Access granted" = "Надано повний доступ до диска";
@@ -138,8 +137,6 @@
 "Scanning for orphaned files..." = "Пошук залишкових файлів...";
 "No Orphaned Files" = "Залишкових файлів немає";
 "No leftover files from uninstalled apps were found." = "Залишків видалених програм не знайдено.";
-"Scan for Orphans" = "Знайти залишкові файли";
-"Orphaned Files (%lld)" = "Залишкові файли (%lld)";
 "Remove Selected (%lld)" = "Видалити вибране (%lld)";
 "Some files could not be removed" = "Деякі файли не вдалося видалити";
 "blocked by safety policy" = "заблоковано політикою безпеки";
@@ -151,9 +148,7 @@
 "Get Started" = "Почати";
 "Free, open-source macOS app manager and system cleaner." = "Безкоштовний менеджер програм і засіб очищення системи з відкритим кодом для macOS.";
 "Find junk files across your system" = "Знаходьте непотрібні файли в усій системі";
-"App Uninstaller" = "Засіб видалення програм";
 "Remove apps and all their files" = "Видаляйте програми разом з усіма їхніми файлами";
-"Orphan Finder" = "Пошук залишкових файлів";
 "Find leftovers from deleted apps" = "Знаходьте залишки видалених програм";
 "Full Disk Access" = "Повний доступ до диска";
 "We'll guide you through the next steps." = "Ми допоможемо виконати наступні кроки.";
@@ -455,7 +450,6 @@
 "Always exclude from cleanup" = "Завжди виключати з очищення";
 "Any age" = "Будь-який вік";
 "Any size" = "Будь-який розмір";
-"App Updates" = "Оновлення програм";
 "App and document packages are excluded: %@" = "Пакети програм і документів виключено: %@";
 "App bundle missing" = "Пакет програми відсутній";
 "App downloads are checked before opening." = "Завантажені програми перевіряються перед відкриттям.";
@@ -508,7 +502,6 @@
 "Delete local snapshot?" = "Видалити локальний знімок?";
 "Disabled" = "Вимкнено";
 "Downloaded apps are not being assessed by Gatekeeper." = "Gatekeeper не оцінює завантажені програми.";
-"Duplicate Finder" = "Пошук дублікатів";
 "Duplicate groups" = "Групи дублікатів";
 "Every %lld seconds" = "Кожні %lld секунд";
 "Every eligible file was checked." = "Кожен відповідний файл перевірено.";
@@ -674,7 +667,6 @@
 "Show %@ in Finder" = "Показати %@ у Finder";
 "Show in Finder" = "Показати у Finder";
 "Shows a confirmation before moving the selected copies" = "Показує підтвердження перед переміщенням вибраних копій";
-"Similar Photos" = "Схожі фото";
 "Similarity is a visual estimate, not proof that two files are identical. Use Show in Finder to compare originals at full quality." = "Схожість — це візуальна оцінка, а не доказ ідентичності двох файлів. Використайте «Показати у Finder», щоб порівняти оригінали в повній якості.";
 "Skipped items" = "Пропущені елементи";
 "Smallest first" = "Спершу дрібні";
@@ -688,7 +680,6 @@
 "Some protected locations are unavailable. Full Disk Access allows a more complete scan." = "Деякі захищені розташування недоступні. Повний доступ до диска дає змогу виконати повніше сканування.";
 "Some selected files" = "Деякі вибрані файли";
 "Sort" = "Сортувати";
-"Space Explorer" = "Огляд простору";
 "Stop" = "Зупинити";
 "Stop scan" = "Зупинити сканування";
 "Stopping keeps the results found so far." = "Після зупинки зберігаються вже знайдені результати.";
@@ -944,6 +935,7 @@
 "Your version, release checks and how to install updates." = "Ваша версія, перевірка випусків і спосіб встановлення оновлень.";
 "macOS %@ or later" = "macOS %@ або новіша";
 "Changes apply immediately" = "Зміни застосовуються одразу";
+"Most changes apply immediately" = "Більшість змін застосовується одразу";
 "Opens quietly when you sign in to your Mac" = "Тихо відкривається, коли ви входите в систему на Mac";
 "A new language applies after Sift restarts" = "Нова мова застосується після перезапуску програми Sift";
 "Menu bar and sound" = "Смуга меню та звук";
@@ -979,7 +971,6 @@
 "Day" = "День";
 "Time" = "Час";
 "After each scan" = "Після кожного сканування";
-"Moves what the scan selected to the Trash without asking" = "Переміщує вибране скануванням у Смітник без запиту";
 "Minimum size" = "Мінімальний розмір";
 "Auto-clean skips scans that would free less than this" = "Автоочищення пропускається, якщо звільниться менше";
 "A notification with what was found or cleaned" = "Сповіщення про те, що знайдено чи очищено";
@@ -993,7 +984,6 @@
 "Found a problem?" = "Знайшли проблему?";
 "Issues are tracked on GitHub" = "Проблеми відстежуються на GitHub";
 "Features" = "Функції";
-"Apple Features" = "Функції Apple";
 "Review optional features and the storage used by Apple downloads." = "Перегляньте додаткові функції та місце, яке займають завантаження Apple.";
 "Apple Features section" = "Розділ «Функції Apple»";
 "Finishing backup removal. New scans are available when it stops." = "Завершуємо видалення резервних копій. Нове сканування стане доступним після цього.";
@@ -1066,6 +1056,8 @@
 "AC power" = "живлення від мережі";
 "battery power" = "живлення від акумулятора";
 "%@ of %@ mAh, service below 80%%" = "%@ з %@ mAh, обслуговування нижче 80%%";
+"%@ of %@ mAh" = "%@ з %@ mAh";
+"%@, service below 80%%" = "%@, обслуговування нижче 80%%";
 "service below 80%" = "обслуговування нижче 80%";
 "%lld registered" = "Зареєстровано: %lld";
 "No launch agents or daemons were found outside macOS system folders." = "Агентів і демонів запуску поза системними папками macOS не знайдено.";
@@ -1357,9 +1349,29 @@
 "Codex Sessions (Optional)" = "Сеанси Codex (необов’язково)";
 "Gemini CLI Temp Files" = "Тимчасові файли Gemini CLI";
 "Chat history — not selected by default" = "Історія чату — не вибрано за замовчуванням";
+"Shipped builds and dSYMs — not selected by default" = "Готові збірки та dSYM — не вибрано за замовчуванням";
+"Excluded from cleanup: %@" = "Виключено з очищення: %@";
+"The Trash is emptied through Finder." = "Кошик очищується через Finder.";
+"Not a supported AI tool path." = "Непідтримуваний шлях інструмента ШІ.";
+"Temporary entry is in use: it %@" = "Тимчасовий запис використовується: %@";
+"Unsafe path: a symlink points elsewhere." = "Небезпечний шлях: символічне посилання вказує в інше місце.";
+"Outside the folders Sift cleans." = "Поза теками, які очищує Sift.";
+"In use by a running Xcode build." = "Використовується запущеним збиранням Xcode.";
+"%lld item(s) skipped: %@" = "Пропущено %lld елемент(ів): %@";
 "Prompt history — not selected by default" = "Історія запитів — не вибрано за замовчуванням";
 "Session history — not selected by default" = "Історія сеансів — не вибрано за замовчуванням";
 "Recoverable rewind data — not selected by default" = "Дані перемотування для відновлення — не вибрано за замовчуванням";
 "Re-downloads when needed. Quit Claude to remove it." = "Завантажується знову за потреби. Закрийте Claude, щоб видалити.";
 "Quit Claude to remove this." = "Закрийте Claude, щоб видалити це.";
 "Skipped: Claude is running. Quit Claude and scan again." = "Пропущено: Claude запущено. Закрийте Claude і повторіть сканування.";
+"Skipped: this session is open. Quit the session and scan again." = "Пропущено: цю сесію відкрито. Завершіть сесію та повторіть сканування.";
+"Not scanned yet" = "Ще не сканувалося";
+"Scan to see whether uninstalled apps left files behind." = "Запустіть сканування, щоб дізнатися, чи залишили видалені програми файли.";
+"Couldn't compare installed apps" = "Не вдалося порівняти встановлені програми";
+"Sift needs the list of installed apps before it can call a file a leftover. Try again in a moment." = "Sift потрібен список встановлених програм, щоб вважати файл залишком. Спробуйте ще раз за мить.";
+"Permanently deletes the junk the scan selected, without asking" = "Остаточно видаляє вибране скануванням сміття, не питаючи";
+"Last checked %@" = "Остання перевірка: %@";
+"Scheduled scan" = "Запланована перевірка";
+"No Leftovers" = "Залишків немає";
+"Scan for leftover files" = "Шукати залишкові файли";
+"Leftovers (%lld)" = "Залишки (%lld)";

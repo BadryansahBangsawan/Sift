@@ -2,6 +2,167 @@
 
 All notable user-facing changes to Sift. Sift was called PureMac before 4.0.0.
 
+## Unreleased
+
+### Fixed
+
+- The rail's schedule card keeps its title on one line when it fits — English
+  had started reading "Scheduled" / "scan" / "Off" on three lines — and wraps
+  only a title that really is wider than the card. The status line below the
+  title stays on one line, so "Off" and "Daily" are always visible.
+- The Leftovers page is called "Leftovers" above the heading and in the window
+  title, and shows a count only once a scan has finished: it used to say
+  "Orphaned Files (0)" on a page that had not looked yet.
+- The Leftovers empty state and its button are translated: twelve languages
+  showed the English "No Leftovers" and "Scan for leftover files". The
+  scanning line in eight languages also said "orphaned files" next to a screen
+  called Reste/Restos/残存ファイル, and now says the same thing the screen
+  does. A test reads every literal the UI shows and fails when one is missing
+  from any of the 13 tables.
+- Labels no longer truncate in other languages at the 1080 pt minimum window:
+  the storage capsules fit their label and value (the label moves to a second
+  line when the slice is narrow) and rail rows wrap instead of clipping, in all
+  13 localizations.
+- The auto-clean setting no longer says it moves selected files to the Trash.
+  An unattended clean deletes them, and the copy now says so.
+- Developer cache rows (Xcode, Homebrew, npm, Docker, language files) show
+  their real Modified date instead of a dash, so the age filter can judge them.
+- The Leftovers page no longer says "No Orphaned Files" before it has looked:
+  it shows "Not scanned yet" first, and "Couldn't compare installed apps" when
+  the scan had no app list to compare against.
+- The window no longer freezes while a Leftovers scan fetches the app list.
+  Listing every installed app ran on the main actor and took seconds; it now
+  runs on the scan's background task.
+- Finder and WebKit metadata are no longer offered as leftovers: `.DS_Store`
+  files, WebKit's shared LocalStorage folder and the SwiftPM cache belong to no
+  app, so "the owner is uninstalled" said nothing about them.
+- Leftovers no longer lists installed apps' own data. The scan ran against
+  whatever the launch refresh had loaded so far, so with the installed-app list
+  still empty every folder looked orphaned (44 rows on a machine that has 20).
+  It now fetches the list first and, if it still has none, reports nothing and
+  says why.
+- A category you just emptied stays scanned: the page says "No files found"
+  instead of "not scanned yet", the Overview row keeps its "0 items", and an
+  emptied Trash no longer claims it was never scanned.
+- Xcode Archives are no longer pre-selected or deleted outright. They hold your
+  shipped builds and the dSYMs needed for crash reports and cannot be
+  regenerated, so the row is opt-in, says what it holds, moves to the Trash, and
+  stays out of an unattended scheduled clean unless you select it.
+- A cleanup that skipped a row on purpose (an excluded path, the Trash itself,
+  Claude running, a session you resumed, a temp entry that turned live, a
+  symlink or a path outside the folders Sift cleans) no longer reports
+  "N item(s) need Full Disk Access" and offers a Grant Access retry that can
+  never work. It shows the reason instead.
+- Pages are named the way the rail names them: "Space explorer", "Duplicates",
+  "Similar photos", "Apple features", "App updates", and the Leftovers screen
+  and onboarding rows ("Overview", "Uninstaller", "Leftovers") no longer use a
+  second set of names.
+- VoiceOver hears the cleanup search field and its clear button as two
+  controls: the field is named by its prompt and the × is "Clear search", not
+  both "Filter cleanup files".
+- The rail's schedule card says "Scheduled scan" — matching Settings' "Enable
+  scheduled scanning" — until auto-clean is on, when it says "Scheduled
+  cleanup". It used to promise a cleanup for a schedule that only scans.
+- App updates now says when it last checked ("Last checked 1 minute ago",
+  "Last checked just now") as one sentence in every language. The eyebrow used
+  to render a live duration — "1 min, 19 secs" — that ticked every second and
+  never said "ago", glued to a separate "Last checked" fragment.
+- Cleanup history now names each row the way the app names it today ("AI
+  tools", "System junk", "Developer caches") and in the language on screen.
+  Records written by an older build keep their meaning: their stored text is
+  read back through every shipped language.
+- The removal sheet and the selection bar list files in the same order as the
+  list (name, size or date) instead of the order the scan produced; the
+  dashboard's sheet, which has no sort control, reads largest first.
+- The Uninstaller footer now says what the selection is on a line of its own
+  ("25 items, 1.12 GB") above the buttons; at the minimum window width the
+  summary used to be squeezed to a few points between "Dry run" and "Review
+  removal", and its wording now follows the plural rules ("1 item").
+- Arabic no longer loses the size in a count of zero, one or two files, and
+  no longer crashes there: a label such as "1 item, 2 MB" put the size in the
+  number's place and read `لا عناصر، (null)` before the crash.
+- Sizes no longer read "Zero KB" or "999 bytes" in the Uninstaller, its
+  leftovers, the History rows, the scan notification or `Sift scan`: every
+  size in the app now comes from the one formatter the dashboard uses, so an
+  empty folder reads "0 KB".
+- Overview "Where it sits" no longer clips its category names at the minimum
+  window width. The row gave half the leftover space to the meter, so
+  "Developer caches" read "Developer c…" while the meter still had room to
+  shrink; the label now keeps its full width and the meter gives way first.
+- AI tools no longer moves a session transcript to the Trash when you resumed
+  that session after the scan. The scan already treats a session touched in the
+  last ten minutes as open; cleanup now re-checks the transcript before
+  removing it, so a running agent keeps writing to its own history.
+- System Junk no longer repeats the AI tool log folders (for example
+  `~/Library/Logs/Claude`) that the AI tools category already lists, so the
+  total junk figure is no longer inflated by the same log bytes counted twice.
+- Biggest single wins no longer re-sorts every scanned row with locale-aware
+  comparison on each cleanup update; on a 3000-row cleanup that sort was the
+  main-thread stall behind the remaining freeze.
+- Cleaning no longer republishes progress for every removed item. A large
+  cleanup asked the window to redraw thousands of times, which looked like the
+  app freezing for seconds; it now updates about once per percent.
+- Purgeable Space lists the single purge row, so its total matches what the
+  category can reclaim; Time Machine snapshots stay on the Performance page
+  with their own delete action.
+- Emptied Trash no longer counts a file it could not delete — for example an
+  excluded, in-use item — as freed space.
+- Battery status no longer reports "Charging" while macOS is holding the charge
+  at a percentage — optimised charging's "AC attached; not charging".
+- AI tools no longer report space as freed when opt-in chat history and the
+  Claude VM image are moved to the Trash, where they still take up room until
+  the Trash is emptied.
+- Xcode Junk no longer reports XcodeBuildMCP DerivedData as freed while it sits
+  in the Trash; the bytes count once, when the Trash is emptied.
+- User Cache no longer repeats the Xcode caches and AI tool caches that Xcode
+  Junk and AI tools already list, so the total junk figure is no longer
+  inflated by the same bytes counted twice.
+- `sift-cli uninstall` now lists the app's leftover files under `~/Library`
+  (preferences, caches, containers and the rest). It previously reported only
+  the app bundle, so the data it promised to clean stayed on disk.
+- `sift-cli uninstall` now lists a LaunchAgent whose `Label` is the app's
+  bundle identifier even when the file name differs.
+- `sift-cli optimize` and `sift-cli doctor` now report memory in the binary
+  units macOS uses, so a 16 GB Mac reads 16 GB instead of 17.2 GB.
+- The menu bar popover now quotes disk usage in the same decimal units as the
+  Overview. A 245.1 GB disk no longer reads 228.4 GB there.
+- `sift-cli` no longer prints a rounded size as "1000 KB" or "1000 MB"; it
+  moves up to "1 MB" and "1 GB" like the app does.
+- `sift-cli dupes` no longer reports a file as a duplicate when it could not be
+  read in full. A failed read used to hash only the bytes read so far, so two
+  files that merely shared a prefix could be paired and one listed for removal.
+- `sift-cli` now prints an empty size as "0 KB" (as the app does) and a single
+  byte as "1 byte" instead of "1 bytes".
+- `sift-cli` now keeps its settings and ignore list under the `HOME` it is run
+  with (`$HOME/.config/sift`), as the XDG spec defines, instead of always the
+  login user's home; `XDG_CONFIG_HOME` still wins when it is an absolute path.
+- The selected-count badge in a category keeps four- and five-digit counts on
+  one line instead of wrapping into a tall oval.
+- Cleaning a category with thousands of rows no longer freezes the window while
+  it runs: the visible rows are filtered and sorted once per change instead of
+  four times per redraw (largest main-run-loop gap on a 3000-row fixture fell
+  from 1.8 s to 218 ms).
+- The Overview "Where it sits" bars no longer collapse to a dot at the minimum
+  window width; the meter keeps a readable width and the label truncates with
+  the full name on hover.
+- Counts now agree with their number in every language ("1 item", "2 объекта",
+  "5 элементов"); Russian, Ukrainian, Polish and Arabic use their full plural
+  rules instead of a single fixed form.
+- The same holds for the counts outside the dashboard and file totals: folder
+  rows, process rows, schedule runs, battery cycles, the selection bar, the
+  removal warnings and the details labels, in all 13 languages. The
+  "3 of 1 item" label carries two variables, so each language pluralises the
+  number it attaches the noun to.
+- The rail now fades the edge that hides rows, so a short window no longer
+  looks like the list ends at the last visible item.
+- Settings no longer claims every change applies immediately next to a language
+  row that needs a restart; the header chip now says "Most changes apply
+  immediately".
+- Performance no longer prints "service below 80%" under a battery health
+  reading that is above 80%; the note appears only when the reading is under
+  the threshold, and the caption no longer truncates at the minimum window
+  width.
+
 ## 4.0.1
 
 ### Changed

@@ -109,7 +109,7 @@ struct CLI {
         let apps = AppInfoFetcher.shared.fetchInstalledApps()
         print("Installed Apps (\(apps.count)):")
         for app in apps {
-            let size = ByteCountFormatter.string(fromByteCount: app.size, countStyle: .file)
+            let size = SiftFormat.bytes(app.size)
             print("  \(app.appName.padding(toLength: 35, withPad: " ", startingAt: 0)) \(size.padding(toLength: 12, withPad: " ", startingAt: 0)) \(app.bundleIdentifier)")
         }
     }
@@ -123,13 +123,13 @@ struct CLI {
         print("Category                Items     Size")
         print("----------------------  -----     --------")
         for (name, count, size) in results {
-            let sizeStr = ByteCountFormatter.string(fromByteCount: size, countStyle: .file)
+            let sizeStr = SiftFormat.bytes(size)
             print("\(name.padding(toLength: 22, withPad: " ", startingAt: 0))  \(String(count).padding(toLength: 5, withPad: " ", startingAt: 0))     \(sizeStr)")
             totalSize += size
             totalItems += count
         }
         print("----------------------  -----     --------")
-        let totalStr = ByteCountFormatter.string(fromByteCount: totalSize, countStyle: .file)
+        let totalStr = SiftFormat.bytes(totalSize)
         print("Total                   \(String(totalItems).padding(toLength: 5, withPad: " ", startingAt: 0))     \(totalStr)")
     }
 

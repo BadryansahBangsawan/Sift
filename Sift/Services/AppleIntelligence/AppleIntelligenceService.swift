@@ -323,7 +323,7 @@ final class AppleIntelligenceService {
         }
         for set in plan.modelSets {
             let size = plan.modelBytes[set.name].map {
-                ByteCountFormatter.string(fromByteCount: $0, countStyle: .file)
+                SiftFormat.bytes($0)
             } ?? String(localized: "size unknown")
             plan.changes.append(AppleIntelligenceChange(
                 id: "model:\(set.name)",

@@ -129,6 +129,12 @@ final class AppState: ObservableObject {
     @Published var selectedFiles: Set<URL> = []
     @Published var orphanedFiles: [URL] = []
     @Published var isSearchingOrphans: Bool = false
+    /// Whether an orphan scan finished, so the page can tell "not scanned yet"
+    /// from "scanned, nothing found".
+    @Published var orphanScanCompleted: Bool = false
+    /// Set when the scan refused because the installed-app list was empty:
+    /// with no IDs known every folder would look orphaned.
+    @Published var orphanScanNeedsAppList: Bool = false
     @Published var isLoadingApps: Bool = false
     @Published var isScanningAppFiles: Bool = false
     @Published var isRemovingAppFiles = false
@@ -153,11 +159,13 @@ final class AppState: ObservableObject {
 
     var scheduler = SchedulerService()
     private let scanEngine: ScanEngine
-    private let cleaningEngine = CleaningEngine()
+    private let cleaningEngine: CleaningEngine
     private let locationsProvider: () -> Locations
     private let appFileScanner: AppFileScanner
     private let appFileTrasher: AppFileTrasher
     private let trashEmptier: TrashEmptier
+    /// The installed-app list the orphan scan checks against.
+    private let installedAppsProvider: () -> [InstalledApp]
 
     // MARK: - Computed
 
@@ -192,7 +200,14 @@ final class AppState: ObservableObject {
         let items = allResults.flatMap(\.items).filter { $0.isSelected && !$0.isActionItem }
         return Array(items.sorted { left, right in
             if left.size != right.size { return left.size > right.size }
-            return left.name.localizedStandardCompare(right.name) == .orderedAscending
+            // Plain string order, not localizedStandardCompare: this sorts
+            // every scanned row again on each cleanup publication, and
+            // locale-aware collation costs microseconds per comparison. With
+            // thousands of equal-size rows that blocked the window for
+            // hundreds of milliseconds (sampled), and the order depended on
+            // the user's locale. Ties break by name bytes, then by path.
+            if left.name != right.name { return left.name < right.name }
+            return left.path < right.path
         }.prefix(max(0, limit)))
     }
 
@@ -235,15 +250,19 @@ final class AppState: ObservableObject {
         appFileScanner: @escaping AppFileScanner = AppState.defaultAppFileScanner,
         appFileTrasher: @escaping AppFileTrasher = AppState.defaultAppFileTrasher,
         scanEngine: ScanEngine = ScanEngine(),
+        cleaningEngine: CleaningEngine = CleaningEngine(),
         historyStore: CleanupHistoryStore = CleanupHistoryStore(),
-        trashEmptier: @escaping TrashEmptier = AppState.finderEmptyTrash
+        trashEmptier: @escaping TrashEmptier = AppState.finderEmptyTrash,
+        installedAppsProvider: @escaping () -> [InstalledApp] = { AppInfoFetcher.shared.fetchInstalledApps() }
     ) {
         self.locationsProvider = locationsProvider
         self.appFileScanner = appFileScanner
         self.appFileTrasher = appFileTrasher
         self.scanEngine = scanEngine
+        self.cleaningEngine = cleaningEngine
         self.historyStore = historyStore
         self.trashEmptier = trashEmptier
+        self.installedAppsProvider = installedAppsProvider
         cleanupHistory = historyStore.load()
         lastScanDate = UserDefaults.standard.object(forKey: Self.lastScanDateKey) as? Date
 
@@ -558,7 +577,7 @@ final class AppState: ObservableObject {
     }
 
     private static func fileCountLabel(_ count: Int) -> String {
-        count == 1 ? String(localized: "1 file") : String(localized: "\(count) files")
+        String(localized: "\(count) files")
     }
 
     private nonisolated static func isMissingFileError(_ nsError: NSError) -> Bool {
@@ -618,8 +637,33 @@ final class AppState: ObservableObject {
         isSearchingOrphans = true
         orphanedFiles = []
         Task.detached(priority: .userInitiated) {
-            let locations = Locations()
-            let knownApps = await MainActor.run { self.installedApps }
+            // Read the closures on the main actor, then call them off it:
+            // both walk the file system and take seconds, which would freeze
+            // the window if they ran where the UI draws.
+            let locationsProvider = await MainActor.run { self.locationsProvider }
+            let installedAppsProvider = await MainActor.run { self.installedAppsProvider }
+            let locations = locationsProvider()
+            var knownApps = await MainActor.run { self.installedApps }
+            if knownApps.isEmpty {
+                // The list loads in the background at launch. With none of the
+                // IDs known every folder looks orphaned, so fetch it here
+                // instead of trusting an empty snapshot.
+                let fetched = installedAppsProvider()
+                knownApps = fetched
+                await MainActor.run { [weak self] in
+                    if self?.installedApps.isEmpty == true { self?.installedApps = fetched }
+                }
+            }
+            guard !knownApps.isEmpty else {
+                // Still no app list: report nothing rather than calling every
+                // folder an orphan, and let the page say why.
+                await MainActor.run { [weak self] in
+                    self?.orphanScanNeedsAppList = true
+                    self?.orphanScanCompleted = true
+                    self?.isSearchingOrphans = false
+                }
+                return
+            }
             let knownIDs = Set(knownApps.map { $0.bundleIdentifier.normalizedForMatching() })
             let knownNames = Set(knownApps.map { $0.appName.normalizedForMatching() })
             // Paths the user marked "Always Ignore" (issue #114). These were
@@ -655,6 +699,8 @@ final class AppState: ObservableObject {
             let sorted = orphans.sorted { $0.lastPathComponent < $1.lastPathComponent }
             await MainActor.run { [weak self] in
                 self?.orphanedFiles = sorted
+                self?.orphanScanNeedsAppList = false
+                self?.orphanScanCompleted = true
                 self?.isSearchingOrphans = false
             }
         }
@@ -870,6 +916,7 @@ final class AppState: ObservableObject {
             result.freedSpace += admin.freedSpace
             result.errors.append(contentsOf: admin.errors)
             result.protectedPaths.formUnion(admin.protectedPaths)
+            result.skippedPaths.merge(admin.skippedPaths) { current, _ in current }
         }
 
         totalFreedSpace = result.freedSpace
@@ -885,15 +932,13 @@ final class AppState: ObservableObject {
                 selectedCleanupItems.remove(item.id)
                 deselectedItems.remove(item.id)
             }
-            if remaining.isEmpty {
-                categoryResults.removeValue(forKey: cat)
-            } else {
-                categoryResults[cat] = CategoryResult(
-                    category: cat,
-                    items: remaining,
-                    totalSize: remaining.reduce(0) { $0 + $1.size }
-                )
-            }
+            // An emptied category keeps an empty result: it was scanned, and
+            // the page must show "No files found", not "not scanned yet".
+            categoryResults[cat] = CategoryResult(
+                category: cat,
+                items: remaining,
+                totalSize: remaining.reduce(0) { $0 + $1.size }
+            )
         }
         totalJunkSize = categoryResults.values.reduce(0) { $0 + $1.totalSize }
 
@@ -901,7 +946,7 @@ final class AppState: ObservableObject {
         // cleanup uses. Without this, an FDA revocation between grant and
         // retry would silently drop errors instead of re-popping the sheet.
         let survivors = survivingItems(from: items, result: result)
-        handleCleanOutcome(errors: result.errors, survivors: survivors)
+        handleCleanOutcome(errors: result.errors, survivors: survivors, skips: result.skippedPaths)
 
         scanState = result.itemsCleaned > 0 ? .cleaned : .completed
         loadDiskInfo()
@@ -1029,6 +1074,7 @@ final class AppState: ObservableObject {
                 result.freedSpace += admin.freedSpace
                 result.errors.append(contentsOf: admin.errors)
                 result.protectedPaths.formUnion(admin.protectedPaths)
+                result.skippedPaths.merge(admin.skippedPaths) { current, _ in current }
             }
 
             totalFreedSpace = result.freedSpace
@@ -1047,19 +1093,15 @@ final class AppState: ObservableObject {
                     selectedCleanupItems.remove(item.id)
                     deselectedItems.remove(item.id)
                 }
-                if remaining.isEmpty {
-                    categoryResults.removeValue(forKey: cat)
-                } else {
-                    categoryResults[cat] = CategoryResult(
-                        category: cat,
-                        items: remaining,
-                        totalSize: remaining.reduce(0) { $0 + $1.size }
-                    )
-                }
+                categoryResults[cat] = CategoryResult(
+                    category: cat,
+                    items: remaining,
+                    totalSize: remaining.reduce(0) { $0 + $1.size }
+                )
             }
             totalJunkSize = categoryResults.values.reduce(0) { $0 + $1.totalSize }
 
-            handleCleanOutcome(errors: result.errors, survivors: survivors)
+            handleCleanOutcome(errors: result.errors, survivors: survivors, skips: result.skippedPaths)
 
             scanState = result.itemsCleaned > 0 ? .cleaned : .completed
             loadDiskInfo()
@@ -1110,20 +1152,16 @@ final class AppState: ObservableObject {
                     selectedCleanupItems.remove(item.id)
                     deselectedItems.remove(item.id)
                 }
-                if remaining.isEmpty {
-                    categoryResults.removeValue(forKey: category)
-                } else {
-                    categoryResults[category] = CategoryResult(
-                        category: category,
-                        items: remaining,
-                        totalSize: remaining.reduce(0) { $0 + $1.size }
-                    )
-                }
+                categoryResults[category] = CategoryResult(
+                    category: category,
+                    items: remaining,
+                    totalSize: remaining.reduce(0) { $0 + $1.size }
+                )
             }
             totalJunkSize = categoryResults.values.reduce(0) { $0 + $1.totalSize }
 
             let survivors = survivingItems(from: selectedItems, result: cleanResult)
-            handleCleanOutcome(errors: cleanResult.errors, survivors: survivors)
+            handleCleanOutcome(errors: cleanResult.errors, survivors: survivors, skips: cleanResult.skippedPaths)
 
             scanState = cleanResult.itemsCleaned > 0 ? .cleaned : .completed
             loadDiskInfo()
@@ -1139,13 +1177,15 @@ final class AppState: ObservableObject {
     ) {
         let categories = Set(items.filter { result.cleanedPaths.contains($0.path) }.map(\.category))
         let category = categories.count == 1 ? categories.first : nil
+        // The stored title is a key, not a translation: the row resolves it in
+        // the language on screen when it is drawn (see CleanupHistoryTitle).
         let title: String
         if let category {
-            title = String(localized: String.LocalizationValue(category.rawValue))
+            title = category.rawValue
         } else if source == .scheduled {
-            title = String(localized: "Scheduled cleanup")
+            title = "Scheduled cleanup"
         } else {
-            title = String(localized: "Smart Scan cleanup")
+            title = "Smart Scan cleanup"
         }
         cleanupHistory = historyStore.record(
             freedBytes: result.freedSpace,
@@ -1167,17 +1207,39 @@ final class AppState: ObservableObject {
         return items.filter {
             !$0.isActionItem &&
                 !result.cleanedPaths.contains($0.path) &&
-                !result.protectedPaths.contains($0.path)
+                !result.protectedPaths.contains($0.path) &&
+                !result.skippedPaths.keys.contains($0.path)
         }
     }
 
     /// Inspect a clean batch's leftovers and either route the user into the
     /// PermissionSheet (FDA is the most likely cause) or surface a richer
     /// error alert that lists actual paths instead of "Check the log".
-    private func handleCleanOutcome(errors: [String], survivors: [CleanableItem]) {
+    private func handleCleanOutcome(
+        errors: [String],
+        survivors: [CleanableItem],
+        skips: [String: String] = [:]
+    ) {
+        // A deliberate skip (a temp entry that turned live, Claude running, a
+        // session the user resumed, an excluded path) is neither a failure nor
+        // something Full Disk Access could fix: it is reported with its own
+        // reason so the user is not sent into a Grant Access loop.
+        let skipReasons = Array(Set(skips.values)).sorted()
         lastCleanupHadFailures = !errors.isEmpty || !survivors.isEmpty
-        guard !errors.isEmpty || !survivors.isEmpty else {
+        guard !errors.isEmpty || !survivors.isEmpty || !skipReasons.isEmpty else {
             cleanError = nil
+            cleanErrorIsFDAFixable = false
+            pendingPermissionRetryItems = []
+            return
+        }
+        if errors.isEmpty, survivors.isEmpty {
+            cleanError = skips.count == 1
+                ? skipReasons.first
+                : String(
+                    format: String(localized: "%lld item(s) skipped: %@"),
+                    Int64(skips.count),
+                    skipReasons.prefix(2).joined(separator: " ")
+                )
             cleanErrorIsFDAFixable = false
             pendingPermissionRetryItems = []
             return
@@ -1223,19 +1285,23 @@ final class AppState: ObservableObject {
 
         // Measure before and after rather than trusting the last scan: the
         // Trash may have changed since, and Finder reports no byte count.
-        let before = await scanEngine.scanCategory(.trash).totalSize
+        // Both sides are measured over the rows the user sees, so an excluded
+        // item that survives the empty (Finder refused it, a file is in use)
+        // is never counted as freed.
+        let before = applyingCleanupExclusions(to: await scanEngine.scanCategory(.trash))
         let error = await trashEmptier()
         let after = applyingCleanupExclusions(to: await scanEngine.scanCategory(.trash))
 
-        categoryResults[.trash] = after.items.isEmpty ? nil : after
+        // Keep the scanned state: an emptied Trash is empty, not unscanned.
+        categoryResults[.trash] = after
         totalJunkSize = categoryResults.values.reduce(0) { $0 + $1.totalSize }
 
-        let freed = max(0, before - after.totalSize)
+        let freed = max(0, before.totalSize - after.totalSize)
         if freed > 0 {
             cleanupHistory = historyStore.record(
                 freedBytes: freed,
                 source: .manual,
-                title: String(localized: "Emptied Trash"),
+                title: "Emptied Trash",
                 category: .trash
             )
             lastCleanedDate = Date()
@@ -1318,7 +1384,7 @@ final class AppState: ObservableObject {
     private func sendNotification(freed: Int64) {
         let content = UNMutableNotificationContent()
         content.title = "Sift"
-        let sizeStr = ByteCountFormatter.string(fromByteCount: freed, countStyle: .file)
+        let sizeStr = SiftFormat.bytes(freed)
         content.body = String(format: NSLocalizedString("Found %@ of junk files.", comment: ""), sizeStr)
         content.sound = .default
 

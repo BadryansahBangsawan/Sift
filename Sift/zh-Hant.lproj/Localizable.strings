@@ -3,7 +3,6 @@
 "Cleanup" = "清理";
 "Dashboard" = "儀表板";
 "Installed Apps" = "已安裝的應用程式";
-"Orphaned Files" = "孤立檔案";
 "Ready to clean" = "可以清理";
 "Limited access" = "存取受限";
 "Full Disk Access granted" = "已授予完整磁碟取用權";
@@ -99,11 +98,9 @@
 "Remove" = "移除";
 
 /* Orphans */
-"Scanning for orphaned files..." = "正在掃描孤立檔案...";
+"Scanning for orphaned files..." = "正在掃描殘留檔案...";
 "No Orphaned Files" = "沒有孤立檔案";
 "No leftover files from uninstalled apps were found." = "未發現已解除安裝應用程式的殘留檔案。";
-"Scan for Orphans" = "掃描孤立檔案";
-"Orphaned Files (%lld)" = "孤立檔案 (%lld)";
 "Remove Selected (%lld)" = "移除所選 (%lld)";
 "Some files could not be removed" = "部分檔案無法移除";
 "blocked by safety policy" = "已被安全性原則阻擋";
@@ -115,9 +112,7 @@
 "Get Started" = "開始使用";
 "Free, open-source macOS app manager and system cleaner." = "免費、開放原始碼的 macOS 應用程式管理與系統清理工具。";
 "Find junk files across your system" = "在系統中尋找垃圾檔案";
-"App Uninstaller" = "應用程式解除安裝";
 "Remove apps and all their files" = "移除應用程式及其所有檔案";
-"Orphan Finder" = "孤立檔案搜尋";
 "Find leftovers from deleted apps" = "尋找已刪除應用程式的殘留";
 "Full Disk Access" = "完整磁碟取用權";
 "We'll guide you through the next steps." = "我們將引導你完成接下來的步驟。";
@@ -455,7 +450,6 @@
 "Always exclude from cleanup" = "永遠從清理中排除";
 "Any age" = "任何年齡";
 "Any size" = "任何大小";
-"App Updates" = "App 更新";
 "App and document packages are excluded: %@" = "已排除 App 與文件套件：%@";
 "App bundle missing" = "缺少 App 套件";
 "App downloads are checked before opening." = "下載的 App 會在開啟前接受檢查。";
@@ -508,7 +502,6 @@
 "Delete local snapshot?" = "要刪除本機快照嗎？";
 "Disabled" = "已停用";
 "Downloaded apps are not being assessed by Gatekeeper." = "下載的 App 未由 Gatekeeper 評估。";
-"Duplicate Finder" = "重複檔案尋找器";
 "Duplicate groups" = "重複項目群組";
 "Every %lld seconds" = "每 %lld 秒";
 "Every eligible file was checked." = "已檢查每個符合條件的檔案。";
@@ -674,7 +667,6 @@
 "Show %@ in Finder" = "在 Finder 中顯示 %@";
 "Show in Finder" = "在 Finder 中顯示";
 "Shows a confirmation before moving the selected copies" = "移動所選副本前顯示確認";
-"Similar Photos" = "相似照片";
 "Similarity is a visual estimate, not proof that two files are identical. Use Show in Finder to compare originals at full quality." = "相似度只是視覺估算，並非兩個檔案完全相同的證明。使用「在 Finder 中顯示」以完整品質比對原始檔案。";
 "Skipped items" = "略過的項目";
 "Smallest first" = "最小優先";
@@ -688,7 +680,6 @@
 "Some protected locations are unavailable. Full Disk Access allows a more complete scan." = "部分受保護的位置無法使用。完整磁碟取用權可進行更完整的掃描。";
 "Some selected files" = "部分所選檔案";
 "Sort" = "排序";
-"Space Explorer" = "空間瀏覽器";
 "Stop" = "停止";
 "Stop scan" = "停止掃描";
 "Stopping keeps the results found so far." = "停止後會保留目前找到的結果。";
@@ -944,6 +935,7 @@
 "Your version, release checks and how to install updates." = "目前版本、版本檢查以及更新的安裝方式。";
 "macOS %@ or later" = "macOS %@ 或以上版本";
 "Changes apply immediately" = "變更會立即生效";
+"Most changes apply immediately" = "大多數變更會立即生效";
 "Opens quietly when you sign in to your Mac" = "登入 Mac 時在背景安靜開啟";
 "A new language applies after Sift restarts" = "重新啟動 Sift 後才會套用新語言";
 "Menu bar and sound" = "選單列與聲音";
@@ -979,7 +971,6 @@
 "Day" = "星期";
 "Time" = "時間";
 "After each scan" = "每次掃描後";
-"Moves what the scan selected to the Trash without asking" = "不經詢問，直接將掃描選取的項目移到垃圾桶";
 "Minimum size" = "最小大小";
 "Auto-clean skips scans that would free less than this" = "可釋放空間小於此值時，略過自動清理";
 "A notification with what was found or cleaned" = "傳送通知，告知找到或清理的內容";
@@ -993,7 +984,6 @@
 "Found a problem?" = "發現問題？";
 "Issues are tracked on GitHub" = "問題會在 GitHub 上追蹤";
 "Features" = "功能";
-"Apple Features" = "Apple 功能";
 "Review optional features and the storage used by Apple downloads." = "檢視選用功能以及 Apple 下載內容所使用的儲存空間。";
 "Apple Features section" = "Apple 功能區段";
 "Finishing backup removal. New scans are available when it stops." = "正在完成備份移除。結束後即可開始新的掃描。";
@@ -1066,6 +1056,8 @@
 "AC power" = "電源轉換器";
 "battery power" = "電池電源";
 "%@ of %@ mAh, service below 80%%" = "%@ / %@ mAh，低於 80%% 需送修";
+"%@ of %@ mAh" = "%@ / %@ mAh";
+"%@, service below 80%%" = "%@，低於 80%% 需送修";
 "service below 80%" = "低於 80% 需送修";
 "%lld registered" = "已註冊 %lld 個";
 "No launch agents or daemons were found outside macOS system folders." = "在 macOS 系統資料夾之外找不到啟動代理程式或背景常駐程式。";
@@ -1357,9 +1349,29 @@
 "Codex Sessions (Optional)" = "Codex 工作階段（可選）";
 "Gemini CLI Temp Files" = "Gemini CLI 暫存檔案";
 "Chat history — not selected by default" = "聊天記錄 — 預設不選取";
+"Shipped builds and dSYMs — not selected by default" = "已發佈建置與 dSYM — 預設不選取";
+"Excluded from cleanup: %@" = "已從清理中排除：%@";
+"The Trash is emptied through Finder." = "垃圾桶需透過 Finder 清空。";
+"Not a supported AI tool path." = "不是支援的 AI 工具路徑。";
+"Temporary entry is in use: it %@" = "暫存項目正在使用：%@";
+"Unsafe path: a symlink points elsewhere." = "不安全的路徑：符號連結指向其他位置。";
+"Outside the folders Sift cleans." = "不在 Sift 清理的檔案夾內。";
+"In use by a running Xcode build." = "正被執行中的 Xcode 建置使用。";
+"%lld item(s) skipped: %@" = "已略過 %lld 項：%@";
 "Prompt history — not selected by default" = "提示歷程記錄 — 預設不選取";
 "Session history — not selected by default" = "工作階段歷程記錄 — 預設不選取";
 "Recoverable rewind data — not selected by default" = "可復原的倒轉資料 — 預設不選取";
 "Re-downloads when needed. Quit Claude to remove it." = "需要時會重新下載。結束 Claude 後再刪除。";
 "Quit Claude to remove this." = "結束 Claude 後再刪除。";
 "Skipped: Claude is running. Quit Claude and scan again." = "已略過：Claude 正在執行。結束 Claude 後重新掃描。";
+"Skipped: this session is open. Quit the session and scan again." = "已略過：此工作階段處於開啟狀態。結束工作階段後重新掃描。";
+"Not scanned yet" = "尚未掃描";
+"Scan to see whether uninstalled apps left files behind." = "掃描以查看已解除安裝的應用程式是否留下了檔案。";
+"Couldn't compare installed apps" = "無法與已安裝的應用程式比較";
+"Sift needs the list of installed apps before it can call a file a leftover. Try again in a moment." = "Sift 需要已安裝應用程式的列表，才能判斷檔案是否為殘留。請稍後再試。";
+"Permanently deletes the junk the scan selected, without asking" = "無需確認即可永久刪除掃描所選的垃圾檔案";
+"Last checked %@" = "上次檢查：%@";
+"Scheduled scan" = "定時掃描";
+"No Leftovers" = "沒有殘留檔案";
+"Scan for leftover files" = "掃描殘留檔案";
+"Leftovers (%lld)" = "殘留檔案（%lld）";

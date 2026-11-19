@@ -1,19 +1,31 @@
 import Foundation
 
 enum AppPaths {
-    private static var configBase: URL {
-        if let xdg = ProcessInfo.processInfo.environment["XDG_CONFIG_HOME"],
-           !xdg.isEmpty,
-           xdg.hasPrefix("/") {
+    /// The base settings directory.
+    ///
+    /// XDG says `XDG_CONFIG_HOME` defaults to `$HOME/.config`, so the shell's
+    /// `HOME` is honoured before the login user's. A harness (or a sandbox, or
+    /// `HOME=/tmp/x sift-cli`) must not read or write the real settings.
+    static func configBase(
+        environment: [String: String] = ProcessInfo.processInfo.environment,
+        loginHome: String = FileManager.default.homeDirectoryForCurrentUser.path
+    ) -> URL {
+        if let xdg = environment["XDG_CONFIG_HOME"], xdg.hasPrefix("/") {
             return URL(fileURLWithPath: xdg, isDirectory: true)
         }
-        return FileManager.default.homeDirectoryForCurrentUser
+        if let home = environment["HOME"], home.hasPrefix("/") {
+            return URL(fileURLWithPath: home, isDirectory: true)
+                .appendingPathComponent(".config", isDirectory: true)
+        }
+        return URL(fileURLWithPath: loginHome, isDirectory: true)
             .appendingPathComponent(".config", isDirectory: true)
     }
 
-    static var configDir: URL { configBase.appendingPathComponent("sift", isDirectory: true) }
+    private static var configBaseURL: URL { configBase() }
+
+    static var configDir: URL { configBaseURL.appendingPathComponent("sift", isDirectory: true) }
     /// Directory used before the rename to Sift. Read only as a fallback.
-    static var legacyConfigDir: URL { configBase.appendingPathComponent("puremac", isDirectory: true) }
+    static var legacyConfigDir: URL { configBaseURL.appendingPathComponent("puremac", isDirectory: true) }
 
     static var ignoreFile: URL { configDir.appendingPathComponent("ignore") }
     static var configFile: URL { configDir.appendingPathComponent("config.json") }

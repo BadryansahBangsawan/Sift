@@ -170,7 +170,7 @@ struct CleanableItem: Identifiable, Hashable {
     var movesToTrash: Bool = false
 
     var formattedSize: String {
-        ByteCountFormatter.string(fromByteCount: size, countStyle: .file)
+        SiftFormat.bytes(size)
     }
 
     /// True for action-only items (Docker prune, simctl runtimes) that have
@@ -203,7 +203,7 @@ struct CategoryResult: Identifiable {
     var totalSize: Int64
 
     var formattedSize: String {
-        ByteCountFormatter.string(fromByteCount: totalSize, countStyle: .file)
+        SiftFormat.bytes(totalSize)
     }
 
     var itemCount: Int { items.count }
@@ -230,7 +230,7 @@ struct CategoryGroupResult {
     var itemCount: Int { items.count }
 
     var formattedSize: String {
-        ByteCountFormatter.string(fromByteCount: totalSize, countStyle: .file)
+        SiftFormat.bytes(totalSize)
     }
 }
 
@@ -276,6 +276,13 @@ struct ScheduleConfig: Codable {
     var nextRunDate: Date?
     var notifyOnCompletion: Bool = true
     var minimumCleanSize: Int64 = 100 * 1024 * 1024 // 100 MB
+
+    /// What the schedule will do, in the rail's words: a schedule only scans
+    /// unless auto-clean is on, and Settings calls that switch "Enable
+    /// scheduled scanning".
+    var railTitleKey: String {
+        autoClean ? "Scheduled cleanup" : "Scheduled scan"
+    }
 
     var formattedLastRun: String {
         guard let date = lastRunDate else { return String(localized: "Never") }
@@ -331,18 +338,18 @@ struct DiskInfo {
     var purgeableSpace: Int64 = 0
 
     var formattedTotal: String {
-        ByteCountFormatter.string(fromByteCount: totalSpace, countStyle: .file)
+        SiftFormat.bytes(totalSpace)
     }
 
     var formattedFree: String {
-        ByteCountFormatter.string(fromByteCount: freeSpace, countStyle: .file)
+        SiftFormat.bytes(freeSpace)
     }
 
     var formattedUsed: String {
-        ByteCountFormatter.string(fromByteCount: usedSpace, countStyle: .file)
+        SiftFormat.bytes(usedSpace)
     }
 
     var formattedPurgeable: String {
-        ByteCountFormatter.string(fromByteCount: purgeableSpace, countStyle: .file)
+        SiftFormat.bytes(purgeableSpace)
     }
 }

@@ -3,7 +3,6 @@
 "Cleanup" = "Bereinigung";
 "Dashboard" = "Dashboard";
 "Installed Apps" = "Installierte Apps";
-"Orphaned Files" = "Verwaiste Dateien";
 "Ready to clean" = "Bereit zum Bereinigen";
 "Limited access" = "Eingeschränkter Zugriff";
 "Full Disk Access granted" = "Festplattenvollzugriff erteilt";
@@ -133,11 +132,9 @@
 "Remove" = "Entfernen";
 
 /* Orphans */
-"Scanning for orphaned files..." = "Suche nach verwaisten Dateien …";
+"Scanning for orphaned files..." = "Suche nach Restdateien …";
 "No Orphaned Files" = "Keine verwaisten Dateien";
 "No leftover files from uninstalled apps were found." = "Es wurden keine Überreste von deinstallierten Apps gefunden.";
-"Scan for Orphans" = "Nach verwaisten Dateien suchen";
-"Orphaned Files (%lld)" = "Verwaiste Dateien (%lld)";
 "Remove Selected (%lld)" = "Auswahl entfernen (%lld)";
 "Some files could not be removed" = "Einige Dateien konnten nicht entfernt werden";
 "blocked by safety policy" = "durch Sicherheitsrichtlinie blockiert";
@@ -149,9 +146,7 @@
 "Get Started" = "Los geht’s";
 "Free, open-source macOS app manager and system cleaner." = "Kostenloser Open-Source-App-Manager und System-Cleaner für macOS.";
 "Find junk files across your system" = "Überflüssige Dateien im ganzen System finden";
-"App Uninstaller" = "App-Deinstallation";
 "Remove apps and all their files" = "Apps samt aller Dateien entfernen";
-"Orphan Finder" = "Verwaiste Dateien finden";
 "Find leftovers from deleted apps" = "Überreste gelöschter Apps finden";
 "Full Disk Access" = "Festplattenvollzugriff";
 "We'll guide you through the next steps." = "Wir führen dich durch die nächsten Schritte.";
@@ -454,7 +449,6 @@
 "Always exclude from cleanup" = "Immer von der Bereinigung ausschließen";
 "Any age" = "Beliebiges Alter";
 "Any size" = "Beliebige Größe";
-"App Updates" = "App-Updates";
 "App and document packages are excluded: %@" = "App- und Dokumentpakete sind ausgeschlossen: %@";
 "App bundle missing" = "App-Paket fehlt";
 "App downloads are checked before opening." = "App-Downloads werden vor dem Öffnen geprüft.";
@@ -507,7 +501,6 @@
 "Delete local snapshot?" = "Lokalen Snapshot löschen?";
 "Disabled" = "Deaktiviert";
 "Downloaded apps are not being assessed by Gatekeeper." = "Geladene Apps werden von Gatekeeper nicht bewertet.";
-"Duplicate Finder" = "Duplikatsuche";
 "Duplicate groups" = "Duplikatgruppen";
 "Every %lld seconds" = "Alle %lld Sekunden";
 "Every eligible file was checked." = "Jede geeignete Datei wurde geprüft.";
@@ -673,7 +666,6 @@
 "Show %@ in Finder" = "%@ im Finder zeigen";
 "Show in Finder" = "Im Finder zeigen";
 "Shows a confirmation before moving the selected copies" = "Zeigt eine Bestätigung, bevor die ausgewählten Kopien bewegt werden";
-"Similar Photos" = "Ähnliche Fotos";
 "Similarity is a visual estimate, not proof that two files are identical. Use Show in Finder to compare originals at full quality." = "Ähnlichkeit ist eine visuelle Schätzung, kein Beweis dafür, dass zwei Dateien identisch sind. Nutze „Im Finder zeigen“, um die Originale in voller Qualität zu vergleichen.";
 "Skipped items" = "Übersprungene Objekte";
 "Smallest first" = "Kleinste zuerst";
@@ -687,7 +679,6 @@
 "Some protected locations are unavailable. Full Disk Access allows a more complete scan." = "Einige geschützte Speicherorte sind nicht verfügbar. Festplattenvollzugriff ermöglicht einen vollständigeren Scan.";
 "Some selected files" = "Einige ausgewählte Dateien";
 "Sort" = "Sortieren";
-"Space Explorer" = "Speicheranalyse";
 "Stop" = "Stoppen";
 "Stop scan" = "Scan stoppen";
 "Stopping keeps the results found so far." = "Beim Stoppen bleiben die bisher gefundenen Ergebnisse erhalten.";
@@ -947,6 +938,7 @@
 "Your version, release checks and how to install updates." = "Deine Version, Release-Prüfungen und wie Updates installiert werden.";
 "macOS %@ or later" = "macOS %@ oder neuer";
 "Changes apply immediately" = "Änderungen werden sofort wirksam";
+"Most changes apply immediately" = "Die meisten Änderungen werden sofort wirksam";
 "Opens quietly when you sign in to your Mac" = "Öffnet sich unauffällig, wenn du dich an deinem Mac anmeldest";
 "A new language applies after Sift restarts" = "Eine neue Sprache wird nach dem Neustart von Sift wirksam";
 "Menu bar and sound" = "Menüleiste und Ton";
@@ -982,7 +974,6 @@
 "Day" = "Tag";
 "Time" = "Uhrzeit";
 "After each scan" = "Nach jedem Scan";
-"Moves what the scan selected to the Trash without asking" = "Legt die vom Scan ausgewählten Objekte ohne Nachfrage in den Papierkorb";
 "Minimum size" = "Mindestgröße";
 "Auto-clean skips scans that would free less than this" = "Die automatische Bereinigung überspringt Scans, die weniger freigeben würden";
 "A notification with what was found or cleaned" = "Eine Mitteilung mit den gefundenen oder bereinigten Objekten";
@@ -996,7 +987,6 @@
 "Found a problem?" = "Problem gefunden?";
 "Issues are tracked on GitHub" = "Probleme werden auf GitHub erfasst";
 "Features" = "Funktionen";
-"Apple Features" = "Apple-Funktionen";
 "Review optional features and the storage used by Apple downloads." = "Optionale Funktionen und den von Apple-Downloads belegten Speicher prüfen.";
 "Apple Features section" = "Bereich „Apple-Funktionen“";
 "Finishing backup removal. New scans are available when it stops." = "Backups werden noch entfernt. Neue Scans sind danach wieder möglich.";
@@ -1069,6 +1059,8 @@
 "AC power" = "Netzteil";
 "battery power" = "Batteriebetrieb";
 "%@ of %@ mAh, service below 80%%" = "%@ von %@ mAh, Service unter 80 %%";
+"%@ of %@ mAh" = "%@ von %@ mAh";
+"%@, service below 80%%" = "%@, Service unter 80 %%";
 "service below 80%" = "Service unter 80 %";
 "%lld registered" = "%lld registriert";
 "No launch agents or daemons were found outside macOS system folders." = "Außerhalb der macOS-Systemordner wurden keine Launch Agents oder Daemons gefunden.";
@@ -1360,9 +1352,29 @@
 "Codex Sessions (Optional)" = "Codex-Sitzungen (optional)";
 "Gemini CLI Temp Files" = "Temporäre Dateien der Gemini CLI";
 "Chat history — not selected by default" = "Chatverlauf – standardmäßig nicht ausgewählt";
+"Shipped builds and dSYMs — not selected by default" = "Ausgelieferte Builds und dSYM – standardmäßig nicht ausgewählt";
+"Excluded from cleanup: %@" = "Vom Aufräumen ausgeschlossen: %@";
+"The Trash is emptied through Finder." = "Der Papierkorb wird über den Finder geleert.";
+"Not a supported AI tool path." = "Kein unterstützter KI-Tool-Pfad.";
+"Temporary entry is in use: it %@" = "Temporärer Eintrag ist in Benutzung: er %@";
+"Unsafe path: a symlink points elsewhere." = "Unsicherer Pfad: ein Symlink zeigt woandershin.";
+"Outside the folders Sift cleans." = "Außerhalb der Ordner, die Sift aufräumt.";
+"In use by a running Xcode build." = "Wird von einem laufenden Xcode-Build verwendet.";
+"%lld item(s) skipped: %@" = "%lld Element(e) übersprungen: %@";
 "Prompt history — not selected by default" = "Prompt-Verlauf – standardmäßig nicht ausgewählt";
 "Session history — not selected by default" = "Sitzungsverlauf – standardmäßig nicht ausgewählt";
 "Recoverable rewind data — not selected by default" = "Wiederherstellbare Rewind-Daten – standardmäßig nicht ausgewählt";
 "Re-downloads when needed. Quit Claude to remove it." = "Wird bei Bedarf erneut geladen. Claude beenden, um sie zu entfernen.";
 "Quit Claude to remove this." = "Claude beenden, um dies zu entfernen.";
 "Skipped: Claude is running. Quit Claude and scan again." = "Übersprungen: Claude läuft. Beende Claude und scanne erneut.";
+"Skipped: this session is open. Quit the session and scan again." = "Übersprungen: Diese Sitzung ist offen. Beende die Sitzung und scanne erneut.";
+"Not scanned yet" = "Noch nicht gescannt";
+"Scan to see whether uninstalled apps left files behind." = "Scannen, um zu sehen, ob deinstallierte Apps Dateien hinterlassen haben.";
+"Couldn't compare installed apps" = "Installierte Apps konnten nicht verglichen werden";
+"Sift needs the list of installed apps before it can call a file a leftover. Try again in a moment." = "Sift braucht die Liste der installierten Apps, bevor es eine Datei als Überbleibsel bezeichnen kann. Versuche es gleich noch einmal.";
+"Permanently deletes the junk the scan selected, without asking" = "Löscht den vom Scan ausgewählten Ballast endgültig, ohne Rückfrage";
+"Last checked %@" = "Zuletzt geprüft: %@";
+"Scheduled scan" = "Geplanter Scan";
+"No Leftovers" = "Keine Reste";
+"Scan for leftover files" = "Nach Restdateien suchen";
+"Leftovers (%lld)" = "Reste (%lld)";

@@ -3,7 +3,6 @@
 "Cleanup" = "Очистка";
 "Dashboard" = "Сводка";
 "Installed Apps" = "Установленные приложения";
-"Orphaned Files" = "Остаточные файлы";
 "Ready to clean" = "Готово к очистке";
 "Limited access" = "Ограниченный доступ";
 "Full Disk Access granted" = "Полный доступ к диску включён";
@@ -138,8 +137,6 @@
 "Scanning for orphaned files..." = "Поиск остаточных файлов…";
 "No Orphaned Files" = "Остаточные файлы не найдены";
 "No leftover files from uninstalled apps were found." = "Файлы, оставшиеся после удаления приложений, не найдены.";
-"Scan for Orphans" = "Найти остаточные файлы";
-"Orphaned Files (%lld)" = "Остаточные файлы (%lld)";
 "Remove Selected (%lld)" = "Удалить выбранное (%lld)";
 "Some files could not be removed" = "Некоторые файлы не удалось удалить";
 "blocked by safety policy" = "заблокировано политикой безопасности";
@@ -151,9 +148,7 @@
 "Get Started" = "Начать";
 "Free, open-source macOS app manager and system cleaner." = "Бесплатный менеджер приложений и средство очистки системы для macOS с открытым исходным кодом.";
 "Find junk files across your system" = "Находите мусорные файлы во всей системе";
-"App Uninstaller" = "Удаление приложений";
 "Remove apps and all their files" = "Удаляйте приложения и все их файлы";
-"Orphan Finder" = "Поиск остаточных файлов";
 "Find leftovers from deleted apps" = "Находите файлы, оставшиеся после удаления приложений";
 "Full Disk Access" = "Полный доступ к диску";
 "We'll guide you through the next steps." = "Мы поможем вам выполнить следующие шаги.";
@@ -455,7 +450,6 @@
 "Always exclude from cleanup" = "Всегда исключать из очистки";
 "Any age" = "Любой возраст";
 "Any size" = "Любой размер";
-"App Updates" = "Обновления приложений";
 "App and document packages are excluded: %@" = "Пакеты приложений и документов исключены: %@";
 "App bundle missing" = "Пакет приложения отсутствует";
 "App downloads are checked before opening." = "Загруженные приложения проверяются перед открытием.";
@@ -508,7 +502,6 @@
 "Delete local snapshot?" = "Удалить локальный снимок?";
 "Disabled" = "Отключено";
 "Downloaded apps are not being assessed by Gatekeeper." = "Gatekeeper не оценивает загруженные приложения.";
-"Duplicate Finder" = "Поиск дубликатов";
 "Duplicate groups" = "Группы дубликатов";
 "Every %lld seconds" = "Каждые %lld секунд";
 "Every eligible file was checked." = "Каждый подходящий файл проверен.";
@@ -674,7 +667,6 @@
 "Show %@ in Finder" = "Показать %@ в Finder";
 "Show in Finder" = "Показать в Finder";
 "Shows a confirmation before moving the selected copies" = "Показывает подтверждение перед перемещением выбранных копий";
-"Similar Photos" = "Похожие фото";
 "Similarity is a visual estimate, not proof that two files are identical. Use Show in Finder to compare originals at full quality." = "Сходство — это визуальная оценка, а не доказательство идентичности двух файлов. Используйте «Показать в Finder», чтобы сравнить оригиналы в полном качестве.";
 "Skipped items" = "Пропущенные элементы";
 "Smallest first" = "Сначала мелкие";
@@ -688,7 +680,6 @@
 "Some protected locations are unavailable. Full Disk Access allows a more complete scan." = "Некоторые защищённые расположения недоступны. Полный доступ к диску позволяет выполнить более полное сканирование.";
 "Some selected files" = "Некоторые выбранные файлы";
 "Sort" = "Сортировать";
-"Space Explorer" = "Обзор пространства";
 "Stop" = "Остановить";
 "Stop scan" = "Остановить сканирование";
 "Stopping keeps the results found so far." = "При остановке сохраняются уже найденные результаты.";
@@ -944,6 +935,7 @@
 "Your version, release checks and how to install updates." = "Ваша версия, проверка выпусков и способ установки обновлений.";
 "macOS %@ or later" = "macOS %@ или новее";
 "Changes apply immediately" = "Изменения применяются сразу";
+"Most changes apply immediately" = "Большинство изменений применяется сразу";
 "Opens quietly when you sign in to your Mac" = "Незаметно открывается при входе в систему на Mac";
 "A new language applies after Sift restarts" = "Новый язык применится после перезапуска приложения Sift";
 "Menu bar and sound" = "Строка меню и звук";
@@ -979,7 +971,6 @@
 "Day" = "День";
 "Time" = "Время";
 "After each scan" = "После каждого сканирования";
-"Moves what the scan selected to the Trash without asking" = "Перемещает выбранное сканированием в Корзину без подтверждения";
 "Minimum size" = "Минимальный размер";
 "Auto-clean skips scans that would free less than this" = "Автоочистка не выполняется, если освободится меньше";
 "A notification with what was found or cleaned" = "Уведомление о том, что найдено или очищено";
@@ -993,7 +984,6 @@
 "Found a problem?" = "Нашли проблему?";
 "Issues are tracked on GitHub" = "Проблемы отслеживаются на GitHub";
 "Features" = "Функции";
-"Apple Features" = "Функции Apple";
 "Review optional features and the storage used by Apple downloads." = "Проверьте дополнительные функции и место, занятое загрузками Apple.";
 "Apple Features section" = "Раздел «Функции Apple»";
 "Finishing backup removal. New scans are available when it stops." = "Завершается удаление резервных копий. Новое сканирование станет доступно после его окончания.";
@@ -1066,6 +1056,8 @@
 "AC power" = "питание от сети";
 "battery power" = "питание от аккумулятора";
 "%@ of %@ mAh, service below 80%%" = "%@ из %@ mAh, обслуживание ниже 80%%";
+"%@ of %@ mAh" = "%@ из %@ mAh";
+"%@, service below 80%%" = "%@, обслуживание ниже 80%%";
 "service below 80%" = "обслуживание ниже 80%";
 "%lld registered" = "Зарегистрировано: %lld";
 "No launch agents or daemons were found outside macOS system folders." = "Агенты и демоны запуска вне системных папок macOS не найдены.";
@@ -1357,9 +1349,29 @@
 "Codex Sessions (Optional)" = "Сеансы Codex (необязательно)";
 "Gemini CLI Temp Files" = "Временные файлы Gemini CLI";
 "Chat history — not selected by default" = "История чата — не выбрано по умолчанию";
+"Shipped builds and dSYMs — not selected by default" = "Готовые сборки и dSYM — не выбрано по умолчанию";
+"Excluded from cleanup: %@" = "Исключено из очистки: %@";
+"The Trash is emptied through Finder." = "Корзина очищается через Finder.";
+"Not a supported AI tool path." = "Неподдерживаемый путь инструмента ИИ.";
+"Temporary entry is in use: it %@" = "Временная запись используется: %@";
+"Unsafe path: a symlink points elsewhere." = "Небезопасный путь: символическая ссылка указывает в другое место.";
+"Outside the folders Sift cleans." = "Вне папок, которые очищает Sift.";
+"In use by a running Xcode build." = "Используется запущенной сборкой Xcode.";
+"%lld item(s) skipped: %@" = "Пропущено %lld элемент(ов): %@";
 "Prompt history — not selected by default" = "История запросов — не выбрано по умолчанию";
 "Session history — not selected by default" = "История сеансов — не выбрано по умолчанию";
 "Recoverable rewind data — not selected by default" = "Восстанавливаемые данные перемотки — не выбрано по умолчанию";
 "Re-downloads when needed. Quit Claude to remove it." = "Загружается заново при необходимости. Закройте Claude, чтобы удалить.";
 "Quit Claude to remove this." = "Закройте Claude, чтобы удалить это.";
 "Skipped: Claude is running. Quit Claude and scan again." = "Пропущено: Claude запущен. Закройте Claude и повторите сканирование.";
+"Skipped: this session is open. Quit the session and scan again." = "Пропущено: эта сессия открыта. Завершите сессию и повторите сканирование.";
+"Not scanned yet" = "Ещё не сканировано";
+"Scan to see whether uninstalled apps left files behind." = "Запустите сканирование, чтобы узнать, оставили ли удалённые приложения файлы.";
+"Couldn't compare installed apps" = "Не удалось сравнить установленные приложения";
+"Sift needs the list of installed apps before it can call a file a leftover. Try again in a moment." = "Sift нужен список установленных приложений, чтобы считать файл остатком. Повторите попытку через минуту.";
+"Permanently deletes the junk the scan selected, without asking" = "Безвозвратно удаляет выбранный сканированием мусор, не спрашивая";
+"Last checked %@" = "Последняя проверка: %@";
+"Scheduled scan" = "Запланированная проверка";
+"No Leftovers" = "Остатков нет";
+"Scan for leftover files" = "Искать оставшиеся файлы";
+"Leftovers (%lld)" = "Остатки (%lld)";

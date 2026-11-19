@@ -71,7 +71,7 @@ struct DuplicateFinderView: View {
 
     private var header: some View {
         SiftToolHeader(
-            Text("Duplicate Finder"),
+            Text("Duplicates"),
             eyebrow: Text("Tools"),
             subtitle: Text(verbatim: headerSubtitle)
         ) {
@@ -434,7 +434,7 @@ struct DuplicateFinderView: View {
     private var progressSummary: String {
         switch progress.phase {
         case .discovering:
-            return String(localized: "\(progress.filesInspected.formatted()) files inspected")
+            return String(localized: "\(progress.filesInspected) files inspected")
         case .hashing:
             return String(localized: "\(progress.filesHashed.formatted()) of \(progress.filesToHash.formatted()) candidates · \(format(progress.bytesHashed)) verified")
         }
@@ -627,7 +627,7 @@ struct DuplicateFinderView: View {
     }
 
     private func format(_ bytes: Int64) -> String {
-        ByteCountFormatter.string(fromByteCount: bytes, countStyle: .file)
+        SiftFormat.bytes(bytes)
     }
 }
 

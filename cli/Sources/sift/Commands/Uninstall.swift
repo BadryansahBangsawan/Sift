@@ -30,7 +30,6 @@ struct Uninstall: ParsableCommand {
     /// Every top-level folder that can hold bundle-identifier-named data.
     /// Scoped to the user's own Home so no system or other-user data is reachable.
     private static var librarySubtrees: [String] {
-        let library = "/Library"
         return [
             "Preferences",
             "Caches",
@@ -46,7 +45,7 @@ struct Uninstall: ParsableCommand {
             "Application Scripts",
             "Application State",
             "Services",
-        ].map { library + "/" + $0 }
+        ]
     }
 
     func validate() throws {
@@ -211,7 +210,9 @@ struct Uninstall: ParsableCommand {
         }
 
         // Launch agents store the identifier in their Label, not necessarily in
-        // the file name, so those plists are checked by content.
+        // the file name, so those plists are matched by content and must not go
+        // through the name filter below.
+        var labelMatched: [String] = []
         let agentsDirectory = home + "/Library/LaunchAgents"
         if let agents = try? fm.contentsOfDirectory(atPath: agentsDirectory) {
             for agent in agents where agent.hasSuffix(".plist") {
@@ -222,11 +223,12 @@ struct Uninstall: ParsableCommand {
                       let label = dictionary["Label"] as? String,
                       label.caseInsensitiveCompare(bundleID) == .orderedSame
                 else { continue }
-                candidates.append(full)
+                labelMatched.append(full)
             }
         }
 
-        let exact = matches(for: bundleID, candidates: candidates)
+        var exact = matches(for: bundleID, candidates: candidates)
+        for path in labelMatched where !exact.contains(path) { exact.append(path) }
         return exact.filter { path in
             !Safety.hasSymlinkComponent(path)
                 && !Safety.isCloudOrDataless(path)

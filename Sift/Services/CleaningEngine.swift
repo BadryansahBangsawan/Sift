@@ -39,6 +39,11 @@ actor CleaningEngine {
         // "Couldn't clean everything" alert.
         var protectedPaths: Set<String> = []
         var skippedProtected: Int { protectedPaths.count }
+        /// Paths the cleaner left alone on purpose, with the reason: a temp
+        /// entry that turned live, Claude running, a session the user resumed,
+        /// an excluded or unsafe path. None of these are permission failures,
+        /// so they are reported separately instead of as errors.
+        var skippedPaths: [String: String] = [:]
     }
 
     // MARK: - Public API
@@ -47,12 +52,27 @@ actor CleaningEngine {
         var result = CleaningResult()
         let total = items.count
         let exclusions = CleanupExclusions.paths()
+        // Report at most once per percent, plus the final item. Every report
+        // wakes the main thread and republishes the cleanup state, and each
+        // publication redraws the window: one per item turned a few-thousand
+        // item clean into thousands of full redraws, which the user sees as
+        // the app freezing for seconds while it deletes.
+        var lastReportedStep = -1
 
         for (index, item) in items.enumerated() {
             let progress = Double(index + 1) / Double(total)
-            defer { progressHandler(progress) }
+            defer {
+                let step = Int(progress * 100)
+                if step != lastReportedStep || index == items.count - 1 {
+                    lastReportedStep = step
+                    progressHandler(progress)
+                }
+            }
             if CleanupExclusions.excludes(item.path, paths: exclusions) {
-                result.errors.append("Excluded from cleanup: \(item.name)")
+                result.skippedPaths[item.path] = String(
+                    format: String(localized: "Excluded from cleanup: %@"),
+                    item.name
+                )
                 continue
             }
 
@@ -60,12 +80,12 @@ actor CleaningEngine {
             // (AppState.emptyTrash). Unlinking its contents here would make
             // them unrecoverable with no Finder confirmation at all.
             if item.category == .trash {
-                result.errors.append("Trash items are emptied through Finder, not deleted: \(item.name)")
+                result.skippedPaths[item.path] = String(localized: "The Trash is emptied through Finder.")
                 continue
             }
 
             if item.category == .aiApps, !AIToolCleanupCatalog.accepts(item: item, home: homeDirectory.path) {
-                result.errors.append("Unsupported AI app cleanup path: \(item.path)")
+                result.skippedPaths[item.path] = String(localized: "Not a supported AI tool path.")
                 continue
             }
 
@@ -79,8 +99,23 @@ actor CleaningEngine {
                     let detail = String(
                         localized: "Skipped: Claude is running. Quit Claude and scan again."
                     )
-                    result.errors.append(detail)
+                    result.skippedPaths[item.path] = detail
                     Logger.shared.log("Skipped AI tool item: \(item.path) — \(detail)", level: .info)
+                    continue
+                }
+                // A session the user resumed after the scan is live work. The
+                // scan only offers transcripts untouched for ten minutes, and
+                // that can change between the scan and the click.
+                if AIToolCleanupCatalog.isOpenSession(
+                    path: item.path,
+                    home: homeDirectory.path,
+                    listedAt: item.lastModified
+                ) {
+                    let detail = String(
+                        localized: "Skipped: this session is open. Quit the session and scan again."
+                    )
+                    result.skippedPaths[item.path] = detail
+                    Logger.shared.log("Skipped open AI session: \(item.path)", level: .info)
                     continue
                 }
             }
@@ -175,7 +210,10 @@ actor CleaningEngine {
                     let remainder = inspection.rejectionReason ?? "could not be verified"
                     let msg = "Skipped temporary entry \(item.name) at \(item.path): it \(remainder)"
                     Logger.shared.log(msg, level: .warning)
-                    result.errors.append(msg)
+                    result.skippedPaths[item.path] = String(
+                        format: String(localized: "Temporary entry is in use: it %@"),
+                        remainder
+                    )
                     continue
                 }
             }
@@ -183,9 +221,8 @@ actor CleaningEngine {
             do {
                 let itemURL = URL(fileURLWithPath: item.path)
                 guard !hasUnexpectedSymlink(in: item.path) else {
-                    let msg = "Skipped symlink or unsafe path: \(item.path)"
-                    Logger.shared.log(msg, level: .warning)
-                    result.errors.append(msg)
+                    Logger.shared.log("Skipped symlink or unsafe path: \(item.path)", level: .warning)
+                    result.skippedPaths[item.path] = String(localized: "Unsafe path: a symlink points elsewhere.")
                     continue
                 }
                 guard fileManager.fileExists(atPath: item.path) else {
@@ -202,9 +239,8 @@ actor CleaningEngine {
                 // the staged re-sign flow, not the delete path.
                 let pathAccepted = isSafeToDelete(item: item, resolvedPath: resolved)
                 guard pathAccepted else {
-                    let msg = "Skipped symlink or unsafe path: \(item.path) -> \(resolved)"
-                    Logger.shared.log(msg, level: .warning)
-                    result.errors.append(msg)
+                    Logger.shared.log("Skipped symlink or unsafe path: \(item.path) -> \(resolved)", level: .warning)
+                    result.skippedPaths[item.path] = String(localized: "Outside the folders Sift cleans.")
                     continue
                 }
 
@@ -263,7 +299,12 @@ actor CleaningEngine {
                         result.errors.append(removalError)
                         Logger.shared.log("Clean failed: \(removalError)", level: .error)
                     } else {
-                        result.freedSpace += item.size
+                        // A Trash move reclaims nothing until the Trash is
+                        // emptied (emptyTrash records those bytes itself), so
+                        // only unlinked caches and logs count as freed here.
+                        if !useTrash {
+                            result.freedSpace += item.size
+                        }
                         result.itemsCleaned += 1
                         result.cleanedPaths.insert(item.path)
                     }
@@ -286,6 +327,9 @@ actor CleaningEngine {
                         ) else {
                             let detail = "Skipped XcodeBuildMCP DerivedData: lifecycle lock is unavailable: \(item.path)"
                             Logger.shared.log(detail, level: .warning)
+                            result.skippedPaths[item.path] = String(
+                                localized: "In use by a running Xcode build."
+                            )
                             result.errors.append(detail)
                             continue
                         }
@@ -306,10 +350,22 @@ actor CleaningEngine {
                     if let trashedPath = resulting?.path {
                         result.trashedPaths.insert(trashedPath)
                     }
+                    // Trashed, not unlinked: the bytes are still on disk until
+                    // the Trash is emptied (which records them itself), so this
+                    // item must not add to freedSpace here.
+                } else if item.movesToTrash {
+                    // Rows the user opted into that hold work rather than junk
+                    // (Xcode Archives) leave through the Trash so they stay
+                    // recoverable.
+                    var resulting: NSURL?
+                    try fileManager.trashItem(at: resolvedURL, resultingItemURL: &resulting)
+                    if let trashedPath = resulting?.path {
+                        result.trashedPaths.insert(trashedPath)
+                    }
                 } else {
                     try fileManager.removeItem(at: itemURL)
+                    result.freedSpace += item.size
                 }
-                result.freedSpace += item.size
                 result.itemsCleaned += 1
                 result.cleanedPaths.insert(item.path)
             } catch {

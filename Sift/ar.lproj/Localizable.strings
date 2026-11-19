@@ -3,7 +3,6 @@
 "Cleanup" = "التنظيف";
 "Dashboard" = "لوحة التحكم";
 "Installed Apps" = "التطبيقات المثبّتة";
-"Orphaned Files" = "الملفات اليتيمة";
 "Ready to clean" = "جاهز للتنظيف";
 "Limited access" = "وصول محدود";
 "Full Disk Access granted" = "تم منح الوصول الكامل للقرص";
@@ -99,11 +98,9 @@
 "Remove" = "إزالة";
 
 /* Orphans */
-"Scanning for orphaned files..." = "جارٍ البحث عن الملفات اليتيمة...";
+"Scanning for orphaned files..." = "جارٍ فحص الملفات المتبقية...";
 "No Orphaned Files" = "لا توجد ملفات يتيمة";
 "No leftover files from uninstalled apps were found." = "لم يتم العثور على ملفات متبقية من تطبيقات تمت إزالتها.";
-"Scan for Orphans" = "ابحث عن الملفات اليتيمة";
-"Orphaned Files (%lld)" = "الملفات اليتيمة (%lld)";
 "Remove Selected (%lld)" = "إزالة المحدد (%lld)";
 "Some files could not be removed" = "تعذّرت إزالة بعض الملفات";
 "blocked by safety policy" = "محظور بواسطة سياسة الأمان";
@@ -115,9 +112,7 @@
 "Get Started" = "ابدأ";
 "Free, open-source macOS app manager and system cleaner." = "مدير تطبيقات وأداة تنظيف نظام مجانية ومفتوحة المصدر لـ macOS.";
 "Find junk files across your system" = "اعثر على الملفات غير المرغوبة في جميع أنحاء النظام";
-"App Uninstaller" = "إلغاء تثبيت التطبيقات";
 "Remove apps and all their files" = "أزل التطبيقات وجميع ملفاتها";
-"Orphan Finder" = "البحث عن الملفات اليتيمة";
 "Find leftovers from deleted apps" = "اعثر على بقايا التطبيقات المحذوفة";
 "Full Disk Access" = "الوصول الكامل للقرص";
 "We'll guide you through the next steps." = "سنرشدك إلى الخطوات التالية.";
@@ -455,7 +450,6 @@
 "Always exclude from cleanup" = "استبعاد دائم من التنظيف";
 "Any age" = "أي عمر";
 "Any size" = "أي حجم";
-"App Updates" = "تحديثات التطبيقات";
 "App and document packages are excluded: %@" = "حزم التطبيقات والمستندات مستبعدة: %@";
 "App bundle missing" = "حزمة التطبيق مفقودة";
 "App downloads are checked before opening." = "يتم التحقق من التطبيقات التي جرى تنزيلها قبل فتحها.";
@@ -508,7 +502,6 @@
 "Delete local snapshot?" = "حذف اللقطة المحلية؟";
 "Disabled" = "معطّل";
 "Downloaded apps are not being assessed by Gatekeeper." = "لا يقيّم Gatekeeper التطبيقات التي جرى تنزيلها.";
-"Duplicate Finder" = "البحث عن المكررات";
 "Duplicate groups" = "مجموعات المكررات";
 "Every %lld seconds" = "كل %lld ثانية";
 "Every eligible file was checked." = "تم التحقق من كل ملف مؤهل.";
@@ -674,7 +667,6 @@
 "Show %@ in Finder" = "إظهار %@ في Finder";
 "Show in Finder" = "إظهار في Finder";
 "Shows a confirmation before moving the selected copies" = "يعرض تأكيدًا قبل نقل النسخ المحددة";
-"Similar Photos" = "الصور المتشابهة";
 "Similarity is a visual estimate, not proof that two files are identical. Use Show in Finder to compare originals at full quality." = "التشابه تقدير بصري وليس دليلاً على أن ملفين متطابقان. استخدم «إظهار في Finder» لمقارنة الأصلين بجودة كاملة.";
 "Skipped items" = "العناصر المتخطاة";
 "Smallest first" = "الأصغر أولاً";
@@ -688,7 +680,6 @@
 "Some protected locations are unavailable. Full Disk Access allows a more complete scan." = "بعض المواقع المحمية غير متاحة. يتيح الوصول الكامل للقرص فحصًا أكثر اكتمالاً.";
 "Some selected files" = "بعض الملفات المحددة";
 "Sort" = "فرز";
-"Space Explorer" = "مستكشف المساحة";
 "Stop" = "إيقاف";
 "Stop scan" = "إيقاف الفحص";
 "Stopping keeps the results found so far." = "يؤدي الإيقاف إلى الاحتفاظ بالنتائج التي جرى العثور عليها حتى الآن.";
@@ -944,6 +935,7 @@
 "Your version, release checks and how to install updates." = "إصدارك، والتحقق من الإصدارات الجديدة، وكيفية تثبيت التحديثات.";
 "macOS %@ or later" = "macOS %@ أو أحدث";
 "Changes apply immediately" = "تُطبَّق التغييرات فورًا";
+"Most changes apply immediately" = "تُطبَّق معظم التغييرات فورًا";
 "Opens quietly when you sign in to your Mac" = "يفتح بهدوء عند تسجيل الدخول إلى جهاز Mac";
 "A new language applies after Sift restarts" = "تُطبَّق اللغة الجديدة بعد إعادة تشغيل Sift";
 "Menu bar and sound" = "شريط القوائم والصوت";
@@ -979,7 +971,6 @@
 "Day" = "اليوم";
 "Time" = "الوقت";
 "After each scan" = "بعد كل فحص";
-"Moves what the scan selected to the Trash without asking" = "ينقل ما حدده الفحص إلى سلة المهملات دون سؤال";
 "Minimum size" = "الحد الأدنى للحجم";
 "Auto-clean skips scans that would free less than this" = "يتخطى التنظيف التلقائي عمليات الفحص التي ستحرّر مساحة أقل من هذا";
 "A notification with what was found or cleaned" = "إشعار بما تم العثور عليه أو تنظيفه";
@@ -993,7 +984,6 @@
 "Found a problem?" = "هل وجدت مشكلة؟";
 "Issues are tracked on GitHub" = "تُتابَع المشكلات على GitHub";
 "Features" = "الميزات";
-"Apple Features" = "ميزات Apple";
 "Review optional features and the storage used by Apple downloads." = "راجع الميزات الاختيارية والمساحة التي تشغلها تنزيلات Apple.";
 "Apple Features section" = "قسم ميزات Apple";
 "Finishing backup removal. New scans are available when it stops." = "جارٍ إنهاء إزالة النسخ الاحتياطية. تتوفر عمليات الفحص الجديدة عند توقفها.";
@@ -1066,6 +1056,8 @@
 "AC power" = "محوّل الطاقة";
 "battery power" = "طاقة البطارية";
 "%@ of %@ mAh, service below 80%%" = "%@ من %@ mAh، تحتاج إلى صيانة دون 80%%";
+"%@ of %@ mAh" = "%@ من %@ mAh";
+"%@, service below 80%%" = "%@، تحتاج إلى صيانة دون 80%%";
 "service below 80%" = "تحتاج إلى صيانة دون 80%";
 "%lld registered" = "%lld مسجّل";
 "No launch agents or daemons were found outside macOS system folders." = "لم يتم العثور على وكلاء تشغيل أو خدمات خلفية خارج مجلدات نظام macOS.";
@@ -1357,9 +1349,29 @@
 "Codex Sessions (Optional)" = "جلسات Codex (اختياري)";
 "Gemini CLI Temp Files" = "ملفات Gemini CLI المؤقتة";
 "Chat history — not selected by default" = "سجل الدردشة — غير محدد افتراضيًا";
+"Shipped builds and dSYMs — not selected by default" = "عمليات البناء المنشورة وdSYM — غير محدد افتراضيًا";
+"Excluded from cleanup: %@" = "مستثنى من التنظيف: %@";
+"The Trash is emptied through Finder." = "تُفرَّغ سلة المهملات من Finder.";
+"Not a supported AI tool path." = "مسار أداة ذكاء اصطناعي غير مدعوم.";
+"Temporary entry is in use: it %@" = "الإدخال المؤقت قيد الاستخدام: %@";
+"Unsafe path: a symlink points elsewhere." = "مسار غير آمن: رابط رمزي يشير إلى مكان آخر.";
+"Outside the folders Sift cleans." = "خارج المجلدات التي ينظفها Sift.";
+"In use by a running Xcode build." = "قيد الاستخدام بواسطة بناء Xcode قيد التشغيل.";
+"%lld item(s) skipped: %@" = "تم تخطي %lld عنصرًا: %@";
 "Prompt history — not selected by default" = "سجل المطالبات — غير محدد افتراضيًا";
 "Session history — not selected by default" = "سجل الجلسات — غير محدد افتراضيًا";
 "Recoverable rewind data — not selected by default" = "بيانات التراجع القابلة للاستعادة — غير محددة افتراضيًا";
 "Re-downloads when needed. Quit Claude to remove it." = "يعاد تنزيلها عند الحاجة. أغلق Claude لإزالتها.";
 "Quit Claude to remove this." = "أغلق Claude لإزالة هذا.";
 "Skipped: Claude is running. Quit Claude and scan again." = "تم التخطي: Claude قيد التشغيل. أغلق Claude وأعد الفحص.";
+"Skipped: this session is open. Quit the session and scan again." = "تم التخطي: هذه الجلسة مفتوحة. أغلق الجلسة وأعد الفحص.";
+"Not scanned yet" = "لم يتم الفحص بعد";
+"Scan to see whether uninstalled apps left files behind." = "افحص لمعرفة ما إذا تركت التطبيقات المحذوفة ملفات.";
+"Couldn't compare installed apps" = "تعذّر مقارنة التطبيقات المثبتة";
+"Sift needs the list of installed apps before it can call a file a leftover. Try again in a moment." = "يحتاج Sift إلى قائمة التطبيقات المثبتة قبل اعتبار الملف مخلفًا. أعد المحاولة بعد قليل.";
+"Permanently deletes the junk the scan selected, without asking" = "يحذف نهائيًا الملفات غير الضرورية التي حددها الفحص دون سؤال";
+"Last checked %@" = "آخر فحص: %@";
+"Scheduled scan" = "فحص مجدول";
+"No Leftovers" = "لا بقايا";
+"Scan for leftover files" = "فحص الملفات المتبقية";
+"Leftovers (%lld)" = "البقايا (%lld)";

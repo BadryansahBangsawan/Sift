@@ -55,26 +55,35 @@ struct CleanupReviewFilter: Codable, Equatable {
     func apply(to items: [CleanableItem], now: Date = Date()) -> [CleanableItem] {
         let search = query.trimmingCharacters(in: .whitespacesAndNewlines)
         let cutoff = age.cutoff(relativeTo: now)
-        return items.filter { item in
+        return ordered(items.filter { item in
             guard item.size >= size.minimumBytes else { return false }
             if let cutoff {
                 guard let modified = item.lastModified, modified < cutoff else { return false }
             }
             return search.isEmpty || item.name.localizedCaseInsensitiveContains(search)
                 || item.path.localizedCaseInsensitiveContains(search)
-        }.sorted { left, right in
-            switch order {
-            case .largest where left.size != right.size: return left.size > right.size
-            case .smallest where left.size != right.size: return left.size < right.size
-            case .newest where left.lastModified != right.lastModified:
-                return (left.lastModified ?? .distantPast) > (right.lastModified ?? .distantPast)
-            case .oldest where left.lastModified != right.lastModified:
-                return (left.lastModified ?? .distantFuture) < (right.lastModified ?? .distantFuture)
-            default:
-                let comparison = left.name.localizedStandardCompare(right.name)
-                if comparison != .orderedSame { return comparison == .orderedAscending }
-                return left.path < right.path
-            }
+        })
+    }
+
+    /// The rows in the order the list shows them, without the filters: the
+    /// removal sheet lists what is selected in the same order the user sees it,
+    /// and a row hidden by the search field is still being removed.
+    func ordered(_ items: [CleanableItem]) -> [CleanableItem] {
+        items.sorted(by: compare)
+    }
+
+    private func compare(_ left: CleanableItem, _ right: CleanableItem) -> Bool {
+        switch order {
+        case .largest where left.size != right.size: return left.size > right.size
+        case .smallest where left.size != right.size: return left.size < right.size
+        case .newest where left.lastModified != right.lastModified:
+            return (left.lastModified ?? .distantPast) > (right.lastModified ?? .distantPast)
+        case .oldest where left.lastModified != right.lastModified:
+            return (left.lastModified ?? .distantFuture) < (right.lastModified ?? .distantFuture)
+        default:
+            let comparison = left.name.localizedStandardCompare(right.name)
+            if comparison != .orderedSame { return comparison == .orderedAscending }
+            return left.path < right.path
         }
     }
 }

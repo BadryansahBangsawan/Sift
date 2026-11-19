@@ -116,7 +116,7 @@ final class SystemJunkTmpPolicyTests: XCTestCase {
 
         XCTAssertEqual(result.itemsCleaned, 0)
         XCTAssertTrue(result.cleanedPaths.isEmpty)
-        XCTAssertTrue(result.errors.contains { $0.contains("three days") })
+        XCTAssertTrue(result.skippedPaths.values.contains { $0.contains("three days") })
         XCTAssertTrue(fileManager.fileExists(atPath: entry.path))
     }
 

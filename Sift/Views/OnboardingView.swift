@@ -216,19 +216,19 @@ private struct MissionScene: View {
             VStack(spacing: 0) {
                 FeatureRow(
                     icon: .sparkles,
-                    title: "Smart Scan",
+                    title: "Overview",
                     body: "Find caches, logs, broken installs, and the AI-app history hiding in your library."
                 )
                 rowDivider
                 FeatureRow(
                     icon: .packageMinus,
-                    title: "App Uninstaller",
+                    title: "Uninstaller",
                     body: "Drag an app, see every file it dropped, remove all of it. No leftovers."
                 )
                 rowDivider
                 FeatureRow(
                     icon: .file,
-                    title: "Orphan Finder",
+                    title: "Leftovers",
                     body: "Surfaces files that outlived the apps that created them."
                 )
             }

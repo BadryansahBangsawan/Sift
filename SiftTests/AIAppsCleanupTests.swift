@@ -81,7 +81,7 @@ final class AIAppsCleanupTests: XCTestCase {
         let result = await CleaningEngine(homeDirectory: fixtureHome).cleanItems(items) { _ in }
 
         XCTAssertEqual(result.itemsCleaned, 0)
-        XCTAssertEqual(result.errors.count, requested.count)
+        XCTAssertEqual(result.skippedPaths.count, requested.count)
         XCTAssertTrue(result.requiresAdmin.isEmpty)
         for path in requested {
             XCTAssertTrue(fileManager.fileExists(atPath: fixtureHome.appendingPathComponent(path).path))
@@ -105,7 +105,7 @@ final class AIAppsCleanupTests: XCTestCase {
             .cleanItems([item(at: logs.path), item(at: linkedLogs.path)]) { _ in }
 
         XCTAssertEqual(result.itemsCleaned, 0)
-        XCTAssertEqual(result.errors.count, 2)
+        XCTAssertEqual(result.skippedPaths.count, 2)
         XCTAssertTrue(fileManager.fileExists(atPath: foreign.appendingPathComponent("data.bin").path))
         XCTAssertTrue(fileManager.fileExists(atPath: fixtureHome.appendingPathComponent("foreign-studio/server-logs/data.bin").path))
     }
@@ -121,7 +121,7 @@ final class AIAppsCleanupTests: XCTestCase {
         let result = await CleaningEngine(homeDirectory: fixtureHome).cleanItems(paths.map { item(at: $0) }) { _ in }
 
         XCTAssertEqual(result.itemsCleaned, 0)
-        XCTAssertEqual(result.errors.count, paths.count)
+        XCTAssertEqual(result.skippedPaths.count, paths.count)
         XCTAssertTrue(fileManager.fileExists(atPath: logs))
     }
 

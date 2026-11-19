@@ -83,6 +83,155 @@ final class UninstallTests: XCTestCase {
         XCTAssertGreaterThan(scan.groups[1].items[0].sizeBytes, 0)
     }
 
+    func testLeftoverPathsFindFilesUnderTheHomeLibrary() throws {
+        let home = try temporaryDirectory()
+        defer { try? FileManager.default.removeItem(at: home) }
+
+        let preferences = home.appendingPathComponent("Library/Preferences", isDirectory: true)
+        let caches = home.appendingPathComponent("Library/Caches", isDirectory: true)
+        try FileManager.default.createDirectory(at: preferences, withIntermediateDirectories: true)
+        try FileManager.default.createDirectory(at: caches, withIntermediateDirectories: true)
+        let plistPath = preferences.appendingPathComponent("com.example.app.plist")
+        let cachePath = caches.appendingPathComponent("com.example.app")
+        try Data(repeating: 0x1, count: 32).write(to: plistPath)
+        try Data(repeating: 0x2, count: 64).write(to: cachePath)
+
+        let ignore = try IgnoreStore(
+            fileURL: home.appendingPathComponent("ignore"),
+            legacyFileURL: nil,
+            currentDirectoryPath: home.path
+        )
+        let found = Uninstall.leftoverPaths(
+            for: "com.example.app",
+            home: home.path,
+            ignore: ignore
+        )
+
+        XCTAssertEqual(found.sorted(), [plistPath.path, cachePath.path].sorted())
+    }
+
+    func testLeftoverPathsIncludeLaunchAgentsMatchedByLabel() throws {
+        let home = try temporaryDirectory()
+        defer { try? FileManager.default.removeItem(at: home) }
+
+        let agents = home.appendingPathComponent("Library/LaunchAgents", isDirectory: true)
+        try FileManager.default.createDirectory(at: agents, withIntermediateDirectories: true)
+        let agentPath = agents.appendingPathComponent("com.example.agent.plist")
+        try launchAgent(label: "com.example.app").write(to: agentPath)
+        try launchAgent(label: "com.other.app").write(to: agents.appendingPathComponent("com.other.agent.plist"))
+
+        let ignore = try IgnoreStore(
+            fileURL: home.appendingPathComponent("ignore"),
+            legacyFileURL: nil,
+            currentDirectoryPath: home.path
+        )
+
+        XCTAssertEqual(
+            Uninstall.leftoverPaths(for: "com.example.app", home: home.path, ignore: ignore),
+            [agentPath.path]
+        )
+    }
+
+    func testLeftoverPathsListAnAgentOnceWhenNameAndLabelBothMatch() throws {
+        let home = try temporaryDirectory()
+        defer { try? FileManager.default.removeItem(at: home) }
+
+        let agents = home.appendingPathComponent("Library/LaunchAgents", isDirectory: true)
+        try FileManager.default.createDirectory(at: agents, withIntermediateDirectories: true)
+        let agentPath = agents.appendingPathComponent("com.example.app.plist")
+        try launchAgent(label: "com.example.app").write(to: agentPath)
+
+        let ignore = try IgnoreStore(
+            fileURL: home.appendingPathComponent("ignore"),
+            legacyFileURL: nil,
+            currentDirectoryPath: home.path
+        )
+        XCTAssertEqual(
+            Uninstall.leftoverPaths(for: "com.example.app", home: home.path, ignore: ignore),
+            [agentPath.path]
+        )
+    }
+
+    func testLeftoverPathsSkipIgnoredLaunchAgentsAndNonPlistFiles() throws {
+        let home = try temporaryDirectory()
+        defer { try? FileManager.default.removeItem(at: home) }
+
+        let agents = home.appendingPathComponent("Library/LaunchAgents", isDirectory: true)
+        try FileManager.default.createDirectory(at: agents, withIntermediateDirectories: true)
+        let ignoredAgent = agents.appendingPathComponent("com.example.agent.plist")
+        try launchAgent(label: "com.example.app").write(to: ignoredAgent)
+        try Data("Label com.example.app".utf8)
+            .write(to: agents.appendingPathComponent("notes.txt"))
+
+        let ignoreFile = home.appendingPathComponent("ignore")
+        try Data((ignoredAgent.path + "\n").utf8).write(to: ignoreFile)
+        let ignore = try IgnoreStore(
+            fileURL: ignoreFile,
+            legacyFileURL: nil,
+            currentDirectoryPath: home.path
+        )
+        XCTAssertEqual(Uninstall.leftoverPaths(for: "com.example.app", home: home.path, ignore: ignore), [])
+    }
+
+    func testLeftoverPathsSkipSymlinksAndIgnoredPaths() throws {
+        let home = try temporaryDirectory()
+        defer { try? FileManager.default.removeItem(at: home) }
+
+        let caches = home.appendingPathComponent("Library/Caches", isDirectory: true)
+        let logs = home.appendingPathComponent("Library/Logs", isDirectory: true)
+        try FileManager.default.createDirectory(at: caches, withIntermediateDirectories: true)
+        try FileManager.default.createDirectory(at: logs, withIntermediateDirectories: true)
+
+        let realTarget = home.appendingPathComponent("com.example.app.real")
+        try Data(repeating: 0x3, count: 16).write(to: realTarget)
+        try FileManager.default.createSymbolicLink(
+            atPath: caches.appendingPathComponent("com.example.app").path,
+            withDestinationPath: realTarget.path
+        )
+
+        let ignoredPath = logs.appendingPathComponent("com.example.app")
+        try Data(repeating: 0x4, count: 16).write(to: ignoredPath)
+        let ignoreFile = home.appendingPathComponent("ignore")
+        try Data((ignoredPath.path + "\n").utf8).write(to: ignoreFile)
+
+        let ignore = try IgnoreStore(
+            fileURL: ignoreFile,
+            legacyFileURL: nil,
+            currentDirectoryPath: home.path
+        )
+        XCTAssertEqual(Uninstall.leftoverPaths(for: "com.example.app", home: home.path, ignore: ignore), [])
+    }
+
+    func testLeftoverPathsHandleSpacesAndUnicodeInTheHomePath() throws {
+        let parent = try temporaryDirectory()
+        defer { try? FileManager.default.removeItem(at: parent) }
+        let home = parent.appendingPathComponent("fixture home ✓", isDirectory: true)
+        let applicationSupport = home.appendingPathComponent("Library/Application Support", isDirectory: true)
+        try FileManager.default.createDirectory(at: applicationSupport, withIntermediateDirectories: true)
+        let leftover = applicationSupport.appendingPathComponent("com.example.app")
+        try Data(repeating: 0x5, count: 16).write(to: leftover)
+
+        let ignore = try IgnoreStore(
+            fileURL: home.appendingPathComponent("ignore"),
+            legacyFileURL: nil,
+            currentDirectoryPath: home.path
+        )
+        XCTAssertEqual(
+            Uninstall.leftoverPaths(for: "com.example.app", home: home.path, ignore: ignore),
+            [leftover.path]
+        )
+    }
+
+    private func launchAgent(label: String) -> Data {
+        Data("""
+        <?xml version="1.0" encoding="UTF-8"?>
+        <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+        <plist version="1.0"><dict>
+        <key>Label</key><string>\(label)</string>
+        </dict></plist>
+        """.utf8)
+    }
+
     private func plist(identifier: String) -> Data {
         Data("""
         <?xml version="1.0" encoding="UTF-8"?>

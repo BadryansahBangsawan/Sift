@@ -82,7 +82,7 @@ final class AIToolCleanupTests: XCTestCase {
         let result = await makeCleaner().cleanItems(items) { _ in }
 
         XCTAssertEqual(result.itemsCleaned, 0)
-        XCTAssertEqual(result.errors.count, forbidden.count)
+        XCTAssertEqual(result.skippedPaths.count, forbidden.count)
         for relative in forbidden {
             XCTAssertTrue(fileManager.fileExists(atPath: path(relative)), "\(relative) was removed")
         }
@@ -111,6 +111,82 @@ final class AIToolCleanupTests: XCTestCase {
         XCTAssertFalse(result.trashedPaths.isEmpty, "Opt-in history must be moved to the Trash, not unlinked")
     }
 
+    func testTrashedHistoryIsNotCountedAsFreedSpace() async throws {
+        let transcript = try createSession(
+            ".claude/projects/-Users-test-demo/66666666-6666-6666-6666-666666666666.jsonl",
+            modified: oldDate
+        )
+        let scan = await makeScanner().scanCategory(.aiApps)
+        let session = try XCTUnwrap(scan.items.first { $0.path == transcript })
+        XCTAssertTrue(session.movesToTrash)
+
+        let result = await makeCleaner().cleanItems([session]) { _ in }
+
+        XCTAssertEqual(result.itemsCleaned, 1)
+        XCTAssertTrue(result.errors.isEmpty, "\(result.errors)")
+        XCTAssertFalse(result.trashedPaths.isEmpty, "Opt-in history must be moved to the Trash")
+        XCTAssertEqual(
+            result.freedSpace,
+            0,
+            "A file moved to the Trash still occupies disk; counting it as freed double-counts when the Trash is emptied"
+        )
+    }
+
+    func testUnlinkedAICacheStillCountsAsFreedSpace() async throws {
+        try createFile(".claude/shell-snapshots/snapshot.sh")
+        let cachePath = path(".claude/shell-snapshots")
+        let scan = await makeScanner().scanCategory(.aiApps)
+        let cache = try XCTUnwrap(scan.items.first { $0.path == cachePath })
+        XCTAssertFalse(cache.movesToTrash)
+
+        let result = await makeCleaner().cleanItems([cache]) { _ in }
+
+        XCTAssertEqual(result.itemsCleaned, 1)
+        XCTAssertTrue(result.errors.isEmpty, "\(result.errors)")
+        XCTAssertEqual(result.freedSpace, cache.size)
+        XCTAssertTrue(result.trashedPaths.isEmpty)
+    }
+
+    func testMixedBatchFreesOnlyTheUnlinkedBytes() async throws {
+        try createFile(".claude/shell-snapshots/snapshot.sh")
+        try createSession(
+            ".claude/projects/-Users-test-demo/77777777-7777-7777-7777-777777777777.jsonl",
+            modified: oldDate
+        )
+        let cachePath = path(".claude/shell-snapshots")
+        let scan = await makeScanner().scanCategory(.aiApps)
+        let cache = try XCTUnwrap(scan.items.first { $0.path == cachePath })
+        let session = try XCTUnwrap(
+            scan.items.first {
+                $0.path == path(".claude/projects/-Users-test-demo/77777777-7777-7777-7777-777777777777.jsonl")
+            }
+        )
+
+        let result = await makeCleaner().cleanItems([cache, session]) { _ in }
+
+        XCTAssertEqual(result.itemsCleaned, 2)
+        XCTAssertEqual(result.freedSpace, cache.size)
+        XCTAssertFalse(result.trashedPaths.isEmpty)
+    }
+
+    func testRefusedAIItemFreesNothing() async throws {
+        let transcript = try createSession(
+            ".claude/projects/-Users-test-demo/88888888-8888-8888-8888-888888888888.jsonl",
+            modified: oldDate
+        )
+        try createFile(".claude/settings.json", size: 2048)
+
+        var item = aiItem(relative: ".claude/projects/-Users-test-demo/88888888-8888-8888-8888-888888888888.jsonl")
+        item.companionPaths = [path(".claude/settings.json")]
+
+        let result = await makeCleaner().cleanItems([item]) { _ in }
+
+        XCTAssertEqual(result.itemsCleaned, 0)
+        XCTAssertEqual(result.freedSpace, 0)
+        XCTAssertFalse(result.skippedPaths.isEmpty)
+        XCTAssertTrue(fileManager.fileExists(atPath: transcript))
+    }
+
     func testSessionModifiedJustNowIsNotOffered() async throws {
         _ = try createSession(
             ".claude/projects/-Users-test-demo/33333333-3333-3333-3333-333333333333.jsonl",
@@ -137,7 +213,7 @@ final class AIToolCleanupTests: XCTestCase {
         let skipped = await running.cleanItems([vmItem]) { _ in }
         XCTAssertEqual(skipped.itemsCleaned, 0)
         XCTAssertTrue(fileManager.fileExists(atPath: vmPath))
-        XCTAssertTrue(skipped.errors.contains { $0.contains("Claude is running") }, "\(skipped.errors)")
+        XCTAssertTrue(skipped.skippedPaths.values.contains { $0.contains("Claude is running") }, "\(skipped.skippedPaths)")
 
         let idle = CleaningEngine(homeDirectory: home, isAppRunning: { _ in false })
         let cleaned = await idle.cleanItems([vmItem]) { _ in }
@@ -161,7 +237,7 @@ final class AIToolCleanupTests: XCTestCase {
         let result = await makeCleaner().cleanItems([item, second]) { _ in }
 
         XCTAssertEqual(result.itemsCleaned, 0)
-        XCTAssertEqual(result.errors.count, 2)
+        XCTAssertFalse(result.skippedPaths.isEmpty, "A refused session is a skip, not an error: \(result.errors)")
         XCTAssertTrue(fileManager.fileExists(atPath: transcript))
         XCTAssertTrue(fileManager.fileExists(atPath: path(".claude/settings.json")))
         XCTAssertTrue(fileManager.fileExists(atPath: path("precious.txt")))
@@ -174,6 +250,106 @@ final class AIToolCleanupTests: XCTestCase {
         for spec in AIToolCleanupCatalog.specs(home: home.path) where spec.isOptIn {
             XCTAssertNotNil(spec.note, "Opt-in \(spec.path) needs a reason shown in the row")
         }
+    }
+
+    func testCleanerRefusesATranscriptThatBecameActiveAfterTheScan() async throws {
+        // The scan offers only sessions untouched for ten minutes. The user can
+        // resume one between the scan and the click, and that transcript is
+        // live work, not history: the cleaner must re-check, like it re-checks
+        // the temp-entry policy and the Claude-running guard.
+        let relative = ".claude/projects/-Users-test-demo/22222222-2222-2222-2222-222222222222.jsonl"
+        let transcript = try createSession(relative, modified: oldDate)
+        let item = CleanableItem(
+            name: "demo session",
+            path: transcript,
+            size: 4096,
+            category: .aiApps,
+            isSelected: true,
+            lastModified: oldDate,
+            companionPaths: AIToolCleanupCatalog.sessionCompanions(for: transcript),
+            note: nil,
+            movesToTrash: true
+        )
+        try fileManager.setAttributes([.modificationDate: fixedNow], ofItemAtPath: transcript)
+
+        let result = await makeCleaner().cleanItems([item]) { _ in }
+
+        XCTAssertEqual(result.itemsCleaned, 0)
+        XCTAssertTrue(fileManager.fileExists(atPath: transcript), "A live session must stay where its agent writes it")
+        XCTAssertTrue(result.trashedPaths.isEmpty)
+        XCTAssertTrue(result.skippedPaths.values.contains { $0.localizedCaseInsensitiveContains("open") }, "\(result.skippedPaths)")
+    }
+
+    func testTouchedAfterTheScanBlocksASessionOnlyWithinOneSecondTolerance() async throws {
+        let relative = ".claude/projects/-Users-test-demo/55555555-5555-5555-5555-555555555555.jsonl"
+        let transcript = try createSession(relative, modified: oldDate)
+        let scan = await makeScanner().scanCategory(.aiApps)
+        let session = try XCTUnwrap(scan.items.first { $0.path == transcript })
+
+        // One second of drift is a metadata rounding, not a resumed session.
+        try fileManager.setAttributes([.modificationDate: oldDate.addingTimeInterval(1)], ofItemAtPath: transcript)
+        let tolerated = await makeCleaner().cleanItems([session]) { _ in }
+        XCTAssertEqual(tolerated.itemsCleaned, 1, "\(tolerated.errors)")
+        XCTAssertFalse(fileManager.fileExists(atPath: transcript))
+
+        let second = try createSession(
+            ".claude/projects/-Users-test-demo/55555555-5555-5555-5555-555555555556.jsonl",
+            modified: oldDate
+        )
+        let rescan = await makeScanner().scanCategory(.aiApps)
+        let rescanned = try XCTUnwrap(rescan.items.first { $0.path == second })
+        try fileManager.setAttributes([.modificationDate: oldDate.addingTimeInterval(2)], ofItemAtPath: second)
+        let refused = await makeCleaner().cleanItems([rescanned]) { _ in }
+        XCTAssertEqual(refused.itemsCleaned, 0)
+        XCTAssertTrue(fileManager.fileExists(atPath: second))
+    }
+
+    func testTouchedCacheIsStillCleanedBecauseOnlySessionsAreGuarded() async throws {
+        try createFile(".claude/shell-snapshots/snapshot.sh")
+        let cachePath = path(".claude/shell-snapshots")
+        let scan = await makeScanner().scanCategory(.aiApps)
+        let cache = try XCTUnwrap(scan.items.first { $0.path == cachePath })
+        try fileManager.setAttributes(
+            [.modificationDate: fixedNow.addingTimeInterval(3_600)],
+            ofItemAtPath: cachePath
+        )
+
+        let result = await makeCleaner().cleanItems([cache]) { _ in }
+
+        XCTAssertEqual(result.itemsCleaned, 1, "\(result.errors)")
+        XCTAssertFalse(fileManager.fileExists(atPath: cachePath))
+    }
+
+    func testSessionWithoutAScannedTimestampFallsBackToTheOpenWindow() throws {
+        let relative = ".claude/projects/-Users-test-demo/66666666-6666-6666-6666-666666666666.jsonl"
+        let transcript = try createSession(relative, modified: fixedNow)
+        try createFile(".claude/shell-snapshots/snapshot.sh")
+
+        XCTAssertTrue(
+            AIToolCleanupCatalog.isOpenSession(
+                path: transcript,
+                home: home.path,
+                listedAt: nil,
+                now: fixedNow
+            )
+        )
+        XCTAssertFalse(
+            AIToolCleanupCatalog.isOpenSession(
+                path: transcript,
+                home: home.path,
+                listedAt: nil,
+                now: fixedNow.addingTimeInterval(AIToolCleanupCatalog.openSessionWindow)
+            )
+        )
+        XCTAssertFalse(
+            AIToolCleanupCatalog.isOpenSession(
+                path: path(".claude/shell-snapshots"),
+                home: home.path,
+                listedAt: nil,
+                now: fixedNow
+            ),
+            "Only transcripts are sessions"
+        )
     }
 
     // MARK: - Fixtures
