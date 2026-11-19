@@ -68,7 +68,7 @@ swift build -c release
 
 ## Privacidad y seguridad
 
-Sin telemetría, analíticas ni informes de fallos. Los análisis son locales y funcionan sin conexión. Todo se revisa antes de eliminarse; algunas limpiezas (categorías y limpieza programada) borran de forma permanente, así que lee la confirmación. Sift necesita **acceso total al disco** para analizar ubicaciones protegidas; la configuración inicial te guía.
+Sin telemetría, analíticas ni informes de fallos. Los análisis son locales y funcionan sin conexión. Todo se revisa antes de eliminarse; algunas limpiezas (categorías) borran de forma permanente, así que lee la confirmación. Sift necesita **acceso total al disco** para analizar ubicaciones protegidas; la configuración inicial te guía.
 
 ## Créditos
 

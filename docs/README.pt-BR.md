@@ -68,7 +68,7 @@ swift build -c release
 
 ## Privacidade e segurança
 
-Sem telemetria, análises ou relatórios de falhas. As verificações são locais e funcionam offline. Tudo é revisado antes de ser removido; algumas limpezas (categorias e limpeza agendada) apagam de forma permanente, então leia a confirmação. O Sift precisa do **Acesso Total ao Disco** para verificar locais protegidos; a configuração inicial guia você.
+Sem telemetria, análises ou relatórios de falhas. As verificações são locais e funcionam offline. Tudo é revisado antes de ser removido; algumas limpezas (categorias) apagam de forma permanente, então leia a confirmação. O Sift precisa do **Acesso Total ao Disco** para verificar locais protegidos; a configuração inicial guia você.
 
 ## Créditos
 

@@ -112,7 +112,7 @@ Use `sift-cli clean dev --dry-run` for a preview or `--json` for scripts. See
 
 A Mac cleaner asks for the deepest permission macOS grants - Full Disk Access - and then deletes your files. That demands a level of trust the category has spent twenty years burning. Here's the contract Sift holds itself to, and you can verify every line of it in the source:
 
-- **Deletion behavior is explicit.** App uninstalls, orphan removal, exact-duplicate removal, project junk and AI chat history use the Trash at user level. Sift never empties the Trash: empty it yourself in Finder. Dashboard/category cleanup, scheduled auto-clean, Docker/Xcode runtime cleanup, administrator-authorized removal, local snapshot deletion, and CLI cleanup can permanently delete data. Review selections carefully and use CLI dry runs.
+- **Deletion behavior is explicit.** App uninstalls, orphan removal, exact-duplicate removal, project junk, AI chat history, Large & Old Files, Installers and everything a scheduled auto-clean removes use the Trash at user level. Sift never empties the Trash: empty it yourself in Finder. Dashboard/category cleanup of caches and logs, Docker/Xcode runtime cleanup, administrator-authorized removal, local snapshot deletion, and CLI cleanup can permanently delete data. Review selections carefully and use CLI dry runs.
 - **No telemetry, ever.** No analytics, no crash reporting, no "anonymous usage stats," no network calls to us. The app doesn't know you exist.
 - **No fake urgency.** No dramatized "47 GB of junk detected!" badge, no red alarm counters, no "your Mac is at risk." We show you neutral facts and let you decide.
 - **No overpromising.** We don't claim to "reclaim purgeable space," "boost RAM," or "speed up your Mac" - things no app can reliably do. See the purgeable-space note below.
@@ -193,7 +193,7 @@ Cleanup results support name/path search, size and age filters, sorting, and sel
 Check for updates to Homebrew-managed cask apps and choose which ones to upgrade. Sift runs Homebrew with analytics disabled and shows command failures. These actions use the network and Homebrew's package sources. Apps installed outside Homebrew are not covered; an App Store shortcut is provided for those managed by Apple.
 
 ### Scheduled Cleaning
-Optional. Choose an interval (weekly runs pick a day and an hour) and an auto-clean threshold, so background runs only fire when there's something meaningful to remove. The rail shows when the next run is due. Opt-in items (AI chat history, large files, `/tmp` entries) and Project Junk are never cleaned on a schedule.
+Optional. Choose an interval (weekly runs pick a day and an hour) and an auto-clean threshold, so background runs only fire when there's something meaningful to remove. The rail shows when the next run is due. Opt-in items (AI chat history, large files, `/tmp` entries) and Project Junk are never cleaned on a schedule. What a scheduled clean removes goes to the Trash; rows that cannot (Docker prune, simulator runtimes, root-owned files) wait for your next manual clean.
 
 ### Settings
 
