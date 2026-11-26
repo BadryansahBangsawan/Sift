@@ -53,7 +53,7 @@ Sift started as a fork of PureMac, the open-source Mac cleaner by [Moamen Basel]
 
 ## Install
 
-Download `Sift-4.2.0.dmg` from the [latest release](https://github.com/BadryansahBangsawan/Sift/releases/latest) and drag Sift to Applications. From 4.2.0 on, Sift updates itself; 4.1.2 and older need this one manual download.
+Download `Sift-4.2.1.dmg` from the [latest release](https://github.com/BadryansahBangsawan/Sift/releases/latest) and drag Sift to Applications. From 4.2.0 on, Sift updates itself; 4.1.2 and older need this one manual download.
 
 This release is not notarized by Apple yet, so macOS stops it the first time you open it:
 
@@ -190,7 +190,7 @@ Cleanup results support name/path search, size and age filters, sorting, and sel
 
 ### App updates
 
-From 4.2.0 on, Sift updates itself: **Sift → Check for Updates…** or **Settings → Updates** checks the signed appcast, verifies the download's EdDSA signature and offers **Install and Relaunch**. Automatic checks are on by default and can be turned off there. Sift 4.1.2 and older have no updater and need one manual download of 4.2.0.
+From 4.2.0 on, Sift updates itself: **Sift → Check for Updates…** or **Settings → Updates** checks the signed appcast, verifies the download's EdDSA signature and offers **Install and Relaunch**. Automatic checks are on by default and can be turned off there. Sift 4.1.2 and older have no updater and need one manual download of the latest version.
 
 Check for updates to Homebrew-managed cask apps and choose which ones to upgrade. Sift runs Homebrew with analytics disabled and shows command failures. These actions use the network and Homebrew's package sources. Apps installed outside Homebrew are not covered; an App Store shortcut is provided for those managed by Apple.
 

@@ -2,7 +2,7 @@
 
 All notable user-facing changes to Sift. Sift was called PureMac before 4.0.0.
 
-## Unreleased
+## 4.2.1
 
 ### Changed
 
