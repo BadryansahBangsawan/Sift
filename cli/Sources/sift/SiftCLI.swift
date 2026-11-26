@@ -33,6 +33,17 @@ enum HomeMenu {
         return line.isEmpty ? fallback : line
     }
 
+    /// Runs the Uninstall command for a prompt answer. Kept separate from the
+    /// menu loop so a test can prove a bad answer cannot end the session.
+    @discardableResult
+    static func runUninstall(_ answer: String) throws -> Bool {
+        var command = Uninstall()
+        command.appPath = answer
+        try command.validate()
+        try command.run()
+        return true
+    }
+
     static func run() throws {
         let options: [(title: String, detail: String)] = [
             ("Clean caches", "Choose tools and individual paths to remove"),
@@ -76,7 +87,7 @@ enum HomeMenu {
                 try Dupes.parse([folder]).run()
             case 8:
                 let app = promptPath("App to uninstall", fallback: "/Applications")
-                try Uninstall.parse([app]).run()
+                _ = try runUninstall(app)
             default: return
             }
             print(Term.dim("\nPress Return to return to Sift."), terminator: " ")
