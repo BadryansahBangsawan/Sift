@@ -11,6 +11,8 @@ All notable user-facing changes to Sift. Sift was called PureMac before 4.0.0.
 
 ### Fixed
 
+- After a cleanup that only moved files to the Trash, the dashboard says
+  “Moved to Trash: …” with the amount instead of “0 bytes removed”.
 - A failed Docker prune keeps its row in Developer caches with the error message,
   so you can try again without rescanning.
 - Cleaning Large & old files, Installers, Xcode Archives or opt-in AI rows from
