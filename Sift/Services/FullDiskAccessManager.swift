@@ -116,4 +116,5 @@ final class FullDiskAccessManager {
             )
         }.value
         return !result.timedOut && result.status == 0
-    }}
+    }
+}
