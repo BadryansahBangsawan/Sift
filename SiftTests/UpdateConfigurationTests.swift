@@ -24,7 +24,7 @@ final class UpdateConfigurationTests: XCTestCase {
         XCTAssertEqual(plist["SUEnableAutomaticChecks"] as? Bool, true)
     }
 
-    func testProjectLinksTheExactSparklePackageAndEmbedsIt() throws {
+    func testProjectLinksTheExactSparklePackageAndLetsXcodeEmbedIt() throws {
         let project = try String(
             contentsOf: repoRoot.appendingPathComponent("Sift.xcodeproj/project.pbxproj"),
             encoding: .utf8
@@ -35,8 +35,14 @@ final class UpdateConfigurationTests: XCTestCase {
         XCTAssertTrue(project.contains("kind = exactVersion;"))
         XCTAssertTrue(project.contains("version = 2.10.1;"))
         XCTAssertTrue(project.contains("productName = Sparkle;"))
-        XCTAssertTrue(project.contains("Sparkle in Embed Frameworks"))
-        XCTAssertTrue(project.contains("CodeSignOnCopy"))
+        XCTAssertTrue(
+            project.contains("Sparkle in Frameworks"),
+            "The app target must link the Sparkle package product"
+        )
+        XCTAssertFalse(
+            project.contains("Sparkle in Embed Frameworks"),
+            "Xcode embeds a package's dynamic framework itself; a package product in a Copy Files phase is copied from BUILT_PRODUCTS_DIR/<product>, which does not exist"
+        )
     }
 
     // MARK: - Helpers

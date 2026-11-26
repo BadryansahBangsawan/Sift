@@ -184,7 +184,6 @@
 		DDB091D7E2FFF009FEC4BDF2 /* PermissionSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0D39AEFFC819215763BA111 /* PermissionSheet.swift */; };
 		DDE0F2E26648517E654BD18C /* ScanModifiedDateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D71E7B1E4EE1DB7753FFD367 /* ScanModifiedDateTests.swift */; };
 		DF8C0E25BFDD1A353DC76E32 /* Archivo.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 716386591B3B9E098C2089B0 /* Archivo.ttf */; };
-		DF9E4D9FF62AB845415A0D8E /* Sparkle in Embed Frameworks */ = {isa = PBXBuildFile; productRef = 787204D073B56EE802CE4E05 /* Sparkle */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		E20AC8CAA98C0B81B2914D35 /* ServicesMenu.strings in Resources */ = {isa = PBXBuildFile; fileRef = F68FE4B066597FCBC5EC68E7 /* ServicesMenu.strings */; };
 		E28E5E15EA77284F34B747EA /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 08B127D3491D0E77696F1D55 /* Assets.xcassets */; };
 		E2FB2157A73DC89762C15530 /* AppLanguage.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA7B6DEAC0C43AB866066AE0 /* AppLanguage.swift */; };
@@ -225,20 +224,6 @@
 			remoteInfo = Sift;
 		};
 /* End PBXContainerItemProxy section */
-
-/* Begin PBXCopyFilesBuildPhase section */
-		41CCC5D2430F1AC2A8AF75E7 /* Embed Frameworks */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 10;
-			files = (
-				DF9E4D9FF62AB845415A0D8E /* Sparkle in Embed Frameworks */,
-			);
-			name = "Embed Frameworks";
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		009B20127904B00E8416A3FB /* uk */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = uk; path = uk.lproj/Localizable.stringsdict; sourceTree = "<group>"; };
@@ -895,7 +880,6 @@
 				0195E17015D9C5525CBA2516 /* Sources */,
 				DBCD5A16D67F2DABCCAC79FE /* Resources */,
 				B71A9D2E534F321CC5248C16 /* Frameworks */,
-				41CCC5D2430F1AC2A8AF75E7 /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
