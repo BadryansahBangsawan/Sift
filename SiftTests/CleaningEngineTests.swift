@@ -244,6 +244,94 @@ final class CleaningEngineTests: XCTestCase {
         XCTAssertFalse(result.cleanedPaths.contains(folder.path))
     }
 
+    func testSingleFileAllowanceStillAllowsARegularFile() async throws {
+        let home = fileManager.temporaryDirectory
+            .appendingPathComponent("CleaningEngineHome-\(UUID().uuidString)", isDirectory: true)
+            .resolvingSymlinksInPath()
+        defer { try? fileManager.removeItem(at: home) }
+
+        var items: [CleanableItem] = []
+        for folder in ["Downloads", "Documents", "Desktop"] {
+            let directory = home.appendingPathComponent(folder, isDirectory: true)
+            try fileManager.createDirectory(at: directory, withIntermediateDirectories: true)
+            let file = directory.appendingPathComponent("big.bin")
+            try Data(repeating: 1, count: 4_096).write(to: file)
+            items.append(CleanableItem(
+                name: file.lastPathComponent,
+                path: file.path,
+                size: 4_096,
+                category: .largeFiles,
+                isSelected: true,
+                lastModified: nil
+            ))
+        }
+
+        let result = await CleaningEngine(homeDirectory: home, trashOperation: { _ in nil })
+            .cleanItems(items) { _ in }
+
+        XCTAssertEqual(result.freedSpace, 12_288)
+        for item in items {
+            XCTAssertFalse(fileManager.fileExists(atPath: item.path))
+        }
+    }
+
+    func testSingleFileAllowanceRefusesDirectoriesInEveryPerFileRoot() async throws {
+        let home = fileManager.temporaryDirectory
+            .appendingPathComponent("CleaningEngineHome-\(UUID().uuidString)", isDirectory: true)
+            .resolvingSymlinksInPath()
+        defer { try? fileManager.removeItem(at: home) }
+
+        var items: [CleanableItem] = []
+        for folder in ["Downloads", "Documents", "Desktop"] {
+            let directory = home.appendingPathComponent("\(folder)/a-folder", isDirectory: true)
+            try fileManager.createDirectory(at: directory, withIntermediateDirectories: true)
+            try Data(repeating: 2, count: 4_096).write(to: directory.appendingPathComponent("inside.bin"))
+            items.append(CleanableItem(
+                name: "a-folder",
+                path: directory.path,
+                size: 4_096,
+                category: .installers,
+                isSelected: true,
+                lastModified: nil
+            ))
+        }
+
+        let result = await CleaningEngine(homeDirectory: home, trashOperation: { _ in nil })
+            .cleanItems(items) { _ in }
+
+        for item in items {
+            XCTAssertTrue(fileManager.fileExists(atPath: item.path))
+            XCTAssertFalse(result.cleanedPaths.contains(item.path))
+        }
+    }
+
+    func testSingleFileAllowanceRefusesASymlinkInDesktop() async throws {
+        let home = fileManager.temporaryDirectory
+            .appendingPathComponent("CleaningEngineHome-\(UUID().uuidString)", isDirectory: true)
+            .resolvingSymlinksInPath()
+        defer { try? fileManager.removeItem(at: home) }
+        let desktop = home.appendingPathComponent("Desktop", isDirectory: true)
+        try fileManager.createDirectory(at: desktop, withIntermediateDirectories: true)
+        let target = desktop.appendingPathComponent("target.bin")
+        try Data(repeating: 3, count: 4_096).write(to: target)
+        let link = desktop.appendingPathComponent("linked.bin")
+        try fileManager.createSymbolicLink(at: link, withDestinationURL: target)
+
+        let item = CleanableItem(
+            name: link.lastPathComponent,
+            path: link.path,
+            size: 4_096,
+            category: .largeFiles,
+            isSelected: true,
+            lastModified: nil
+        )
+        let result = await CleaningEngine(homeDirectory: home, trashOperation: { _ in nil })
+            .cleanItems([item]) { _ in }
+
+        XCTAssertTrue(fileManager.fileExists(atPath: target.path))
+        XCTAssertFalse(result.cleanedPaths.contains(link.path))
+    }
+
 }
 
 /// Thread-safe collector for progress fractions reported by CleaningEngine.
