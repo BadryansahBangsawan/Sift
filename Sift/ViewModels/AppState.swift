@@ -170,6 +170,9 @@ final class AppState: ObservableObject {
     private let locationsProvider: () -> Locations
     private let appFileScanner: AppFileScanner
     private let appFileTrasher: AppFileTrasher
+    /// Home directory app-file removal is scoped to. Injectable so tests can
+    /// build symlink fixtures outside the real home directory.
+    private let homeDirectory: URL
     private let trashEmptier: TrashEmptier
     /// The installed-app list the orphan scan checks against.
     private let installedAppsProvider: () -> [InstalledApp]
@@ -260,11 +263,13 @@ final class AppState: ObservableObject {
         cleaningEngine: CleaningEngine = CleaningEngine(),
         historyStore: CleanupHistoryStore = CleanupHistoryStore(),
         trashEmptier: @escaping TrashEmptier = AppState.finderEmptyTrash,
-        installedAppsProvider: @escaping () -> [InstalledApp] = { AppInfoFetcher.shared.fetchInstalledApps() }
+        installedAppsProvider: @escaping () -> [InstalledApp] = { AppInfoFetcher.shared.fetchInstalledApps() },
+        homeDirectory: URL = FileManager.default.homeDirectoryForCurrentUser
     ) {
         self.locationsProvider = locationsProvider
         self.appFileScanner = appFileScanner
         self.appFileTrasher = appFileTrasher
+        self.homeDirectory = homeDirectory
         self.scanEngine = scanEngine
         self.cleaningEngine = cleaningEngine
         self.historyStore = historyStore

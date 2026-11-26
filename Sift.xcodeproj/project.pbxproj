@@ -131,6 +131,7 @@
 		CD944BC1F39976AE3EA9365C /* Haptics.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A1E62923CA549AAB6DA9B2D /* Haptics.swift */; };
 		CF2F3B0B2473A7E4FDB0DEC1 /* CategoryDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C0924293EA3A4117B21EA78 /* CategoryDetailView.swift */; };
 		D276E98F59169B8E14BFF8E4 /* AIToolCleanupTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7909431822990BB260111F2 /* AIToolCleanupTests.swift */; };
+		B2D5F8CAE317509B6D4F2C88 /* AppFileSymlinkSafetyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1C4E7B9D2F6408A5C3E1B77 /* AppFileSymlinkSafetyTests.swift */; };
 		D41D3E6F57B2E924A0AAE166 /* SiftComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 157E056EE4B062AD7EE3F853 /* SiftComponents.swift */; };
 		D7303528DE0DC9DE1D441919 /* ApplePreferenceStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 227A99D91CDD300AA48DA1A6 /* ApplePreferenceStore.swift */; };
 		D99C0CE0B181BE47372129AA /* AppleFeatureCatalogTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F97CDAADAAA21899072FE250 /* AppleFeatureCatalogTests.swift */; };
@@ -319,6 +320,7 @@
 		C500888A6085BCD2AF0E9972 /* SiftApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SiftApp.swift; sourceTree = "<group>"; };
 		C5F01D47E6FD2ECEBE7678E2 /* DeviceBackupServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceBackupServiceTests.swift; sourceTree = "<group>"; };
 		C7909431822990BB260111F2 /* AIToolCleanupTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIToolCleanupTests.swift; sourceTree = "<group>"; };
+		A1C4E7B9D2F6408A5C3E1B77 /* AppFileSymlinkSafetyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppFileSymlinkSafetyTests.swift; sourceTree = "<group>"; };
 		C81BA6C803D39C012BDFF70C /* ProjectJunkView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectJunkView.swift; sourceTree = "<group>"; };
 		C88A724575308943A78FFF7F /* Locations.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Locations.swift; sourceTree = "<group>"; };
 		CAB0041E3FC64BA308DC0E7D /* SimulatorRuntimeSupportTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimulatorRuntimeSupportTests.swift; sourceTree = "<group>"; };
@@ -583,6 +585,7 @@
 			children = (
 				148AE3B9EFB7ACBAE4709BC6 /* AIAppsCleanupTests.swift */,
 				C7909431822990BB260111F2 /* AIToolCleanupTests.swift */,
+				A1C4E7B9D2F6408A5C3E1B77 /* AppFileSymlinkSafetyTests.swift */,
 				3CFFCB41DD7FF4C7EDD87A69 /* AppLanguagePreferencesTests.swift */,
 				F97CDAADAAA21899072FE250 /* AppleFeatureCatalogTests.swift */,
 				4B2B9622B907E06FFDFEBFA9 /* AppleIntelligenceTests.swift */,
@@ -905,6 +908,7 @@
 			files = (
 				5479322B3FD17A974781013A /* AIAppsCleanupTests.swift in Sources */,
 				D276E98F59169B8E14BFF8E4 /* AIToolCleanupTests.swift in Sources */,
+				B2D5F8CAE317509B6D4F2C88 /* AppFileSymlinkSafetyTests.swift in Sources */,
 				F33AC2AAC1C14C28D487C0B9 /* AppLanguagePreferencesTests.swift in Sources */,
 				F93386ECC29B862885549ECE /* AppStatePreferencesTests.swift in Sources */,
 				63D0690694DDAD1E0DC7E07D /* AppStateSummaryTests.swift in Sources */,
