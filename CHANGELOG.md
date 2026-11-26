@@ -11,6 +11,8 @@ All notable user-facing changes to Sift. Sift was called PureMac before 4.0.0.
 
 ### Fixed
 
+- Deleting a Large & old file or Installer now checks it is still a regular
+  file, so a folder or symlink that replaced it since the scan is left alone.
 - Simulator runtime checks no longer hang when a tool fills its error output
   first; the helper drains both streams and gives up after a timeout.
 - If importing PureMac’s old settings and data fails, Sift retries on the next
