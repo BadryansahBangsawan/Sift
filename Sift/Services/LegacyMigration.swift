@@ -44,6 +44,9 @@ enum LegacyMigration {
                 try fileManager.copyItem(at: oldSupport, to: newSupport)
             } catch {
                 Logger.shared.log("Legacy data copy failed: \(error.localizedDescription)", level: .warning)
+                // Leave the done key unset: the next launch retries instead of
+                // stranding the old PureMac data forever.
+                return
             }
         }
 
