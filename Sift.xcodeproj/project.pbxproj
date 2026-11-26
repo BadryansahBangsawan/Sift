@@ -93,6 +93,7 @@
 		63D0690694DDAD1E0DC7E07D /* AppStateSummaryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 31C73BE766CD1F58E680F788 /* AppStateSummaryTests.swift */; };
 		640D81EC3BDF005EF744AC8A /* InstallerScan.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4230A519B9ECE32C67D7BFF /* InstallerScan.swift */; };
 		6638CBD26E9038716448E866 /* AppStateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C46D9331DC17BC1687026176 /* AppStateTests.swift */; };
+		67F77BDE10A82945E5AC1202 /* SumSaturationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCC2AA17D02D006896A7AFCD /* SumSaturationTests.swift */; };
 		68057671DDF13EDD85378B83 /* SchedulerService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F972F7126E25B0204A0C04A /* SchedulerService.swift */; };
 		685E66406D25D416682D9110 /* CleanupHistoryStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = B206D169523A6941E203E8B0 /* CleanupHistoryStore.swift */; };
 		69EA6BF0183233395B43CDAA /* BatteryInspector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 748893E4BB7DE1DDFA6A0BB8 /* BatteryInspector.swift */; };
@@ -406,6 +407,7 @@
 		BA1D65F455289B142DED4743 /* CleanupLog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CleanupLog.swift; sourceTree = "<group>"; };
 		BA6DDAD5932A8FFA2DDB3B32 /* OrphanListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrphanListView.swift; sourceTree = "<group>"; };
 		BAE99293E647CE958284CD65 /* RunningAppGuard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RunningAppGuard.swift; sourceTree = "<group>"; };
+		BCC2AA17D02D006896A7AFCD /* SumSaturationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SumSaturationTests.swift; sourceTree = "<group>"; };
 		BCE7BFF44C54DDD2F9B1718E /* LanguageFilesScanner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LanguageFilesScanner.swift; sourceTree = "<group>"; };
 		BE8B1FC7C9AC1221DFB1BE0A /* ProcessResourceMonitorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProcessResourceMonitorTests.swift; sourceTree = "<group>"; };
 		C1A51E327791927B0A2FB831 /* StringNormalization.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StringNormalization.swift; sourceTree = "<group>"; };
@@ -791,6 +793,7 @@
 				A8AA65BA0A3F3650C0B7C4AF /* SimilarPhotoFinderTests.swift */,
 				CAB0041E3FC64BA308DC0E7D /* SimulatorRuntimeSupportTests.swift */,
 				06CAD8E15A6CCD96E2833A71 /* StorageExplorerTests.swift */,
+				BCC2AA17D02D006896A7AFCD /* SumSaturationTests.swift */,
 				CC2891F9C818FB057387A639 /* SystemInfoTests.swift */,
 				1B3FA65F8215A9E57E4ADB16 /* SystemJunkTmpPolicyTests.swift */,
 				2FC2820F2B5121C861FB917D /* SystemMonitorMathTests.swift */,
@@ -1170,6 +1173,7 @@
 				B1AF860BCF3473D532B5A9E3 /* SimilarPhotoFinderTests.swift in Sources */,
 				1D2BA33C80EB79D9A2D2F1B5 /* SimulatorRuntimeSupportTests.swift in Sources */,
 				31DED15A94D2E6487580E164 /* StorageExplorerTests.swift in Sources */,
+				67F77BDE10A82945E5AC1202 /* SumSaturationTests.swift in Sources */,
 				6CC31B4479FE58B2E39F95AB /* SystemInfoTests.swift in Sources */,
 				41EF319CC0CE9EFA5E5FC57F /* SystemJunkTmpPolicyTests.swift in Sources */,
 				76685D020EA5A9094B2EF372 /* SystemMonitorMathTests.swift in Sources */,
