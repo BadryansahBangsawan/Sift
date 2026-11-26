@@ -76,7 +76,7 @@ struct InteractiveReviewModel {
     }
 
     var allBytes: Int64 {
-        categories.reduce(Int64(0)) { $0 + $1.allBytes }
+        categories.reduce(Int64(0)) { $0.saturatedSum($1.allBytes) }
     }
 
     var focusedAddress: ReviewAddress? {

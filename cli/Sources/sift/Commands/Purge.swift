@@ -103,7 +103,7 @@ struct Purge: ParsableCommand {
 
         if mode != .forced {
             Render.deletionReview(reviewed)
-            let total = ByteCount.human(selected.reduce(Int64(0)) { $0 + $1.sizeBytes })
+            let total = ByteCount.human(selected.reduce(Int64(0)) { $0.saturatedSum($1.sizeBytes) })
             guard Term.confirm("Remove \(selected.count) artifacts (\(total))?", default: false) else {
                 print(Term.dim("Cancelled. Nothing removed."))
                 return

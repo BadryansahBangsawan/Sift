@@ -159,4 +159,32 @@ final class AnalyzeTests: XCTestCase {
         XCTAssertTrue(tooSmall.contains { $0.contains("Terminal too small") })
         XCTAssertTrue(tooSmall.allSatisfy { Term.displayWidth($0) <= 39 })
     }
+
+    func testJSONCarriesPartialScanCountsAndErrors() throws {
+        let child = Analyze.Child(
+            path: "/partial/child",
+            size: 123,
+            isDir: true,
+            isPackage: false,
+            inaccessibleCount: 2,
+            skippedCount: 1
+        )
+        let snapshot = Analyze.FolderSnapshot(
+            path: "/partial",
+            children: [child],
+            total: 123,
+            inaccessibleCount: 2,
+            skippedCount: 1,
+            errors: ["denied"]
+        )
+
+        let data = try Analyze.jsonData(for: snapshot)
+        let rows = try XCTUnwrap(JSONSerialization.jsonObject(with: data) as? [[String: Any]])
+        XCTAssertEqual(rows.first?["path"] as? String, "/partial/child")
+        XCTAssertEqual(rows.first?["bytes"] as? Int, 123)
+        XCTAssertEqual(rows.first?["inaccessibleCount"] as? Int, 2)
+        XCTAssertEqual(rows.first?["skippedCount"] as? Int, 1)
+        XCTAssertEqual(rows.first?["errors"] as? [String], ["denied"])
+    }
+
 }

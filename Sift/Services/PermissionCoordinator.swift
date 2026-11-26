@@ -113,8 +113,13 @@ final class PermissionCoordinator: ObservableObject {
     /// reports Sift doesn't appear in the FDA list (typical after Homebrew
     /// reinstall replaces the bundle with a different code signature).
     func resetAndReprime() {
-        _ = FullDiskAccessManager.shared.resetFullDiskAccess()
-        FullDiskAccessManager.shared.triggerRegistration()
+        Task { @MainActor in
+            let reset = await FullDiskAccessManager.shared.resetFullDiskAccess()
+            if !reset {
+                Logger.shared.log("TCC reset failed or timed out", level: .warning)
+            }
+            FullDiskAccessManager.shared.triggerRegistration()
+        }
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
             FullDiskAccessManager.shared.openFullDiskAccessSettings()
         }

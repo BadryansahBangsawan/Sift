@@ -38,11 +38,7 @@ struct Analyze: ParsableCommand {
 
         if json {
             let snapshot = scanFolder(target, ignore: ignore)
-            struct Row: Encodable { let path: String; let bytes: Int64 }
-            let encoder = JSONEncoder()
-            encoder.outputFormatting = [.prettyPrinted, .withoutEscapingSlashes]
-            let data = try encoder.encode(snapshot.children.map { Row(path: $0.path, bytes: $0.size) })
-            print(String(decoding: data, as: UTF8.self))
+            print(String(decoding: try Self.jsonData(for: snapshot), as: UTF8.self))
             return
         }
 
@@ -52,6 +48,32 @@ struct Analyze: ParsableCommand {
         }
 
         printPlain(target, ignore: ignore)
+    }
+
+    struct JSONRow: Encodable {
+        let path: String
+        let bytes: Int64
+        let inaccessibleCount: Int
+        let skippedCount: Int
+        let errors: [String]
+    }
+
+    /// Same top-level array as before; every row keeps `path`/`bytes` and adds
+    /// the partial-scan counters and errors, so a permission-blocked folder is
+    /// distinguishable from an empty one without breaking existing scripts.
+    static func jsonData(for snapshot: FolderSnapshot) throws -> Data {
+        let rows = snapshot.children.map {
+            JSONRow(
+                path: $0.path,
+                bytes: $0.size,
+                inaccessibleCount: $0.inaccessibleCount,
+                skippedCount: $0.skippedCount,
+                errors: snapshot.errors
+            )
+        }
+        let encoder = JSONEncoder()
+        encoder.outputFormatting = [.prettyPrinted, .withoutEscapingSlashes]
+        return try encoder.encode(rows)
     }
 
     static func usesInteractiveBrowser(
@@ -133,7 +155,7 @@ struct Analyze: ParsableCommand {
         return FolderSnapshot(
             path: standardized,
             children: children,
-            total: children.reduce(Int64(0)) { $0 + $1.size },
+            total: children.reduce(Int64(0)) { $0.saturatedSum($1.size) },
             inaccessibleCount: context.inaccessibleCount,
             skippedCount: context.skippedCount,
             errors: context.errors

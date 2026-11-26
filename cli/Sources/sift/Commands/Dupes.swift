@@ -60,7 +60,7 @@ struct Dupes: ParsableCommand {
             return
         }
 
-        let wasted = groups.reduce(Int64(0)) { $0 + $1.wastedBytes }
+        let wasted = groups.reduce(Int64(0)) { $0.saturatedSum($1.wastedBytes) }
         print("")
         print(
             Term.bold(ByteCount.human(wasted))
@@ -249,7 +249,7 @@ struct Dupes: ParsableCommand {
                 count: $0.paths.count,
                 paths: $0.paths
             ) },
-            totalWastedBytes: groups.reduce(Int64(0)) { $0 + $1.wastedBytes }
+            totalWastedBytes: groups.reduce(Int64(0)) { $0.saturatedSum($1.wastedBytes) }
         )
         let encoder = JSONEncoder()
         encoder.outputFormatting = [.prettyPrinted, .sortedKeys, .withoutEscapingSlashes]

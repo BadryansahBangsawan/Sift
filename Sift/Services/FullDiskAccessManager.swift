@@ -106,17 +106,14 @@ final class FullDiskAccessManager {
     /// and the existing TCC row points at a stale code-signing identity.
     /// Returns true if the reset command exited cleanly.
     @discardableResult
-    func resetFullDiskAccess() -> Bool {
+    func resetFullDiskAccess(timeout: TimeInterval = 5) async -> Bool {
         let bundleID = Bundle.main.bundleIdentifier ?? "com.sift.app"
-        let process = Process()
-        process.executableURL = URL(fileURLWithPath: "/usr/bin/tccutil")
-        process.arguments = ["reset", "SystemPolicyAllFiles", bundleID]
-        do {
-            try process.run()
-            process.waitUntilExit()
-            return process.terminationStatus == 0
-        } catch {
-            return false
-        }
-    }
-}
+        let result = await Task.detached(priority: .userInitiated) {
+            ProcessRunner.run(
+                executable: URL(fileURLWithPath: "/usr/bin/tccutil"),
+                arguments: ["reset", "SystemPolicyAllFiles", bundleID],
+                timeout: timeout
+            )
+        }.value
+        return !result.timedOut && result.status == 0
+    }}

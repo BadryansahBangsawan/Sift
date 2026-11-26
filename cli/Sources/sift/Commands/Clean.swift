@@ -108,7 +108,7 @@ struct Clean: ParsableCommand {
 
         if mode != .forced {
             Render.deletionReview(reviewed)
-            let total = ByteCount.human(selected.reduce(Int64(0)) { $0 + $1.sizeBytes })
+            let total = ByteCount.human(selected.reduce(Int64(0)) { $0.saturatedSum($1.sizeBytes) })
             guard Term.confirm("Remove \(selected.count) items (\(total))?", default: false) else {
                 print(Term.dim("Cancelled. Nothing removed."))
                 return
@@ -233,7 +233,7 @@ enum JSONReport {
             let categories: [Cat]
         }
         let out = Out(
-            totalBytes: cats.reduce(0) { $0 + $1.allBytes },
+            totalBytes: cats.reduce(0) { $0.saturatedSum($1.allBytes) },
             categories: cats.map { Out.Cat(id: $0.id, title: $0.title, totalBytes: $0.allBytes, selectedBytes: $0.totalBytes, groups: $0.groups) }
         )
         let enc = JSONEncoder()

@@ -79,7 +79,7 @@ final class AppState: ObservableObject {
     var personalFilesSize: Int64 {
         categoryResults.values
             .filter { !$0.category.countsAsJunk }
-            .reduce(0) { $0 + $1.totalSize }
+            .reduce(0) { $0.saturatedSum($1.totalSize) }
     }
     @Published var totalFreedSpace: Int64 = 0
     /// Bytes the last cleanup moved to the Trash. Not freed, but the headline
@@ -114,6 +114,10 @@ final class AppState: ObservableObject {
     private var scanTask: Task<Void, Never>?
     private var scanGeneration = UUID()
     private var cleanupGeneration = UUID()
+    /// Guards the detached orphan scan; a newer scan invalidates every write
+    /// from an older one (and cancels its task).
+    private var orphanScanGeneration = UUID()
+    private var orphanScanTask: Task<Void, Never>?
     @Published var cleanProgress: Double = 0
     @Published var currentScanCategory: String = ""
     /// Live filesystem path the scan engine is touching, feeding the dashboard's
@@ -211,7 +215,7 @@ final class AppState: ObservableObject {
     }
 
     var totalSelectedSize: Int64 {
-        allResults.flatMap { $0.items }.filter { isItemSelected($0) }.reduce(0) { $0 + $1.size }
+        allResults.flatMap { $0.items }.filter { isItemSelected($0) }.reduce(0) { $0.saturatedSum($1.size) }
     }
 
     /// The largest individual rows across every scanned category, largest
@@ -726,9 +730,13 @@ final class AppState: ObservableObject {
     }
 
     func findOrphans() {
+        orphanScanTask?.cancel()
+        let generation = UUID()
+        orphanScanGeneration = generation
         isSearchingOrphans = true
         orphanedFiles = []
-        Task.detached(priority: .userInitiated) {
+        orphanScanTask = Task.detached(priority: .userInitiated) { [weak self] in
+            guard let self else { return }
             // Read the closures on the main actor, then call them off it:
             // both walk the file system and take seconds, which would freeze
             // the window if they ran where the UI draws.
@@ -743,16 +751,21 @@ final class AppState: ObservableObject {
                 let fetched = installedAppsProvider()
                 knownApps = fetched
                 await MainActor.run { [weak self] in
-                    if self?.installedApps.isEmpty == true { self?.installedApps = fetched }
+                    guard let self, self.orphanScanGeneration == generation else { return }
+                    if self.installedApps.isEmpty { self.installedApps = fetched }
                 }
             }
+            if Task.isCancelled { return }
+            let currentGeneration = await MainActor.run { self.orphanScanGeneration }
+            guard currentGeneration == generation else { return }
             guard !knownApps.isEmpty else {
                 // Still no app list: report nothing rather than calling every
                 // folder an orphan, and let the page say why.
                 await MainActor.run { [weak self] in
-                    self?.orphanScanNeedsAppList = true
-                    self?.orphanScanCompleted = true
-                    self?.isSearchingOrphans = false
+                    guard let self, self.orphanScanGeneration == generation else { return }
+                    self.orphanScanNeedsAppList = true
+                    self.orphanScanCompleted = true
+                    self.isSearchingOrphans = false
                 }
                 return
             }
@@ -767,6 +780,7 @@ final class AppState: ObservableObject {
             let fm = FileManager.default
 
             for path in locations.reverseSearch.paths {
+                guard !Task.isCancelled else { return }
                 guard let contents = try? fm.contentsOfDirectory(atPath: path) else { continue }
                 for item in contents {
                     let normalized = item.normalizedForMatching()
@@ -790,10 +804,12 @@ final class AppState: ObservableObject {
 
             let sorted = orphans.sorted { $0.lastPathComponent < $1.lastPathComponent }
             await MainActor.run { [weak self] in
-                self?.orphanedFiles = sorted
-                self?.orphanScanNeedsAppList = false
-                self?.orphanScanCompleted = true
-                self?.isSearchingOrphans = false
+                guard let self, self.orphanScanGeneration == generation else { return }
+                self.orphanedFiles = sorted
+                self.orphanScanNeedsAppList = false
+                self.orphanScanCompleted = true
+                self.isSearchingOrphans = false
+                self.orphanScanTask = nil
             }
         }
     }
@@ -839,7 +855,7 @@ final class AppState: ObservableObject {
     func recomputeTotalJunkSize() {
         totalJunkSize = categoryResults.values
             .filter { $0.category.countsAsJunk }
-            .reduce(0) { $0 + $1.totalSize }
+            .reduce(0) { $0.saturatedSum($1.totalSize) }
     }
 
     var excludedCleanupPaths: [String] {
@@ -864,7 +880,7 @@ final class AppState: ObservableObject {
         let excluded = excludedCleanupPaths
         guard !excluded.isEmpty else { return result }
         let items = result.items.filter { !CleanupExclusions.excludes($0.path, paths: excluded) }
-        return CategoryResult(category: result.category, items: items, totalSize: items.reduce(0) { $0 + $1.size })
+        return CategoryResult(category: result.category, items: items, totalSize: items.reduce(0) { $0.saturatedSum($1.size) })
     }
 
     func setSelection(_ selected: Bool, for items: [CleanableItem]) {
@@ -1039,7 +1055,7 @@ final class AppState: ObservableObject {
             categoryResults[cat] = CategoryResult(
                 category: cat,
                 items: remaining,
-                totalSize: remaining.reduce(0) { $0 + $1.size }
+                totalSize: remaining.reduce(0) { $0.saturatedSum($1.size) }
             )
         }
         recomputeTotalJunkSize()
@@ -1215,7 +1231,7 @@ final class AppState: ObservableObject {
                 categoryResults[cat] = CategoryResult(
                     category: cat,
                     items: remaining,
-                    totalSize: remaining.reduce(0) { $0 + $1.size }
+                    totalSize: remaining.reduce(0) { $0.saturatedSum($1.size) }
                 )
             }
             recomputeTotalJunkSize()
@@ -1275,7 +1291,7 @@ final class AppState: ObservableObject {
                 categoryResults[category] = CategoryResult(
                     category: category,
                     items: remaining,
-                    totalSize: remaining.reduce(0) { $0 + $1.size }
+                    totalSize: remaining.reduce(0) { $0.saturatedSum($1.size) }
                 )
             }
             recomputeTotalJunkSize()
