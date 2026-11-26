@@ -1382,3 +1382,4 @@
 "Check for updates automatically" = "Check for updates automatically";
 "Download and install updates automatically" = "Download and install updates automatically";
 "Found %@ of junk files, below the cleanup threshold. Nothing was removed." = "Found %@ of junk files, below the cleanup threshold. Nothing was removed.";
+"Excluded from cleanup." = "Excluded from cleanup.";

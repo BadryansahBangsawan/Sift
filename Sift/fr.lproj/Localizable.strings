@@ -1376,3 +1376,4 @@
 "Check for updates automatically" = "Rechercher automatiquement les mises à jour";
 "Download and install updates automatically" = "Télécharger et installer automatiquement les mises à jour";
 "Found %@ of junk files, below the cleanup threshold. Nothing was removed." = "%@ de fichiers indésirables trouvés, sous le seuil de nettoyage. Rien n’a été supprimé.";
+"Excluded from cleanup." = "Exclu du nettoyage.";

@@ -1382,3 +1382,4 @@
 "Check for updates automatically" = "Автоматично перевіряти оновлення";
 "Download and install updates automatically" = "Автоматично завантажувати й встановлювати оновлення";
 "Found %@ of junk files, below the cleanup threshold. Nothing was removed." = "Знайдено %@ сміттєвих файлів, нижче порогу очищення. Нічого не видалено.";
+"Excluded from cleanup." = "Виключено з очищення.";
