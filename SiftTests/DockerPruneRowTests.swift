@@ -31,6 +31,51 @@ final class DockerPruneRowTests: XCTestCase {
         XCTAssertEqual(result.itemsCleaned, 0)
     }
 
+    func testSuccessfulPruneClearsTheRowAndCountsReclaimedBytes() async throws {
+        let script = try makeDockerScript(
+            exitStatus: 0,
+            stdoutLine: "Total reclaimed space: 2kB",
+            stderrLine: nil
+        )
+        let item = dockerItem()
+
+        let result = await CleaningEngine(dockerBinaryPaths: [script.path])
+            .cleanItems([item]) { _ in }
+
+        XCTAssertTrue(result.errors.isEmpty)
+        XCTAssertTrue(result.cleanedPaths.contains(item.path))
+        XCTAssertEqual(result.freedSpace, 2_000)
+        XCTAssertEqual(result.itemsCleaned, 1)
+    }
+
+    func testSuccessfulPruneWithNothingReclaimedStillClearsTheRow() async throws {
+        let script = try makeDockerScript(
+            exitStatus: 0,
+            stdoutLine: "Total reclaimed space: 0B",
+            stderrLine: nil
+        )
+        let item = dockerItem()
+
+        let result = await CleaningEngine(dockerBinaryPaths: [script.path])
+            .cleanItems([item]) { _ in }
+
+        XCTAssertTrue(result.errors.isEmpty)
+        XCTAssertTrue(result.cleanedPaths.contains(item.path), "There is nothing left to retry")
+        XCTAssertEqual(result.freedSpace, 0)
+        XCTAssertEqual(result.itemsCleaned, 0)
+    }
+
+    func testMissingDockerCLIKeepsTheRow() async throws {
+        let missing = fixture.appendingPathComponent("missing-docker").path
+        let item = dockerItem()
+
+        let result = await CleaningEngine(dockerBinaryPaths: [missing])
+            .cleanItems([item]) { _ in }
+
+        XCTAssertFalse(result.errors.isEmpty)
+        XCTAssertFalse(result.cleanedPaths.contains(item.path))
+    }
+
     // MARK: - Helpers
 
     private func dockerItem() -> CleanableItem {
@@ -44,13 +89,20 @@ final class DockerPruneRowTests: XCTestCase {
         )
     }
 
-    private func makeDockerScript(exitStatus: Int) throws -> URL {
+    private func makeDockerScript(
+        exitStatus: Int,
+        stdoutLine: String? = nil,
+        stderrLine: String? = "Cannot connect to the Docker daemon"
+    ) throws -> URL {
         let script = fixture.appendingPathComponent("docker-\(UUID().uuidString)")
-        let body = """
-        #!/bin/sh
-        echo 'Cannot connect to the Docker daemon' >&2
-        exit \(exitStatus)
-        """
+        var body = "#!/bin/sh\n"
+        if let stdoutLine {
+            body += "printf '%s\\n' '\(stdoutLine)'\n"
+        }
+        if let stderrLine {
+            body += "printf '%s\\n' '\(stderrLine)' >&2\n"
+        }
+        body += "exit \(exitStatus)\n"
         try body.write(to: script, atomically: true, encoding: .utf8)
         try fileManager.setAttributes([.posixPermissions: 0o755], ofItemAtPath: script.path)
         return script
