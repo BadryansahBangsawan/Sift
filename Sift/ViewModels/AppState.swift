@@ -235,12 +235,6 @@ final class AppState: ObservableObject {
         }.prefix(max(0, limit)))
     }
 
-    /// Merged results for a category group such as
-    /// `CleaningCategory.developerCaches` or `.systemJunkGroup`.
-    func groupResult(for categories: [CleaningCategory]) -> CategoryGroupResult {
-        CategoryGroupResult(categories: categories, results: categoryResults)
-    }
-
     /// Cleanups recorded in the current calendar month, newest first.
     var cleanupsThisMonth: [CleanupRecord] {
         CleanupRecord.thisMonth(cleanupHistory)

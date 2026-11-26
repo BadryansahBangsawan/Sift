@@ -217,31 +217,6 @@ struct CategoryResult: Identifiable {
     var itemCount: Int { items.count }
 }
 
-// MARK: - Category Group Result
-
-/// Several categories' scan results merged for one sidebar or dashboard row.
-/// Items keep their own `category`, so cleaning still routes per category.
-struct CategoryGroupResult {
-    let categories: [CleaningCategory]
-    let items: [CleanableItem]
-    let totalSize: Int64
-
-    /// Categories without a result (not scanned yet, or emptied by a clean)
-    /// contribute nothing.
-    init(categories: [CleaningCategory], results: [CleaningCategory: CategoryResult]) {
-        self.categories = categories
-        let members = categories.compactMap { results[$0] }
-        items = members.flatMap(\.items)
-        totalSize = members.reduce(Int64(0)) { $0.saturatedSum($1.totalSize) }
-    }
-
-    var itemCount: Int { items.count }
-
-    var formattedSize: String {
-        SiftFormat.bytes(totalSize)
-    }
-}
-
 // MARK: - Schedule Settings
 
 enum ScheduleInterval: String, CaseIterable, Identifiable, Codable {
