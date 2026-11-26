@@ -154,7 +154,7 @@ private struct SettingsNav: View {
             SiftAppTile(size: 24)
                 .accessibilityHidden(true)
             VStack(alignment: .leading, spacing: 1) {
-                Text("Version \(UpdateService.installedVersion)")
+                Text("Version \(AppVersion.marketing)")
                     .font(.sift(12, weight: 500))
                     .foregroundStyle(SiftColor.textPrimary)
                 Text("macOS \(Self.minimumSystem) or later")
