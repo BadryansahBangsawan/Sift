@@ -2,6 +2,14 @@
 
 All notable user-facing changes to Sift. Sift was called PureMac before 4.0.0.
 
+## Unreleased
+
+### Added
+
+- Sift can now update itself: choose Sift → Check for Updates… or open
+  Settings → Updates. Updates are verified with a signature before installing.
+  Versions up to 4.1.2 need one manual download of 4.2.0 to get this.
+
 ## 4.1.2
 
 ### Changed
