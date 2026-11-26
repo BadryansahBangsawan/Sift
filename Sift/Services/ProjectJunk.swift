@@ -168,24 +168,16 @@ struct GitCommandLine: ProjectGitInspecting {
     /// `xcode-select -p` reports the active developer directory without
     /// prompting to install anything.
     private static func developerDirectory() -> String? {
-        let process = Process()
-        process.executableURL = URL(fileURLWithPath: "/usr/bin/xcode-select")
-        process.arguments = ["-p"]
-        let pipe = Pipe()
-        process.standardOutput = pipe
-        process.standardError = FileHandle.nullDevice
-        do { try process.run() } catch { return nil }
-        let data = pipe.fileHandleForReading.readDataToEndOfFile()
-        process.waitUntilExit()
-        guard process.terminationStatus == 0 else { return nil }
-        let path = String(decoding: data, as: UTF8.self).trimmingCharacters(in: .whitespacesAndNewlines)
+        let result = ProcessRunner.run(
+            executable: URL(fileURLWithPath: "/usr/bin/xcode-select"),
+            arguments: ["-p"],
+            timeout: 5
+        )
+        guard !result.timedOut, result.status == 0 else { return nil }
+        let path = result.stdout.trimmingCharacters(in: .whitespacesAndNewlines)
         return path.hasPrefix("/") ? path : nil
     }
-
     private func run(_ executable: URL, _ arguments: [String]) -> (status: Int32, output: Data)? {
-        let process = Process()
-        process.executableURL = executable
-        process.arguments = arguments
         var environment = ProcessInfo.processInfo.environment.filter { !$0.key.hasPrefix("GIT_") }
         environment["GIT_OPTIONAL_LOCKS"] = "0"
         environment["GIT_TERMINAL_PROMPT"] = "0"
@@ -194,21 +186,15 @@ struct GitCommandLine: ProjectGitInspecting {
             environment["XDG_CONFIG_HOME"] = homeDirectory.appendingPathComponent(".config").path
             environment["GIT_CONFIG_NOSYSTEM"] = "1"
         }
-        process.environment = environment
-        let output = Pipe()
-        process.standardOutput = output
-        process.standardError = FileHandle.nullDevice
-        process.standardInput = FileHandle.nullDevice
-        do { try process.run() } catch { return nil }
-        let deadline = DispatchWorkItem { if process.isRunning { process.terminate() } }
-        DispatchQueue.global().asyncAfter(deadline: .now() + timeout, execute: deadline)
-        let data = output.fileHandleForReading.readDataToEndOfFile()
-        process.waitUntilExit()
-        deadline.cancel()
-        guard process.terminationReason == .exit else { return nil }
-        return (process.terminationStatus, data)
-    }
-}
+        let result = ProcessRunner.run(
+            executable: executable,
+            arguments: arguments,
+            timeout: timeout,
+            environment: environment
+        )
+        guard !result.timedOut else { return nil }
+        return (result.status, Data(result.stdout.utf8))
+    }}
 
 // MARK: - Rules
 
