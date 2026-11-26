@@ -52,16 +52,87 @@ final class CleanupHistoryTrashTests: XCTestCase {
         XCTAssertEqual(historyStore.load().first?.trashedBytes, item.size)
     }
 
+    func testRetryingALargeFileTrashMoveRecordsHistory() async throws {
+        let file = try makeFile("Downloads/retry.mov", size: 1_000_000)
+        let item = trashedItem(named: file.lastPathComponent, path: file.path, size: 1_000_000, category: .largeFiles)
+        let state = makeState()
+
+        await state.retryAfterFullDiskAccess(items: [item], context: .cleanup(failedCount: 1))
+
+        let record = try XCTUnwrap(state.cleanupHistory.first, "The retry trashed the file and must say so")
+        XCTAssertEqual(record.freedBytes, 0)
+        XCTAssertEqual(record.trashedBytes, item.size)
+        XCTAssertEqual(record.category, .largeFiles)
+        XCTAssertEqual(historyStore.load().first?.trashedBytes, item.size)
+    }
+
+    func testMixedRetryRecordsFreedAndTrashedBytesSeparately() async throws {
+        let junk = try makeFile("Library/Caches/stale.tmp", size: 10_000)
+        let video = try makeFile("Downloads/holiday.mov", size: 2_000_000)
+        let junkItem = CleanableItem(
+            name: junk.lastPathComponent,
+            path: junk.path,
+            size: 10_000,
+            category: .systemJunk,
+            isSelected: true,
+            lastModified: Date()
+        )
+        let videoItem = trashedItem(
+            named: video.lastPathComponent,
+            path: video.path,
+            size: 2_000_000,
+            category: .largeFiles
+        )
+        let state = makeState()
+
+        await state.retryAfterFullDiskAccess(
+            items: [junkItem, videoItem],
+            context: .cleanup(failedCount: 2)
+        )
+
+        let record = try XCTUnwrap(state.cleanupHistory.first)
+        XCTAssertEqual(record.freedBytes, junkItem.size, "Only the unlinked cache is freed space")
+        XCTAssertEqual(record.trashedBytes, videoItem.size, "The video's bytes stay in the Trash")
+        XCTAssertNil(record.category, "A mixed batch gets no single category")
+        XCTAssertFalse(fileManager.fileExists(atPath: junk.path))
+        XCTAssertTrue(fileManager.fileExists(atPath: trash.appendingPathComponent("holiday.mov").path))
+    }
+
+    func testAFailedTrashMoveWritesNoHistory() async throws {
+        let file = try makeFile("Downloads/locked.mov", size: 1_000_000)
+        let item = trashedItem(named: file.lastPathComponent, path: file.path, size: 1_000_000, category: .largeFiles)
+        let state = makeState(trashOperation: { _ in
+            throw NSError(
+                domain: "CleanupHistoryTrashTests",
+                code: 1,
+                userInfo: [NSLocalizedDescriptionKey: "The Trash is full"]
+            )
+        })
+        state.categoryResults[.largeFiles] = CategoryResult(
+            category: .largeFiles,
+            items: [item],
+            totalSize: item.size
+        )
+
+        state.cleanCategory(.largeFiles)
+        try await waitUntil(timeout: 5) { !state.scanState.isActive }
+
+        XCTAssertTrue(state.cleanupHistory.isEmpty, "Nothing moved and nothing was freed: no history row")
+        XCTAssertTrue(fileManager.fileExists(atPath: file.path), "A refused Trash move leaves the file alone")
+    }
+
     // MARK: - Fixtures
 
-    private func makeState() -> AppState {
+    private func makeState(
+        trashOperation: ((URL) throws -> String?)? = nil
+    ) -> AppState {
         AppState(
             performStartupTasks: false,
             scanEngine: ScanEngine(homeDirectory: home, tmpRoots: [], isAppRunning: { _ in false }),
             cleaningEngine: CleaningEngine(
                 homeDirectory: home,
                 isAppRunning: { _ in false },
-                trashOperation: { [trash, fileManager] url in
+                trashOperation: trashOperation ?? { [trash, fileManager] url in
                     let destination = try XCTUnwrap(trash).appendingPathComponent(url.lastPathComponent)
                     try fileManager.moveItem(at: url, to: destination)
                     return destination.path
