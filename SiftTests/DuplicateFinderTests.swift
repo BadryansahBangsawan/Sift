@@ -184,6 +184,30 @@ final class DuplicateFinderTests: XCTestCase {
         XCTAssertTrue(FileManager.default.fileExists(atPath: group.keeper.url.path))
     }
 
+    func testScanDropsExcludedDuplicates() async throws {
+        let folder = try makeTemporaryFolder()
+        try write("excluded scan payload", to: folder.appendingPathComponent("first.txt"))
+        try write("excluded scan payload", to: folder.appendingPathComponent("second.txt"))
+        let selected = folder.appendingPathComponent("second.txt")
+
+        let saved = UserDefaults.standard.stringArray(forKey: CleanupExclusions.defaultsKey)
+        defer {
+            if let saved {
+                UserDefaults.standard.set(saved, forKey: CleanupExclusions.defaultsKey)
+            } else {
+                UserDefaults.standard.removeObject(forKey: CleanupExclusions.defaultsKey)
+            }
+        }
+        CleanupExclusions.add(selected.path)
+
+        let result = try await DuplicateFinder().scan(folder: folder)
+
+        XCTAssertTrue(
+            result.groups.isEmpty,
+            "with one of two copies excluded there is nothing left to offer"
+        )
+    }
+
     func testMoveToTrashHonoursCleanupExclusions() async throws {
         let folder = try makeTemporaryFolder()
         try write("excluded duplicate payload", to: folder.appendingPathComponent("first.txt"))
@@ -212,6 +236,7 @@ final class DuplicateFinderTests: XCTestCase {
             "a path excluded from cleanup must not be moved to the Trash by Duplicate Finder"
         )
         XCTAssertTrue(report.trashedFiles.isEmpty)
+        XCTAssertEqual(report.skippedFiles, [selected.url])
         XCTAssertTrue(FileManager.default.fileExists(atPath: selected.url.path))
     }
 
