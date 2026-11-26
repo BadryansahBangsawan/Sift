@@ -97,6 +97,7 @@ enum Purger {
                     // when the project file that generates it sits next to it.
                     guard hasProjectMarker(for: name, in: url.deletingLastPathComponent()) else { continue }
                     en.skipDescendants()
+                    guard isOfferedByGit(url, project: url.deletingLastPathComponent()) else { continue }
                     if Safety.ignoredPathProtectsCandidate(url.path, ignore: ignore) { continue }
                     let measurement = DirSizer.measure(of: url.path)
                     guard measurement.status == .complete,
@@ -115,6 +116,80 @@ enum Purger {
             ToolGroup(tool: proj, items: byProject[proj]!.sorted { $0.sizeBytes > $1.sizeBytes })
         }.sorted { $0.allBytes > $1.allBytes }
         return CategoryScan(id: "purge", title: "Project Artifacts", groups: groups)
+    }
+
+    /// Applies the app's git rule: an artifact inside a git work tree is offered
+    /// only when git proves it is ignored and untracked. Outside a repository
+    /// nothing changes. If git is unavailable while inside a repository, the
+    /// folder is not offered: "could not prove" is never "safe to delete".
+    static func isOfferedByGit(_ artifact: URL, project: URL) -> Bool {
+        guard let repository = repositoryRoot(containing: project) else { return true }
+        guard let git = gitExecutable() else { return false }
+        let relative = String(artifact.path.dropFirst(repository.path.count + 1))
+        guard !relative.isEmpty else { return false }
+
+        let tracked = Shell.run(
+            git,
+            [safeGitOption, "-C", repository.path, "ls-files", "-z", "--", relative],
+            timeout: 10
+        )
+        guard tracked.status == 0 else { return false }
+        if !tracked.out.isEmpty { return false }
+
+        let ignored = Shell.run(
+            git,
+            [safeGitOption, "-C", repository.path, "check-ignore", "-q", "--", relative],
+            timeout: 10
+        )
+        return ignored.status == 0
+    }
+
+    /// `-c core.fsmonitor=false` stops a repository's own config from running a
+    /// program while git reads the index.
+    static let safeGitOption = "-ccore.fsmonitor=false"
+
+    /// The nearest ancestor holding `.git`, directory or worktree pointer file.
+    static func repositoryRoot(containing folder: URL) -> URL? {
+        var path = folder.standardizedFileURL.path
+        while path.hasPrefix("/") {
+            let current = URL(fileURLWithPath: path, isDirectory: true)
+            if FileManager.default.fileExists(atPath: current.appendingPathComponent(".git").path) {
+                return current
+            }
+            if path == "/" { return nil }
+            path = (path as NSString).deletingLastPathComponent
+        }
+        return nil
+    }
+
+    /// Never `/usr/bin/git`: on a Mac without developer tools that stub asks to
+    /// install them. Mirrors the app's executable lookup.
+    static func gitExecutable() -> String? {
+        var candidates = ["/opt/homebrew/bin/git", "/usr/local/bin/git"]
+        if let developer = developerDirectory() {
+            candidates.append(developer + "/usr/bin/git")
+        }
+        candidates.append("/Library/Developer/CommandLineTools/usr/bin/git")
+        let fileManager = FileManager.default
+        return candidates.first { fileManager.isExecutableFile(atPath: $0) }
+    }
+
+    private static func developerDirectory() -> String? {
+        let process = Process()
+        process.executableURL = URL(fileURLWithPath: "/usr/bin/xcode-select")
+        process.arguments = ["-p"]
+        let pipe = Pipe()
+        process.standardOutput = pipe
+        process.standardError = FileHandle.nullDevice
+        do {
+            try process.run()
+        } catch {
+            return nil
+        }
+        let data = pipe.fileHandleForReading.readDataToEndOfFile()
+        process.waitUntilExit()
+        guard process.terminationStatus == 0 else { return nil }
+        return String(decoding: data, as: UTF8.self).trimmingCharacters(in: .whitespacesAndNewlines)
     }
 
     static func scanRoots(_ roots: [String]) -> [URL] {
