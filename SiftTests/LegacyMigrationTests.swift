@@ -116,4 +116,45 @@ final class LegacyMigrationTests: XCTestCase {
         )
     }
 
+
+    func testRetriesOnTheNextLaunchAfterTheDestinationIsFixed() throws {
+        let oldFolder = root.appendingPathComponent("PureMac")
+        try FileManager.default.createDirectory(at: oldFolder, withIntermediateDirectories: true)
+        try Data("history".utf8).write(to: oldFolder.appendingPathComponent("cleanup-history.json"))
+        let blocker = root.appendingPathComponent("blocker")
+        try Data("not a directory".utf8).write(to: blocker)
+        let old = try XCTUnwrap(UserDefaults(suiteName: oldSuite))
+        let new = try XCTUnwrap(UserDefaults(suiteName: newSuite))
+
+        LegacyMigration.run(
+            oldDefaults: old,
+            newDefaults: new,
+            oldSupport: oldFolder,
+            newSupport: blocker.appendingPathComponent("Sift")
+        )
+        XCTAssertFalse(new.bool(forKey: LegacyMigration.doneKey))
+
+        try FileManager.default.removeItem(at: blocker)
+        LegacyMigration.run(
+            oldDefaults: old,
+            newDefaults: new,
+            oldSupport: oldFolder,
+            newSupport: root.appendingPathComponent("Sift")
+        )
+
+        XCTAssertTrue(new.bool(forKey: LegacyMigration.doneKey))
+        XCTAssertEqual(
+            try String(contentsOf: root.appendingPathComponent("Sift/cleanup-history.json"), encoding: .utf8),
+            "history"
+        )
+    }
+
+    func testNothingToCopyStillMarksDone() throws {
+        let new = try XCTUnwrap(UserDefaults(suiteName: newSuite))
+
+        try migrate()
+
+        XCTAssertTrue(new.bool(forKey: LegacyMigration.doneKey))
+    }
+
 }
