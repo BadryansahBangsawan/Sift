@@ -200,6 +200,8 @@ final class AIAppsCleanupTests: XCTestCase {
             note: nil,
             movesToTrash: true
         )
+        let logURL = fileManager.temporaryDirectory
+            .appendingPathComponent("ai-skip-log-\(UUID().uuidString)")
         let engine = CleaningEngine(
             homeDirectory: fixtureHome,
             isAppRunning: { _ in false },
@@ -207,11 +209,20 @@ final class AIAppsCleanupTests: XCTestCase {
                 let destination = try XCTUnwrap(trash).appendingPathComponent(url.lastPathComponent)
                 try fileManager.moveItem(at: url, to: destination)
                 return destination.path
-            }
+            },
+            cleanupLog: CleanupLog(fileURL: logURL, version: "4.2.0", build: "1")
         )
 
-        _ = await engine.cleanItems([sessionItem]) { _ in }
+        let result = await engine.cleanItems([sessionItem]) { _ in }
 
+        XCTAssertNotNil(
+            result.skippedPaths[companion.path],
+            "the excluded companion is reported as skipped"
+        )
+        let logged = try String(contentsOf: logURL, encoding: .utf8)
+        XCTAssertTrue(logged.contains("\"action\":\"skipped\""), logged)
+        XCTAssertTrue(logged.contains(companion.path), logged)
+        XCTAssertFalse(logged.contains(work.path), "the excluded file was not removed")
         XCTAssertTrue(
             fileManager.fileExists(atPath: work.path),
             "an excluded companion folder must keep its files"
