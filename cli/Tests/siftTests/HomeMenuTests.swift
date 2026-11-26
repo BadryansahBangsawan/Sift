@@ -24,6 +24,33 @@ final class HomeMenuTests: XCTestCase {
         XCTAssertEqual(command.appPath, app.path)
     }
 
+    func testMenuAcceptsAnAppPathWithSpaces() throws {
+        let directory = FileManager.default.temporaryDirectory
+            .appendingPathComponent("sift menu \(UUID().uuidString)", isDirectory: true)
+        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: directory) }
+        let app = directory.appendingPathComponent("My App.app", isDirectory: true)
+        try FileManager.default.createDirectory(at: app, withIntermediateDirectories: true)
+
+        let command = try HomeMenu.uninstallCommand(for: app.path)
+
+        XCTAssertEqual(command.appPath, app.path)
+        XCTAssertFalse(command.force)
+    }
+
+    func testTrailingSlashIsRejectedWithoutCrashing() throws {
+        let app = FileManager.default.temporaryDirectory
+            .appendingPathComponent("sift-trailing-\(UUID().uuidString).app", isDirectory: true)
+        try FileManager.default.createDirectory(at: app, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: app) }
+
+        var accepted = true
+        let message = captureStandardError { accepted = HomeMenu.runUninstall(app.path + "/") }
+
+        XCTAssertFalse(accepted)
+        XCTAssertTrue(message.contains("Not an app bundle"), message)
+    }
+
     func testDefaultUninstallAnswerKeepsTheMenuAlive() throws {
         let accepted = try HomeMenu.runUninstall("/Applications")
 
