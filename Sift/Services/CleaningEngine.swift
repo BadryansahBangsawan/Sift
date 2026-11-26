@@ -1086,6 +1086,13 @@ actor CleaningEngine {
             "\(home)/Desktop/",
         ]
         let normalized = (resolvedPath as NSString).standardizingPath
+        // A directory or symlink may have replaced the scanned file. Only a
+        // regular file may use the per-file allowance; anything else falls
+        // back to the whole-subtree deny.
+        guard let attributes = try? fileManager.attributesOfItem(atPath: normalized),
+              (attributes[.type] as? FileAttributeType) == .typeRegular else {
+            return false
+        }
         return perFileRoots.contains { normalized.hasPrefix($0) }
     }
 
