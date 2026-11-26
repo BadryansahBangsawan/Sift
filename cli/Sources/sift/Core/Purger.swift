@@ -282,9 +282,31 @@ enum Purger {
         return nil
     }
 
+    /// Resolves the git executable once for the lifetime of the process. A disk
+    /// scan asks about every candidate inside a repository, so looking it up per
+    /// candidate would spawn `xcode-select` hundreds of times.
+    static let gitExecutableResolver = makeGitExecutableResolver(resolveGitExecutable)
+
+    static func makeGitExecutableResolver(_ resolve: @escaping () -> String?) -> () -> String? {
+        let lock = NSLock()
+        var cached: String??
+        return {
+            lock.lock()
+            defer { lock.unlock() }
+            if let cached { return cached }
+            let value = resolve()
+            cached = .some(value)
+            return value
+        }
+    }
+
+    static func gitExecutable() -> String? {
+        gitExecutableResolver()
+    }
+
     /// Never `/usr/bin/git`: on a Mac without developer tools that stub asks to
     /// install them. Mirrors the app's executable lookup.
-    static func gitExecutable() -> String? {
+    private static func resolveGitExecutable() -> String? {
         var candidates = ["/opt/homebrew/bin/git", "/usr/local/bin/git"]
         if let developer = developerDirectory() {
             candidates.append(developer + "/usr/bin/git")
@@ -295,21 +317,10 @@ enum Purger {
     }
 
     private static func developerDirectory() -> String? {
-        let process = Process()
-        process.executableURL = URL(fileURLWithPath: "/usr/bin/xcode-select")
-        process.arguments = ["-p"]
-        let pipe = Pipe()
-        process.standardOutput = pipe
-        process.standardError = FileHandle.nullDevice
-        do {
-            try process.run()
-        } catch {
-            return nil
-        }
-        let data = pipe.fileHandleForReading.readDataToEndOfFile()
-        process.waitUntilExit()
-        guard process.terminationStatus == 0 else { return nil }
-        return String(decoding: data, as: UTF8.self).trimmingCharacters(in: .whitespacesAndNewlines)
+        let result = Shell.run("/usr/bin/xcode-select", ["-p"], timeout: 5)
+        guard result.status == 0 else { return nil }
+        let path = result.out.trimmingCharacters(in: .whitespacesAndNewlines)
+        return path.hasPrefix("/") ? path : nil
     }
 
     static func scanRoots(_ roots: [String]) -> [URL] {

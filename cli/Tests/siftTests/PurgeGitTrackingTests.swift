@@ -161,6 +161,7 @@ final class PurgeGitTrackingTests: XCTestCase {
         )
         try Data(repeating: 0x41, count: 4_096)
             .write(to: modules.appendingPathComponent("pkg/vendored.js"))
+        try Data("{}".utf8).write(to: modules.appendingPathComponent("pkg/package.json"))
         try fileManager.setAttributes(
             [.modificationDate: Date(timeIntervalSinceNow: -30 * 86_400)],
             ofItemAtPath: modules.path
