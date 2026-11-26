@@ -18,8 +18,8 @@ final class UpdateConfigurationTests: XCTestCase {
         )
         XCTAssertEqual(
             plist["SUPublicEDKey"] as? String,
-            "SPARKLE_PUBLIC_ED_KEY_PLACEHOLDER",
-            "Release builds replace the placeholder only after the owner generates a key"
+            "k0chNm9zbheAzEbMQkYTYC/ijjwL/BUUTptBm7NroTQ=",
+            "The public half of the key that signs the release appcast"
         )
         XCTAssertEqual(plist["SUEnableAutomaticChecks"] as? Bool, true)
     }

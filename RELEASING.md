@@ -29,9 +29,11 @@ Ed25519 key; the app verifies it against `SUPublicEDKey` in `Info.plist`
    Sparkle-2.10.1/bin/generate_keys
    ```
 
-2. Put the printed public key in `project.yml` as `SUPublicEDKey` (W7's app
-   change already carries the placeholder `SPARKLE_PUBLIC_ED_KEY_PLACEHOLDER`).
-   The workflow fails while the placeholder is still there.
+2. Put the printed public key in `Sift/Info.plist` as `SUPublicEDKey`. The
+   workflow fails while the value is empty or the placeholder
+   `SPARKLE_PUBLIC_ED_KEY_PLACEHOLDER`. The key for 4.2.0 is
+   `k0chNm9zbheAzEbMQkYTYC/ijjwL/BUUTptBm7NroTQ=`; never change it, or installed copies reject every
+   later update.
 
 3. Export the private key once and store it offline (password manager or an
    encrypted backup):

@@ -25,7 +25,7 @@
 	<key>SUFeedURL</key>
 	<string>https://github.com/BadryansahBangsawan/Sift/releases/latest/download/appcast.xml</string>
 	<key>SUPublicEDKey</key>
-	<string>SPARKLE_PUBLIC_ED_KEY_PLACEHOLDER</string>
+	<string>k0chNm9zbheAzEbMQkYTYC/ijjwL/BUUTptBm7NroTQ=</string>
 	<key>SUEnableAutomaticChecks</key>
 	<true/>
 	<key>NSHumanReadableCopyright</key>
