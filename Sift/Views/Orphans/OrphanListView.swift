@@ -293,6 +293,8 @@ struct OrphanListView: View {
             switch outcome {
             case .removed:
                 removedURLs.insert(url)
+            case .skipped:
+                break
             case .needsAdmin:
                 needsAdminURLs.append(url)
             case .failed:
@@ -301,10 +303,17 @@ struct OrphanListView: View {
         }
 
         if !needsAdminURLs.isEmpty {
-            let adminURLs = needsAdminURLs
-            let adminSucceeded = await Task.detached(priority: .userInitiated) { Self.removeWithAdminPrivileges(adminURLs) }.value
+            let excludedAdminURLs = needsAdminURLs.filter {
+                CleanupExclusions.excludes($0.path, paths: CleanupExclusions.paths())
+            }
+            let adminURLs = needsAdminURLs.filter { !excludedAdminURLs.contains($0) }
+            let adminSucceeded = adminURLs.isEmpty
+                ? true
+                : await Task.detached(priority: .userInitiated) {
+                    Self.removeWithAdminPrivileges(adminURLs)
+                }.value
             if adminSucceeded {
-                for url in needsAdminURLs {
+                for url in adminURLs {
                     if !FileManager.default.fileExists(atPath: url.path) {
                         removedURLs.insert(url)
                     } else {
@@ -312,7 +321,7 @@ struct OrphanListView: View {
                     }
                 }
             } else {
-                failedPaths.append(contentsOf: needsAdminURLs.map(\.path))
+                failedPaths.append(contentsOf: adminURLs.map(\.path))
             }
             OrphanRemover.recordAdminOutcome(
                 urls: needsAdminURLs,

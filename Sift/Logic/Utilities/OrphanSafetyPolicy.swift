@@ -96,6 +96,7 @@ enum OrphanSafetyPolicy {
 enum OrphanRemover {
     enum Outcome: Sendable, Equatable {
         case removed
+        case skipped
         case needsAdmin
         case failed
     }
@@ -104,8 +105,19 @@ enum OrphanRemover {
         _ url: URL,
         log: CleanupLog,
         isSafe: (URL) -> Bool = OrphanSafetyPolicy.isSafeCandidate,
+        isExcluded: (URL) -> Bool = { CleanupExclusions.excludes($0.path, paths: CleanupExclusions.paths()) },
         trash: (URL) throws -> Void = { try FileManager.default.trashItem(at: $0, resultingItemURL: nil) }
     ) -> Outcome {
+        if isExcluded(url) {
+            log.record(
+                source: "orphans",
+                category: "Orphans",
+                action: .skipped,
+                path: url.path,
+                reason: "Excluded from cleanup."
+            )
+            return .skipped
+        }
         guard isSafe(url) else {
             log.record(
                 source: "orphans",
@@ -144,8 +156,23 @@ enum OrphanRemover {
     }
 
     /// Writes the outcome of the administrator batch after it returns.
-    static func recordAdminOutcome(urls: [URL], succeeded: Bool, log: CleanupLog) {
+    static func recordAdminOutcome(
+        urls: [URL],
+        succeeded: Bool,
+        log: CleanupLog,
+        isExcluded: (URL) -> Bool = { CleanupExclusions.excludes($0.path, paths: CleanupExclusions.paths()) }
+    ) {
         for url in urls {
+            if isExcluded(url) {
+                log.record(
+                    source: "orphans",
+                    category: "Orphans",
+                    action: .skipped,
+                    path: url.path,
+                    reason: "Excluded from cleanup."
+                )
+                continue
+            }
             if succeeded, !FileManager.default.fileExists(atPath: url.path) {
                 log.record(source: "orphans", category: "Orphans", action: .removedWithAdmin, path: url.path)
             } else {
