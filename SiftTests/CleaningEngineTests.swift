@@ -216,6 +216,34 @@ final class CleaningEngineTests: XCTestCase {
             lastModified: nil
         )
     }
+    func testSingleFileAllowanceRefusesADirectoryInDownloads() async throws {
+        let home = fileManager.temporaryDirectory
+            .appendingPathComponent("CleaningEngineHome-\(UUID().uuidString)", isDirectory: true)
+            .resolvingSymlinksInPath()
+        let folder = home.appendingPathComponent("Downloads/a-folder", isDirectory: true)
+        try fileManager.createDirectory(at: folder, withIntermediateDirectories: true)
+        try Data(repeating: 1, count: 4_096).write(to: folder.appendingPathComponent("inside.bin"))
+        defer { try? fileManager.removeItem(at: home) }
+
+        let item = CleanableItem(
+            name: "a-folder",
+            path: folder.path,
+            size: 4_096,
+            category: .largeFiles,
+            isSelected: true,
+            lastModified: nil
+        )
+
+        let result = await CleaningEngine(homeDirectory: home, trashOperation: { _ in nil })
+            .cleanItems([item]) { _ in }
+
+        XCTAssertTrue(
+            fileManager.fileExists(atPath: folder.path),
+            "A directory must not pass the single-file allowance"
+        )
+        XCTAssertFalse(result.cleanedPaths.contains(folder.path))
+    }
+
 }
 
 /// Thread-safe collector for progress fractions reported by CleaningEngine.
@@ -234,4 +262,5 @@ private final class FractionRecorder: @unchecked Sendable {
         defer { lock.unlock() }
         return values
     }
+
 }
