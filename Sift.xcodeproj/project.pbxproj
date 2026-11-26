@@ -108,6 +108,7 @@
 		9CC2CBB526AEDF8306E004BB /* DeviceBackupService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF955D61993C3CFCDF54560C /* DeviceBackupService.swift */; };
 		9CD2461210497B405FAA0D92 /* CleanupHistoryStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12F623ECA42F7FD5DE2D5E78 /* CleanupHistoryStoreTests.swift */; };
 		C1EA000000000000000000B2 /* CleanupLogTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1EA000000000000000000F2 /* CleanupLogTests.swift */; };
+		C1EA000000000000000000B3 /* CleanupLogIntegrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1EA000000000000000000F3 /* CleanupLogIntegrationTests.swift */; };
 		A28323B26D1E5C0BF3D8730D /* SimilarPhotosView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4AD3C57A93B0E8F1E085692C /* SimilarPhotosView.swift */; };
 		A4E6B96F1E61CAD2CF13F6B3 /* AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 976C65CE76D0B7EF37F7D307 /* AppState.swift */; };
 		A8D7F0786612BEDF0BF930FC /* OrphanListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA6DDAD5932A8FFA2DDB3B32 /* OrphanListView.swift */; };
@@ -197,6 +198,7 @@
 		112F78649EC56BB1012A7A64 /* it */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = it; path = it.lproj/Localizable.strings; sourceTree = "<group>"; };
 		12F623ECA42F7FD5DE2D5E78 /* CleanupHistoryStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CleanupHistoryStoreTests.swift; sourceTree = "<group>"; };
 		C1EA000000000000000000F2 /* CleanupLogTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CleanupLogTests.swift; sourceTree = "<group>"; };
+		C1EA000000000000000000F3 /* CleanupLogIntegrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CleanupLogIntegrationTests.swift; sourceTree = "<group>"; };
 		148AE3B9EFB7ACBAE4709BC6 /* AIAppsCleanupTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIAppsCleanupTests.swift; sourceTree = "<group>"; };
 		14ACA5145CD4F565357ADE0E /* pt-BR */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "pt-BR"; path = "pt-BR.lproj/Localizable.strings"; sourceTree = "<group>"; };
 		157E056EE4B062AD7EE3F853 /* SiftComponents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SiftComponents.swift; sourceTree = "<group>"; };
@@ -615,6 +617,7 @@
 				51B24F1E493FA7992FD2B897 /* CleanupExclusionsTests.swift */,
 				12F623ECA42F7FD5DE2D5E78 /* CleanupHistoryStoreTests.swift */,
 				C1EA000000000000000000F2 /* CleanupLogTests.swift */,
+				C1EA000000000000000000F3 /* CleanupLogIntegrationTests.swift */,
 				9CB4A5ADBF03C2AF332A474C /* CleanupReviewTests.swift */,
 				F9D7FF96D64C5742623DB03A /* DashboardChipSizeTests.swift */,
 				A7C0D3E6F2B4150A9D8E3C22 /* DashboardCleanedHeadlineTests.swift */,
@@ -944,6 +947,7 @@
 				405AF59FCFDD033CD6636EC3 /* CleanupExclusionsTests.swift in Sources */,
 				9CD2461210497B405FAA0D92 /* CleanupHistoryStoreTests.swift in Sources */,
 				C1EA000000000000000000B2 /* CleanupLogTests.swift in Sources */,
+				C1EA000000000000000000B3 /* CleanupLogIntegrationTests.swift in Sources */,
 				F781CC0E36EF500243EF4033 /* CleanupReviewTests.swift in Sources */,
 				EBF9049663662AEE13E22B45 /* DashboardChipSizeTests.swift in Sources */,
 				B8D1E4F7A3C5261BAE9F4D33 /* DashboardCleanedHeadlineTests.swift in Sources */,
