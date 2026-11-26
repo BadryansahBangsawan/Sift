@@ -110,7 +110,11 @@ jobs:
           set -euo pipefail
           APP=build/export/Sift.app
           codesign --verify --deep --strict --verbose=2 "${APP}"
-          codesign -d --entitlements - --xml "${APP}" 2>/dev/null | grep -q "com.apple.security.automation.apple-events"
+          # Sift sends no Apple Events since 4.2.1; the entitlement must stay out.
+          if codesign -d --entitlements - --xml "${APP}" 2>/dev/null | grep -q "com.apple.security.automation.apple-events"; then
+            echo "::error::Sift.app still carries the Apple Events entitlement"
+            exit 1
+          fi
           archs=$(lipo -archs "${APP}/Contents/MacOS/Sift")
           grep -qw arm64 <<< "${archs}"
           grep -qw x86_64 <<< "${archs}"
