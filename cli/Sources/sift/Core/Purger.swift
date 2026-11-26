@@ -11,11 +11,61 @@ enum Purger {
 
     static let artifactPrefixes = ["cmake-build"]
 
+    /// A generated folder's parent must hold one of these project files before
+    /// the folder is offered. Mirrors the app's ProjectJunk rules; a leading
+    /// `*` matches by suffix (`*.xcodeproj`). Names with no rule are not
+    /// artifacts here.
+    static let artifactMarkers: [String: [String]] = [
+        "node_modules": ["package.json"],
+        ".next": ["package.json"],
+        ".nuxt": ["package.json"],
+        ".turbo": ["package.json"],
+        ".svelte-kit": ["package.json"],
+        ".angular": ["package.json"],
+        ".parcel-cache": ["package.json"],
+        "target": ["Cargo.toml", "pom.xml", "build.sbt"],
+        ".build": ["Package.swift"],
+        "DerivedData": ["*.xcodeproj", "*.xcworkspace"],
+        "Pods": ["Podfile"],
+        ".gradle": ["build.gradle", "build.gradle.kts", "settings.gradle", "settings.gradle.kts"],
+        ".tox": ["tox.ini", "pyproject.toml", "setup.cfg", "setup.py"],
+        ".venv": pythonMarkers,
+        "venv": pythonMarkers,
+        "__pycache__": pythonMarkers,
+        ".pytest_cache": pythonMarkers,
+        ".mypy_cache": pythonMarkers,
+        ".ruff_cache": pythonMarkers,
+    ]
+
+    private static let pythonMarkers = [
+        "pyproject.toml", "requirements.txt", "setup.py", "setup.cfg", "Pipfile",
+    ]
+
     static let defaultRoots = ["Projects", "Code", "dev", "GitHub", "Workspace"]
         .map { "\(Safety.home)/\($0)" }
 
     static func isArtifact(_ name: String) -> Bool {
         artifactNames.contains(name) || artifactPrefixes.contains { name.hasPrefix($0) }
+    }
+
+    static func projectMarkers(for name: String) -> [String]? {
+        if name.hasPrefix("cmake-build") { return ["CMakeLists.txt"] }
+        return artifactMarkers[name]
+    }
+
+    static func hasProjectMarker(for name: String, in project: URL) -> Bool {
+        guard let markers = projectMarkers(for: name) else { return false }
+        let fm = FileManager.default
+        let entries = (try? fm.contentsOfDirectory(atPath: project.path)) ?? []
+        for marker in markers {
+            if marker.hasPrefix("*") {
+                let suffix = String(marker.dropFirst())
+                if entries.contains(where: { $0.hasSuffix(suffix) }) { return true }
+            } else if fm.fileExists(atPath: project.appendingPathComponent(marker).path) {
+                return true
+            }
+        }
+        return false
     }
 
     static func scan(roots: [String], olderThanDays: Int, ignore: IgnoreStore) -> CategoryScan {
@@ -42,6 +92,10 @@ enum Purger {
                 }
 
                 if isArtifact(name) {
+                    // The name alone proves nothing: `target` and `build` are
+                    // ordinary source folder names too. Only offer the folder
+                    // when the project file that generates it sits next to it.
+                    guard hasProjectMarker(for: name, in: url.deletingLastPathComponent()) else { continue }
                     en.skipDescendants()
                     if Safety.ignoredPathProtectsCandidate(url.path, ignore: ignore) { continue }
                     let measurement = DirSizer.measure(of: url.path)

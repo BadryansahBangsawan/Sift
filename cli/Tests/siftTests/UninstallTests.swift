@@ -222,6 +222,90 @@ final class UninstallTests: XCTestCase {
         )
     }
 
+    func testRunningAppIsFoundWhenItsPathHasRegexCharacters() throws {
+        let directory = try temporaryDirectory()
+        defer { try? FileManager.default.removeItem(at: directory) }
+
+        let app = directory.appendingPathComponent("Foo (Beta).app", isDirectory: true)
+        let process = try launchSleep(in: app)
+
+        XCTAssertEqual(try Uninstall.runningProcessID(forAppAt: app.path), Int(process.processIdentifier))
+    }
+
+    func testRunningAppLookupTreatsThePathLiterally() throws {
+        let directory = try temporaryDirectory()
+        defer { try? FileManager.default.removeItem(at: directory) }
+
+        _ = try launchSleep(in: directory.appendingPathComponent("FooXBar.app", isDirectory: true))
+
+        // A regex would let "." match the X; a literal comparison must not
+        // report this other bundle as running.
+        let lookalike = directory.appendingPathComponent("Foo.Bar.app", isDirectory: true)
+        XCTAssertNil(try Uninstall.runningProcessID(forAppAt: lookalike.path))
+    }
+
+    func testPathInAnotherProcessArgumentsIsNotTheAppRunning() throws {
+        let directory = try temporaryDirectory()
+        defer { try? FileManager.default.removeItem(at: directory) }
+        let app = directory.appendingPathComponent("Quiet.app", isDirectory: true)
+
+        // The bundle path is an argument of this process, not its executable:
+        // a command line scan would call that "running".
+        let process = Process()
+        process.executableURL = URL(fileURLWithPath: "/usr/bin/yes")
+        process.arguments = [app.path + "/"]
+        process.standardOutput = FileHandle.nullDevice
+        process.standardError = FileHandle.nullDevice
+        try process.run()
+        addTeardownBlock {
+            if process.isRunning { process.terminate() }
+            process.waitUntilExit()
+        }
+
+        XCTAssertNil(try Uninstall.runningProcessID(forAppAt: app.path))
+    }
+
+    func testRunningAppIsNoLongerReportedAfterItQuits() throws {
+        let directory = try temporaryDirectory()
+        defer { try? FileManager.default.removeItem(at: directory) }
+
+        let app = directory.appendingPathComponent("Quiet.app", isDirectory: true)
+        let process = try launchSleep(in: app)
+        XCTAssertEqual(try Uninstall.runningProcessID(forAppAt: app.path), Int(process.processIdentifier))
+
+        process.terminate()
+        process.waitUntilExit()
+
+        XCTAssertNil(try Uninstall.runningProcessID(forAppAt: app.path))
+    }
+
+    /// Copies the system's sleep into the bundle and starts it, so the test
+    /// looks at a real process whose executable path is inside the app.
+    private func launchSleep(in app: URL, seconds: Int = 60) throws -> Process {
+        let executable = app.appendingPathComponent(
+            "Contents/MacOS/\(app.deletingPathExtension().lastPathComponent)"
+        )
+        try FileManager.default.createDirectory(
+            at: executable.deletingLastPathComponent(),
+            withIntermediateDirectories: true
+        )
+        try FileManager.default.copyItem(at: URL(fileURLWithPath: "/bin/sleep"), to: executable)
+        // A copied platform binary is killed on Apple silicon until it is
+        // signed again; an ad-hoc signature keeps it runnable.
+        let signature = Shell.run("/usr/bin/codesign", ["--force", "--sign", "-", executable.path])
+        XCTAssertEqual(signature.status, 0, signature.err)
+
+        let process = Process()
+        process.executableURL = executable
+        process.arguments = [String(seconds)]
+        try process.run()
+        addTeardownBlock {
+            if process.isRunning { process.terminate() }
+            process.waitUntilExit()
+        }
+        return process
+    }
+
     private func launchAgent(label: String) -> Data {
         Data("""
         <?xml version="1.0" encoding="UTF-8"?>
