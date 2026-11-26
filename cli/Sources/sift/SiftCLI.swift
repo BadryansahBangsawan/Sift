@@ -33,15 +33,22 @@ enum HomeMenu {
         return line.isEmpty ? fallback : line
     }
 
-    /// Runs the Uninstall command for a prompt answer. Kept separate from the
-    /// menu loop so a test can prove a bad answer cannot end the session.
+    /// Runs the Uninstall command for a prompt answer. A bad answer (including
+    /// the default "/Applications") reports a message and returns to the menu
+    /// instead of ending the whole session.
     @discardableResult
-    static func runUninstall(_ answer: String) throws -> Bool {
+    static func runUninstall(_ answer: String) -> Bool {
         var command = Uninstall()
         command.appPath = answer
-        try command.validate()
-        try command.run()
-        return true
+        do {
+            try command.validate()
+            try command.run()
+            return true
+        } catch {
+            let message = (error as? ValidationError)?.message ?? String(describing: error)
+            Term.err(Term.yellow(message))
+            return false
+        }
     }
 
     static func run() throws {
