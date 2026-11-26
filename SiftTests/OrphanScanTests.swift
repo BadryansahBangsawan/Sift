@@ -26,6 +26,39 @@ final class OrphanScanTests: XCTestCase {
         }
     }
 
+    func testAllowedOrphanIsStillRemovedAndLogged() throws {
+        let folder = fileManager.temporaryDirectory
+            .appendingPathComponent("SiftOrphanAllowed-\(UUID().uuidString)", isDirectory: true)
+        try fileManager.createDirectory(at: folder, withIntermediateDirectories: true)
+        let trash = fileManager.temporaryDirectory
+            .appendingPathComponent("SiftOrphanTrash-\(UUID().uuidString)", isDirectory: true)
+        try fileManager.createDirectory(at: trash, withIntermediateDirectories: true)
+        defer {
+            try? fileManager.removeItem(at: folder)
+            try? fileManager.removeItem(at: trash)
+        }
+
+        let logFile = fileManager.temporaryDirectory
+            .appendingPathComponent("orphan-allowed-log-\(UUID().uuidString)")
+        let log = CleanupLog(fileURL: logFile, version: "4.2.0", build: "1")
+        let outcome = OrphanRemover.remove(
+            folder,
+            log: log,
+            isSafe: { _ in true },
+            isExcluded: { _ in false },
+            trash: { url in
+                try FileManager.default.moveItem(
+                    at: url,
+                    to: trash.appendingPathComponent(url.lastPathComponent)
+                )
+            }
+        )
+
+        XCTAssertEqual(outcome, .removed)
+        let line = try String(contentsOf: logFile, encoding: .utf8)
+        XCTAssertTrue(line.contains("\"action\":\"trashed\""), line)
+    }
+
     func testOrphanRemovalRefusesAnExcludedPath() throws {
         let folder = fileManager.temporaryDirectory
             .appendingPathComponent("SiftOrphanExcluded-\(UUID().uuidString)", isDirectory: true)
