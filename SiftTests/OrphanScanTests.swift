@@ -26,6 +26,68 @@ final class OrphanScanTests: XCTestCase {
         }
     }
 
+    func testOrphanRemovalRefusesAnExcludedPath() throws {
+        let folder = fileManager.temporaryDirectory
+            .appendingPathComponent("SiftOrphanExcluded-\(UUID().uuidString)", isDirectory: true)
+        try fileManager.createDirectory(at: folder, withIntermediateDirectories: true)
+        defer { try? fileManager.removeItem(at: folder) }
+
+        let saved = UserDefaults.standard.stringArray(forKey: CleanupExclusions.defaultsKey)
+        defer {
+            if let saved {
+                UserDefaults.standard.set(saved, forKey: CleanupExclusions.defaultsKey)
+            } else {
+                UserDefaults.standard.removeObject(forKey: CleanupExclusions.defaultsKey)
+            }
+        }
+        CleanupExclusions.add(folder.path)
+
+        let log = CleanupLog(
+            fileURL: fileManager.temporaryDirectory.appendingPathComponent("orphan-log-\(UUID().uuidString)"),
+            version: "4.2.0",
+            build: "1"
+        )
+        var trashed: [URL] = []
+        _ = OrphanRemover.remove(
+            folder,
+            log: log,
+            isSafe: { _ in true },
+            trash: { trashed.append($0) }
+        )
+
+        XCTAssertTrue(trashed.isEmpty, "an excluded orphan must never be moved to the Trash")
+        XCTAssertTrue(fileManager.fileExists(atPath: folder.path))
+    }
+
+    func testOrphanAdminOutcomeDoesNotClaimAnExcludedPath() throws {
+        let folder = fileManager.temporaryDirectory
+            .appendingPathComponent("SiftOrphanExcludedAdmin-\(UUID().uuidString)", isDirectory: true)
+        try fileManager.createDirectory(at: folder, withIntermediateDirectories: true)
+        defer { try? fileManager.removeItem(at: folder) }
+
+        let saved = UserDefaults.standard.stringArray(forKey: CleanupExclusions.defaultsKey)
+        defer {
+            if let saved {
+                UserDefaults.standard.set(saved, forKey: CleanupExclusions.defaultsKey)
+            } else {
+                UserDefaults.standard.removeObject(forKey: CleanupExclusions.defaultsKey)
+            }
+        }
+        CleanupExclusions.add(folder.path)
+
+        let logFile = fileManager.temporaryDirectory
+            .appendingPathComponent("orphan-admin-log-\(UUID().uuidString)")
+        let log = CleanupLog(fileURL: logFile, version: "4.2.0", build: "1")
+        try fileManager.removeItem(at: folder) // simulate the admin batch deleting it
+        OrphanRemover.recordAdminOutcome(urls: [folder], succeeded: true, log: log)
+
+        let line = try String(contentsOf: logFile, encoding: .utf8)
+        XCTAssertFalse(
+            line.contains("\"action\":\"removedWithAdmin\""),
+            "an excluded path must not be reported as removed by the admin batch"
+        )
+    }
+
     func testNoOrphansAreReportedWhenTheInstalledAppListIsEmpty() async throws {
         let folder = root.appendingPathComponent("com.example.kitchen", isDirectory: true)
         try fileManager.createDirectory(at: folder, withIntermediateDirectories: true)
