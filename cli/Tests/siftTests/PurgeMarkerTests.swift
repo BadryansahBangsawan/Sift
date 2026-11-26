@@ -65,12 +65,6 @@ final class PurgeMarkerTests: XCTestCase {
             (".gradle", "settings.gradle.kts"),
             (".tox", "tox.ini"),
             (".tox", "pyproject.toml"),
-            (".venv", "pyproject.toml"),
-            (".venv", "requirements.txt"),
-            ("venv", "setup.py"),
-            ("venv", "Pipfile"),
-            ("__pycache__", "pyproject.toml"),
-            (".pytest_cache", "setup.cfg"),
             ("cmake-build-debug", "CMakeLists.txt"),
         ]
         let ignore = try makeIgnoreStore()
@@ -91,6 +85,30 @@ final class PurgeMarkerTests: XCTestCase {
                 withMarker.groups.flatMap(\.items).map(\.path),
                 [artifact.path],
                 "\(kind.artifact) next to \(kind.marker) must still be offered"
+            )
+        }
+    }
+
+    func testSelfProvingCachesNeedNoProjectMarker() throws {
+        let cases: [(artifact: String, evidence: String)] = [
+            (".venv", "pyvenv.cfg"),
+            ("venv", "pyvenv.cfg"),
+            ("__pycache__", "module.pyc"),
+            (".pytest_cache", "CACHEDIR.TAG"),
+            (".mypy_cache", "CACHEDIR.TAG"),
+            (".ruff_cache", "CACHEDIR.TAG"),
+        ]
+        let ignore = try makeIgnoreStore()
+
+        for (index, item) in cases.enumerated() {
+            let project = try makeProject("self-proving-\(index)")
+            let artifact = try addArtifact(named: item.artifact, to: project)
+
+            let scan = Purger.scan(roots: [project.path], olderThanDays: 0, ignore: ignore)
+            XCTAssertEqual(
+                scan.groups.flatMap(\.items).map(\.path),
+                [artifact.path],
+                "\(item.artifact) with \(item.evidence) proves itself; the app offers it without a marker"
             )
         }
     }

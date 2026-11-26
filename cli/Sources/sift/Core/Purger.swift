@@ -14,8 +14,8 @@ enum Purger {
 
     /// A generated folder's parent must hold one of these project files before
     /// the folder is offered. Mirrors the app's ProjectJunk rules; a leading
-    /// `*` matches by suffix (`*.xcodeproj`). Names with no rule are not
-    /// artifacts here.
+    /// `*` matches by suffix (`*.xcodeproj`). An empty list means the folder's
+    /// contents prove themselves. Names with no rule are not artifacts here.
     static let artifactMarkers: [String: [String]] = [
         "node_modules": ["package.json"],
         ".next": ["package.json"],
@@ -29,17 +29,13 @@ enum Purger {
         "DerivedData": ["*.xcodeproj", "*.xcworkspace"],
         "Pods": ["Podfile"],
         ".gradle": ["build.gradle", "build.gradle.kts", "settings.gradle", "settings.gradle.kts"],
-        ".tox": ["tox.ini", "pyproject.toml", "setup.cfg", "setup.py"],
-        ".venv": pythonMarkers,
-        "venv": pythonMarkers,
-        "__pycache__": pythonMarkers,
-        ".pytest_cache": pythonMarkers,
-        ".mypy_cache": pythonMarkers,
-        ".ruff_cache": pythonMarkers,
-    ]
-
-    private static let pythonMarkers = [
-        "pyproject.toml", "requirements.txt", "setup.py", "setup.cfg", "Pipfile",
+        ".tox": ["tox.ini", "pyproject.toml", "setup.cfg"],
+        ".venv": [],
+        "venv": [],
+        "__pycache__": [],
+        ".pytest_cache": [],
+        ".mypy_cache": [],
+        ".ruff_cache": [],
     ]
 
     /// The contents must look generated. Mirrors the app's ArtifactRule
@@ -163,6 +159,7 @@ enum Purger {
 
     static func hasProjectMarker(for name: String, in project: URL) -> Bool {
         guard let markers = projectMarkers(for: name) else { return false }
+        if markers.isEmpty { return true }
         let fm = FileManager.default
         let entries = (try? fm.contentsOfDirectory(atPath: project.path)) ?? []
         for marker in markers {
