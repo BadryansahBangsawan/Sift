@@ -130,6 +130,11 @@ class AppPathFinder {
             var isDir: ObjCBool = false
             guard FileManager.default.fileExists(atPath: itemURL.path, isDirectory: &isDir) else { continue }
 
+            // A symlink is listed as the link itself when its name matches, but
+            // never descended into: the entries behind it belong to another
+            // directory and must not be auto-selected for this app.
+            let isSymlink = (try? itemURL.resourceValues(forKeys: [.isSymbolicLinkKey]))?.isSymbolicLink == true
+
             if shouldSkipItem(normalizedName, at: itemURL) { continue }
 
             if matchesApp(normalizedName: normalizedName, itemURL: itemURL) {
@@ -152,8 +157,8 @@ class AppPathFinder {
                 localResults.append(itemToAdd)
             }
 
-            // Recurse into subdirectories up to maxDepth
-            if isDir.boolValue && currentDepth < maxDepth {
+            // Recurse into real subdirectories up to maxDepth
+            if isDir.boolValue && !isSymlink && currentDepth < maxDepth {
                 if isLibraryRootSearch && currentDepth == 0 {
                     if !skipDeepSearch.contains(itemURL.lastPathComponent) {
                         subdirs.append(itemURL)

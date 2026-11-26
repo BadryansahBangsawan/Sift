@@ -394,14 +394,16 @@ final class AppState: ObservableObject {
         // Safety guard: never allow a high-risk home dotpath (listed in
         // Conditions.swift) to be trashed no matter how it ended up in the
         // selection. Catches selection-time additions that slipped past the
-        // scanner-side filters.
+        // scanner-side filters. Also refuse any path that crosses a symlinked
+        // directory below the home: trashItem follows intermediate links, so
+        // it would move files that live somewhere other than the row shows.
         let allURLs = Array(confirmedURLs ?? selectedFiles)
         let (urls, blocked): ([URL], [URL]) = allURLs.reduce(into: ([], [])) { acc, url in
             let resolved = url.resolvingSymlinksInPath().path
-            let isBlocked = highRiskHomeDotPaths.contains { root in
+            let isHighRiskDotPath = highRiskHomeDotPaths.contains { root in
                 resolved == root || resolved.hasPrefix(root + "/")
             }
-            if isBlocked {
+            if isHighRiskDotPath || passesThroughSymlinkedDirectory(url) {
                 acc.1.append(url)
             } else {
                 acc.0.append(url)
@@ -411,7 +413,7 @@ final class AppState: ObservableObject {
         removalNeedsFullDiskAccess = false
         if !blocked.isEmpty {
             let blockedList = blocked.map(\.path).joined(separator: ", ")
-            Logger.shared.log("Refused to delete \(blocked.count) high-risk home dotpath(s): \(blockedList)", level: .warning)
+            Logger.shared.log("Refused to delete \(blocked.count) protected app file(s): \(blockedList)", level: .warning)
             selectedFiles.subtract(blocked)
         }
         guard !urls.isEmpty else {
@@ -457,6 +459,31 @@ final class AppState: ObservableObject {
                 )
             }
         }
+    }
+
+    /// True when a directory between `url` and the injected home is a symlink.
+    ///
+    /// `trashItem` resolves intermediate links, so a path such as
+    /// `~/Library/Application Support/SharedData/file` where `SharedData`
+    /// points at `~/Documents` would move the Documents file while the row
+    /// showed a path inside Application Support. The link itself stays
+    /// removable: only its ancestors are checked. Paths outside the home are
+    /// left alone; the scanner only crosses links below the home.
+    private nonisolated func passesThroughSymlinkedDirectory(_ url: URL) -> Bool {
+        let homePath = (homeDirectory.path as NSString).standardizingPath
+        var directory = url.standardizedFileURL.deletingLastPathComponent()
+        guard directory.path != homePath,
+              directory.path.hasPrefix(homePath + "/") else {
+            return false
+        }
+        while directory.path != homePath {
+            let isSymlink = (try? directory.resourceValues(forKeys: [.isSymbolicLinkKey]))?.isSymbolicLink
+            if isSymlink == true { return true }
+            let parent = directory.deletingLastPathComponent()
+            if parent.path == directory.path { return false }
+            directory = parent
+        }
+        return false
     }
 
     /// Move files to the Trash via FileManager.trashItem so the syscall
