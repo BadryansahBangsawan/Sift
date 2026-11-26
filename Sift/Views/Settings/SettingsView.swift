@@ -695,8 +695,6 @@ struct PermissionsSettingsView: View {
     @EnvironmentObject private var appState: AppState
     @ObservedObject private var permission = PermissionCoordinator.shared
 
-    private static let automationSettingsURL = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Automation")!
-
     var body: some View {
         SiftSettingsLabel(title: Text("Full Disk Access"))
         SiftSettingsGroup {
@@ -716,15 +714,6 @@ struct PermissionsSettingsView: View {
                         .buttonStyle(.sift(.primary, compact: true))
                     }
                 }
-            }
-        }
-
-        SiftSettingsLabel(title: Text("Automation"), note: Text("macOS asks the first time"))
-        SiftSettingsGroup {
-            SiftSettingsRow(Text("Finder"),
-                            detail: Text("Sift asks Finder to reveal files and to empty the Trash. Turn it on or off in Privacy & Security > Automation.")) {
-                Button("Open Automation settings") { NSWorkspace.shared.open(Self.automationSettingsURL) }
-                    .buttonStyle(.sift(.secondary, compact: true))
             }
         }
         .onAppear { refreshAccess() }
