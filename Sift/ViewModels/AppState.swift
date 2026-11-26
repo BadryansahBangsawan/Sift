@@ -129,6 +129,9 @@ final class AppState: ObservableObject {
     @Published var hasFullDiskAccess: Bool = true
     @Published var fdaBannerDismissed: Bool = false
     @Published var cleanError: String?
+    /// Kept while the Full Disk Access sheet explains a failed clean, so
+    /// dismissing that sheet can bring the reason back.
+    private var cleanErrorBeforeFullDiskAccessPrompt: String?
     @Published private(set) var lastCleanupHadFailures = false
     /// True when the most recent clean error is rooted in a TCC/FDA refusal
     /// (i.e. items survived even the admin pass). MainWindow uses this to
@@ -956,6 +959,16 @@ final class AppState: ObservableObject {
             }
         }
     }
+
+    /// Bookkeeping when a clean error opens the Full Disk Access sheet. The
+    /// view calls this instead of clearing `cleanError` inline.
+    func presentFullDiskAccessPromptForCleanError() {
+        cleanError = nil
+        cleanErrorIsFDAFixable = false
+    }
+
+    /// Bookkeeping when the Full Disk Access sheet closes without a retry.
+    func dismissFullDiskAccessPromptForCleanError() {}
 
     func retryAfterFullDiskAccess(items: [CleanableItem], context: PermissionCoordinator.PromptContext) async {
         pendingPermissionRetryItems = []

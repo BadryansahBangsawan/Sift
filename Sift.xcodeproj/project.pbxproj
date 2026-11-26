@@ -143,6 +143,7 @@
 		E20AC8CAA98C0B81B2914D35 /* ServicesMenu.strings in Resources */ = {isa = PBXBuildFile; fileRef = F68FE4B066597FCBC5EC68E7 /* ServicesMenu.strings */; };
 		E28E5E15EA77284F34B747EA /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 08B127D3491D0E77696F1D55 /* Assets.xcassets */; };
 		E2FB2157A73DC89762C15530 /* AppLanguage.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA7B6DEAC0C43AB866066AE0 /* AppLanguage.swift */; };
+		DAF306B9C5E8723DB1A0F655 /* CleanErrorFullDiskAccessTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C9E2F5A8B4D7612CA0F9E544 /* CleanErrorFullDiskAccessTests.swift */; };
 		E53DCF3FC27E9AA687A53EA3 /* CleaningEngineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60BDD97D743BB808D9991210 /* CleaningEngineTests.swift */; };
 		E6428F3D4621815865A9D720 /* NodeCachePathTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E2AA53F35F88E1BC144D6A4 /* NodeCachePathTests.swift */; };
 		E8F05A83FE6DF5B7C2E414CE /* AppBundleDragHandle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8ADAA379435272FE56CACF9F /* AppBundleDragHandle.swift */; };
@@ -251,6 +252,7 @@
 		5EFD005FEF2C4A78BAF9E958 /* PerformanceBatteryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PerformanceBatteryTests.swift; sourceTree = "<group>"; };
 		5F99CE87B6197915876B1FD2 /* SiftFonts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SiftFonts.swift; sourceTree = "<group>"; };
 		5FE17F866383B7204B016598 /* SimilarPhotoFinder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimilarPhotoFinder.swift; sourceTree = "<group>"; };
+		C9E2F5A8B4D7612CA0F9E544 /* CleanErrorFullDiskAccessTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CleanErrorFullDiskAccessTests.swift; sourceTree = "<group>"; };
 		60BDD97D743BB808D9991210 /* CleaningEngineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CleaningEngineTests.swift; sourceTree = "<group>"; };
 		615F25337B754CADD4DEEA50 /* AppUpdateSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppUpdateSettingsView.swift; sourceTree = "<group>"; };
 		661EEAA4ED8E95FEFFB8EAEE /* InstalledAppMetadataTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstalledAppMetadataTests.swift; sourceTree = "<group>"; };
@@ -603,6 +605,7 @@
 				C46D9331DC17BC1687026176 /* AppStateTests.swift */,
 				487692905F44CA25B6496767 /* AppStateTrashTests.swift */,
 				741BB0C68D627DFC2B9D503A /* BatteryInspectorTests.swift */,
+				C9E2F5A8B4D7612CA0F9E544 /* CleanErrorFullDiskAccessTests.swift */,
 				60BDD97D743BB808D9991210 /* CleaningEngineTests.swift */,
 				51B24F1E493FA7992FD2B897 /* CleanupExclusionsTests.swift */,
 				12F623ECA42F7FD5DE2D5E78 /* CleanupHistoryStoreTests.swift */,
@@ -929,6 +932,7 @@
 				51691B49400D381C50700423 /* AppleStorageServiceTests.swift in Sources */,
 				8BD2D62C8EB027F190C06568 /* ApplicationUpdaterTests.swift in Sources */,
 				B7287995D5FA2D19A1FBD161 /* BatteryInspectorTests.swift in Sources */,
+				DAF306B9C5E8723DB1A0F655 /* CleanErrorFullDiskAccessTests.swift in Sources */,
 				E53DCF3FC27E9AA687A53EA3 /* CleaningEngineTests.swift in Sources */,
 				405AF59FCFDD033CD6636EC3 /* CleanupExclusionsTests.swift in Sources */,
 				9CD2461210497B405FAA0D92 /* CleanupHistoryStoreTests.swift in Sources */,
