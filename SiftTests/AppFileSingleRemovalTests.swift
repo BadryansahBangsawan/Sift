@@ -55,6 +55,53 @@ final class AppFileSingleRemovalTests: XCTestCase {
         XCTAssertEqual(Set(state.discoveredFiles), expected)
     }
 
+
+    func testBulkRemovalRefusesWhileTheAppIsRunning() {
+        let app = makeApp()
+        let support = URL(fileURLWithPath: "/Users/fixture/Library/Caches/com.fixture.app")
+        var trashed: [URL] = []
+        let state = AppState(
+            performStartupTasks: false,
+            appFileTrasher: { urls, completion in
+                trashed = urls
+                completion(urls, false, [], [])
+            },
+            homeDirectory: URL(fileURLWithPath: "/Users/fixture"),
+            isAppRunning: { _, _ in true }
+        )
+        state.selectedApp = app
+        state.selectedFiles = [app.path, support]
+
+        state.removeSelectedFiles()
+
+        XCTAssertTrue(trashed.isEmpty)
+        XCTAssertNotNil(state.removalError)
+        XCTAssertEqual(state.selectedFiles, [app.path, support])
+    }
+
+    func testRemovalSucceedsOnceTheAppQuits() {
+        let app = makeApp()
+        var running = true
+        var trashed: [URL] = []
+        let state = AppState(
+            performStartupTasks: false,
+            appFileTrasher: { urls, completion in
+                trashed = urls
+                completion(urls, false, [], [])
+            },
+            isAppRunning: { _, _ in running }
+        )
+        state.selectedApp = app
+        state.selectedFiles = [app.path]
+
+        state.removeSingleFile(app.path)
+        XCTAssertTrue(trashed.isEmpty)
+
+        running = false
+        state.removeSingleFile(app.path)
+        XCTAssertEqual(trashed, [app.path])
+    }
+
     // MARK: - Helpers
 
     private func makeApp() -> InstalledApp {
