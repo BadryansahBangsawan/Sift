@@ -177,8 +177,15 @@ struct IgnoreStore {
         let contents = try String(contentsOf: fileURL, encoding: .utf8)
         var seen = Set<String>()
         var roots: [String] = []
-        for rawLine in contents.split(whereSeparator: { $0.isNewline }) {
-            let line = rawLine.trimmingCharacters(in: .whitespaces)
+        // Swift treats CRLF as one Character, so split(separator: "\n") would
+        // not see it. Normalize first; a lone CR inside an entry stays part of
+        // the line and is still rejected as a control character.
+        let normalized = contents.replacingOccurrences(of: "\r\n", with: "\n")
+        let lines = normalized.contains("\n")
+            ? normalized.split(separator: "\n", omittingEmptySubsequences: true)
+            : normalized.split(separator: "\r", omittingEmptySubsequences: true)
+        for rawLine in lines {
+            let line = rawLine.trimmingCharacters(in: .whitespacesAndNewlines)
             guard !line.isEmpty else { continue }
             do {
                 let root = try standardized(line, relativeTo: "/", allowRelative: false)
