@@ -120,6 +120,55 @@ final class SystemJunkTmpPolicyTests: XCTestCase {
         XCTAssertTrue(fileManager.fileExists(atPath: entry.path))
     }
 
+    func testTmpWorktreeRootWithGitFileIsNotOffered() async throws {
+        let entry = fixtureRoot.appendingPathComponent("linked-worktree", isDirectory: true)
+        try fileManager.createDirectory(at: entry, withIntermediateDirectories: true)
+        try Data("gitdir: /private/tmp/main/.git/worktrees/linked-worktree\n".utf8)
+            .write(to: entry.appendingPathComponent(".git"))
+        try Data(repeating: 7, count: 8_192).write(to: entry.appendingPathComponent("work.bin"))
+        try ageTree(entry, by: days(5))
+
+        let items = await scanTmpItems()
+
+        XCTAssertFalse(items.contains { $0.path == entry.path })
+    }
+
+    func testTmpFolderHoldingWorktreesOneAndTwoLevelsDownIsNotOffered() async throws {
+        let entry = fixtureRoot.appendingPathComponent("worktree-collection", isDirectory: true)
+        let one = entry.appendingPathComponent("one", isDirectory: true)
+        let two = entry.appendingPathComponent("nested/two", isDirectory: true)
+        try fileManager.createDirectory(at: one, withIntermediateDirectories: true)
+        try fileManager.createDirectory(at: two, withIntermediateDirectories: true)
+        try Data("gitdir: /private/tmp/main/.git/worktrees/one\n".utf8)
+            .write(to: one.appendingPathComponent(".git"))
+        try Data("gitdir: /private/tmp/main/.git/worktrees/two\n".utf8)
+            .write(to: two.appendingPathComponent(".git"))
+        try Data(repeating: 8, count: 8_192).write(to: one.appendingPathComponent("a.bin"))
+        try Data(repeating: 9, count: 8_192).write(to: two.appendingPathComponent("b.bin"))
+        try ageTree(entry, by: days(5))
+
+        let items = await scanTmpItems()
+
+        XCTAssertFalse(items.contains { $0.path == entry.path })
+    }
+
+    func testTmpWorktreeWithLargeOldDependenciesIsNotOffered() async throws {
+        let entry = fixtureRoot.appendingPathComponent("worktree-deps", isDirectory: true)
+        let nodeModules = entry.appendingPathComponent("node_modules/pkg", isDirectory: true)
+        let dist = entry.appendingPathComponent("dist", isDirectory: true)
+        try fileManager.createDirectory(at: nodeModules, withIntermediateDirectories: true)
+        try fileManager.createDirectory(at: dist, withIntermediateDirectories: true)
+        try Data("gitdir: /private/tmp/main/.git/worktrees/deps\n".utf8)
+            .write(to: entry.appendingPathComponent(".git"))
+        try Data(repeating: 10, count: 64_000).write(to: nodeModules.appendingPathComponent("index.js"))
+        try Data(repeating: 11, count: 64_000).write(to: dist.appendingPathComponent("bundle.js"))
+        try ageTree(entry, by: days(5))
+
+        let items = await scanTmpItems()
+
+        XCTAssertFalse(items.contains { $0.path == entry.path })
+    }
+
     // MARK: - Helpers
 
     private func scanTmpItems() async -> [CleanableItem] {
