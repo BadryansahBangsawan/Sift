@@ -17,6 +17,9 @@ All notable user-facing changes to Sift. Sift was called PureMac before 4.0.0.
   …) only when the project file that generates it — `Cargo.toml`,
   `package.json`, `Package.swift` and the like — sits next to it, so a source
   folder that happens to share the name is left alone.
+- The app-files scan and removal no longer follow a symlinked folder, so a link
+  planted in Application Support cannot put files from another directory in the
+  app's removal list or move them to the Trash.
 
 ## 4.1.0
 
