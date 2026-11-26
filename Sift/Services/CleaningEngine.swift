@@ -212,7 +212,12 @@ actor CleaningEngine {
                 let pruneOutcome = await pruneDockerSystem()
                 result.freedSpace += pruneOutcome.freed
                 if pruneOutcome.freed > 0 { result.itemsCleaned += 1 }
-                result.cleanedPaths.insert(item.path)
+                // A virtual row has no path to re-stat: only mark it cleaned
+                // when the prune actually ran. A failure keeps the row so the
+                // user can retry instead of rescanning the whole category.
+                if pruneOutcome.error == nil {
+                    result.cleanedPaths.insert(item.path)
+                }
                 if let error = pruneOutcome.error {
                     result.errors.append(error)
                 }
