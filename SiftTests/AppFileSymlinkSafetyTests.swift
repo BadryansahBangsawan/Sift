@@ -61,6 +61,68 @@ final class AppFileSymlinkSafetyTests: XCTestCase {
         XCTAssertFalse(state.selectedFiles.contains(fixture.taintedFile))
     }
 
+
+    func testScanListsAMatchingSymlinkWithoutItsTargetContents() async throws {
+        let fixture = try makeSymlinkFixture(linkName: "Fixture")
+        let finder = AppPathFinder(
+            appInfo: AppPathFinder.AppInfo(
+                appName: "Fixture",
+                bundleIdentifier: "com.fixture.app",
+                path: fixtureHome.appendingPathComponent("Applications/Fixture.app"),
+                entitlements: nil,
+                teamIdentifier: nil
+            ),
+            locations: StubLocations(paths: [fixture.supportRoot.path])
+        )
+
+        let found = await scan(finder)
+
+        XCTAssertTrue(found.contains { $0.path == fixture.linkedFolder.path })
+        XCTAssertFalse(found.contains { $0.path == fixture.taintedFile.path })
+    }
+
+    func testRemovalAllowsTheSymlinkItself() throws {
+        let fixture = try makeSymlinkFixture()
+        var trashed: [URL] = []
+        let state = AppState(
+            performStartupTasks: false,
+            appFileTrasher: { urls, completion in
+                trashed = urls
+                completion(urls, false, [], [])
+            },
+            homeDirectory: fixtureHome
+        )
+        state.selectedFiles = [fixture.linkedFolder]
+
+        state.removeSelectedFiles()
+
+        XCTAssertEqual(trashed, [fixture.linkedFolder])
+        XCTAssertNil(state.removalError)
+    }
+
+    func testRemovalRefusesANestedPathThroughASymlink() throws {
+        let fixture = try makeSymlinkFixture()
+        let nested = fixture.linkedFolder.appendingPathComponent("nested", isDirectory: true)
+        try fileManager.createDirectory(at: nested, withIntermediateDirectories: true)
+        try Data("nested".utf8).write(to: nested.appendingPathComponent("fixture-cache.db"))
+
+        var trashed: [URL] = []
+        let state = AppState(
+            performStartupTasks: false,
+            appFileTrasher: { urls, completion in
+                trashed = urls
+                completion([], false, [], [])
+            },
+            homeDirectory: fixtureHome
+        )
+        state.selectedFiles = [nested.appendingPathComponent("fixture-cache.db")]
+
+        state.removeSelectedFiles()
+
+        XCTAssertTrue(trashed.isEmpty)
+        XCTAssertNotNil(state.removalError)
+    }
+
     // MARK: - Helpers
 
     private struct SymlinkFixture {
@@ -69,14 +131,14 @@ final class AppFileSymlinkSafetyTests: XCTestCase {
         let taintedFile: URL
     }
 
-    private func makeSymlinkFixture() throws -> SymlinkFixture {
+    private func makeSymlinkFixture(linkName: String = "SharedData") throws -> SymlinkFixture {
         let supportRoot = fixtureHome
             .appendingPathComponent("Library/Application Support", isDirectory: true)
         let documents = fixtureHome.appendingPathComponent("Documents", isDirectory: true)
         try fileManager.createDirectory(at: supportRoot, withIntermediateDirectories: true)
         try fileManager.createDirectory(at: documents, withIntermediateDirectories: true)
 
-        let linkedFolder = supportRoot.appendingPathComponent("SharedData")
+        let linkedFolder = supportRoot.appendingPathComponent(linkName)
         try fileManager.createSymbolicLink(at: linkedFolder, withDestinationURL: documents)
         try Data("fixture".utf8).write(to: documents.appendingPathComponent("fixture-cache.db"))
 
