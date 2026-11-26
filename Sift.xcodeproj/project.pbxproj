@@ -9,6 +9,8 @@
 /* Begin PBXBuildFile section */
 		00DB83CC6977CBF531A63614 /* Localizable.stringsdict in Resources */ = {isa = PBXBuildFile; fileRef = 852BD6382309A5F1D390B4E8 /* Localizable.stringsdict */; };
 		02B55675A291435F85043CF2 /* DeviceBackupServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5F01D47E6FD2ECEBE7678E2 /* DeviceBackupServiceTests.swift */; };
+		5C1D83A7E2B94F60A8D31755 /* ShellQuoting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B7F21C9D4A8E65017C2A9F1 /* ShellQuoting.swift */; };
+		9F6B13D8A2C74E50B1D8F226 /* ShellQuotingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7E4A92C1B6D35F80C2E9A713 /* ShellQuotingTests.swift */; };
 		04A54B7BEE1D4E51D779BF19 /* LegacyMigrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4DD53E74995AFBB639D4EA28 /* LegacyMigrationTests.swift */; };
 		04C20AAB36EC1CB8263541D5 /* ScheduleConfigTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E586C6BA1E1490736BF73122 /* ScheduleConfigTests.swift */; };
 		08EF488CE4C88359A303DFBF /* SiftFonts.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F99CE87B6197915876B1FD2 /* SiftFonts.swift */; };
@@ -365,6 +367,8 @@
 		FD08B212D5C9963A835D4F97 /* de */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = de; path = de.lproj/Localizable.strings; sourceTree = "<group>"; };
 		FE4C911D9ACA91342A79AF89 /* SimulatorRuntimeSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimulatorRuntimeSupport.swift; sourceTree = "<group>"; };
 		FEFF809349E846D634700868 /* UniversalBinaryScanner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UniversalBinaryScanner.swift; sourceTree = "<group>"; };
+		3B7F21C9D4A8E65017C2A9F1 /* ShellQuoting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShellQuoting.swift; sourceTree = "<group>"; };
+		7E4A92C1B6D35F80C2E9A713 /* ShellQuotingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShellQuotingTests.swift; sourceTree = "<group>"; };
 		FF97A0F69059AA6FD4F7C5AB /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -442,6 +446,7 @@
 				CF7CF23E92C20AE9EF2D8449 /* Logger.swift */,
 				542680B283381CABE44F0D75 /* OrphanSafetyPolicy.swift */,
 				7D9724ABC616DA3575C45266 /* ProviderPaths.swift */,
+				3B7F21C9D4A8E65017C2A9F1 /* ShellQuoting.swift */,
 				FE4C911D9ACA91342A79AF89 /* SimulatorRuntimeSupport.swift */,
 				9BEDF21B4EC262C90DA6EF50 /* XcodeBuildMCPDerivedDataSupport.swift */,
 			);
@@ -614,6 +619,7 @@
 				F022ADACF466ACEE9C86FC65 /* RunningAppGuardTests.swift */,
 				E586C6BA1E1490736BF73122 /* ScheduleConfigTests.swift */,
 				F7F98584E0BD885D37AB8E69 /* SettingsCopyTests.swift */,
+				7E4A92C1B6D35F80C2E9A713 /* ShellQuotingTests.swift */,
 				B6C3CA0053918EFEC1C41FCE /* SiftDesignSystemTests.swift */,
 				091A5DCCFB40C3CD1D54FC82 /* SiftRedesignLocalizationTests.swift */,
 				A8AA65BA0A3F3650C0B7C4AF /* SimilarPhotoFinderTests.swift */,
@@ -861,6 +867,7 @@
 				C48168A00D24FE538387414A /* ProtectionAudit.swift in Sources */,
 				EB73F6E34B25B1377D178030 /* ProtectionView.swift in Sources */,
 				3470E5E34B751FA3A0B184DE /* ProviderPaths.swift in Sources */,
+				5C1D83A7E2B94F60A8D31755 /* ShellQuoting.swift in Sources */,
 				36B5914AE61091EE23F7EB53 /* RunningAppGuard.swift in Sources */,
 				C7E2AA1B430CC83806400D67 /* ScanEngine.swift in Sources */,
 				68057671DDF13EDD85378B83 /* SchedulerService.swift in Sources */,
@@ -934,6 +941,7 @@
 				6EFFFF8103208E3061D77547 /* RunningAppGuardTests.swift in Sources */,
 				04C20AAB36EC1CB8263541D5 /* ScheduleConfigTests.swift in Sources */,
 				46EDCCBF916E855916FF022B /* SettingsCopyTests.swift in Sources */,
+				9F6B13D8A2C74E50B1D8F226 /* ShellQuotingTests.swift in Sources */,
 				4F224AE93FA1746332C1B442 /* SiftDesignSystemTests.swift in Sources */,
 				B09136D3AE6447ED66F4AD31 /* SiftRedesignLocalizationTests.swift in Sources */,
 				B1AF860BCF3473D532B5A9E3 /* SimilarPhotoFinderTests.swift in Sources */,

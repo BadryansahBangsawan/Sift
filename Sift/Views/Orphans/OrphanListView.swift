@@ -379,15 +379,8 @@ struct OrphanListView: View {
         guard !urls.isEmpty else { return true }
         guard urls.allSatisfy({ OrphanSafetyPolicy.isSafeCandidate($0) }) else { return false }
 
-        // Quote path for a POSIX shell command.
-        let quotedPaths = urls.map { url in
-            "'\(url.path.replacingOccurrences(of: "'", with: "'\\\"'\\\"'"))'"
-        }
-        let shellCommand = "rm -rf -- \(quotedPaths.joined(separator: " "))"
-        let appleScriptCommand = shellCommand
-            .replacingOccurrences(of: "\\", with: "\\\\")
-            .replacingOccurrences(of: "\"", with: "\\\"")
-        let script = "do shell script \"\(appleScriptCommand)\" with administrator privileges"
+        let script = ShellQuoting.removalAppleScript(paths: urls.map(\.path))
+            + " with administrator privileges"
 
         let process = Process()
         process.executableURL = URL(fileURLWithPath: "/usr/bin/osascript")
