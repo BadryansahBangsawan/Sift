@@ -8,6 +8,31 @@ import XCTest
 final class ScheduleCopyTests: XCTestCase {
     private let key = "Moves the junk the scan selected to the Trash, without asking"
 
+    func testScheduledNotificationAboveThresholdIsUnchanged() {
+        let body = AppState.scheduledNotificationBody(
+            found: 10_000,
+            selectedSize: 10_000,
+            autoClean: true,
+            minimumCleanSize: 5_000
+        )
+
+        XCTAssertTrue(body.contains("Found"), body)
+        XCTAssertFalse(body.localizedCaseInsensitiveContains("nothing was removed"), body)
+    }
+
+    func testSuppressedNotificationExistsInEveryLanguage() throws {
+        let key = "Found %@ of junk files, below the cleanup threshold. Nothing was removed."
+        let english = try localizedStrings(for: "en")
+        let englishCopy = try XCTUnwrap(english[key])
+
+        for language in ["de", "es", "fr", "it", "ja", "pl", "pt-BR", "ru", "uk", "zh-Hans", "zh-Hant", "ar"] {
+            let strings = try localizedStrings(for: language)
+            let copy = try XCTUnwrap(strings[key], "\(language) is missing the skipped-clean notification")
+            XCTAssertNotEqual(copy, englishCopy, "\(language) still carries the English sentence")
+            XCTAssertTrue(copy.contains("%@"), "\(language) lost the size placeholder")
+        }
+    }
+
     func testSuppressedScheduledCleanNotificationSaysNothingWasRemoved() {
         let body = AppState.scheduledNotificationBody(
             found: 10_000,
