@@ -77,6 +77,23 @@ final class PersonalFilesTrashTests: XCTestCase {
         XCTAssertEqual(result.freedSpace, 0, "A Trash move reclaims nothing until the Trash is emptied")
     }
 
+    func testInstallersStartUnselected() async throws {
+        try createFile(
+            "Downloads/App.dmg",
+            size: 2_000_000,
+            modified: Date().addingTimeInterval(-30 * 24 * 60 * 60)
+        )
+
+        let scanned = await makeScanner().scanCategory(.installers)
+        let image = try XCTUnwrap(scanned.items.first { $0.name == "App.dmg" })
+
+        XCTAssertFalse(
+            image.isSelected,
+            "an unattended clean must never trash an installer the user did not choose"
+        )
+        XCTAssertTrue(image.movesToTrash, "if chosen, it still leaves through the Trash")
+    }
+
     func testTheReviewSheetSaysMoveToTrashForBothCategories() async throws {
         try createFile("Downloads/holiday.mov", size: 2_000_000)
         try createFile(
