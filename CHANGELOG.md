@@ -11,6 +11,8 @@ All notable user-facing changes to Sift. Sift was called PureMac before 4.0.0.
 
 ### Fixed
 
+- `sift-cli dupes ~/Downloads` now expands `~` the way the other commands do,
+  instead of failing with "Path must be absolute".
 - `sift-cli` now trims spaces around protected-path entries and accepts CRLF
   or CR line endings, so an editor's trailing whitespace can no longer disarm
   the ignore list.
