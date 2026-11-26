@@ -43,6 +43,121 @@ final class PurgeMarkerTests: XCTestCase {
         )
     }
 
+    func testEveryArtifactKindNeedsItsOwnProjectMarker() throws {
+        let cases: [(artifact: String, marker: String)] = [
+            ("node_modules", "package.json"),
+            (".next", "package.json"),
+            (".nuxt", "package.json"),
+            (".turbo", "package.json"),
+            (".svelte-kit", "package.json"),
+            (".angular", "package.json"),
+            (".parcel-cache", "package.json"),
+            ("target", "Cargo.toml"),
+            ("target", "pom.xml"),
+            ("target", "build.sbt"),
+            (".build", "Package.swift"),
+            ("DerivedData", "Demo.xcodeproj"),
+            ("DerivedData", "Demo.xcworkspace"),
+            ("Pods", "Podfile"),
+            (".gradle", "build.gradle"),
+            (".gradle", "build.gradle.kts"),
+            (".gradle", "settings.gradle"),
+            (".gradle", "settings.gradle.kts"),
+            (".tox", "tox.ini"),
+            (".tox", "pyproject.toml"),
+            (".venv", "pyproject.toml"),
+            (".venv", "requirements.txt"),
+            ("venv", "setup.py"),
+            ("venv", "Pipfile"),
+            ("__pycache__", "pyproject.toml"),
+            (".pytest_cache", "setup.cfg"),
+            ("cmake-build-debug", "CMakeLists.txt"),
+        ]
+        let ignore = try makeIgnoreStore()
+
+        for (index, kind) in cases.enumerated() {
+            let project = try makeProject("case-\(index)")
+            let artifact = try addArtifact(named: kind.artifact, to: project)
+
+            let withoutMarker = Purger.scan(roots: [project.path], olderThanDays: 0, ignore: ignore)
+            XCTAssertTrue(
+                withoutMarker.groups.isEmpty,
+                "\(kind.artifact) without \(kind.marker) must not be offered"
+            )
+
+            try writeMarker(kind.marker, in: project)
+            let withMarker = Purger.scan(roots: [project.path], olderThanDays: 0, ignore: ignore)
+            XCTAssertEqual(
+                withMarker.groups.flatMap(\.items).map(\.path),
+                [artifact.path],
+                "\(kind.artifact) next to \(kind.marker) must still be offered"
+            )
+        }
+    }
+
+    func testNestedProjectsCheckTheMarkerNextToEachArtifact() throws {
+        let outer = try makeProject("outer")
+        try writeMarker("package.json", in: outer)
+        let outerModules = try addArtifact(named: "node_modules", to: outer)
+
+        let inner = outer.appendingPathComponent("packages/desktop", isDirectory: true)
+        try fileManager.createDirectory(at: inner, withIntermediateDirectories: true)
+        try writeMarker("Cargo.toml", in: inner)
+        let innerTarget = try addArtifact(named: "target", to: inner)
+
+        let sourceOnly = inner.appendingPathComponent("src", isDirectory: true)
+        try fileManager.createDirectory(at: sourceOnly, withIntermediateDirectories: true)
+        _ = try addArtifact(named: "target", to: sourceOnly)
+
+        let scan = Purger.scan(roots: [outer.path], olderThanDays: 0, ignore: try makeIgnoreStore())
+
+        XCTAssertEqual(
+            scan.groups.flatMap(\.items).map(\.path).sorted(),
+            [outerModules.path, innerTarget.path].sorted()
+        )
+    }
+
+    func testSymlinkedArtifactFolderIsNotOffered() throws {
+        let project = try makeProject("linked")
+        try writeMarker("Cargo.toml", in: project)
+        let real = try addArtifact(named: "vendor/real-target", to: project)
+        try fileManager.createSymbolicLink(
+            atPath: project.appendingPathComponent("target").path,
+            withDestinationPath: real.path
+        )
+
+        let scan = Purger.scan(roots: [project.path], olderThanDays: 0, ignore: try makeIgnoreStore())
+
+        XCTAssertTrue(scan.groups.isEmpty)
+        XCTAssertTrue(fileManager.fileExists(atPath: real.appendingPathComponent("payload.bin").path))
+    }
+
+    func testAFileNamedTargetIsNotAnArtifactFolder() throws {
+        let project = try makeProject("file-target")
+        try writeMarker("Cargo.toml", in: project)
+        try Data(repeating: 0x11, count: 4096)
+            .write(to: project.appendingPathComponent("target"))
+
+        let scan = Purger.scan(roots: [project.path], olderThanDays: 0, ignore: try makeIgnoreStore())
+
+        XCTAssertTrue(scan.groups.isEmpty)
+    }
+
+    func testIgnoredFileKeepsItsProjectArtifactOutOfTheScan() throws {
+        let project = try makeProject("ignored")
+        try writeMarker("Cargo.toml", in: project)
+        let artifact = try addArtifact(named: "target", to: project)
+        let keep = artifact.appendingPathComponent("keep.bin")
+        try Data(repeating: 0x22, count: 4096).write(to: keep)
+        var ignore = try makeIgnoreStore()
+        _ = try ignore.add(keep.path)
+
+        let scan = Purger.scan(roots: [project.path], olderThanDays: 0, ignore: ignore)
+
+        XCTAssertTrue(scan.groups.isEmpty)
+        XCTAssertTrue(fileManager.fileExists(atPath: keep.path))
+    }
+
     private func makeProject(_ name: String) throws -> URL {
         let url = root.appendingPathComponent(name, isDirectory: true)
         try fileManager.createDirectory(at: url, withIntermediateDirectories: true)
@@ -61,7 +176,12 @@ final class PurgeMarkerTests: XCTestCase {
     }
 
     private func writeMarker(_ name: String, in project: URL) throws {
-        try Data("marker".utf8).write(to: project.appendingPathComponent(name))
+        let url = project.appendingPathComponent(name)
+        if name.hasSuffix(".xcodeproj") || name.hasSuffix(".xcworkspace") {
+            try fileManager.createDirectory(at: url, withIntermediateDirectories: true)
+        } else {
+            try Data("marker".utf8).write(to: url)
+        }
     }
 
     private func makeIgnoreStore() throws -> IgnoreStore {
