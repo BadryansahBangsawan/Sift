@@ -26,11 +26,12 @@ struct Dupes: ParsableCommand {
 
     func validate() throws {
         guard let path else { return }
-        guard path.hasPrefix("/") else {
+        let expanded = (path as NSString).expandingTildeInPath
+        guard expanded.hasPrefix("/") else {
             throw ValidationError("Path must be absolute: \(path)")
         }
         var isDirectory: ObjCBool = false
-        guard FileManager.default.fileExists(atPath: path, isDirectory: &isDirectory) else {
+        guard FileManager.default.fileExists(atPath: expanded, isDirectory: &isDirectory) else {
             throw ValidationError("No such folder: \(path)")
         }
         guard isDirectory.boolValue else {
@@ -39,7 +40,8 @@ struct Dupes: ParsableCommand {
     }
 
     func run() throws {
-        let root = path ?? FileManager.default.homeDirectoryForCurrentUser.path
+        let requested = (path ?? FileManager.default.homeDirectoryForCurrentUser.path) as NSString
+        let root = requested.expandingTildeInPath
         if !json {
             Term.err(Term.dim("Scanning \(Render.shorten(root)) for files over \(ByteCount.human(minSize)) …"))
         }
