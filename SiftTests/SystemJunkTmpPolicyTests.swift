@@ -169,6 +169,25 @@ final class SystemJunkTmpPolicyTests: XCTestCase {
         XCTAssertFalse(items.contains { $0.path == entry.path })
     }
 
+    func testTmpWorktreeNestedDeeperThanInspectionDepthIsNotOffered() async throws {
+        let entry = fixtureRoot.appendingPathComponent("deep-worktree", isDirectory: true)
+        // entry/a/b/worktree/.git is level 4 below the entry, past the old
+        // gitInspectionDepth of 3.
+        let worktree = entry.appendingPathComponent("a/b/worktree", isDirectory: true)
+        try fileManager.createDirectory(at: worktree, withIntermediateDirectories: true)
+        try Data("gitdir: /private/tmp/main/.git/worktrees/deep\n".utf8)
+            .write(to: worktree.appendingPathComponent(".git"))
+        try Data(repeating: 12, count: 8_192).write(to: worktree.appendingPathComponent("work.bin"))
+        try ageTree(entry, by: days(5))
+
+        let items = await scanTmpItems()
+
+        XCTAssertFalse(
+            items.contains { $0.path == entry.path },
+            "a worktree nested four levels down is still live work"
+        )
+    }
+
     // MARK: - Helpers
 
     private func scanTmpItems() async -> [CleanableItem] {
