@@ -4,6 +4,11 @@ All notable user-facing changes to Sift. Sift was called PureMac before 4.0.0.
 
 ## Unreleased
 
+### Changed
+
+- Sift no longer empties the Trash. The Trash page shows what is in it; empty it
+  in Finder when you are sure.
+
 ### Fixed
 
 - Cleaning Large & old files, Installers, Xcode Archives or opt-in AI rows from
