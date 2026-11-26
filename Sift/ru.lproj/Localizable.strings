@@ -2,19 +2,12 @@
 "Overview" = "Обзор";
 "Cleanup" = "Очистка";
 "Dashboard" = "Сводка";
-"Installed Apps" = "Установленные приложения";
-"Ready to clean" = "Готово к очистке";
 "Limited access" = "Ограниченный доступ";
-"Full Disk Access granted" = "Полный доступ к диску включён";
-"Grant FDA in Settings" = "Включите доступ в Настройках";
-"Select a category from the sidebar to get started." = "Чтобы начать, выберите категорию в боковом меню.";
 
 /* FDA toast + clean error alert (MainWindow) */
 "Couldn't clean everything" = "Не удалось завершить очистку";
 "Open System Settings" = "Открыть Системные настройки";
 "OK" = "ОК";
-"Full Disk Access required" = "Требуется полный доступ к диску";
-"Grant Access" = "Предоставить доступ";
 
 /* Permission Sheet */
 "Grant Full Disk Access" = "Предоставьте полный доступ к диску";
@@ -25,7 +18,6 @@
 " and %lld more" = " и ещё %lld";
 "Access granted. Retrying…" = "Доступ предоставлен. Повторная попытка…";
 "1-tap setup. We'll detect the change automatically." = "Настройка одним нажатием. Изменение будет обнаружено автоматически.";
-"We'll open both windows side-by-side." = "Оба окна откроются рядом.";
 "Toggle the row that appears." = "Включите переключатель в появившейся строке.";
 "Authenticate" = "Подтвердите действие";
 "Touch ID or password." = "С помощью Touch ID или пароля.";
@@ -43,65 +35,27 @@
 "I granted it — retry" = "Проверить доступ и повторить";
 
 /* Dashboard polish */
-"Low space" = "Мало места";
-"CLEANING" = "ОЧИСТКА";
-"Quick Setup" = "Быстрая настройка";
-"1-tap setup. We'll auto-retry what failed." = "Настройка одним нажатием. Неудавшаяся операция повторится автоматически.";
-"Fix permission" = "Настроить доступ";
 "Dismiss" = "Закрыть";
-"Fix" = "Настроить";
 "Set up" = "Настроить";
 
 /* Dashboard */
 "Storage" = "Хранилище";
 "Smart Scan" = "Умное сканирование";
-"free of %@" = "свободно из %@";
-"Junk" = "Мусор";
-"Free Space" = "Свободное место";
-"Junk Found" = "Найдено мусора";
 "Apps" = "Приложения";
-"of %@ · %lld%% used" = "из %@ · занято %lld%%";
-"Run a scan" = "Запустить сканирование";
-"across %lld categories" = "Категорий: %lld";
 "installed" = "установлено";
-"APFS reclaimable" = "можно освободить в APFS";
-"Suggested for you" = "Рекомендации";
-"By category" = "По категориям";
-"%@ is using %@" = "%@ занимает %@";
-"Grant Full Disk Access for full results" = "Предоставьте полный доступ к диску, чтобы получить полные результаты";
-"Without it, most caches and uninstall flows fail." = "Без него большую часть кэшей не удастся очистить, а приложения — удалить полностью.";
-"Action" = "Требуется действие";
 "Scanning your Mac" = "Сканирование Mac";
-"Currently in: %@" = "Категория: %@";
-"found" = "найдено";
-"Your Mac is clean" = "На вашем Mac чисто";
 "Scan Again" = "Сканировать снова";
-"Clean %@?" = "Очистить %@?";
-"Cleaning…" = "Очистка…";
 "%lld%% complete" = "завершено на %lld%%";
-"freed" = "освобождено";
 "Done" = "Готово";
 "%lld items" = "Объектов: %lld";
 
 /* Common destructive dialog */
-"Clean" = "Очистить";
 "Cancel" = "Отмена";
-"This will permanently delete the selected files. This cannot be undone." = "Выбранные файлы будут удалены без возможности восстановления. Это действие нельзя отменить.";
 
 /* Category Detail */
-"All Clean" = "Всё чисто";
-"No junk files found in this category." = "В этой категории мусорных файлов не найдено.";
-"Not Scanned" = "Сканирование не выполнено";
-"Run a scan to analyze this category." = "Запустите сканирование, чтобы проанализировать эту категорию.";
-"Scan Now" = "Сканировать";
-"Filter files" = "Фильтр файлов";
 "Scan" = "Сканировать";
 "Select All" = "Выбрать все";
 "Deselect All" = "Снять выделение";
-"Largest First" = "Сначала самые большие";
-"Smallest First" = "Сначала самые маленькие";
-"Sorted: Largest First" = "Сортировка: сначала самые большие";
-"Sorted: Smallest First" = "Сортировка: сначала самые маленькие";
 "Clean %lld items" = "Очистить выбранное (%lld)";
 "%lld items · %@" = "Объектов: %lld · %@";
 "Rescan" = "Сканировать снова";
@@ -123,7 +77,6 @@
 /* App Files (AppFilesView) */
 "%lld files" = "Файлов: %lld";
 "1 folder" = "1 папка";
-"1 file" = "1 файл";
 "Scanning for related files..." = "Поиск связанных файлов…";
 "Checking %lld locations..." = "Проверка расположений (%lld)…";
 "No Related Files" = "Связанные файлы не найдены";
@@ -145,32 +98,13 @@
 /* Onboarding */
 "Back" = "Назад";
 "Next" = "Далее";
-"Get Started" = "Начать";
-"Free, open-source macOS app manager and system cleaner." = "Бесплатный менеджер приложений и средство очистки системы для macOS с открытым исходным кодом.";
-"Find junk files across your system" = "Находите мусорные файлы во всей системе";
-"Remove apps and all their files" = "Удаляйте приложения и все их файлы";
-"Find leftovers from deleted apps" = "Находите файлы, оставшиеся после удаления приложений";
 "Full Disk Access" = "Полный доступ к диску";
-"We'll guide you through the next steps." = "Мы поможем вам выполнить следующие шаги.";
-"In System Settings, do this:" = "В Системных настройках выполните следующее:";
 "Privacy & Security → Full Disk Access" = "Конфиденциальность и безопасность → Полный доступ к диску";
-"Authenticate with Touch ID or your password" = "Подтвердите действие с помощью Touch ID или пароля";
 "Reopen Settings" = "Снова открыть Настройки";
-"Reset permissions and re-prompt" = "Сбросить разрешения и запросить заново";
-"Hide diagnostics" = "Скрыть диагностику";
-"Show diagnostics" = "Показать диагностику";
-"Trouble?" = "Возникли трудности?";
-"Waiting for permission…" = "Ожидание разрешения…";
-"Permission granted." = "Разрешение предоставлено.";
-"You're Ready" = "Всё готово";
-"%lld/%lld protected locations accessible" = "Доступно защищённых расположений: %lld/%lld";
 "Some features will be limited without Full Disk Access. You can grant it later in Settings." = "Без полного доступа к диску некоторые функции будут ограничены. Его можно предоставить позже в настройках.";
 "Trash" = "Корзина";
-"Mail Data" = "Данные Почты";
-"Safari Data" = "Данные Safari";
 "Desktop" = "Рабочий стол";
 "Documents" = "Документы";
-"TCC Database" = "База данных TCC";
 "Blocked" = "Недоступно";
 
 /* FDA demo system apps */
@@ -210,7 +144,6 @@
 "Enable scheduled scanning" = "Включить сканирование по расписанию";
 "Scan interval" = "Интервал сканирования";
 "Auto-clean after scan" = "Автоматически очищать после сканирования";
-"Auto-purge purgeable space" = "Автоматически освобождать очищаемое пространство";
 "Notify on completion" = "Уведомлять о завершении";
 "Last run" = "Последний запуск";
 "Version %@" = "Версия %@";
@@ -239,10 +172,8 @@
 "Scan everything at once" = "Сканирование всех категорий сразу";
 "System caches, logs, and temporary files" = "Системные кэши, журналы и временные файлы";
 "Application caches and browser data" = "Кэши приложений и данные браузеров";
-"Local AI app logs, caches, and optional history" = "Локальные журналы, кэши и необязательная история ИИ-приложений";
 "Downloaded mail attachments" = "Загруженные почтовые вложения";
 "Files over 100 MB or older than 1 year" = "Файлы размером более 100 МБ или старше 1 года";
-"APFS purgeable disk space" = "Очищаемое пространство на диске APFS";
 "Derived data, archives, and simulator runtimes" = "Производные данные, архивы и среды выполнения симуляторов";
 "Homebrew download cache" = "Кэш загрузок Homebrew";
 "npm, yarn, and pnpm download caches" = "Кэши загрузок npm, yarn и pnpm";
@@ -319,8 +250,6 @@
 "Or drag the icon on the left straight into Settings." = "Или перетащите значок слева прямо в Настройки.";
 
 /* Dashboard storage composition (v2.7.0) */
-"Storage composition" = "Состав хранилища";
-"total" = "всего";
 "Free" = "Свободно";
 
 /* UI polish (v2.8.0): leftover groups + sound toggle */
@@ -362,51 +291,14 @@
 "%lld checks" = "%lld проверок";
 "%lld items found" = "Найдено элементов: %lld";
 "%lld selected" = "Выбрано: %lld";
-"%lld-POINT LOCAL SCAN" = "ЛОКАЛЬНОЕ СКАНИРОВАНИЕ, %lld ТОЧЕК";
-"%lld/%lld checked" = "%lld/%lld проверено";
-"ALL CLEAR" = "ВСЁ В ПОРЯДКЕ";
-"Advanced Tools" = "Дополнительные инструменты";
-"All clear" = "Всё в порядке";
-"App leftovers to inspect" = "Остатки приложений для проверки";
 "Appearance" = "Внешний вид";
-"Caches, mail, trash, and large files" = "Кэши, почта, корзина и большие файлы";
-"Care areas" = "Области заботы";
-"Checks every cleanup category without deleting files" = "Проверяет все категории очистки без удаления файлов";
-"Choose what to keep, then clean everything in one controlled pass." = "Выберите, что сохранить, затем очистите всё за один контролируемый проход.";
-"Cleaning safely…" = "Безопасная очистка…";
-"Cleanup complete. Your storage summary is refreshing." = "Очистка завершена. Сводка хранилища обновляется.";
 "Clear" = "Снять выбор";
 "Developer" = "Разработчик";
-"Installed apps" = "Установленные приложения";
-"LOW SPACE" = "МАЛО МЕСТА";
-"Last clean: %@" = "Последняя очистка: %@";
-"Local" = "Локально";
-"Make room.\nKeep control." = "Освободите место.\nСохраните контроль.";
-"No cleanup run yet" = "Очистка ещё не выполнялась";
-"No known leftovers" = "Известных остатков нет";
-"One scan checks every cleanup tool and prepares a plan for your review." = "Одно сканирование проверяет все инструменты очистки и готовит план для проверки.";
-"Private" = "Приватно";
-"Ready for review" = "Готово к проверке";
-"Ready to reclaim" = "Готово к возврату";
 "Review" = "Просмотреть";
-"Review scan results" = "Просмотреть результаты сканирования";
-"Review what was found" = "Просмотреть найденное";
-"Reviewable" = "Для проверки";
-"SCAN COMPLETE" = "СКАНИРОВАНИЕ ЗАВЕРШЕНО";
-"Scan My Mac" = "Сканировать мой Mac";
-"Scan first.\nDecide what goes." = "Сначала сканируйте.\nРешите, что удалить.";
-"Scanning" = "Сканирование";
-"Selected items are being removed safely." = "Выбранные элементы безопасно удаляются.";
-"Smart Care" = "Smart Care";
-"Twelve-layer storage inspection model" = "Двенадцатиуровневая модель проверки хранилища";
-"Xcode and package tools" = "Инструменты Xcode и пакетов";
-"Your Mac is in good shape." = "Ваш Mac в хорошем состоянии.";
 
 /* Simulator runtimes */
-"Simulator runtime" = "Среда выполнения симулятора";
 
 /* Current dashboard, tools, and cleanup review — English fallback until translated */
-"\nAnd %lld more." = "\nИ ещё %lld.";
 "%@ %@ to %@" = "%@ %@ до %@";
 "%@ available" = "%@ доступно";
 "%@ did not finish within the allowed time." = "%@ не завершилось за отведённое время.";
@@ -415,7 +307,6 @@
 "%@ of %@" = "%@ из %@";
 "%@ of %@ candidates · %@ verified" = "%@ из %@ кандидатов · %@ подтверждено";
 "%@ reviewable" = "%@ для проверки";
-"%@ selected. This permanently removes the selected files or runs the listed cleanup actions. It cannot be undone." = "Выбрано: %@. Выбранные файлы будут безвозвратно удалены или выполнены указанные действия очистки. Это нельзя отменить.";
 "%@ will move to Trash" = "%@ будет перемещено в Корзину";
 "%lld analyzed" = "Проанализировано: %lld";
 "%lld apps selected" = "Выбрано приложений: %lld";
@@ -441,8 +332,6 @@
 ", and %lld more" = ", и ещё %lld";
 "1 app selected" = "Выбрано 1 приложение";
 "1 update available" = "Доступно 1 обновление";
-"500 photo limit" = "Ограничение в 500 фото";
-"A clear view of reclaimable storage and the tools that manage it." = "Наглядный обзор пространства, которое можно вернуть, и инструментов для него.";
 "A selected file is missing or changed: %@" = "Выбранный файл отсутствует или изменён: %@";
 "A selected file no longer matches its kept copy: %@" = "Выбранный файл больше не совпадает с сохранённой копией: %@";
 "Access denied" = "Доступ запрещён";
@@ -468,7 +357,6 @@
 "Check Again" = "Проверить снова";
 "Check again" = "Проверить снова";
 "Check built-in safeguards" = "Проверить встроенные средства защиты";
-"Check installed apps for new versions" = "Проверить новые версии установленных приложений";
 "Check installed cask apps" = "Проверить установленные приложения cask";
 "Checked %@. Unknown means the setting could not be confirmed." = "Проверено: %@. «Неизвестно» означает, что настройку не удалось подтвердить.";
 "Checking" = "Проверка";
@@ -488,7 +376,6 @@
 "Clear search" = "Очистить поиск";
 "Cloud-only file" = "Файл только в облаке";
 "Collapse duplicate group" = "Свернуть группу дубликатов";
-"Compare visually similar photos" = "Сравнить визуально похожие фото";
 "Conditional keep alive" = "Условное поддержание активности";
 "Copy path" = "Скопировать путь";
 "Could not inspect %@" = "Не удалось проверить %@";
@@ -511,14 +398,10 @@
 "FileVault" = "FileVault";
 "FileVault Settings" = "Настройки FileVault";
 "Files will be moved to the Trash. Items requiring administrator authorization may be permanently deleted. App matching is a best-effort estimate; review files you recognize before removing them." = "Файлы будут перемещены в Корзину. Элементы, требующие прав администратора, могут быть удалены безвозвратно. Сопоставление приложений является приблизительной оценкой; просмотрите знакомые файлы перед удалением.";
-"Filter cleanup files" = "Фильтровать файлы очистки";
 "Find copies that are exactly the same" = "Найти полностью одинаковые копии";
-"Find space to reclaim." = "Найдите место, которое можно вернуть.";
 "Find visually related shots in a folder and review them side by side." = "Найдите визуально связанные снимки в папке и сравните их рядом.";
-"Find what uses the most disk space" = "Узнайте, что занимает больше всего места";
 "Finding local photos" = "Поиск локальных фото";
 "Firewall Settings" = "Настройки межсетевого экрана";
-"Focused utilities for storage, apps, and system maintenance" = "Целенаправленные инструменты для хранилища, приложений и обслуживания системы";
 "Folder could not be inspected" = "Не удалось проверить папку";
 "Full Disk Access is off" = "Полный доступ к диску выключен";
 "Full access" = "Полный доступ";
@@ -541,7 +424,6 @@
 "Incoming network connections are filtered." = "Входящие сетевые подключения фильтруются.";
 "Inspect" = "Проверить";
 "Inspect a folder by allocated disk space. Your files are never changed." = "Проверьте папку по занятому месту. Ваши файлы никогда не изменяются.";
-"Inspect memory and background activity" = "Проверить память и фоновую активность";
 "Inspect startup items and local snapshots again" = "Снова проверить объекты входа и локальные снимки";
 "Inspected %@ files in %@. %@" = "Проверено файлов: %@ в %@. %@";
 "Inspecting startup items and local snapshots…" = "Проверка объектов входа и локальных снимков…";
@@ -553,11 +435,7 @@
 "Keep alive" = "Поддерживать активность";
 "Largest first" = "Сначала крупные";
 "Largest items" = "Крупнейшие элементы";
-"Last checked" = "Последняя проверка";
 "Leftovers" = "Остатки";
-"Live resources" = "Ресурсы в реальном времени";
-"Local and private" = "Локально и приватно";
-"Local files" = "Локальные файлы";
 "Local snapshot" = "Локальный снимок";
 "Local snapshots" = "Локальные снимки";
 "Location" = "Расположение";
@@ -566,7 +444,6 @@
 "Managed cleanup action" = "Управляемое действие очистки";
 "Matching files" = "Совпадающие файлы";
 "Measuring allocated space" = "Измерение занятого места";
-"Memory pressure use" = "Использование давления на память";
 "Microphone" = "Микрофон";
 "Modified" = "Изменено";
 "Move selected duplicates to Trash?" = "Переместить выбранные дубликаты в Корзину?";
@@ -620,18 +497,13 @@
 "Refused to delete %lld protected item(s) (home credential directory or similar)." = "Отказано в удалении защищённых элементов: %lld (каталог учётных данных или подобное).";
 "Remove %lld files" = "Удалить файлы: %lld";
 "Remove %lld items" = "Удалить элементы: %lld";
-"Remove apps and their related files" = "Удалить приложения и связанные файлы";
 "Remove selected app files?" = "Удалить выбранные файлы приложения?";
-"Remove selected files?" = "Удалить выбранные файлы?";
 "Remove selected leftovers?" = "Удалить выбранные остатки?";
 "Removing the items you selected." = "Удаление выбранных элементов.";
 "Reveal %@ in Finder" = "Показать %@ в Finder";
 "Reveal plist in Finder" = "Показать plist в Finder";
 "Reveal skipped item in Finder" = "Показать пропущенный элемент в Finder";
 "Review and update apps installed as Homebrew casks." = "Просмотрите и обновите приложения, установленные как cask Homebrew.";
-"Review built-in privacy and safety checks" = "Просмотреть встроенные проверки конфиденциальности и безопасности";
-"Review matching files side by side" = "Просмотреть совпадающие файлы рядом";
-"Review only" = "Только просмотр";
 "Review removal" = "Просмотреть удаление";
 "Review the groups before acting" = "Просмотрите группы перед действием";
 "Review the macOS safeguards that protect apps, disks, network access, and system files." = "Просмотрите средства защиты macOS, которые оберегают приложения, диски, сетевой доступ и системные файлы.";
@@ -661,7 +533,6 @@
 "Select copies" = "Выбрать копии";
 "Select the apps Homebrew should upgrade." = "Выберите приложения, которые Homebrew должен обновить.";
 "Select the extra copies you want to review" = "Выберите дополнительные копии для проверки";
-"Selected cleanup items are permanently removed." = "Выбранные элементы очистки удаляются безвозвратно.";
 "Share of scanned space" = "Доля просканированного места";
 "Shares storage with %@" = "Разделяет хранилище с %@";
 "Show %@ in Finder" = "Показать %@ в Finder";
@@ -688,7 +559,6 @@
 "Symbolic link" = "Символическая ссылка";
 "Symbolic links and cloud-only items are excluded." = "Символические ссылки и элементы только в облаке исключены.";
 "Symbolic links cannot be scanned: %@" = "Символические ссылки нельзя сканировать: %@";
-"Symbolic links, app packages, hidden files and cloud-only placeholders are skipped. Photos are never uploaded or deleted." = "Символические ссылки, пакеты приложений, скрытые файлы и заполнители только в облаке пропускаются. Фото никогда не загружаются и не удаляются.";
 "System Integrity Protection" = "Защита целостности системы";
 "System Integrity Protection is turned off." = "Защита целостности системы отключена.";
 "System daemon" = "Системный демон";
@@ -734,7 +604,6 @@
 "allocated in this folder" = "занято в этой папке";
 "definitions %@" = "определения %@";
 "engine %@" = "движок %@";
-"reclaimed" = "возвращено";
 "similar group" = "похожая группа";
 "similar groups" = "похожие группы";
 "tmutil is not available on this Mac." = "tmutil недоступен на этом Mac.";
@@ -748,12 +617,8 @@
 "CPU uses the Mac’s total capacity. App helpers are grouped with their app." = "CPU использует общую ёмкость Mac. Вспомогательные процессы приложения группируются с ним.";
 "CPU values appear after the next sample." = "Значения CPU появятся после следующего замера.";
 "Check access" = "Проверить доступ";
-"Checking for updates…" = "Проверка обновлений…";
 "Collapsed" = "Свёрнуто";
-"Copy command" = "Скопировать команду";
-"Download (DMG / ZIP)" = "Загрузить (DMG / ZIP)";
 "Expanded" = "Развёрнуто";
-"GitHub is receiving too many requests. Please try again later." = "GitHub получает слишком много запросов. Повторите попытку позже.";
 "Homebrew" = "Homebrew";
 "Live updates paused" = "Живые обновления приостановлены";
 
@@ -761,37 +626,22 @@
 "Memory estimate includes active, wired and compressed memory." = "Оценка памяти включает активную, занятую ядром и сжатую память.";
 "Memory in use" = "Используемая память";
 "No matching apps or processes" = "Нет подходящих приложений или процессов";
-"Open release page" = "Открыть страницу выпусков";
 "Process information is unavailable. Try Activity Monitor for more detail." = "Информация о процессах недоступна. Используйте Монитор активности для подробностей.";
-"Restart to apply your language" = "Перезапустите, чтобы применить язык";
-"Review Full Disk Access" = "Проверить полный доступ к диску";
-"Review launch at login" = "Проверить запуск при входе";
 "Search apps and processes" = "Поиск приложений и процессов";
 "Settings" = "Настройки";
-"Settings need attention" = "Настройки требуют внимания";
-"Settings to review" = "Настройки для проверки";
 "Show all apps and processes" = "Показать все приложения и процессы";
 "Show top 8" = "Показать 8 главных";
 "Some of this app's processes have no CPU reading yet, so this total is partial." = "У некоторых процессов этого приложения ещё нет показаний CPU, поэтому итог частичный.";
 "Some processes started or stopped since the last sample. Their values appear in the next one." = "Некоторые процессы запустились или остановились после последнего замера. Их значения появятся в следующем.";
 "Sort by" = "Сортировать по";
 "System processes are not listed. Use Activity Monitor for those." = "Системные процессы не отображаются. Используйте Монитор активности.";
-"The release service is unavailable. Please try again later." = "Служба выпусков недоступна. Повторите попытку позже.";
-"This build has no readable version. Open the releases page to check manually." = "У этой сборки нет читаемой версии. Откройте страницу выпусков, чтобы проверить вручную.";
-"To update with Homebrew, run this command in Terminal. The cask may follow the GitHub release a little later." = "Чтобы обновиться через Homebrew, выполните эту команду в Терминале. Cask может появиться в выпуске GitHub чуть позже.";
-"Update method" = "Способ обновления";
 
-"View releases" = "Посмотреть выпуски";
 
 /* Sift redesign */
 "%@ could not be removed because Sift does not have Full Disk Access. Grant Full Disk Access in System Settings, then try again." = "Не удалось удалить %@, так как у Sift нет полного доступа к диску. Предоставьте полный доступ к диску в Настройках системы и повторите попытку.";
 "Sift" = "Sift";
 "Sift can now reach the locations macOS protects by default." = "Теперь Sift может обращаться к папкам, которые macOS защищает по умолчанию.";
 "Open Settings & reveal Sift" = "Открыть Настройки и показать Sift в Finder";
-"Keep Sift up to date" = "Поддерживайте Sift в актуальном состоянии";
-"Download the new app from the release page, quit Sift, then replace it in Applications." = "Загрузите новое приложение со страницы выпусков, закройте Sift, затем замените его в «Программах».";
-"Sift %@ is available" = "Доступен Sift %@";
-"You're using the latest available version of Sift." = "Вы используете последнюю доступную версию Sift.";
 "Launch Sift at login" = "Открывать Sift при входе";
 "Restart Sift to apply the selected language." = "Перезапустите Sift, чтобы применить выбранный язык.";
 "Live CPU, memory, and disk meters in the menu bar. Sift keeps running in the background while this is on." = "Индикаторы процессора, памяти и диска в строке меню в реальном времени. Пока они включены, Sift продолжает работать в фоновом режиме.";
@@ -813,12 +663,9 @@
 "Homebrew produced more output than Sift could safely retain." = "Homebrew вывел больше данных, чем Sift мог безопасно сохранить.";
 "Sift could not read this setting." = "Sift не смог прочитать эту настройку.";
 "Sift could not confirm the local XProtect installation." = "Sift не смог подтвердить локальную установку XProtect.";
-"No stable Sift app release was found. Try again later." = "Стабильный выпуск Sift не найден. Повторите попытку позже.";
 "Scheduled cleanup" = "Очистка по расписанию";
 "Smart Scan cleanup" = "Очистка после умного сканирования";
 "Emptied Trash" = "Корзина очищена";
-"Sift isn't allowed to control Finder. Allow it in System Settings > Privacy & Security > Automation, then try again." = "У приложения Sift нет разрешения на управление Finder. Разрешите его в разделе «Системные настройки» > «Конфиденциальность и безопасность» > «Автоматизация» и повторите попытку.";
-"Finder couldn't empty the Trash: %@" = "Finder не удалось очистить Корзину: %@";
 "just now" = "только что";
 "Files and cleanup actions marked Permanent cannot be undone. Items marked Move to Trash can be recovered until the Trash is emptied." = "Файлы и действия очистки с пометкой «Безвозвратно» нельзя отменить. Объекты с пометкой «Переместить в Корзину» можно восстановить, пока Корзина не очищена.";
 "Permanent · Remove simulator runtime" = "Безвозвратно · Удаление среды выполнения симулятора";
@@ -842,9 +689,6 @@
 "Old and large" = "Старые и большие";
 "The Trash is empty" = "Корзина пуста";
 "Files you move to the Trash show up here." = "Здесь появляются файлы, перемещённые в Корзину.";
-"Empty the Trash?" = "Очистить Корзину?";
-"Empty Trash" = "Очистить Корзину";
-"Finder will permanently delete %lld items (%@). This can't be undone." = "Finder безвозвратно удалит объекты (%lld, %@). Это действие нельзя отменить.";
 "Cleanup, scanned %@" = "Очистка, просканировано %@";
 "Cleanup, not scanned yet" = "Очистка, сканирование не выполнялось";
 "Filter by name or path" = "Фильтр по имени или пути";
@@ -864,7 +708,6 @@
 "Review and remove" = "Проверить и удалить";
 "%lld items in the Trash" = "Объектов в Корзине: %lld";
 "Finder empties the Trash. This can't be undone." = "Корзину очищает Finder. Это действие нельзя отменить.";
-"Emptying the Trash…" = "Очистка Корзины…";
 "%@ total" = "всего %@";
 "%@ removed" = "Удалено %@";
 "%@ is junk" = "%@ мусора";
@@ -922,10 +765,6 @@
 "App updates" = "Обновления приложений";
 "Every %@" = "Еженедельно: %@";
 "Version" = "Версия";
-"Version %@ (%@). Checks the official app releases on GitHub." = "Версия %@ (%@). Проверяет официальные выпуски приложения на GitHub.";
-"Installing updates" = "Установка обновлений";
-"Release notes" = "Примечания к выпуску";
-"Every version and what changed, on GitHub" = "Все версии и изменения на GitHub";
 "Permissions" = "Разрешения";
 "Startup, language, the menu bar monitor and sound." = "Запуск, язык, монитор в строке меню и звук.";
 "What Sift looks for, and what it leaves alone." = "Что ищет приложение Sift, а что не трогает.";
@@ -976,10 +815,6 @@
 "A notification with what was found or cleaned" = "Уведомление о том, что найдено или очищено";
 "Runs" = "Запуски";
 "Next run" = "Следующий запуск";
-"Automation" = "Автоматизация";
-"macOS asks the first time" = "macOS спросит при первом использовании";
-"Sift asks Finder to reveal files and to empty the Trash. Turn it on or off in Privacy & Security > Automation." = "Приложение Sift просит Finder показывать файлы и очищать Корзину. Включить или выключить это можно в разделе «Конфиденциальность и безопасность» > «Автоматизация».";
-"Open Automation settings" = "Открыть настройки автоматизации";
 "Source code" = "Исходный код";
 "Found a problem?" = "Нашли проблему?";
 "Issues are tracked on GitHub" = "Проблемы отслеживаются на GitHub";
@@ -1176,12 +1011,6 @@
 "The settings shortcut is unavailable. Open System Settings from the Apple menu." = "Ярлык настроек недоступен. Откройте «Настройки системы» в меню Apple.";
 "Could not open %@. Open the app or guide manually." = "Не удалось открыть %@. Откройте приложение или руководство вручную.";
 "This location is no longer available or cannot be accessed. Scan again to refresh the results." = "Это расположение больше недоступно или к нему нет доступа. Просканируйте снова, чтобы обновить результаты.";
-"Permission denied when accessing '%@'. Grant Full Disk Access in System Settings." = "Доступ к «%@» запрещён. Предоставьте полный доступ к диску в «Настройках системы».";
-"Failed to enumerate directory '%@': %@" = "Не удалось перечислить каталог «%@»: %@";
-"Failed to execute '%@': %@" = "Не удалось выполнить «%@»: %@";
-"Invalid data encountered: %@" = "Обнаружены недопустимые данные: %@";
-"The privileged helper tool is not installed or unavailable." = "Привилегированный вспомогательный инструмент не установлен или недоступен.";
-"The operation was cancelled." = "Операция отменена.";
 "Not writable by current user: %@" = "Нет прав на запись у текущего пользователя: %@";
 "Cannot modify %@: its entitlements require the original developer signature" = "Не удаётся изменить %@: его права требуют исходной подписи разработчика";
 "Cannot thin %@: it is signed and notarized, and stripping a slice would break its signature" = "Не удаётся проредить %@: оно подписано и нотариально заверено, а удаление архитектуры нарушит подпись";

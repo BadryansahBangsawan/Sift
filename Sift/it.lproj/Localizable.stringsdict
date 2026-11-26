@@ -461,22 +461,6 @@
 			<string>%lld elementi non sicuri o non disponibili sono stati ignorati.</string>
 		</dict>
 	</dict>
-	<key>%lld/%lld protected locations accessible</key>
-	<dict>
-		<key>NSStringLocalizedFormatKey</key>
-		<string>%#@value@</string>
-		<key>value</key>
-		<dict>
-			<key>NSStringFormatSpecTypeKey</key>
-			<string>NSStringPluralRuleType</string>
-			<key>NSStringFormatValueTypeKey</key>
-			<string>lld</string>
-			<key>one</key>
-			<string>Posizione protetta accessibile: %lld/%lld</string>
-			<key>other</key>
-			<string>Posizioni protette accessibili: %lld/%lld</string>
-		</dict>
-	</dict>
 	<key>Checking %lld locations...</key>
 	<dict>
 		<key>NSStringLocalizedFormatKey</key>
@@ -523,22 +507,6 @@
 			<string>Ogni %lld secondo</string>
 			<key>other</key>
 			<string>Ogni %lld secondi</string>
-		</dict>
-	</dict>
-	<key>Finder will permanently delete %lld items (%@). This can't be undone.</key>
-	<dict>
-		<key>NSStringLocalizedFormatKey</key>
-		<string>%#@value@</string>
-		<key>value</key>
-		<dict>
-			<key>NSStringFormatSpecTypeKey</key>
-			<string>NSStringPluralRuleType</string>
-			<key>NSStringFormatValueTypeKey</key>
-			<string>lld</string>
-			<key>one</key>
-			<string>Il Finder eliminerà definitivamente %lld elemento (%@). L'operazione non può essere annullata.</string>
-			<key>other</key>
-			<string>Il Finder eliminerà definitivamente %lld elementi (%@). L'operazione non può essere annullata.</string>
 		</dict>
 	</dict>
 	<key>Homebrew finished, but %lld selected apps still report updates.</key>
@@ -667,22 +635,6 @@
 			<string>Aggiorna %lld app</string>
 			<key>other</key>
 			<string>Aggiorna %lld app</string>
-		</dict>
-	</dict>
-	<key>across %lld categories</key>
-	<dict>
-		<key>NSStringLocalizedFormatKey</key>
-		<string>%#@value@</string>
-		<key>value</key>
-		<dict>
-			<key>NSStringFormatSpecTypeKey</key>
-			<string>NSStringPluralRuleType</string>
-			<key>NSStringFormatValueTypeKey</key>
-			<string>lld</string>
-			<key>one</key>
-			<string>in %lld categoria</string>
-			<key>other</key>
-			<string>in %lld categorie</string>
 		</dict>
 	</dict>
 	<key>of %lld cores</key>

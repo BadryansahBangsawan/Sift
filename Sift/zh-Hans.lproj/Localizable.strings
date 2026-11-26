@@ -2,70 +2,31 @@
 "Overview" = "概览";
 "Cleanup" = "清理";
 "Dashboard" = "仪表盘";
-"Installed Apps" = "已安装的应用";
-"Ready to clean" = "可以清理";
 "Limited access" = "访问受限";
-"Full Disk Access granted" = "已授予完全磁盘访问权限";
-"Grant FDA in Settings" = "在系统设置中授予权限";
-"Select a category from the sidebar to get started." = "从侧边栏选择一个类别开始使用。";
 
 /* FDA toast + clean error alert (MainWindow) */
 "Couldn't clean everything" = "部分项目未能清理";
 "Open System Settings" = "打开“系统设置”";
 "OK" = "好";
-"Full Disk Access required" = "需要完全磁盘访问权限";
-"Grant Access" = "授予权限";
 
 /* Dashboard */
 "Storage" = "存储";
 "Smart Scan" = "智能扫描";
-"free of %@" = "%@ 中的可用空间";
-"Junk" = "垃圾";
-"Free Space" = "可用空间";
-"Junk Found" = "发现的垃圾";
 "Apps" = "应用";
-"of %@ · %lld%% used" = "总计 %@ · 已使用 %lld%%";
-"Run a scan" = "运行扫描";
-"across %lld categories" = "跨 %lld 个类别";
 "installed" = "已安装";
-"APFS reclaimable" = "APFS 可回收空间";
-"Suggested for you" = "推荐";
-"By category" = "按类别";
-"%@ is using %@" = "%@ 占用 %@";
-"Grant Full Disk Access for full results" = "授予完全磁盘访问权限以获取完整结果";
-"Without it, most caches and uninstall flows fail." = "缺少权限时，部分缓存和应用文件可能无法处理。";
-"Action" = "操作";
 "Scanning your Mac" = "正在扫描你的 Mac";
-"Currently in: %@" = "当前：%@";
-"found" = "已发现";
-"Your Mac is clean" = "你的 Mac 很干净";
 "Scan Again" = "重新扫描";
-"Clean %@?" = "清理 %@?";
-"Cleaning…" = "正在清理…";
 "%lld%% complete" = "%lld%% 完成";
-"freed" = "已释放";
 "Done" = "完成";
 "%lld items" = "%lld 项";
 
 /* Common destructive dialog */
-"Clean" = "清理";
 "Cancel" = "取消";
-"This will permanently delete the selected files. This cannot be undone." = "这将永久删除选中的文件。此操作无法撤销。";
 
 /* Category Detail */
-"All Clean" = "已全部清理";
-"No junk files found in this category." = "此类别中未发现垃圾文件。";
-"Not Scanned" = "未扫描";
-"Run a scan to analyze this category." = "运行扫描以分析此类别。";
-"Scan Now" = "立即扫描";
-"Filter files" = "过滤文件";
 "Scan" = "扫描";
 "Select All" = "全选";
 "Deselect All" = "取消全选";
-"Largest First" = "最大优先";
-"Smallest First" = "最小优先";
-"Sorted: Largest First" = "排序：最大优先";
-"Sorted: Smallest First" = "排序：最小优先";
 "Clean %lld items" = "清理 %lld 项";
 "%lld items · %@" = "%lld 项 · %@";
 "Rescan" = "重新扫描";
@@ -87,7 +48,6 @@
 /* App Files (AppFilesView) */
 "%lld files" = "%lld 个文件";
 "1 folder" = "1 个文件夹";
-"1 file" = "1 个文件";
 "Scanning for related files..." = "正在扫描相关文件...";
 "Checking %lld locations..." = "正在检查 %lld 个位置...";
 "No Related Files" = "没有相关文件";
@@ -109,32 +69,13 @@
 /* Onboarding */
 "Back" = "返回";
 "Next" = "下一步";
-"Get Started" = "开始使用";
-"Free, open-source macOS app manager and system cleaner." = "免费、开源的 macOS 应用管理和系统清理工具。";
-"Find junk files across your system" = "在系统中查找垃圾文件";
-"Remove apps and all their files" = "删除应用及其所有文件";
-"Find leftovers from deleted apps" = "查找已删除应用的残留";
 "Full Disk Access" = "完全磁盘访问权限";
-"We'll guide you through the next steps." = "我们将引导你完成接下来的步骤。";
-"In System Settings, do this:" = "在“系统设置”中执行以下操作：";
 "Privacy & Security → Full Disk Access" = "隐私与安全性 → 完全磁盘访问权限";
-"Authenticate with Touch ID or your password" = "使用触控 ID 或密码进行验证";
 "Reopen Settings" = "重新打开“设置”";
-"Reset permissions and re-prompt" = "重置权限并再次提示";
-"Hide diagnostics" = "隐藏诊断";
-"Show diagnostics" = "显示诊断";
-"Trouble?" = "遇到问题？";
-"Waiting for permission…" = "等待授权…";
-"Permission granted." = "已授予权限。";
-"You're Ready" = "已准备就绪";
-"%lld/%lld protected locations accessible" = "可访问的受保护位置 %lld/%lld";
 "Some features will be limited without Full Disk Access. You can grant it later in Settings." = "没有完全磁盘访问权限时，部分功能将受限。你可以稍后在设置中授予该权限。";
 "Trash" = "废纸篓";
-"Mail Data" = "邮件数据";
-"Safari Data" = "Safari 数据";
 "Desktop" = "桌面";
 "Documents" = "文稿";
-"TCC Database" = "TCC 数据库";
 "Blocked" = "已阻止";
 
 /* FDA demo system apps */
@@ -174,7 +115,6 @@
 "Enable scheduled scanning" = "启用计划扫描";
 "Scan interval" = "扫描间隔";
 "Auto-clean after scan" = "扫描后自动清理";
-"Auto-purge purgeable space" = "自动清除可清理空间";
 "Notify on completion" = "完成时通知";
 "Last run" = "上次运行";
 "Version %@" = "版本 %@";
@@ -203,10 +143,8 @@
 "Scan everything at once" = "一次扫描所有内容";
 "System caches, logs, and temporary files" = "系统缓存、日志和临时文件";
 "Application caches and browser data" = "应用程序缓存和浏览器数据";
-"Local AI app logs, caches, and optional history" = "本地 AI 应用的日志、缓存和可选历史";
 "Downloaded mail attachments" = "已下载的邮件附件";
 "Files over 100 MB or older than 1 year" = "大于 100 MB 或超过 1 年的文件";
-"APFS purgeable disk space" = "APFS 可清理磁盘空间";
 "Derived data, archives, and simulator runtimes" = "构建数据、归档和模拟器运行时";
 "Homebrew download cache" = "Homebrew 下载缓存";
 "npm, yarn, and pnpm download caches" = "npm、yarn 和 pnpm 下载缓存";
@@ -263,7 +201,6 @@
 " and %lld more" = " 还有 %lld 个";
 "Access granted. Retrying…" = "已授予访问权限。正在重试…";
 "1-tap setup. We'll detect the change automatically." = "前往系统设置授权，我们会自动检测权限变化。";
-"We'll open both windows side-by-side." = "将同时打开系统设置和访达。";
 "Toggle the row that appears." = "打开 Sift 对应的开关。";
 "Authenticate" = "验证身份";
 "Touch ID or password." = "Touch ID 或密码。";
@@ -281,13 +218,7 @@
 "I granted it — retry" = "已授权，重试";
 
 /* Dashboard polish */
-"Low space" = "空间不足";
-"CLEANING" = "正在清理";
-"Quick Setup" = "快速设置";
-"1-tap setup. We'll auto-retry what failed." = "授权后会自动重试未完成的操作。";
-"Fix permission" = "修复权限";
 "Dismiss" = "忽略";
-"Fix" = "修复";
 "Set up" = "设置";
 
 /* Onboarding v2 */
@@ -319,8 +250,6 @@
 "Or drag the icon on the left straight into Settings." = "或者把左侧图标直接拖入设置。";
 
 /* Dashboard storage composition (v2.7.0) */
-"Storage composition" = "存储构成";
-"total" = "总计";
 "Free" = "可用";
 
 /* UI polish (v2.8.0): leftover groups + sound toggle */
@@ -362,51 +291,14 @@
 "%lld checks" = "%lld 项检查";
 "%lld items found" = "发现 %lld 个项目";
 "%lld selected" = "已选择 %lld 项";
-"%lld-POINT LOCAL SCAN" = "%lld 项本地扫描";
-"%lld/%lld checked" = "已检查 %lld / %lld 项";
-"ALL CLEAR" = "无需清理";
-"Advanced Tools" = "高级工具";
-"All clear" = "无需清理";
-"App leftovers to inspect" = "待检查的应用残留";
 "Appearance" = "外观";
-"Caches, mail, trash, and large files" = "缓存、邮件、废纸篓和大文件";
-"Care areas" = "检查范围";
-"Checks every cleanup category without deleting files" = "扫描所有清理类别，扫描期间不会删除文件";
-"Choose what to keep, then clean everything in one controlled pass." = "确认要保留的内容，再统一清理所选项目。";
-"Cleaning safely…" = "正在清理…";
-"Cleanup complete. Your storage summary is refreshing." = "清理已完成，正在更新存储信息。";
 "Clear" = "取消选择";
 "Developer" = "开发工具";
-"Installed apps" = "已安装的应用";
-"LOW SPACE" = "空间不足";
-"Last clean: %@" = "上次清理：%@";
-"Local" = "本地处理";
-"Make room.\nKeep control." = "释放空间，\n由你做主。";
-"No cleanup run yet" = "尚未清理";
-"No known leftovers" = "未发现应用残留";
-"One scan checks every cleanup tool and prepares a plan for your review." = "一次扫描所有清理类别，生成清理方案供你确认。";
-"Private" = "保护隐私";
-"Ready for review" = "待确认";
-"Ready to reclaim" = "可释放空间";
 "Review" = "查看";
-"Review scan results" = "查看扫描结果";
-"Review what was found" = "查看发现的项目";
-"Reviewable" = "清理前确认";
-"SCAN COMPLETE" = "扫描完成";
-"Scan My Mac" = "扫描此 Mac";
-"Scan first.\nDecide what goes." = "先扫描，\n再决定清理什么。";
-"Scanning" = "正在扫描";
-"Selected items are being removed safely." = "正在删除所选项目。";
-"Smart Care" = "智能清理";
-"Twelve-layer storage inspection model" = "十二层存储检查";
-"Xcode and package tools" = "Xcode 和软件包管理工具";
-"Your Mac is in good shape." = "你的 Mac 状态良好。";
 
 /* Simulator runtimes */
-"Simulator runtime" = "模拟器运行时";
 
 /* Current dashboard, tools, and cleanup review */
-"\nAnd %lld more." = "\n另有 %lld 项。";
 "%@ %@ to %@" = "%@：%@ → %@";
 "%@ available" = "可用 %@";
 "%@ did not finish within the allowed time." = "%@ 未能在规定时间内完成。";
@@ -415,7 +307,6 @@
 "%@ of %@" = "已用 %@，共 %@";
 "%@ of %@ candidates · %@ verified" = "已校验 %@ / %@ 个候选文件，共 %@";
 "%@ reviewable" = "可供清理 %@";
-"%@ selected. This permanently removes the selected files or runs the listed cleanup actions. It cannot be undone." = "已选择 %@。将永久删除所选文件或执行列出的清理操作，此操作无法撤销。";
 "%@ will move to Trash" = "将把 %@ 移到废纸篓";
 "%lld analyzed" = "已分析 %lld 张";
 "%lld apps selected" = "已选择 %lld 个应用";
@@ -440,8 +331,6 @@
 ", and %lld more" = "，另有 %lld 项";
 "1 app selected" = "已选择 1 个应用";
 "1 update available" = "有 1 个可用更新";
-"500 photo limit" = "最多扫描 500 张照片";
-"A clear view of reclaimable storage and the tools that manage it." = "了解可释放的存储空间，轻松管理你的 Mac。";
 "A selected file is missing or changed: %@" = "所选文件已丢失或发生变化：%@";
 "A selected file no longer matches its kept copy: %@" = "所选文件与保留副本的内容已不再相同：%@";
 "Access denied" = "访问被拒绝";
@@ -467,7 +356,6 @@
 "Check Again" = "重新检查";
 "Check again" = "重新检查";
 "Check built-in safeguards" = "检查系统安全设置";
-"Check installed apps for new versions" = "检查已安装应用的可用更新";
 "Check installed cask apps" = "检查已安装的 Homebrew 应用";
 "Checked %@. Unknown means the setting could not be confirmed." = "检查时间：%@。“未知”表示无法确认该设置的状态。";
 "Checking" = "正在检查";
@@ -487,7 +375,6 @@
 "Clear search" = "清除搜索";
 "Cloud-only file" = "仅存于云端的文件";
 "Collapse duplicate group" = "收起此组重复文件";
-"Compare visually similar photos" = "比较画面相似的照片";
 "Conditional keep alive" = "按条件保持运行";
 "Copy path" = "复制路径";
 "Could not inspect %@" = "无法检查 %@";
@@ -510,14 +397,10 @@
 "FileVault" = "文件保险箱（FileVault）";
 "FileVault Settings" = "文件保险箱设置";
 "Files will be moved to the Trash. Items requiring administrator authorization may be permanently deleted. App matching is a best-effort estimate; review files you recognize before removing them." = "文件将移到废纸篓。需要管理员授权的项目可能会被永久删除。应用关联判断可能存在误差，请确认文件用途后再删除。";
-"Filter cleanup files" = "筛选待清理文件";
 "Find copies that are exactly the same" = "查找内容完全相同的文件";
-"Find space to reclaim." = "找出可释放的空间";
 "Find visually related shots in a folder and review them side by side." = "查找文件夹中画面相似的照片，并排比较。";
-"Find what uses the most disk space" = "找出占用空间最多的文件";
 "Finding local photos" = "正在查找本地照片";
 "Firewall Settings" = "防火墙设置";
-"Focused utilities for storage, apps, and system maintenance" = "管理存储、应用和系统的常用工具";
 "Folder could not be inspected" = "无法分析文件夹";
 "Full Disk Access is off" = "未开启完全磁盘访问权限";
 "Full access" = "已获完整访问权限";
@@ -540,7 +423,6 @@
 "Incoming network connections are filtered." = "已开启对传入网络连接的过滤。";
 "Inspect" = "分析";
 "Inspect a folder by allocated disk space. Your files are never changed." = "按实际磁盘占用分析文件夹，不会修改你的文件。";
-"Inspect memory and background activity" = "查看内存使用和后台活动";
 "Inspect startup items and local snapshots again" = "重新检查启动项和本地快照";
 "Inspected %@ files in %@. %@" = "已检查 %2$@ 中的 %1$@ 个文件。%3$@";
 "Inspecting startup items and local snapshots…" = "正在检查启动项和本地快照…";
@@ -552,11 +434,7 @@
 "Keep alive" = "保持运行";
 "Largest first" = "从大到小";
 "Largest items" = "空间占用排行";
-"Last checked" = "上次检查";
 "Leftovers" = "应用残留";
-"Live resources" = "实时资源使用";
-"Local and private" = "本地处理，保护隐私";
-"Local files" = "本地文件";
 "Local snapshot" = "本地快照";
 "Local snapshots" = "本地快照";
 "Location" = "定位";
@@ -565,7 +443,6 @@
 "Managed cleanup action" = "由系统工具执行的清理操作";
 "Matching files" = "内容相同的文件";
 "Measuring allocated space" = "正在计算磁盘占用";
-"Memory pressure use" = "内存使用率";
 "Microphone" = "麦克风";
 "Modified" = "修改时间";
 "Move selected duplicates to Trash?" = "将所选重复文件移到废纸篓？";
@@ -619,18 +496,13 @@
 "Refused to delete %lld protected item(s) (home credential directory or similar)." = "已阻止删除 %lld 个受保护的项目（如用户凭据目录）。";
 "Remove %lld files" = "删除 %lld 个文件";
 "Remove %lld items" = "删除 %lld 项";
-"Remove apps and their related files" = "卸载应用并清理关联文件";
 "Remove selected app files?" = "删除所选应用文件？";
-"Remove selected files?" = "删除所选文件？";
 "Remove selected leftovers?" = "删除所选残留文件？";
 "Removing the items you selected." = "正在删除你选择的项目。";
 "Reveal %@ in Finder" = "在访达中显示 %@";
 "Reveal plist in Finder" = "在访达中显示配置文件";
 "Reveal skipped item in Finder" = "在访达中显示已跳过的项目";
 "Review and update apps installed as Homebrew casks." = "查看并更新通过 Homebrew 安装的应用。";
-"Review built-in privacy and safety checks" = "检查系统隐私与安全设置";
-"Review matching files side by side" = "并排比较内容相同的文件";
-"Review only" = "仅供查看";
 "Review removal" = "确认清理内容";
 "Review the groups before acting" = "处理前请先查看分组";
 "Review the macOS safeguards that protect apps, disks, network access, and system files." = "检查 macOS 对应用、磁盘、网络访问和系统文件的保护设置。";
@@ -660,7 +532,6 @@
 "Select copies" = "选择副本";
 "Select the apps Homebrew should upgrade." = "选择要通过 Homebrew 更新的应用。";
 "Select the extra copies you want to review" = "选择需要处理的多余副本";
-"Selected cleanup items are permanently removed." = "所选清理项目将被永久删除。";
 "Share of scanned space" = "占已扫描空间的比例";
 "Shares storage with %@" = "与 %@ 共用存储空间";
 "Show %@ in Finder" = "在访达中显示 %@";
@@ -687,7 +558,6 @@
 "Symbolic link" = "符号链接";
 "Symbolic links and cloud-only items are excluded." = "跳过符号链接和仅存于云端的项目。";
 "Symbolic links cannot be scanned: %@" = "无法扫描符号链接：%@";
-"Symbolic links, app packages, hidden files and cloud-only placeholders are skipped. Photos are never uploaded or deleted." = "跳过符号链接、应用程序包、隐藏文件和未下载的云端文件。不会上传或删除照片。";
 "System Integrity Protection" = "系统完整性保护";
 "System Integrity Protection is turned off." = "系统完整性保护已关闭。";
 "System daemon" = "系统守护进程";
@@ -733,7 +603,6 @@
 "allocated in this folder" = "此文件夹的实际磁盘占用";
 "definitions %@" = "病毒定义 %@";
 "engine %@" = "引擎 %@";
-"reclaimed" = "已释放";
 "similar group" = "组相似照片";
 "similar groups" = "组相似照片";
 "tmutil is not available on this Mac." = "此 Mac 上无法使用 tmutil。";
@@ -747,12 +616,8 @@
 "CPU uses the Mac’s total capacity. App helpers are grouped with their app." = "CPU 使用 Mac 的总容量。App 的辅助进程会与其 App 归为一组。";
 "CPU values appear after the next sample." = "CPU 数值将在下次采样后显示。";
 "Check access" = "检查访问权限";
-"Checking for updates…" = "正在检查更新…";
 "Collapsed" = "已折叠";
-"Copy command" = "拷贝命令";
-"Download (DMG / ZIP)" = "下载（DMG / ZIP）";
 "Expanded" = "已展开";
-"GitHub is receiving too many requests. Please try again later." = "GitHub 收到的请求过多。请稍后重试。";
 "Homebrew" = "Homebrew";
 "Live updates paused" = "实时更新已暂停";
 
@@ -760,37 +625,22 @@
 "Memory estimate includes active, wired and compressed memory." = "内存估算包括活跃、联动和压缩内存。";
 "Memory in use" = "已用内存";
 "No matching apps or processes" = "没有匹配的 App 或进程";
-"Open release page" = "打开发布页面";
 "Process information is unavailable. Try Activity Monitor for more detail." = "进程信息不可用。请使用“活动监视器”查看更多详情。";
-"Restart to apply your language" = "重新启动以应用你的语言";
-"Review Full Disk Access" = "检查完全磁盘访问权限";
-"Review launch at login" = "检查登录时启动";
 "Search apps and processes" = "搜索 App 与进程";
 "Settings" = "设置";
-"Settings need attention" = "设置需要处理";
-"Settings to review" = "待检查的设置";
 "Show all apps and processes" = "显示所有 App 与进程";
 "Show top 8" = "显示前 8 项";
 "Some of this app's processes have no CPU reading yet, so this total is partial." = "此 App 的部分进程尚无 CPU 读数，因此该合计为部分结果。";
 "Some processes started or stopped since the last sample. Their values appear in the next one." = "自上次采样以来，部分进程已启动或停止。其数值将在下次采样中显示。";
 "Sort by" = "排序方式";
 "System processes are not listed. Use Activity Monitor for those." = "系统进程未列出。请使用“活动监视器”查看这些进程。";
-"The release service is unavailable. Please try again later." = "发布服务不可用。请稍后重试。";
-"This build has no readable version. Open the releases page to check manually." = "此版本没有可读取的版本号。请打开发布页面手动检查。";
-"To update with Homebrew, run this command in Terminal. The cask may follow the GitHub release a little later." = "若要使用 Homebrew 更新，请在“终端”中运行此命令。cask 可能稍后才跟进 GitHub 发布版本。";
-"Update method" = "更新方式";
 
-"View releases" = "查看发布版本";
 
 /* Sift redesign */
 "%@ could not be removed because Sift does not have Full Disk Access. Grant Full Disk Access in System Settings, then try again." = "由于 Sift 没有完全磁盘访问权限，无法删除%@。请在系统设置中授予权限后重试。";
 "Sift" = "Sift";
 "Sift can now reach the locations macOS protects by default." = "Sift 现在可以访问 macOS 默认保护的位置。";
 "Open Settings & reveal Sift" = "打开“设置”并显示 Sift";
-"Keep Sift up to date" = "让 Sift 保持最新";
-"Download the new app from the release page, quit Sift, then replace it in Applications." = "从发布页面下载新版 App，退出 Sift，然后在“应用程序”中替换它。";
-"Sift %@ is available" = "Sift %@ 已可用";
-"You're using the latest available version of Sift." = "你正在使用 Sift 的最新可用版本。";
 "Launch Sift at login" = "登录时启动 Sift";
 "Restart Sift to apply the selected language." = "请重新启动 Sift 以应用所选语言。";
 "Live CPU, memory, and disk meters in the menu bar. Sift keeps running in the background while this is on." = "在菜单栏中实时显示 CPU、内存和磁盘使用情况。开启时 Sift 将在后台持续运行。";
@@ -812,12 +662,9 @@
 "Homebrew produced more output than Sift could safely retain." = "Homebrew 的输出超出了 Sift 可处理的大小限制。";
 "Sift could not read this setting." = "Sift 无法读取此设置。";
 "Sift could not confirm the local XProtect installation." = "Sift 无法确认本机是否安装了 XProtect。";
-"No stable Sift app release was found. Try again later." = "未找到 Sift 的稳定版本。请稍后重试。";
 "Scheduled cleanup" = "定时清理";
 "Smart Scan cleanup" = "智能扫描清理";
 "Emptied Trash" = "已清倒废纸篓";
-"Sift isn't allowed to control Finder. Allow it in System Settings > Privacy & Security > Automation, then try again." = "Sift 无权控制访达。请在“系统设置 > 隐私与安全性 > 自动化”中允许，然后重试。";
-"Finder couldn't empty the Trash: %@" = "访达无法清倒废纸篓：%@";
 "just now" = "刚刚";
 "Files and cleanup actions marked Permanent cannot be undone. Items marked Move to Trash can be recovered until the Trash is emptied." = "标记为“永久”的文件和清理操作无法撤销。标记为“移到废纸篓”的项目在清倒废纸篓之前都可以恢复。";
 "Permanent · Remove simulator runtime" = "永久 · 删除模拟器运行时";
@@ -841,9 +688,6 @@
 "Old and large" = "旧的大文件";
 "The Trash is empty" = "废纸篓是空的";
 "Files you move to the Trash show up here." = "你移到废纸篓的文件会显示在这里。";
-"Empty the Trash?" = "清倒废纸篓？";
-"Empty Trash" = "清倒废纸篓";
-"Finder will permanently delete %lld items (%@). This can't be undone." = "访达将永久删除 %lld 个项目（%@）。此操作无法撤销。";
 "Cleanup, scanned %@" = "清理，%@扫描";
 "Cleanup, not scanned yet" = "清理，尚未扫描";
 "Filter by name or path" = "按名称或路径筛选";
@@ -863,7 +707,6 @@
 "Review and remove" = "查看并清理";
 "%lld items in the Trash" = "废纸篓中有 %lld 项";
 "Finder empties the Trash. This can't be undone." = "访达将清倒废纸篓。此操作无法撤销。";
-"Emptying the Trash…" = "正在清倒废纸篓…";
 "%@ total" = "共 %@";
 "%@ removed" = "已清理 %@";
 "%@ is junk" = "发现 %@ 垃圾";
@@ -921,10 +764,6 @@
 "App updates" = "应用更新";
 "Every %@" = "每%@";
 "Version" = "版本";
-"Version %@ (%@). Checks the official app releases on GitHub." = "版本 %@（%@）。会检查 GitHub 上的官方发布版本。";
-"Installing updates" = "安装更新";
-"Release notes" = "发行说明";
-"Every version and what changed, on GitHub" = "GitHub 上的所有版本及更新内容";
 "Permissions" = "权限";
 "Startup, language, the menu bar monitor and sound." = "启动、语言、菜单栏监视器和声音。";
 "What Sift looks for, and what it leaves alone." = "Sift 会查找哪些内容，又会保留哪些内容。";
@@ -975,10 +814,6 @@
 "A notification with what was found or cleaned" = "发送通知，告知发现或清理的内容";
 "Runs" = "运行记录";
 "Next run" = "下次运行";
-"Automation" = "自动化";
-"macOS asks the first time" = "macOS 会在首次使用时询问";
-"Sift asks Finder to reveal files and to empty the Trash. Turn it on or off in Privacy & Security > Automation." = "Sift 会请求访达显示文件和清倒废纸篓。可在“隐私与安全性 > 自动化”中开启或关闭。";
-"Open Automation settings" = "打开“自动化”设置";
 "Source code" = "源代码";
 "Found a problem?" = "发现问题？";
 "Issues are tracked on GitHub" = "在 GitHub 上跟踪问题";
@@ -1175,12 +1010,6 @@
 "The settings shortcut is unavailable. Open System Settings from the Apple menu." = "设置快捷方式不可用。请从 Apple 菜单打开“系统设置”。";
 "Could not open %@. Open the app or guide manually." = "无法打开 %@。请手动打开该 App 或指南。";
 "This location is no longer available or cannot be accessed. Scan again to refresh the results." = "此位置已不可用或无法访问。请重新扫描以刷新结果。";
-"Permission denied when accessing '%@'. Grant Full Disk Access in System Settings." = "访问“%@”时权限被拒绝。请在“系统设置”中授予完全磁盘访问权限。";
-"Failed to enumerate directory '%@': %@" = "无法枚举目录“%@”：%@";
-"Failed to execute '%@': %@" = "无法执行“%@”：%@";
-"Invalid data encountered: %@" = "遇到无效数据：%@";
-"The privileged helper tool is not installed or unavailable." = "特权辅助工具未安装或不可用。";
-"The operation was cancelled." = "操作已取消。";
 "Not writable by current user: %@" = "当前用户没有写入权限：%@";
 "Cannot modify %@: its entitlements require the original developer signature" = "无法修改 %@：其授权需要原始开发者签名";
 "Cannot thin %@: it is signed and notarized, and stripping a slice would break its signature" = "无法精简 %@：它已签名并公证，移除架构会破坏其签名";

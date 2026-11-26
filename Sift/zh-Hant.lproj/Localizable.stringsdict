@@ -403,20 +403,6 @@
 			<string>已略過 %lld 個不安全或無法取用的項目。</string>
 		</dict>
 	</dict>
-	<key>%lld/%lld protected locations accessible</key>
-	<dict>
-		<key>NSStringLocalizedFormatKey</key>
-		<string>%#@value@</string>
-		<key>value</key>
-		<dict>
-			<key>NSStringFormatSpecTypeKey</key>
-			<string>NSStringPluralRuleType</string>
-			<key>NSStringFormatValueTypeKey</key>
-			<string>lld</string>
-			<key>other</key>
-			<string>可存取的受保護位置 %lld/%lld</string>
-		</dict>
-	</dict>
 	<key>Checking %lld locations...</key>
 	<dict>
 		<key>NSStringLocalizedFormatKey</key>
@@ -457,20 +443,6 @@
 			<string>lld</string>
 			<key>other</key>
 			<string>每 %lld 秒</string>
-		</dict>
-	</dict>
-	<key>Finder will permanently delete %lld items (%@). This can't be undone.</key>
-	<dict>
-		<key>NSStringLocalizedFormatKey</key>
-		<string>%#@value@</string>
-		<key>value</key>
-		<dict>
-			<key>NSStringFormatSpecTypeKey</key>
-			<string>NSStringPluralRuleType</string>
-			<key>NSStringFormatValueTypeKey</key>
-			<string>lld</string>
-			<key>other</key>
-			<string>Finder 將永久刪除 %lld 個項目（%@）。此動作無法復原。</string>
 		</dict>
 	</dict>
 	<key>Homebrew finished, but %lld selected apps still report updates.</key>
@@ -583,20 +555,6 @@
 			<string>lld</string>
 			<key>other</key>
 			<string>升級 %lld 個 App</string>
-		</dict>
-	</dict>
-	<key>across %lld categories</key>
-	<dict>
-		<key>NSStringLocalizedFormatKey</key>
-		<string>%#@value@</string>
-		<key>value</key>
-		<dict>
-			<key>NSStringFormatSpecTypeKey</key>
-			<string>NSStringPluralRuleType</string>
-			<key>NSStringFormatValueTypeKey</key>
-			<string>lld</string>
-			<key>other</key>
-			<string>跨越 %lld 個類別</string>
 		</dict>
 	</dict>
 	<key>of %lld cores</key>

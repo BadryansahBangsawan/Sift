@@ -693,30 +693,6 @@
 			<string>لم يُتخطَّ أي عنصر</string>
 		</dict>
 	</dict>
-	<key>%lld/%lld protected locations accessible</key>
-	<dict>
-		<key>NSStringLocalizedFormatKey</key>
-		<string>%#@value@</string>
-		<key>value</key>
-		<dict>
-			<key>NSStringFormatSpecTypeKey</key>
-			<string>NSStringPluralRuleType</string>
-			<key>NSStringFormatValueTypeKey</key>
-			<string>lld</string>
-			<key>few</key>
-			<string>%lld/%lld من المواقع المحمية متاحة</string>
-			<key>many</key>
-			<string>%lld/%lld من موقع محمي متاح</string>
-			<key>one</key>
-			<string>%lld/%lld من المواقع المحمية متاحة</string>
-			<key>other</key>
-			<string>%lld/%lld من موقع محمي متاح</string>
-			<key>two</key>
-			<string>%lld/%lld من الموقعين المحميين متاحان</string>
-			<key>zero</key>
-			<string>%lld/%lld من المواقع المحمية متاحة</string>
-		</dict>
-	</dict>
 	<key>Checking %lld locations...</key>
 	<dict>
 		<key>NSStringLocalizedFormatKey</key>
@@ -787,30 +763,6 @@
 			<string>كل ثانيتين</string>
 			<key>zero</key>
 			<string>كل %lld ثانية</string>
-		</dict>
-	</dict>
-	<key>Finder will permanently delete %lld items (%@). This can't be undone.</key>
-	<dict>
-		<key>NSStringLocalizedFormatKey</key>
-		<string>%#@value@</string>
-		<key>value</key>
-		<dict>
-			<key>NSStringFormatSpecTypeKey</key>
-			<string>NSStringPluralRuleType</string>
-			<key>NSStringFormatValueTypeKey</key>
-			<string>lld</string>
-			<key>few</key>
-			<string>سيحذف Finder %lld عناصر (%@) نهائيًا. لا يمكن التراجع عن هذا الإجراء.</string>
-			<key>many</key>
-			<string>سيحذف Finder %lld عنصرًا (%@) نهائيًا. لا يمكن التراجع عن هذا الإجراء.</string>
-			<key>one</key>
-			<string>سيحذف Finder %lld عنصر (%@) نهائيًا. لا يمكن التراجع عن هذا الإجراء.</string>
-			<key>other</key>
-			<string>سيحذف Finder %lld عنصر (%@) نهائيًا. لا يمكن التراجع عن هذا الإجراء.</string>
-			<key>two</key>
-			<string>سيحذف Finder %lld عنصران (%@) نهائيًا. لا يمكن التراجع عن هذا الإجراء.</string>
-			<key>zero</key>
-			<string>سيحذف Finder %lld عناصر (%@) نهائيًا. لا يمكن التراجع عن هذا الإجراء.</string>
 		</dict>
 	</dict>
 	<key>Homebrew finished, but %lld selected apps still report updates.</key>
@@ -1003,30 +955,6 @@
 			<string>تحديث تطبيقين</string>
 			<key>zero</key>
 			<string>تحديث</string>
-		</dict>
-	</dict>
-	<key>across %lld categories</key>
-	<dict>
-		<key>NSStringLocalizedFormatKey</key>
-		<string>%#@value@</string>
-		<key>value</key>
-		<dict>
-			<key>NSStringFormatSpecTypeKey</key>
-			<string>NSStringPluralRuleType</string>
-			<key>NSStringFormatValueTypeKey</key>
-			<string>lld</string>
-			<key>few</key>
-			<string>في %lld فئات</string>
-			<key>many</key>
-			<string>في %lld فئة</string>
-			<key>one</key>
-			<string>في فئة واحدة</string>
-			<key>other</key>
-			<string>في %lld فئة</string>
-			<key>two</key>
-			<string>في فئتين</string>
-			<key>zero</key>
-			<string>في %lld فئة</string>
 		</dict>
 	</dict>
 	<key>of %lld cores</key>

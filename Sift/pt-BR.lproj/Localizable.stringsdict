@@ -461,22 +461,6 @@
 			<string>%lld itens inseguros ou indisponíveis foram ignorados.</string>
 		</dict>
 	</dict>
-	<key>%lld/%lld protected locations accessible</key>
-	<dict>
-		<key>NSStringLocalizedFormatKey</key>
-		<string>%#@value@</string>
-		<key>value</key>
-		<dict>
-			<key>NSStringFormatSpecTypeKey</key>
-			<string>NSStringPluralRuleType</string>
-			<key>NSStringFormatValueTypeKey</key>
-			<string>lld</string>
-			<key>one</key>
-			<string>%lld/%lld local protegido acessível</string>
-			<key>other</key>
-			<string>%lld/%lld locais protegidos acessíveis</string>
-		</dict>
-	</dict>
 	<key>Checking %lld locations...</key>
 	<dict>
 		<key>NSStringLocalizedFormatKey</key>
@@ -523,22 +507,6 @@
 			<string>A cada %lld segundo</string>
 			<key>other</key>
 			<string>A cada %lld segundos</string>
-		</dict>
-	</dict>
-	<key>Finder will permanently delete %lld items (%@). This can't be undone.</key>
-	<dict>
-		<key>NSStringLocalizedFormatKey</key>
-		<string>%#@value@</string>
-		<key>value</key>
-		<dict>
-			<key>NSStringFormatSpecTypeKey</key>
-			<string>NSStringPluralRuleType</string>
-			<key>NSStringFormatValueTypeKey</key>
-			<string>lld</string>
-			<key>one</key>
-			<string>O Finder apagará permanentemente %lld item (%@). Esta ação não pode ser desfeita.</string>
-			<key>other</key>
-			<string>O Finder apagará permanentemente %lld itens (%@). Esta ação não pode ser desfeita.</string>
 		</dict>
 	</dict>
 	<key>Homebrew finished, but %lld selected apps still report updates.</key>
@@ -667,22 +635,6 @@
 			<string>Atualizar %lld App</string>
 			<key>other</key>
 			<string>Atualizar %lld Apps</string>
-		</dict>
-	</dict>
-	<key>across %lld categories</key>
-	<dict>
-		<key>NSStringLocalizedFormatKey</key>
-		<string>%#@value@</string>
-		<key>value</key>
-		<dict>
-			<key>NSStringFormatSpecTypeKey</key>
-			<string>NSStringPluralRuleType</string>
-			<key>NSStringFormatValueTypeKey</key>
-			<string>lld</string>
-			<key>one</key>
-			<string>em %lld categoria</string>
-			<key>other</key>
-			<string>em %lld categorias</string>
 		</dict>
 	</dict>
 	<key>of %lld cores</key>

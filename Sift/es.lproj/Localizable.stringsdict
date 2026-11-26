@@ -461,22 +461,6 @@
 			<string>Se omitieron %lld elementos no seguros o no disponibles.</string>
 		</dict>
 	</dict>
-	<key>%lld/%lld protected locations accessible</key>
-	<dict>
-		<key>NSStringLocalizedFormatKey</key>
-		<string>%#@value@</string>
-		<key>value</key>
-		<dict>
-			<key>NSStringFormatSpecTypeKey</key>
-			<string>NSStringPluralRuleType</string>
-			<key>NSStringFormatValueTypeKey</key>
-			<string>lld</string>
-			<key>one</key>
-			<string>%lld/%lld ubicación protegida accesible</string>
-			<key>other</key>
-			<string>%lld/%lld ubicaciones protegidas accesibles</string>
-		</dict>
-	</dict>
 	<key>Checking %lld locations...</key>
 	<dict>
 		<key>NSStringLocalizedFormatKey</key>
@@ -523,22 +507,6 @@
 			<string>Cada %lld segundo</string>
 			<key>other</key>
 			<string>Cada %lld segundos</string>
-		</dict>
-	</dict>
-	<key>Finder will permanently delete %lld items (%@). This can't be undone.</key>
-	<dict>
-		<key>NSStringLocalizedFormatKey</key>
-		<string>%#@value@</string>
-		<key>value</key>
-		<dict>
-			<key>NSStringFormatSpecTypeKey</key>
-			<string>NSStringPluralRuleType</string>
-			<key>NSStringFormatValueTypeKey</key>
-			<string>lld</string>
-			<key>one</key>
-			<string>El Finder eliminará permanentemente %lld elemento (%@). Esta acción no se puede deshacer.</string>
-			<key>other</key>
-			<string>El Finder eliminará permanentemente %lld elementos (%@). Esta acción no se puede deshacer.</string>
 		</dict>
 	</dict>
 	<key>Homebrew finished, but %lld selected apps still report updates.</key>
@@ -667,22 +635,6 @@
 			<string>Actualizar %lld app</string>
 			<key>other</key>
 			<string>Actualizar %lld apps</string>
-		</dict>
-	</dict>
-	<key>across %lld categories</key>
-	<dict>
-		<key>NSStringLocalizedFormatKey</key>
-		<string>%#@value@</string>
-		<key>value</key>
-		<dict>
-			<key>NSStringFormatSpecTypeKey</key>
-			<string>NSStringPluralRuleType</string>
-			<key>NSStringFormatValueTypeKey</key>
-			<string>lld</string>
-			<key>one</key>
-			<string>en %lld categoría</string>
-			<key>other</key>
-			<string>en %lld categorías</string>
 		</dict>
 	</dict>
 	<key>of %lld cores</key>
