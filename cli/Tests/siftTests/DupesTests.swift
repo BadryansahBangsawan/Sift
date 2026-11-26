@@ -55,6 +55,13 @@ final class DupesTests: XCTestCase {
         XCTAssertEqual(groups.first?.wastedBytes, 16)
     }
 
+    func testTildePathsAreExpandedLikeOtherCommands() throws {
+        let home = FileManager.default.homeDirectoryForCurrentUser.path
+        XCTAssertNoThrow(try Dupes.parse(["~"]).validate(), "~ must mean the home folder")
+        XCTAssertNoThrow(try Dupes.parse(["~/Library"]).validate(), "~/ must expand before the check")
+        XCTAssertNoThrow(try Dupes.parse([home]).validate())
+    }
+
     /// A file that fails part-way through must not be hashed from its prefix:
     /// two files with the same size and a shared prefix would otherwise be
     /// reported as duplicates and one of them offered for removal.
