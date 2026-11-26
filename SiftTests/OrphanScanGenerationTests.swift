@@ -40,6 +40,29 @@ final class OrphanScanGenerationTests: XCTestCase {
             try await Task.sleep(for: .milliseconds(5))
         }
     }
+
+    func testSpinnerStopsOnlyWithTheNewestScanAndTheOldOneWritesNothing() async throws {
+        let gate = ProviderGate()
+        let state = AppState(
+            performStartupTasks: false,
+            locationsProvider: { StubLocations(paths: []) },
+            installedAppsProvider: { gate.installedApps() }
+        )
+
+        state.findOrphans()
+        try await waitUntil(timeout: 5) { gate.firstCallStarted }
+
+        state.findOrphans()
+        try await waitUntil(timeout: 5) { !state.isSearchingOrphans && state.orphanScanCompleted }
+        XCTAssertFalse(state.orphanScanNeedsAppList, "The newest scan had the app list")
+
+        gate.releaseFirstCall()
+        try await Task.sleep(for: .milliseconds(300))
+
+        XCTAssertFalse(state.isSearchingOrphans, "A cancelled scan must not leave the spinner on")
+        XCTAssertFalse(state.orphanScanNeedsAppList, "A cancelled scan must not write its outcome")
+        XCTAssertTrue(state.orphanScanCompleted)
+    }
 }
 
 private final class ProviderGate: @unchecked Sendable {
@@ -89,4 +112,5 @@ private final class StubLocations: Locations {
         appSearch = SearchCategory(name: "Apps", paths: paths)
         reverseSearch = SearchCategory(name: "Reverse", paths: paths)
     }
+
 }
