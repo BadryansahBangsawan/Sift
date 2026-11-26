@@ -503,7 +503,7 @@ struct DiskMeter: View {
                 )
             )
             HStack(spacing: DiskMeterLayout.spacing) {
-                if let reclaimable, let width = widths.reclaimable {
+                if reclaimable != nil, let width = widths.reclaimable {
                     let style = DiskMeterLayout.style(width: width, label: labelWidth, value: valueWidth)
                     Group {
                         if style == .inline {
@@ -711,7 +711,6 @@ enum WhereRowLayout {
 
         func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {
             let rowWidth = proposal.width ?? 0
-            let widths = columnWidths(rowWidth: rowWidth, subviews: subviews)
             let height = subviews.map { $0.sizeThatFits(.unspecified).height }.max() ?? 0
             return CGSize(width: rowWidth, height: height)
         }
