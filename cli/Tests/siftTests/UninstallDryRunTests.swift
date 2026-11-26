@@ -42,6 +42,32 @@ final class UninstallDryRunTests: XCTestCase {
         XCTAssertTrue(FileManager.default.fileExists(atPath: app.path), "a dry run never deletes")
     }
 
+    func testDryRunWithForceStillOnlyReports() throws {
+        let app = try makeApp(name: "Example.app", bundleID: "com.example.dryrun.force")
+
+        let output = try captureStandardOutput {
+            try Uninstall.parse([app.path, "--dry-run", "--force"]).run()
+        }
+
+        XCTAssertTrue(output.contains("reclaimable across 1 item"), output)
+        XCTAssertTrue(output.contains("Nothing was deleted."), output)
+        XCTAssertTrue(FileManager.default.fileExists(atPath: app.path))
+    }
+
+    func testJSONStillListsTheMatchedSetWithoutSelectingOrDeleting() throws {
+        let app = try makeApp(name: "Example.app", bundleID: "com.example.dryrun.json")
+
+        let output = try captureStandardOutput {
+            try Uninstall.parse([app.path, "--json"]).run()
+        }
+
+        let object = try XCTUnwrap(
+            try JSONSerialization.jsonObject(with: Data(output.utf8)) as? [String: Any]
+        )
+        XCTAssertEqual((object["items"] as? [[String: Any]])?.count, 1)
+        XCTAssertTrue(FileManager.default.fileExists(atPath: app.path))
+    }
+
     // MARK: - Fixtures
 
     private func makeApp(name: String, bundleID: String) throws -> URL {
