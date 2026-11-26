@@ -29,6 +29,12 @@ final class CoreSafetyTests: XCTestCase {
         try Data("".utf8).write(to: project.appendingPathComponent("Cargo.toml"))
         try Data(repeating: 1, count: 4096).write(to: keep)
         try Data(repeating: 2, count: 4096).write(to: removable.appendingPathComponent("cache.bin"))
+        try fileManager.createDirectory(
+            at: artifact.appendingPathComponent("pkg", isDirectory: true),
+            withIntermediateDirectories: true
+        )
+        try Data("{}".utf8).write(to: artifact.appendingPathComponent("pkg/package.json"))
+        try Data("generated".utf8).write(to: removable.appendingPathComponent(".rustc_info.json"))
         var ignore = try makeIgnoreStore()
         _ = try ignore.add(keep.path)
 
