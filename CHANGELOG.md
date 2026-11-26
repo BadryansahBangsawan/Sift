@@ -11,6 +11,8 @@ All notable user-facing changes to Sift. Sift was called PureMac before 4.0.0.
 
 ### Fixed
 
+- `sift-cli uninstall --dry-run` now counts the app and leftover files it would
+  remove instead of reporting zero items.
 - Cleaning Large & old files, Installers, Xcode Archives or opt-in AI rows from
   their own page — or retrying them after granting Full Disk Access — now adds
   the cleanup-history row it was missing. These rows move to the Trash, so the
