@@ -394,6 +394,15 @@ final class AppState: ObservableObject {
             Logger.shared.log("Refused duplicate removeSelectedFiles while FDA flow is active", level: .info)
             return
         }
+        // The action bar disables Review while the app runs, but every removal
+        // entry point funnels through here: the row context menu and the FDA
+        // retry used to bypass that check. Re-check live so quitting the app
+        // makes the next attempt succeed.
+        if let selectedApp, isAppRunning(selectedApp.bundleIdentifier, selectedApp.path) {
+            removalError = String(localized: "Quit \(selectedApp.appName) before removing. Files move to the Trash.")
+            Logger.shared.log("Refused to remove app files while \(selectedApp.appName) is running", level: .warning)
+            return
+        }
         // Safety guard: never allow a high-risk home dotpath (listed in
         // Conditions.swift) to be trashed no matter how it ended up in the
         // selection. Catches selection-time additions that slipped past the
@@ -467,8 +476,7 @@ final class AppState: ObservableObject {
     /// Removes one discovered file from the row context menu, leaving the rest
     /// of the selection for later.
     func removeSingleFile(_ url: URL) {
-        selectedFiles = [url]
-        removeSelectedFiles()
+        removeSelectedFiles(confirmedURLs: [url])
     }
 
     /// True when a directory between `url` and the injected home is a symlink.
