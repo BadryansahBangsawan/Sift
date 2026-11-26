@@ -13,7 +13,8 @@ All notable user-facing changes to Sift. Sift was called PureMac before 4.0.0.
 
 - The interactive menu no longer exits when Uninstall is chosen and Return is
   pressed on the default `/Applications` answer; it prints why the path is not
-  an app and returns to the menu.
+  an app and returns to the menu. A valid answer is now parsed before it runs,
+  so the command's flags no longer crash the CLI.
 - `sift-cli dupes ~/Downloads` now expands `~` the way the other commands do,
   instead of failing with "Path must be absolute".
 - `sift-cli` now trims spaces around protected-path entries and accepts CRLF
