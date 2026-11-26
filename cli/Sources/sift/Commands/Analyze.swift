@@ -55,35 +55,25 @@ struct Analyze: ParsableCommand {
         let bytes: Int64
         let inaccessibleCount: Int
         let skippedCount: Int
-    }
-
-    struct JSONDocument: Encodable {
-        let children: [JSONRow]
-        let inaccessibleCount: Int
-        let skippedCount: Int
         let errors: [String]
     }
 
-    /// JSON report keeps every child's existing `path`/`bytes` keys and adds
-    /// the partial-scan counters and errors, so an incomplete measurement is
-    /// distinguishable from an empty folder.
+    /// Same top-level array as before; every row keeps `path`/`bytes` and adds
+    /// the partial-scan counters and errors, so a permission-blocked folder is
+    /// distinguishable from an empty one without breaking existing scripts.
     static func jsonData(for snapshot: FolderSnapshot) throws -> Data {
-        let document = JSONDocument(
-            children: snapshot.children.map {
-                JSONRow(
-                    path: $0.path,
-                    bytes: $0.size,
-                    inaccessibleCount: $0.inaccessibleCount,
-                    skippedCount: $0.skippedCount
-                )
-            },
-            inaccessibleCount: snapshot.inaccessibleCount,
-            skippedCount: snapshot.skippedCount,
-            errors: snapshot.errors
-        )
+        let rows = snapshot.children.map {
+            JSONRow(
+                path: $0.path,
+                bytes: $0.size,
+                inaccessibleCount: $0.inaccessibleCount,
+                skippedCount: $0.skippedCount,
+                errors: snapshot.errors
+            )
+        }
         let encoder = JSONEncoder()
         encoder.outputFormatting = [.prettyPrinted, .withoutEscapingSlashes]
-        return try encoder.encode(document)
+        return try encoder.encode(rows)
     }
 
     static func usesInteractiveBrowser(
