@@ -69,17 +69,6 @@ enum Cleaner {
         return out
     }
 
-    static func parentHasSymlink(_ path: String) -> Bool {
-        var url = URL(fileURLWithPath: path).deletingLastPathComponent()
-        while url.path.count > 1 {
-            if Safety.isSymlink(url.path) { return true }
-            let parent = url.deletingLastPathComponent()
-            if parent.path == url.path { break }
-            url = parent
-        }
-        return false
-    }
-
     private static func adding(_ bytes: Int64, to total: Int64) -> Int64 {
         let (sum, overflow) = total.addingReportingOverflow(bytes)
         return overflow ? .max : sum
