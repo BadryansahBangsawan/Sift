@@ -111,9 +111,8 @@ actor CleaningEngine {
                 continue
             }
 
-            // The Trash is emptied only by Finder, after the user confirms
-            // (AppState.emptyTrash). Unlinking its contents here would make
-            // them unrecoverable with no Finder confirmation at all.
+            // The user empties the Trash in Finder. Unlinking its contents here
+            // would make them unrecoverable with no Finder confirmation at all.
             if item.category == .trash {
                 result.skippedPaths[item.path] = String(localized: "The Trash is emptied through Finder.")
                 continue
@@ -335,9 +334,8 @@ actor CleaningEngine {
                         result.errors.append(removalError)
                         Logger.shared.log("Clean failed: \(removalError)", level: .error)
                     } else {
-                        // A Trash move reclaims nothing until the Trash is
-                        // emptied (emptyTrash records those bytes itself), so
-                        // only unlinked caches and logs count as freed here.
+                        // A Trash move reclaims nothing until the user empties the
+                        // Trash, so only unlinked caches and logs count as freed here.
                         if useTrash {
                             result.trashedSpace += item.size
                         } else {

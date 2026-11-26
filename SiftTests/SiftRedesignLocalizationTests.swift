@@ -7,8 +7,6 @@ final class SiftRedesignLocalizationTests: XCTestCase {
     private let redesignKeys = [
         "Where it sits",
         "Review and remove",
-        "Empty Trash",
-        "Empty the Trash?",
         "Biggest single wins",
         "Startup items",
         "Open Settings & reveal Sift",

@@ -67,8 +67,6 @@ final class AppState: ObservableObject {
         _ urls: [URL],
         _ completion: @escaping ([URL], Bool, [URL], [URL]) -> Void
     ) -> Void
-    /// Empties the Trash and returns a user-facing error, or nil on success.
-    typealias TrashEmptier = @MainActor () async -> String?
 
     // MARK: - Scan / Clean State
 
@@ -89,8 +87,6 @@ final class AppState: ObservableObject {
     /// outside the app bundle so the dashboard survives relaunches.
     @Published var cleanupHistory: [CleanupRecord] = []
     private let historyStore: CleanupHistoryStore
-    /// True while Finder is emptying the Trash on our behalf.
-    @Published private(set) var isEmptyingTrash = false
     /// Size of ~/Library/Containers, measured at the end of each Smart Scan.
     /// nil until a Smart Scan finishes (or when it was cancelled).
     @Published private(set) var containersSize: Int64?
@@ -170,7 +166,6 @@ final class AppState: ObservableObject {
     private let locationsProvider: () -> Locations
     private let appFileScanner: AppFileScanner
     private let appFileTrasher: AppFileTrasher
-    private let trashEmptier: TrashEmptier
     /// The installed-app list the orphan scan checks against.
     private let installedAppsProvider: () -> [InstalledApp]
 
@@ -259,7 +254,6 @@ final class AppState: ObservableObject {
         scanEngine: ScanEngine = ScanEngine(),
         cleaningEngine: CleaningEngine = CleaningEngine(),
         historyStore: CleanupHistoryStore = CleanupHistoryStore(),
-        trashEmptier: @escaping TrashEmptier = AppState.finderEmptyTrash,
         installedAppsProvider: @escaping () -> [InstalledApp] = { AppInfoFetcher.shared.fetchInstalledApps() }
     ) {
         self.locationsProvider = locationsProvider
@@ -268,7 +262,6 @@ final class AppState: ObservableObject {
         self.scanEngine = scanEngine
         self.cleaningEngine = cleaningEngine
         self.historyStore = historyStore
-        self.trashEmptier = trashEmptier
         self.installedAppsProvider = installedAppsProvider
         cleanupHistory = historyStore.load()
         lastScanDate = UserDefaults.standard.object(forKey: Self.lastScanDateKey) as? Date
@@ -1133,7 +1126,7 @@ final class AppState: ObservableObject {
     }
 
     func cleanCategory(_ category: CleaningCategory, itemIDs: Set<UUID>? = nil) {
-        // The Trash is emptied only through `emptyTrash()`.
+        // The Trash is never emptied by Sift: its page only shows what is in it.
         guard category != .trash, let result = categoryResults[category], !scanState.isActive,
               !deviceBackupRemovalInProgress else { return }
 
@@ -1294,74 +1287,6 @@ final class AppState: ObservableObject {
             )
         } else if let first = errors.first {
             cleanError = first
-        }
-    }
-
-    // MARK: - Trash
-
-    /// Empties the Trash by asking Finder. Call only after the user confirmed:
-    /// this is the one cleanup in the app that is not recoverable. Items in
-    /// the Trash are never unlinked by Sift itself (CleaningEngine refuses
-    /// `.trash` items). Errors land in `cleanError`.
-    func emptyTrash() async {
-        guard !scanState.isActive, !isEmptyingTrash, !deviceBackupRemovalInProgress else { return }
-        isEmptyingTrash = true
-        defer { isEmptyingTrash = false }
-
-        // Measure before and after rather than trusting the last scan: the
-        // Trash may have changed since, and Finder reports no byte count.
-        // Both sides are measured over the rows the user sees, so an excluded
-        // item that survives the empty (Finder refused it, a file is in use)
-        // is never counted as freed.
-        let before = applyingCleanupExclusions(to: await scanEngine.scanCategory(.trash))
-        let error = await trashEmptier()
-        let after = applyingCleanupExclusions(to: await scanEngine.scanCategory(.trash))
-
-        // Keep the scanned state: an emptied Trash is empty, not unscanned.
-        categoryResults[.trash] = after
-        recomputeTotalJunkSize()
-
-        let freed = max(0, before.totalSize - after.totalSize)
-        if freed > 0 {
-            cleanupHistory = historyStore.record(
-                freedBytes: freed,
-                source: .manual,
-                title: "Emptied Trash",
-                category: .trash
-            )
-            lastCleanedDate = Date()
-        }
-        cleanErrorIsFDAFixable = false
-        cleanError = error
-        loadDiskInfo()
-    }
-
-    /// Finder performs the delete, so the Trash is emptied exactly as if the
-    /// user chose Finder > Empty Trash. The first call triggers the macOS
-    /// Automation consent prompt for controlling Finder.
-    nonisolated static func finderEmptyTrash() async -> String? {
-        await withCheckedContinuation { continuation in
-            DispatchQueue.global(qos: .userInitiated).async {
-                var errorInfo: NSDictionary?
-                NSAppleScript(source: "tell application \"Finder\" to empty trash")?
-                    .executeAndReturnError(&errorInfo)
-                guard let errorInfo else {
-                    continuation.resume(returning: nil)
-                    return
-                }
-                let code = errorInfo[NSAppleScript.errorNumber] as? Int
-                let message = errorInfo[NSAppleScript.errorMessage] as? String ?? "\(errorInfo)"
-                Logger.shared.log("Finder could not empty the Trash (\(code ?? 0)): \(message)", level: .warning)
-                switch code {
-                case -128:
-                    // User cancelled a Finder prompt; nothing to report.
-                    continuation.resume(returning: nil)
-                case -1743:
-                    continuation.resume(returning: String(localized: "Sift isn't allowed to control Finder. Allow it in System Settings > Privacy & Security > Automation, then try again."))
-                default:
-                    continuation.resume(returning: String(localized: "Finder couldn't empty the Trash: \(message)"))
-                }
-            }
         }
     }
 

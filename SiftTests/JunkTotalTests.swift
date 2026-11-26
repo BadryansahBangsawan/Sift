@@ -100,27 +100,22 @@ final class JunkTotalTests: XCTestCase {
         try? removeTrashedItems()
     }
 
-    func testEmptyingTheTrashKeepsItOutOfTheJunkTotal() async throws {
+    func testTheTrashStaysOutOfTheJunkTotalWithoutBeingEmptied() async throws {
         let trash = fixtureHome.appendingPathComponent(".Trash", isDirectory: true)
         try fileManager.createDirectory(at: trash, withIntermediateDirectories: true)
         try Data(repeating: 1, count: 8_192).write(to: trash.appendingPathComponent("old.bin"))
 
-        let state = makeState(trashEmptier: { [trash, fileManager] in
-            for entry in try! fileManager.contentsOfDirectory(at: trash, includingPropertiesForKeys: nil) {
-                try? fileManager.removeItem(at: entry)
-            }
-            return nil
-        })
+        let state = makeState()
         state.categoryResults[.systemJunk] = result(.systemJunk, 10 * mb)
         state.categoryResults[.trash] = await ScanEngine(homeDirectory: fixtureHome).scanCategory(.trash)
         state.recomputeTotalJunkSize()
-        XCTAssertEqual(state.totalJunkSize, 10 * mb)
 
-        await state.emptyTrash()
-
-        XCTAssertNil(state.cleanError)
         XCTAssertEqual(state.totalJunkSize, 10 * mb)
-        XCTAssertEqual(state.personalFilesSize, 0)
+        XCTAssertGreaterThan(state.personalFilesSize, 0, "The Trash shows its own size, not junk")
+        XCTAssertTrue(
+            fileManager.fileExists(atPath: trash.appendingPathComponent("old.bin").path),
+            "Sift leaves the Trash alone"
+        )
     }
 
     func testAScheduledScanKeepsPersonalFilesOutOfTheJunkTotal() async throws {
@@ -141,13 +136,12 @@ final class JunkTotalTests: XCTestCase {
 
     // MARK: - Fixtures
 
-    private func makeState(trashEmptier: @escaping AppState.TrashEmptier = { nil }) -> AppState {
+    private func makeState() -> AppState {
         AppState(
             performStartupTasks: false,
             scanEngine: ScanEngine(homeDirectory: fixtureHome),
             cleaningEngine: CleaningEngine(homeDirectory: fixtureHome),
-            historyStore: historyStore,
-            trashEmptier: trashEmptier
+            historyStore: historyStore
         )
     }
 
