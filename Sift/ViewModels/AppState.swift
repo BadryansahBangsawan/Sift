@@ -963,17 +963,29 @@ final class AppState: ObservableObject {
     /// Bookkeeping when a clean error opens the Full Disk Access sheet. The
     /// view calls this instead of clearing `cleanError` inline.
     func presentFullDiskAccessPromptForCleanError() {
+        cleanErrorBeforeFullDiskAccessPrompt = cleanError
         cleanError = nil
-        cleanErrorIsFDAFixable = false
+        // Keep cleanErrorIsFDAFixable true while the sheet is up: the alert is
+        // gated on it, so it cannot try to present over the sheet. Dismissal
+        // restores the error and clears the flag.
     }
 
     /// Bookkeeping when the Full Disk Access sheet closes without a retry.
-    func dismissFullDiskAccessPromptForCleanError() {}
+    func dismissFullDiskAccessPromptForCleanError() {
+        // A successful retry already produced a new (usually nil) error; only
+        // restore the old one when nothing newer explains the state.
+        if cleanError == nil {
+            cleanError = cleanErrorBeforeFullDiskAccessPrompt
+        }
+        cleanErrorBeforeFullDiskAccessPrompt = nil
+        cleanErrorIsFDAFixable = false
+    }
 
     func retryAfterFullDiskAccess(items: [CleanableItem], context: PermissionCoordinator.PromptContext) async {
         pendingPermissionRetryItems = []
         cleanError = nil
         cleanErrorIsFDAFixable = false
+        cleanErrorBeforeFullDiskAccessPrompt = nil
         guard !items.isEmpty else { return }
         if case .uninstall = context {
             removeSelectedFiles(confirmedURLs: Set(items.map { URL(fileURLWithPath: $0.path) }))
