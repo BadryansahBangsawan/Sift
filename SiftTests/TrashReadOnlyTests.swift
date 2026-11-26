@@ -70,6 +70,27 @@ final class TrashReadOnlyTests: XCTestCase {
         XCTAssertTrue(state.cleanupHistory.isEmpty)
     }
 
+    func testAScheduledAutoCleanNeverTouchesTheTrash() async throws {
+        let file = home.appendingPathComponent(".Trash/scheduled.bin")
+        try Data(repeating: 2, count: 8_192).write(to: file)
+        let state = AppState(
+            performStartupTasks: false,
+            scanEngine: ScanEngine(homeDirectory: home, tmpRoots: [], isAppRunning: { _ in false }),
+            cleaningEngine: CleaningEngine(homeDirectory: home, isAppRunning: { _ in false }),
+            historyStore: CleanupHistoryStore(fileURL: home.appendingPathComponent("history.json"))
+        )
+        var config = state.scheduler.config
+        config.categoriesToScan = [.trash]
+        config.autoClean = true
+        config.notifyOnCompletion = false
+        state.scheduler.config = config
+
+        await state.runScheduledScan(isAppActive: false)
+
+        XCTAssertTrue(fileManager.fileExists(atPath: file.path), "An unattended clean never empties the Trash")
+        XCTAssertTrue(state.cleanupHistory.isEmpty)
+    }
+
     private func waitUntil(timeout: TimeInterval, _ condition: () -> Bool) async throws {
         let deadline = Date().addingTimeInterval(timeout)
         while !condition() {
