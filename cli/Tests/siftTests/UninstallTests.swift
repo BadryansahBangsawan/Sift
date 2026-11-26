@@ -230,20 +230,26 @@ final class UninstallTests: XCTestCase {
         let app = directory.appendingPathComponent("Foo (Beta).app", isDirectory: true)
         let process = try launchSleep(in: app)
 
-        let launched = waitUntilExecuting(process, inside: app)
-        XCTAssertEqual(try Uninstall.runningProcessID(forAppAt: app.path), Int(process.processIdentifier), launched)
+        let launched = try waitUntilExecuting(process, inside: app)
+        let found = try Uninstall.runningProcessID(forAppAt: app.path)
+        try skipIfFixtureDied(process)
+        XCTAssertEqual(found, Int(process.processIdentifier), launched)
     }
 
     func testRunningAppLookupTreatsThePathLiterally() throws {
         let directory = try temporaryDirectory()
         defer { try? FileManager.default.removeItem(at: directory) }
 
-        _ = try launchSleep(in: directory.appendingPathComponent("FooXBar.app", isDirectory: true))
+        let running = directory.appendingPathComponent("FooXBar.app", isDirectory: true)
+        let process = try launchSleep(in: running)
+        _ = try waitUntilExecuting(process, inside: running)
 
         // A regex would let "." match the X; a literal comparison must not
         // report this other bundle as running.
         let lookalike = directory.appendingPathComponent("Foo.Bar.app", isDirectory: true)
-        XCTAssertNil(try Uninstall.runningProcessID(forAppAt: lookalike.path))
+        let found = try Uninstall.runningProcessID(forAppAt: lookalike.path)
+        try skipIfFixtureDied(process)
+        XCTAssertNil(found)
     }
 
     func testPathInAnotherProcessArgumentsIsNotTheAppRunning() throws {
@@ -273,8 +279,10 @@ final class UninstallTests: XCTestCase {
 
         let app = directory.appendingPathComponent("Quiet.app", isDirectory: true)
         let process = try launchSleep(in: app)
-        let launched = waitUntilExecuting(process, inside: app)
-        XCTAssertEqual(try Uninstall.runningProcessID(forAppAt: app.path), Int(process.processIdentifier), launched)
+        let launched = try waitUntilExecuting(process, inside: app)
+        let found = try Uninstall.runningProcessID(forAppAt: app.path)
+        try skipIfFixtureDied(process)
+        XCTAssertEqual(found, Int(process.processIdentifier), launched)
 
         process.terminate()
         process.waitUntilExit()
@@ -283,10 +291,13 @@ final class UninstallTests: XCTestCase {
     }
 
     /// Waits until the kernel reports the launched process's executable inside
-    /// the bundle. Process.run() can return before a freshly copied, ad-hoc
-    /// signed binary is executing (slow on CI runners), and the lookup reads the
-    /// kernel's view. Returns a description for the assertion message.
-    private func waitUntilExecuting(_ process: Process, inside app: URL, timeout: TimeInterval = 10) -> String {
+    /// the bundle, and returns a description for the assertion message.
+    ///
+    /// On GitHub's macOS runners the copied, ad-hoc signed /bin/sleep often
+    /// dies with a signal moments after it starts (16 of 20 launches in a CI
+    /// probe). A dead fixture says nothing about the lookup, so these tests
+    /// skip instead of failing when that happens.
+    private func waitUntilExecuting(_ process: Process, inside app: URL, timeout: TimeInterval = 10) throws -> String {
         var canonical = [CChar](repeating: 0, count: 4 * Int(MAXPATHLEN))
         let bundle = (realpath(app.path, &canonical) != nil ? String(cString: canonical) : app.path) + "/"
         let deadline = Date().addingTimeInterval(timeout)
@@ -300,10 +311,18 @@ final class UninstallTests: XCTestCase {
             if !process.isRunning { break }
             usleep(50_000)
         } while Date() < deadline
+        try skipIfFixtureDied(process)
         let state = process.isRunning
             ? "still running"
             : "exited, status \(process.terminationStatus), reason \(process.terminationReason.rawValue)"
         return "process \(process.processIdentifier) \(state); kernel path \(observed); bundle \(bundle)"
+    }
+
+    private func skipIfFixtureDied(_ process: Process) throws {
+        guard !process.isRunning else { return }
+        throw XCTSkip(
+            "The copied sleep fixture exited (status \(process.terminationStatus)) before the lookup; this machine cannot run it."
+        )
     }
 
     /// Copies the system's sleep into the bundle and starts it, so the test
