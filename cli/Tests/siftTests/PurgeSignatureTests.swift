@@ -37,7 +37,63 @@ final class PurgeSignatureTests: XCTestCase {
         XCTAssertEqual(offered(in: project), [canonical(project.appendingPathComponent("target").path)])
     }
 
+    func testContentSignaturesCoverEveryOfferedArtifactName() throws {
+        let cases: [(name: String, genuine: String, handmade: String?)] = [
+            ("node_modules", "pkg/package.json", "notes.md"),
+            (".next", "BUILD_ID", "notes.md"),
+            (".nuxt", "generated.txt", nil),
+            (".turbo", "generated.txt", nil),
+            (".svelte-kit", "generated.txt", nil),
+            (".angular", "generated.txt", nil),
+            (".parcel-cache", "generated.txt", nil),
+            ("target", ".rustc_info.json", "notes.md"),
+            (".build", ".lock", "notes.md"),
+            ("DerivedData", "info.plist", "notes.md"),
+            ("Pods", "Manifest.lock", "notes.md"),
+            (".gradle", "buildOutputCleanup/marker", "notes.md"),
+            (".venv", "pyvenv.cfg", "notes.md"),
+            ("venv", "pyvenv.cfg", "notes.md"),
+            ("__pycache__", "module.pyc", "module.py"),
+            (".pytest_cache", "CACHEDIR.TAG", "notes.md"),
+            (".mypy_cache", "CACHEDIR.TAG", "notes.md"),
+            (".ruff_cache", "CACHEDIR.TAG", "notes.md"),
+            (".tox", "env/pyvenv.cfg", "notes.md"),
+            ("cmake-build-debug", "CMakeCache.txt", "notes.md"),
+        ]
+        var covered = Set<String>()
+        for (index, item) in cases.enumerated() {
+            covered.insert(item.name)
+            let genuine = try artifactFolder("case-\(index)", name: item.name)
+            try writeFile("\(item.name)/\(item.genuine)", in: genuine, bytes: 32)
+            XCTAssertTrue(
+                Purger.hasContentSignature(for: item.name, in: genuine.appendingPathComponent(item.name)),
+                "\(item.name) with \(item.genuine) must prove generated"
+            )
+
+            if let handmade = item.handmade {
+                let folder = try artifactFolder("handmade-\(index)", name: item.name)
+                try writeFile("\(item.name)/\(handmade)", in: folder, bytes: 32)
+                XCTAssertFalse(
+                    Purger.hasContentSignature(for: item.name, in: folder.appendingPathComponent(item.name)),
+                    "\(item.name) with only \(handmade) must not be offered"
+                )
+            }
+        }
+
+        let offered = Purger.artifactNames.union(["cmake-build-debug"])
+        XCTAssertEqual(covered, offered, "a rule changed without a signature test")
+    }
+
     // MARK: - Fixtures
+
+    private func artifactFolder(_ project: String, name: String) throws -> URL {
+        let folder = try makeProject(project)
+        try fileManager.createDirectory(
+            at: folder.appendingPathComponent(name, isDirectory: true),
+            withIntermediateDirectories: true
+        )
+        return folder
+    }
 
     private func makeProject(_ name: String) throws -> URL {
         let project = root.appendingPathComponent(name, isDirectory: true)
