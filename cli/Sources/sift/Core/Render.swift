@@ -5,7 +5,7 @@ enum Render {
     static let rule = String(repeating: "─", count: 60)
 
     static func scanResults(_ categories: [CategoryScan]) {
-        let total = categories.reduce(Int64(0)) { $0 + $1.allBytes }
+        let total = categories.reduce(Int64(0)) { $0.saturatedSum($1.allBytes) }
         let itemCount = categories.flatMap(\.groups).flatMap(\.items).count
         print("")
         print(Term.bold("Scan complete"))
@@ -36,7 +36,7 @@ enum Render {
 
     static func selectionLine(_ categories: [CategoryScan]) {
         let items = categories.flatMap { $0.selectedItems }
-        let total = items.reduce(Int64(0)) { $0 + $1.sizeBytes }
+        let total = items.reduce(Int64(0)) { $0.saturatedSum($1.sizeBytes) }
         print("")
         print(
             Term.bold("\(items.count) selected")
@@ -46,7 +46,7 @@ enum Render {
 
     static func deletionReview(_ categories: [CategoryScan]) {
         let selected = categories.flatMap { $0.selectedItems }
-        let total = selected.reduce(Int64(0)) { $0 + $1.sizeBytes }
+        let total = selected.reduce(Int64(0)) { $0.saturatedSum($1.sizeBytes) }
         print("")
         print(Term.yellow(Term.bold("Permanent deletion review")))
         print(Term.dim(String(repeating: "─", count: min(72, outputWidth))))
@@ -56,7 +56,7 @@ enum Render {
             guard !selectedInCategory.isEmpty else { continue }
             print(
                 Term.cyan(Term.sanitize(category.title))
-                    + Term.dim("  \(ByteCount.human(selectedInCategory.reduce(0) { $0 + $1.sizeBytes }))")
+                    + Term.dim("  \(ByteCount.human(selectedInCategory.reduce(0) { $0.saturatedSum($1.sizeBytes) }))")
             )
             for group in category.groups {
                 for item in group.items where item.selected {

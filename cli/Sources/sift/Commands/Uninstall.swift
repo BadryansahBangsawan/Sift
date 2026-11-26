@@ -148,7 +148,7 @@ struct Uninstall: ParsableCommand {
 
         if mode != .forced {
             Render.deletionReview(reviewed)
-            let total = ByteCount.human(selected.reduce(Int64(0)) { $0 + $1.sizeBytes })
+            let total = ByteCount.human(selected.reduce(Int64(0)) { $0.saturatedSum($1.sizeBytes) })
             guard Term.confirm("Permanently remove \(selected.count) items (\(total))?", default: false) else {
                 print(Term.dim("Cancelled. Nothing removed."))
                 return
@@ -328,7 +328,7 @@ struct Uninstall: ParsableCommand {
             appPath: appPath,
             bundleID: scan.title,
             items: items,
-            totalBytes: items.reduce(Int64(0)) { $0 + $1.sizeBytes }
+            totalBytes: items.reduce(Int64(0)) { $0.saturatedSum($1.sizeBytes) }
         )
         let encoder = JSONEncoder()
         encoder.outputFormatting = [.prettyPrinted, .sortedKeys, .withoutEscapingSlashes]

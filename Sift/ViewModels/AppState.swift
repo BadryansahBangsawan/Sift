@@ -79,7 +79,7 @@ final class AppState: ObservableObject {
     var personalFilesSize: Int64 {
         categoryResults.values
             .filter { !$0.category.countsAsJunk }
-            .reduce(0) { $0 + $1.totalSize }
+            .reduce(0) { $0.saturatedSum($1.totalSize) }
     }
     @Published var totalFreedSpace: Int64 = 0
     /// Bytes the last cleanup moved to the Trash. Not freed, but the headline
@@ -215,7 +215,7 @@ final class AppState: ObservableObject {
     }
 
     var totalSelectedSize: Int64 {
-        allResults.flatMap { $0.items }.filter { isItemSelected($0) }.reduce(0) { $0 + $1.size }
+        allResults.flatMap { $0.items }.filter { isItemSelected($0) }.reduce(0) { $0.saturatedSum($1.size) }
     }
 
     /// The largest individual rows across every scanned category, largest
@@ -855,7 +855,7 @@ final class AppState: ObservableObject {
     func recomputeTotalJunkSize() {
         totalJunkSize = categoryResults.values
             .filter { $0.category.countsAsJunk }
-            .reduce(0) { $0 + $1.totalSize }
+            .reduce(0) { $0.saturatedSum($1.totalSize) }
     }
 
     var excludedCleanupPaths: [String] {
@@ -880,7 +880,7 @@ final class AppState: ObservableObject {
         let excluded = excludedCleanupPaths
         guard !excluded.isEmpty else { return result }
         let items = result.items.filter { !CleanupExclusions.excludes($0.path, paths: excluded) }
-        return CategoryResult(category: result.category, items: items, totalSize: items.reduce(0) { $0 + $1.size })
+        return CategoryResult(category: result.category, items: items, totalSize: items.reduce(0) { $0.saturatedSum($1.size) })
     }
 
     func setSelection(_ selected: Bool, for items: [CleanableItem]) {
@@ -1055,7 +1055,7 @@ final class AppState: ObservableObject {
             categoryResults[cat] = CategoryResult(
                 category: cat,
                 items: remaining,
-                totalSize: remaining.reduce(0) { $0 + $1.size }
+                totalSize: remaining.reduce(0) { $0.saturatedSum($1.size) }
             )
         }
         recomputeTotalJunkSize()
@@ -1231,7 +1231,7 @@ final class AppState: ObservableObject {
                 categoryResults[cat] = CategoryResult(
                     category: cat,
                     items: remaining,
-                    totalSize: remaining.reduce(0) { $0 + $1.size }
+                    totalSize: remaining.reduce(0) { $0.saturatedSum($1.size) }
                 )
             }
             recomputeTotalJunkSize()
@@ -1291,7 +1291,7 @@ final class AppState: ObservableObject {
                 categoryResults[category] = CategoryResult(
                     category: category,
                     items: remaining,
-                    totalSize: remaining.reduce(0) { $0 + $1.size }
+                    totalSize: remaining.reduce(0) { $0.saturatedSum($1.size) }
                 )
             }
             recomputeTotalJunkSize()

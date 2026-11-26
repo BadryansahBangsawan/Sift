@@ -56,8 +56,8 @@ struct ScanItem: Codable {
 struct ToolGroup: Codable {
     let tool: String
     var items: [ScanItem]
-    var totalBytes: Int64 { items.filter { $0.selected }.reduce(0) { $0 + $1.sizeBytes } }
-    var allBytes: Int64 { items.reduce(0) { $0 + $1.sizeBytes } }
+    var totalBytes: Int64 { items.filter { $0.selected }.reduce(0) { $0.saturatedSum($1.sizeBytes) } }
+    var allBytes: Int64 { items.reduce(0) { $0.saturatedSum($1.sizeBytes) } }
 }
 
 struct CategoryScan: Codable {
@@ -65,7 +65,7 @@ struct CategoryScan: Codable {
     let title: String
     var groups: [ToolGroup]
     var totalBytes: Int64 { groups.reduce(0) { $0 + $1.totalBytes } }
-    var allBytes: Int64 { groups.reduce(0) { $0 + $1.allBytes } }
+    var allBytes: Int64 { groups.reduce(0) { $0.saturatedSum($1.allBytes) } }
     var selectedItems: [ScanItem] { groups.flatMap { $0.items }.filter { $0.selected } }
 }
 
@@ -158,5 +158,12 @@ enum DirSizer {
 
     static func modified(of path: String) -> Date? {
         (try? FileManager.default.attributesOfItem(atPath: path)[.modificationDate]) as? Date
+    }
+}
+
+extension Int64 {
+    func saturatedSum(_ other: Int64) -> Int64 {
+        let (sum, overflow) = addingReportingOverflow(other)
+        return overflow ? .max : sum
     }
 }
