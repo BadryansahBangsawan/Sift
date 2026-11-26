@@ -23,6 +23,10 @@ All notable user-facing changes to Sift. Sift was called PureMac before 4.0.0.
 
 ### Fixed
 
+- Starting a new Leftovers scan cancels the previous one, so an older scan can
+  no longer replace the newer result or leave the page saying it could not read
+  the installed-app list.
+
 - The `/tmp` cleanup no longer offers a folder that holds a git worktree nested
   deeper than three levels: any `.git` entry anywhere inside is live work.
 
