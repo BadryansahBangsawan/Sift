@@ -65,12 +65,6 @@ final class PurgeMarkerTests: XCTestCase {
             (".gradle", "settings.gradle.kts"),
             (".tox", "tox.ini"),
             (".tox", "pyproject.toml"),
-            (".venv", "pyproject.toml"),
-            (".venv", "requirements.txt"),
-            ("venv", "setup.py"),
-            ("venv", "Pipfile"),
-            ("__pycache__", "pyproject.toml"),
-            (".pytest_cache", "setup.cfg"),
             ("cmake-build-debug", "CMakeLists.txt"),
         ]
         let ignore = try makeIgnoreStore()
@@ -91,6 +85,30 @@ final class PurgeMarkerTests: XCTestCase {
                 withMarker.groups.flatMap(\.items).map(\.path),
                 [artifact.path],
                 "\(kind.artifact) next to \(kind.marker) must still be offered"
+            )
+        }
+    }
+
+    func testSelfProvingCachesNeedNoProjectMarker() throws {
+        let cases: [(artifact: String, evidence: String)] = [
+            (".venv", "pyvenv.cfg"),
+            ("venv", "pyvenv.cfg"),
+            ("__pycache__", "module.pyc"),
+            (".pytest_cache", "CACHEDIR.TAG"),
+            (".mypy_cache", "CACHEDIR.TAG"),
+            (".ruff_cache", "CACHEDIR.TAG"),
+        ]
+        let ignore = try makeIgnoreStore()
+
+        for (index, item) in cases.enumerated() {
+            let project = try makeProject("self-proving-\(index)")
+            let artifact = try addArtifact(named: item.artifact, to: project)
+
+            let scan = Purger.scan(roots: [project.path], olderThanDays: 0, ignore: ignore)
+            XCTAssertEqual(
+                scan.groups.flatMap(\.items).map(\.path),
+                [artifact.path],
+                "\(item.artifact) with \(item.evidence) proves itself; the app offers it without a marker"
             )
         }
     }
@@ -167,12 +185,53 @@ final class PurgeMarkerTests: XCTestCase {
     private func addArtifact(named name: String, to project: URL) throws -> URL {
         let url = project.appendingPathComponent(name, isDirectory: true)
         try fileManager.createDirectory(at: url, withIntermediateDirectories: true)
-        try Data(repeating: 0x7F, count: 4096).write(to: url.appendingPathComponent("payload.bin"))
+        if name != "__pycache__" {
+            try Data(repeating: 0x7F, count: 4096).write(to: url.appendingPathComponent("payload.bin"))
+        }
+        try addSignature(for: name, to: url)
         try fileManager.setAttributes(
             [.modificationDate: Date(timeIntervalSinceNow: -30 * 86_400)],
             ofItemAtPath: url.path
         )
         return url
+    }
+
+    /// Content evidence `purge` now requires before offering the folder.
+    private func addSignature(for name: String, to url: URL) throws {
+        let fileManager = FileManager.default
+        func write(_ relative: String) throws {
+            let target = url.appendingPathComponent(relative)
+            try fileManager.createDirectory(at: target.deletingLastPathComponent(), withIntermediateDirectories: true)
+            try Data("generated".utf8).write(to: target)
+        }
+        switch name {
+        case "node_modules":
+            try write("pkg/package.json")
+        case ".next":
+            try write("BUILD_ID")
+        case "target":
+            try write(".rustc_info.json")
+        case ".build":
+            try write(".lock")
+        case "DerivedData":
+            try write("info.plist")
+        case "Pods":
+            try write("Manifest.lock")
+        case ".gradle":
+            try write("buildOutputCleanup/marker")
+        case ".venv", "venv":
+            try write("pyvenv.cfg")
+        case "__pycache__":
+            try write("module.pyc")
+        case ".pytest_cache", ".mypy_cache", ".ruff_cache":
+            try write("CACHEDIR.TAG")
+        case ".tox":
+            try write("env/pyvenv.cfg")
+        case let name where name.hasPrefix("cmake-build"):
+            try write("CMakeCache.txt")
+        default:
+            break
+        }
     }
 
     private func writeMarker(_ name: String, in project: URL) throws {

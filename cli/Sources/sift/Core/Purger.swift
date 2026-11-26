@@ -14,8 +14,8 @@ enum Purger {
 
     /// A generated folder's parent must hold one of these project files before
     /// the folder is offered. Mirrors the app's ProjectJunk rules; a leading
-    /// `*` matches by suffix (`*.xcodeproj`). Names with no rule are not
-    /// artifacts here.
+    /// `*` matches by suffix (`*.xcodeproj`). An empty list means the folder's
+    /// contents prove themselves. Names with no rule are not artifacts here.
     static let artifactMarkers: [String: [String]] = [
         "node_modules": ["package.json"],
         ".next": ["package.json"],
@@ -29,18 +29,121 @@ enum Purger {
         "DerivedData": ["*.xcodeproj", "*.xcworkspace"],
         "Pods": ["Podfile"],
         ".gradle": ["build.gradle", "build.gradle.kts", "settings.gradle", "settings.gradle.kts"],
-        ".tox": ["tox.ini", "pyproject.toml", "setup.cfg", "setup.py"],
-        ".venv": pythonMarkers,
-        "venv": pythonMarkers,
-        "__pycache__": pythonMarkers,
-        ".pytest_cache": pythonMarkers,
-        ".mypy_cache": pythonMarkers,
-        ".ruff_cache": pythonMarkers,
+        ".tox": ["tox.ini", "pyproject.toml", "setup.cfg"],
+        ".venv": [],
+        "venv": [],
+        "__pycache__": [],
+        ".pytest_cache": [],
+        ".mypy_cache": [],
+        ".ruff_cache": [],
     ]
 
-    private static let pythonMarkers = [
-        "pyproject.toml", "requirements.txt", "setup.py", "setup.cfg", "Pipfile",
-    ]
+    /// The contents must look generated. Mirrors the app's ArtifactRule
+    /// signatures; without this, a source folder that happens to share an
+    /// artifact name and sits next to the marker would be deleted.
+    static func hasContentSignature(for name: String, in folder: URL) -> Bool {
+        let fm = FileManager.default
+        if name.hasPrefix("cmake-build") {
+            return anyOf(["CMakeCache.txt"])(folder, fm)
+        }
+        switch name {
+        case "node_modules":
+            return nodeModulesSignature(folder, fm)
+        case ".next":
+            return anyOf(["BUILD_ID", "cache"])(folder, fm)
+        case ".nuxt", ".turbo", ".svelte-kit", ".angular", ".parcel-cache":
+            return nonEmpty(folder, fm)
+        case "target":
+            return anyOf(["CACHEDIR.TAG", ".rustc_info.json", "classes", "maven-status", "maven-archiver", "streams"])(folder, fm)
+        case ".build":
+            return anyOf(["workspace-state.json", "debug.yaml", "release.yaml", ".lock"])(folder, fm)
+        case "DerivedData":
+            return derivedDataSignature(folder, fm)
+        case "Pods":
+            return anyOf(["Manifest.lock"])(folder, fm)
+        case ".gradle":
+            return gradleSignature(folder, fm)
+        case ".venv", "venv":
+            return anyOf(["pyvenv.cfg"])(folder, fm)
+        case "__pycache__":
+            return bytecodeOnly(folder, fm)
+        case ".pytest_cache", ".mypy_cache", ".ruff_cache":
+            return anyOf(["CACHEDIR.TAG"])(folder, fm)
+        case ".tox":
+            return toxSignature(folder, fm)
+        default:
+            return false
+        }
+    }
+
+    private static func anyOf(_ entries: [String]) -> (URL, FileManager) -> Bool {
+        { folder, _ in entries.contains { lexists(folder.appendingPathComponent($0)) } }
+    }
+
+    private static func nonEmpty(_ folder: URL, _ fm: FileManager) -> Bool {
+        !((try? fm.contentsOfDirectory(atPath: folder.path)) ?? []).isEmpty
+    }
+
+    private static func nodeModulesSignature(_ folder: URL, _ fm: FileManager) -> Bool {
+        for state in [".package-lock.json", ".modules.yaml", ".yarn-state.yml", ".yarn-integrity"]
+        where lexists(folder.appendingPathComponent(state)) {
+            return true
+        }
+        let children = ((try? fm.contentsOfDirectory(atPath: folder.path)) ?? []).sorted().prefix(500)
+        for child in children where !child.hasPrefix(".") {
+            let childURL = folder.appendingPathComponent(child)
+            if child.hasPrefix("@") {
+                let scoped = ((try? fm.contentsOfDirectory(atPath: childURL.path)) ?? []).sorted().prefix(50)
+                if scoped.contains(where: { isRegularFile(childURL.appendingPathComponent($0).appendingPathComponent("package.json")) }) {
+                    return true
+                }
+            } else if isRegularFile(childURL.appendingPathComponent("package.json")) {
+                return true
+            }
+        }
+        return false
+    }
+
+    private static func derivedDataSignature(_ folder: URL, _ fm: FileManager) -> Bool {
+        if anyOf(["Build", "Index.noindex", "ModuleCache.noindex", "info.plist"])(folder, fm) { return true }
+        let children = ((try? fm.contentsOfDirectory(atPath: folder.path)) ?? []).sorted().prefix(200)
+        return children.contains { lexists(folder.appendingPathComponent($0).appendingPathComponent("info.plist")) }
+    }
+
+    private static func gradleSignature(_ folder: URL, _ fm: FileManager) -> Bool {
+        if lexists(folder.appendingPathComponent("buildOutputCleanup")) { return true }
+        let children = (try? fm.contentsOfDirectory(atPath: folder.path)) ?? []
+        return children.contains { name in
+            let parts = name.split(separator: ".", omittingEmptySubsequences: false)
+            return parts.count >= 2 && parts.allSatisfy { !$0.isEmpty && $0.allSatisfy(\.isNumber) }
+        }
+    }
+
+    private static func bytecodeOnly(_ folder: URL, _ fm: FileManager) -> Bool {
+        guard let entries = try? fm.contentsOfDirectory(atPath: folder.path), !entries.isEmpty else { return false }
+        return entries.allSatisfy { entry in
+            isRegularFile(folder.appendingPathComponent(entry))
+                && (entry.hasSuffix(".pyc") || entry.hasSuffix(".pyo"))
+        }
+    }
+
+    private static func toxSignature(_ folder: URL, _ fm: FileManager) -> Bool {
+        let children = (try? fm.contentsOfDirectory(atPath: folder.path)) ?? []
+        return children.contains { child in
+            lexists(folder.appendingPathComponent(child).appendingPathComponent("pyvenv.cfg"))
+                || lexists(folder.appendingPathComponent(child).appendingPathComponent(".tox-info.json"))
+        }
+    }
+
+    static func lexists(_ url: URL) -> Bool {
+        var info = stat()
+        return lstat(url.path, &info) == 0
+    }
+
+    static func isRegularFile(_ url: URL) -> Bool {
+        var info = stat()
+        return lstat(url.path, &info) == 0 && (info.st_mode & S_IFMT) == S_IFREG
+    }
 
     static let defaultRoots = ["Projects", "Code", "dev", "GitHub", "Workspace"]
         .map { "\(Safety.home)/\($0)" }
@@ -56,6 +159,7 @@ enum Purger {
 
     static func hasProjectMarker(for name: String, in project: URL) -> Bool {
         guard let markers = projectMarkers(for: name) else { return false }
+        if markers.isEmpty { return true }
         let fm = FileManager.default
         let entries = (try? fm.contentsOfDirectory(atPath: project.path)) ?? []
         for marker in markers {
@@ -99,6 +203,7 @@ enum Purger {
                     guard hasProjectMarker(for: name, in: url.deletingLastPathComponent()) else { continue }
                     en.skipDescendants()
                     guard isOfferedByGit(url, project: url.deletingLastPathComponent()) else { continue }
+                    guard hasContentSignature(for: name, in: url) else { continue }
                     if Safety.ignoredPathProtectsCandidate(url.path, ignore: ignore) { continue }
                     let measurement = DirSizer.measure(of: url.path)
                     guard measurement.status == .complete,
@@ -174,9 +279,31 @@ enum Purger {
         return nil
     }
 
+    /// Resolves the git executable once for the lifetime of the process. A disk
+    /// scan asks about every candidate inside a repository, so looking it up per
+    /// candidate would spawn `xcode-select` hundreds of times.
+    static let gitExecutableResolver = makeGitExecutableResolver(resolveGitExecutable)
+
+    static func makeGitExecutableResolver(_ resolve: @escaping () -> String?) -> () -> String? {
+        let lock = NSLock()
+        var cached: String??
+        return {
+            lock.lock()
+            defer { lock.unlock() }
+            if let cached { return cached }
+            let value = resolve()
+            cached = .some(value)
+            return value
+        }
+    }
+
+    static func gitExecutable() -> String? {
+        gitExecutableResolver()
+    }
+
     /// Never `/usr/bin/git`: on a Mac without developer tools that stub asks to
     /// install them. Mirrors the app's executable lookup.
-    static func gitExecutable() -> String? {
+    private static func resolveGitExecutable() -> String? {
         var candidates = ["/opt/homebrew/bin/git", "/usr/local/bin/git"]
         if let developer = developerDirectory() {
             candidates.append(developer + "/usr/bin/git")
@@ -187,21 +314,10 @@ enum Purger {
     }
 
     private static func developerDirectory() -> String? {
-        let process = Process()
-        process.executableURL = URL(fileURLWithPath: "/usr/bin/xcode-select")
-        process.arguments = ["-p"]
-        let pipe = Pipe()
-        process.standardOutput = pipe
-        process.standardError = FileHandle.nullDevice
-        do {
-            try process.run()
-        } catch {
-            return nil
-        }
-        let data = pipe.fileHandleForReading.readDataToEndOfFile()
-        process.waitUntilExit()
-        guard process.terminationStatus == 0 else { return nil }
-        return String(decoding: data, as: UTF8.self).trimmingCharacters(in: .whitespacesAndNewlines)
+        let result = Shell.run("/usr/bin/xcode-select", ["-p"], timeout: 5)
+        guard result.status == 0 else { return nil }
+        let path = result.out.trimmingCharacters(in: .whitespacesAndNewlines)
+        return path.hasPrefix("/") ? path : nil
     }
 
     static func scanRoots(_ roots: [String]) -> [URL] {
