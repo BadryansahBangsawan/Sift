@@ -318,11 +318,14 @@ final class UninstallTests: XCTestCase {
         return "process \(process.processIdentifier) \(state); kernel path \(observed); bundle \(bundle)"
     }
 
+    /// Asks the kernel, not `Process.isRunning`: Foundation learns about the
+    /// exit asynchronously, so `isRunning` can still say true for a fixture
+    /// that already died. Dying is one-way, so a fixture alive here was alive
+    /// during the lookup that ran just before.
     private func skipIfFixtureDied(_ process: Process) throws {
-        guard !process.isRunning else { return }
-        throw XCTSkip(
-            "The copied sleep fixture exited (status \(process.terminationStatus)) before the lookup; this machine cannot run it."
-        )
+        var buffer = [CChar](repeating: 0, count: 4 * Int(MAXPATHLEN))
+        guard proc_pidpath(process.processIdentifier, &buffer, UInt32(buffer.count)) <= 0 else { return }
+        throw XCTSkip("The copied sleep fixture exited before the lookup; this machine cannot run it.")
     }
 
     /// Copies the system's sleep into the bundle and starts it, so the test
