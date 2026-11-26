@@ -11,6 +11,8 @@ All notable user-facing changes to Sift. Sift was called PureMac before 4.0.0.
 
 ### Fixed
 
+- Simulator runtime checks no longer hang when a tool fills its error output
+  first; the helper drains both streams and gives up after a timeout.
 - If importing PureMac’s old settings and data fails, Sift retries on the next
   launch instead of leaving the migration half-done forever.
 - Dismissing the Full Disk Access sheet after a failed clean leaves the error
