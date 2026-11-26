@@ -1,3 +1,4 @@
+import Darwin
 import Foundation
 import XCTest
 @testable import sift
@@ -50,6 +51,101 @@ final class PurgeGitTrackingTests: XCTestCase {
     }
 
     // MARK: - Git fixture
+
+    func testIgnoredNodeModulesInARepositoryIsStillOffered() throws {
+        let project = try makeProject("ignored-repo")
+        try Data("{}".utf8).write(to: project.appendingPathComponent("package.json"))
+        try Data("node_modules/\n".utf8).write(to: project.appendingPathComponent(".gitignore"))
+        try writeModules(in: project)
+        try runGit(in: project, ["init", "-q"])
+
+        XCTAssertEqual(offeredPaths(in: project), [canonical(modulesURL(in: project).path)])
+    }
+
+    func testUntrackedButNotIgnoredNodeModulesIsNotOffered() throws {
+        let project = try makeProject("untracked-repo")
+        try Data("{}".utf8).write(to: project.appendingPathComponent("package.json"))
+        try writeModules(in: project)
+        try runGit(in: project, ["init", "-q"])
+
+        XCTAssertTrue(offeredPaths(in: project).isEmpty, "the app rejects untracked-but-not-ignored folders")
+    }
+
+    func testOneTrackedFileDeepInsideAnIgnoredFolderBlocksIt() throws {
+        let project = try makeProject("deep-tracked")
+        try Data("{}".utf8).write(to: project.appendingPathComponent("package.json"))
+        try Data("node_modules/\n".utf8).write(to: project.appendingPathComponent(".gitignore"))
+        try writeModules(in: project)
+        try runGit(in: project, ["init", "-q"])
+        try runGit(in: project, ["add", "-f", "node_modules/pkg/vendored.js"])
+
+        XCTAssertTrue(offeredPaths(in: project).isEmpty)
+    }
+
+    func testNoRepositoryStillOffersTheArtifact() throws {
+        let project = try makeProject("no-repo")
+        try Data("{}".utf8).write(to: project.appendingPathComponent("package.json"))
+        try writeModules(in: project)
+
+        XCTAssertEqual(offeredPaths(in: project), [canonical(modulesURL(in: project).path)])
+    }
+
+    func testLinkedWorktreeUsesItsOwnGitFile() throws {
+        let main = try makeProject("worktree-main")
+        try Data("{}".utf8).write(to: main.appendingPathComponent("package.json"))
+        try Data("node_modules/\n".utf8).write(to: main.appendingPathComponent(".gitignore"))
+        try runGit(in: main, ["init", "-q"])
+        try runGit(in: main, ["-c", "user.email=t@example.com", "-c", "user.name=Test", "commit", "--allow-empty", "-q", "-m", "init"])
+        let worktree = root.appendingPathComponent("linked", isDirectory: true)
+        try runGit(in: main, ["worktree", "add", "-q", worktree.path])
+        try Data("{}".utf8).write(to: worktree.appendingPathComponent("package.json"))
+        try Data("node_modules/\n".utf8).write(to: worktree.appendingPathComponent(".gitignore"))
+        try writeModules(in: worktree)
+
+        XCTAssertEqual(offeredPaths(in: worktree), [canonical(modulesURL(in: worktree).path)])
+
+        try runGit(in: worktree, ["add", "-f", "node_modules/pkg/vendored.js"])
+        XCTAssertTrue(offeredPaths(in: worktree).isEmpty, "a tracked file blocks it in a worktree too")
+    }
+
+    // MARK: - Fixtures
+
+    private func makeProject(_ name: String) throws -> URL {
+        let project = root.appendingPathComponent(name, isDirectory: true)
+        try fileManager.createDirectory(at: project, withIntermediateDirectories: true)
+        return project
+    }
+
+    private func modulesURL(in project: URL) -> URL {
+        project.appendingPathComponent("node_modules", isDirectory: true)
+    }
+
+    private func writeModules(in project: URL) throws {
+        let modules = modulesURL(in: project)
+        try fileManager.createDirectory(
+            at: modules.appendingPathComponent("pkg", isDirectory: true),
+            withIntermediateDirectories: true
+        )
+        try Data(repeating: 0x41, count: 4_096)
+            .write(to: modules.appendingPathComponent("pkg/vendored.js"))
+        try fileManager.setAttributes(
+            [.modificationDate: Date(timeIntervalSinceNow: -30 * 86_400)],
+            ofItemAtPath: modules.path
+        )
+    }
+
+    private func canonical(_ path: String) -> String {
+        var buffer = [CChar](repeating: 0, count: 4 * Int(MAXPATHLEN))
+        if realpath(path, &buffer) != nil { return String(cString: buffer) }
+        return path
+    }
+
+    private func offeredPaths(in project: URL) -> [String] {
+        let ignore = try? IgnoreStore(fileURL: root.appendingPathComponent("ignore"))
+        guard let ignore else { return [] }
+        return Purger.scan(roots: [project.path], olderThanDays: 0, ignore: ignore)
+            .groups.flatMap(\.items).map(\.path)
+    }
 
     private func runGit(in directory: URL, _ arguments: [String]) throws {
         let process = Process()
