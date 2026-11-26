@@ -23,7 +23,7 @@ Until the signing secrets below exist, publish with **Actions > Release (unsigne
 | `HOMEBREW_TAP_DEPLOY_KEY` | workflow bumps the tap |
 | `BadryansahBangsawan/homebrew-tap` repo | `brew install --cask BadryansahBangsawan/tap/sift` |
 
-Versions in this branch: app `4.1.0` (`project.yml`, build `35`), CLI `1.2.0`
+Versions in this branch: app `4.1.1` (`project.yml`, build `36`), CLI `1.2.0`
 (`cli/Sources/sift/SiftCLI.swift`). The workflow refuses to run when
 `MARKETING_VERSION` does not match the tag.
 
@@ -194,5 +194,5 @@ ticket; Apple's notarization result ships alongside the archive.
 
 - Delete the GitHub release and move the tag back to the previous release:
   `git tag -f v4.0.0 <old-sha> && git push --force origin v4.0.0` only if that
-  release is known-broken; otherwise ship `4.1.0`.
+  release is known-broken; otherwise ship `4.1.1`.
 - The Homebrew casks can be reverted with a normal commit to `main` and the tap.
