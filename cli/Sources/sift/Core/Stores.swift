@@ -177,7 +177,9 @@ struct IgnoreStore {
         let contents = try String(contentsOf: fileURL, encoding: .utf8)
         var seen = Set<String>()
         var roots: [String] = []
-        for line in contents.split(separator: "\n").map(String.init) {
+        for rawLine in contents.split(whereSeparator: { $0.isNewline }) {
+            let line = rawLine.trimmingCharacters(in: .whitespaces)
+            guard !line.isEmpty else { continue }
             do {
                 let root = try standardized(line, relativeTo: "/", allowRelative: false)
                 if seen.insert(root).inserted { roots.append(root) }
