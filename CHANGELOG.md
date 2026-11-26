@@ -2,7 +2,7 @@
 
 All notable user-facing changes to Sift. Sift was called PureMac before 4.0.0.
 
-## 4.1.1
+## Unreleased
 
 ### Changed
 
@@ -15,6 +15,17 @@ All notable user-facing changes to Sift. Sift was called PureMac before 4.0.0.
   their own page — or retrying them after granting Full Disk Access — now adds
   the cleanup-history row it was missing. These rows move to the Trash, so the
   row records the trashed bytes instead of being skipped.
+- The app-files scan and removal no longer follow a symlinked folder, so a link
+  planted in Application Support cannot put files from another directory in the
+  app's removal list or move them to the Trash.
+- Removing a single row from the app files list no longer moves a running app's
+  bundle to the Trash or clears the other selected rows; every removal path now
+  checks whether the app is running, and the remaining selection stays intact.
+
+## 4.1.1
+
+### Fixed
+
 - Removing orphaned files with administrator approval no longer breaks on names
   with an apostrophe, and a crafted folder name can no longer run commands as
   root.
@@ -26,12 +37,6 @@ All notable user-facing changes to Sift. Sift was called PureMac before 4.0.0.
   …) only when the project file that generates it — `Cargo.toml`,
   `package.json`, `Package.swift` and the like — sits next to it, so a source
   folder that happens to share the name is left alone.
-- The app-files scan and removal no longer follow a symlinked folder, so a link
-  planted in Application Support cannot put files from another directory in the
-  app's removal list or move them to the Trash.
-- Removing a single row from the app files list no longer moves a running app's
-  bundle to the Trash or clears the other selected rows; every removal path now
-  checks whether the app is running, and the remaining selection stays intact.
 
 ## 4.1.0
 
