@@ -2,19 +2,12 @@
 "Overview" = "Огляд";
 "Cleanup" = "Очищення";
 "Dashboard" = "Головна панель";
-"Installed Apps" = "Встановлені програми";
-"Ready to clean" = "Готово до очищення";
 "Limited access" = "Обмежений доступ";
-"Full Disk Access granted" = "Надано повний доступ до диска";
-"Grant FDA in Settings" = "Надати доступ у Системних параметрах";
-"Select a category from the sidebar to get started." = "Щоб почати, виберіть категорію на бічній панелі.";
 
 /* FDA toast + clean error alert (MainWindow) */
 "Couldn't clean everything" = "Не вдалося очистити все";
 "Open System Settings" = "Відкрити Системні параметри";
 "OK" = "Гаразд";
-"Full Disk Access required" = "Потрібен повний доступ до диска";
-"Grant Access" = "Надати доступ";
 
 /* Permission Sheet */
 "Grant Full Disk Access" = "Надати повний доступ до диска";
@@ -25,7 +18,6 @@
 " and %lld more" = " і ще %lld";
 "Access granted. Retrying…" = "Доступ надано. Повторюємо спробу…";
 "1-tap setup. We'll detect the change automatically." = "Налаштування одним натисканням. Зміну буде виявлено автоматично.";
-"We'll open both windows side-by-side." = "Ми відкриємо обидва вікна поруч.";
 "Toggle the row that appears." = "Увімкніть перемикач у рядку, що з’явиться.";
 "Authenticate" = "Підтвердьте особу";
 "Touch ID or password." = "За допомогою Touch ID або пароля.";
@@ -43,65 +35,27 @@
 "I granted it — retry" = "Доступ надано — повторити";
 
 /* Dashboard polish */
-"Low space" = "Мало місця";
-"CLEANING" = "ОЧИЩЕННЯ";
-"Quick Setup" = "Швидке налаштування";
-"1-tap setup. We'll auto-retry what failed." = "Налаштування одним натисканням. Невдалу операцію буде повторено автоматично.";
-"Fix permission" = "Надати доступ";
 "Dismiss" = "Закрити";
-"Fix" = "Виправити";
 "Set up" = "Налаштувати";
 
 /* Dashboard */
 "Storage" = "Сховище";
 "Smart Scan" = "Розумне сканування";
-"free of %@" = "вільно із %@";
-"Junk" = "Сміття";
-"Free Space" = "Вільне місце";
-"Junk Found" = "Знайдено зайве";
 "Apps" = "Програми";
-"of %@ · %lld%% used" = "усього %@ · використано %lld%%";
-"Run a scan" = "Запустити сканування";
-"across %lld categories" = "Категорій: %lld";
 "installed" = "встановлено";
-"APFS reclaimable" = "можна звільнити в APFS";
-"Suggested for you" = "Рекомендовано для вас";
-"By category" = "За категоріями";
-"%@ is using %@" = "%@ займає %@";
-"Grant Full Disk Access for full results" = "Надайте повний доступ до диска, щоб отримати повні результати";
-"Without it, most caches and uninstall flows fail." = "Без нього більшість кешів неможливо очистити, а програми — видалити.";
-"Action" = "Дія";
 "Scanning your Mac" = "Скануємо ваш Mac";
-"Currently in: %@" = "Зараз: %@";
-"found" = "знайдено";
-"Your Mac is clean" = "На вашому Mac чисто";
 "Scan Again" = "Сканувати знову";
-"Clean %@?" = "Очистити %@?";
-"Cleaning…" = "Очищення…";
 "%lld%% complete" = "Виконано %lld%%";
-"freed" = "звільнено";
 "Done" = "Готово";
 "%lld items" = "Об’єктів: %lld";
 
 /* Common destructive dialog */
-"Clean" = "Очистити";
 "Cancel" = "Скасувати";
-"This will permanently delete the selected files. This cannot be undone." = "Вибрані файли буде видалено назавжди. Цю дію неможливо скасувати.";
 
 /* Category Detail */
-"All Clean" = "Усе чисто";
-"No junk files found in this category." = "У цій категорії не знайдено непотрібних файлів.";
-"Not Scanned" = "Не скановано";
-"Run a scan to analyze this category." = "Запустіть сканування, щоб проаналізувати цю категорію.";
-"Scan Now" = "Сканувати зараз";
-"Filter files" = "Пошук файлів";
 "Scan" = "Сканувати";
 "Select All" = "Вибрати все";
 "Deselect All" = "Скасувати вибір";
-"Largest First" = "Спочатку найбільші";
-"Smallest First" = "Спочатку найменші";
-"Sorted: Largest First" = "Сортування: спочатку найбільші";
-"Sorted: Smallest First" = "Сортування: спочатку найменші";
 "Clean %lld items" = "Очистити вибране (%lld)";
 "%lld items · %@" = "Об’єктів: %lld · %@";
 "Rescan" = "Сканувати повторно";
@@ -123,7 +77,6 @@
 /* App Files (AppFilesView) */
 "%lld files" = "Файлів: %lld";
 "1 folder" = "1 папка";
-"1 file" = "1 файл";
 "Scanning for related files..." = "Пошук пов’язаних файлів...";
 "Checking %lld locations..." = "Перевіряємо розташування: %lld...";
 "No Related Files" = "Пов’язаних файлів немає";
@@ -145,32 +98,13 @@
 /* Onboarding */
 "Back" = "Назад";
 "Next" = "Далі";
-"Get Started" = "Почати";
-"Free, open-source macOS app manager and system cleaner." = "Безкоштовний менеджер програм і засіб очищення системи з відкритим кодом для macOS.";
-"Find junk files across your system" = "Знаходьте непотрібні файли в усій системі";
-"Remove apps and all their files" = "Видаляйте програми разом з усіма їхніми файлами";
-"Find leftovers from deleted apps" = "Знаходьте залишки видалених програм";
 "Full Disk Access" = "Повний доступ до диска";
-"We'll guide you through the next steps." = "Ми допоможемо виконати наступні кроки.";
-"In System Settings, do this:" = "У Системних параметрах виконайте такі дії:";
 "Privacy & Security → Full Disk Access" = "Приватність і безпека → Повний доступ до диска";
-"Authenticate with Touch ID or your password" = "Підтвердьте особу за допомогою Touch ID або пароля";
 "Reopen Settings" = "Знову відкрити Системні параметри";
-"Reset permissions and re-prompt" = "Скинути дозволи й запитати знову";
-"Hide diagnostics" = "Сховати діагностику";
-"Show diagnostics" = "Показати діагностику";
-"Trouble?" = "Виникли труднощі?";
-"Waiting for permission…" = "Очікуємо дозволу…";
-"Permission granted." = "Дозвіл надано.";
-"You're Ready" = "Усе готово";
-"%lld/%lld protected locations accessible" = "Доступні захищені розташування: %lld/%lld";
 "Some features will be limited without Full Disk Access. You can grant it later in Settings." = "Без повного доступу до диска деякі функції будуть обмежені. Його можна надати пізніше в налаштуваннях.";
 "Trash" = "Смітник";
-"Mail Data" = "Дані Пошти";
-"Safari Data" = "Дані Safari";
 "Desktop" = "Робочий стіл";
 "Documents" = "Документи";
-"TCC Database" = "База даних TCC";
 "Blocked" = "Заблоковано";
 
 /* FDA demo system apps */
@@ -210,7 +144,6 @@
 "Enable scheduled scanning" = "Увімкнути сканування за розкладом";
 "Scan interval" = "Інтервал сканування";
 "Auto-clean after scan" = "Автоматично очищати після сканування";
-"Auto-purge purgeable space" = "Автоматично звільняти доступне місце";
 "Notify on completion" = "Сповіщати про завершення";
 "Last run" = "Останній запуск";
 "Version %@" = "Версія %@";
@@ -239,10 +172,8 @@
 "Scan everything at once" = "Усе за одне сканування";
 "System caches, logs, and temporary files" = "Системні кеші, журнали й тимчасові файли";
 "Application caches and browser data" = "Кеші програм і дані браузерів";
-"Local AI app logs, caches, and optional history" = "Журнали, кеші та, за бажанням, історія локальних програм ШІ";
 "Downloaded mail attachments" = "Викачані вкладення Пошти";
 "Files over 100 MB or older than 1 year" = "Файли розміром понад 100 МБ або старші за 1 рік";
-"APFS purgeable disk space" = "Місце APFS, яке можна звільнити";
 "Derived data, archives, and simulator runtimes" = "Похідні дані, архіви та середовища виконання симуляторів";
 "Homebrew download cache" = "Кеш завантажень Homebrew";
 "npm, yarn, and pnpm download caches" = "Кеші завантажень npm, yarn і pnpm";
@@ -319,8 +250,6 @@
 "Or drag the icon on the left straight into Settings." = "Або перетягніть іконку зліва прямо в Системні параметри.";
 
 /* Dashboard storage composition (v2.7.0) */
-"Storage composition" = "Розподіл сховища";
-"total" = "усього";
 "Free" = "Вільно";
 
 /* UI polish (v2.8.0): leftover groups + sound toggle */
@@ -362,51 +291,14 @@
 "%lld checks" = "%lld перевірок";
 "%lld items found" = "Знайдено елементів: %lld";
 "%lld selected" = "Вибрано: %lld";
-"%lld-POINT LOCAL SCAN" = "ЛОКАЛЬНЕ СКАНУВАННЯ, %lld ТОЧОК";
-"%lld/%lld checked" = "%lld/%lld перевірено";
-"ALL CLEAR" = "УСЕ ГАРАЗД";
-"Advanced Tools" = "Додаткові інструменти";
-"All clear" = "Усе гаразд";
-"App leftovers to inspect" = "Залишки програм для перевірки";
 "Appearance" = "Вигляд";
-"Caches, mail, trash, and large files" = "Кеші, пошта, смітник і великі файли";
-"Care areas" = "Області турботи";
-"Checks every cleanup category without deleting files" = "Перевіряє кожну категорію очищення без видалення файлів";
-"Choose what to keep, then clean everything in one controlled pass." = "Виберіть, що зберегти, а потім очистьте все за один контрольований прохід.";
-"Cleaning safely…" = "Безпечне очищення…";
-"Cleanup complete. Your storage summary is refreshing." = "Очищення завершено. Зведення сховища оновлюється.";
 "Clear" = "Зняти вибір";
 "Developer" = "Розробник";
-"Installed apps" = "Встановлені програми";
-"LOW SPACE" = "МАЛО МІСЦЯ";
-"Last clean: %@" = "Останнє очищення: %@";
-"Local" = "Локально";
-"Make room.\nKeep control." = "Звільніть місце.\nЗбережіть контроль.";
-"No cleanup run yet" = "Очищення ще не виконувалося";
-"No known leftovers" = "Відомих залишків немає";
-"One scan checks every cleanup tool and prepares a plan for your review." = "Одне сканування перевіряє всі інструменти очищення й готує план для перевірки.";
-"Private" = "Приватно";
-"Ready for review" = "Готово до перевірки";
-"Ready to reclaim" = "Готово до повернення";
 "Review" = "Переглянути";
-"Review scan results" = "Переглянути результати сканування";
-"Review what was found" = "Переглянути знайдене";
-"Reviewable" = "Для перевірки";
-"SCAN COMPLETE" = "СКАНУВАННЯ ЗАВЕРШЕНО";
-"Scan My Mac" = "Сканувати мій Mac";
-"Scan first.\nDecide what goes." = "Спершу скануйте.\nВирішіть, що видалити.";
-"Scanning" = "Сканування";
-"Selected items are being removed safely." = "Вибрані елементи безпечно видаляються.";
-"Smart Care" = "Smart Care";
-"Twelve-layer storage inspection model" = "Дванадцятирівнева модель перевірки сховища";
-"Xcode and package tools" = "Інструменти Xcode і пакетів";
-"Your Mac is in good shape." = "Ваш Mac у доброму стані.";
 
 /* Simulator runtimes */
-"Simulator runtime" = "Середовище виконання симулятора";
 
 /* Current dashboard, tools, and cleanup review — English fallback until translated */
-"\nAnd %lld more." = "\nІ ще %lld.";
 "%@ %@ to %@" = "%@ %@ до %@";
 "%@ available" = "%@ доступно";
 "%@ did not finish within the allowed time." = "%@ не завершилося за відведений час.";
@@ -415,7 +307,6 @@
 "%@ of %@" = "%@ з %@";
 "%@ of %@ candidates · %@ verified" = "%@ з %@ кандидатів · %@ підтверджено";
 "%@ reviewable" = "%@ для перевірки";
-"%@ selected. This permanently removes the selected files or runs the listed cleanup actions. It cannot be undone." = "Вибрано: %@. Вибрані файли буде остаточно видалено або виконано зазначені дії очищення. Це не можна скасувати.";
 "%@ will move to Trash" = "%@ буде переміщено в Смітник";
 "%lld analyzed" = "Проаналізовано: %lld";
 "%lld apps selected" = "Вибрано програм: %lld";
@@ -441,8 +332,6 @@
 ", and %lld more" = ", і ще %lld";
 "1 app selected" = "Вибрано 1 програму";
 "1 update available" = "Доступне 1 оновлення";
-"500 photo limit" = "Обмеження в 500 фото";
-"A clear view of reclaimable storage and the tools that manage it." = "Наочний огляд простору, який можна повернути, та інструментів для нього.";
 "A selected file is missing or changed: %@" = "Вибраний файл відсутній або змінений: %@";
 "A selected file no longer matches its kept copy: %@" = "Вибраний файл більше не збігається зі збереженою копією: %@";
 "Access denied" = "Доступ заборонено";
@@ -468,7 +357,6 @@
 "Check Again" = "Перевірити знову";
 "Check again" = "Перевірити знову";
 "Check built-in safeguards" = "Перевірити вбудовані засоби захисту";
-"Check installed apps for new versions" = "Перевірити нові версії встановлених програм";
 "Check installed cask apps" = "Перевірити встановлені програми cask";
 "Checked %@. Unknown means the setting could not be confirmed." = "Перевірено: %@. «Невідомо» означає, що налаштування не вдалося підтвердити.";
 "Checking" = "Перевірка";
@@ -488,7 +376,6 @@
 "Clear search" = "Очистити пошук";
 "Cloud-only file" = "Файл лише в хмарі";
 "Collapse duplicate group" = "Згорнути групу дублікатів";
-"Compare visually similar photos" = "Порівняти візуально схожі фото";
 "Conditional keep alive" = "Умовне підтримання активності";
 "Copy path" = "Скопіювати шлях";
 "Could not inspect %@" = "Не вдалося перевірити %@";
@@ -511,14 +398,10 @@
 "FileVault" = "FileVault";
 "FileVault Settings" = "Налаштування FileVault";
 "Files will be moved to the Trash. Items requiring administrator authorization may be permanently deleted. App matching is a best-effort estimate; review files you recognize before removing them." = "Файли буде переміщено в Смітник. Елементи, що потребують прав адміністратора, можуть бути остаточно видалені. Зіставлення програм є приблизною оцінкою; перегляньте знайомі файли перед видаленням.";
-"Filter cleanup files" = "Фільтрувати файли очищення";
 "Find copies that are exactly the same" = "Знайти повністю однакові копії";
-"Find space to reclaim." = "Знайдіть місце, яке можна повернути.";
 "Find visually related shots in a folder and review them side by side." = "Знайдіть візуально пов’язані знімки в теці та порівняйте їх поруч.";
-"Find what uses the most disk space" = "Дізнайтеся, що займає найбільше місця";
 "Finding local photos" = "Пошук локальних фото";
 "Firewall Settings" = "Налаштування мережевого екрана";
-"Focused utilities for storage, apps, and system maintenance" = "Цілеспрямовані інструменти для сховища, програм і обслуговування системи";
 "Folder could not be inspected" = "Не вдалося перевірити теку";
 "Full Disk Access is off" = "Повний доступ до диска вимкнено";
 "Full access" = "Повний доступ";
@@ -541,7 +424,6 @@
 "Incoming network connections are filtered." = "Вхідні мережеві з’єднання фільтруються.";
 "Inspect" = "Перевірити";
 "Inspect a folder by allocated disk space. Your files are never changed." = "Перевірте теку за зайнятим місцем. Ваші файли ніколи не змінюються.";
-"Inspect memory and background activity" = "Перевірити пам’ять і фонову активність";
 "Inspect startup items and local snapshots again" = "Знову перевірити об’єкти входу й локальні знімки";
 "Inspected %@ files in %@. %@" = "Перевірено файлів: %@ у %@. %@";
 "Inspecting startup items and local snapshots…" = "Перевірка об’єктів входу й локальних знімків…";
@@ -553,11 +435,7 @@
 "Keep alive" = "Підтримувати активність";
 "Largest first" = "Спершу великі";
 "Largest items" = "Найбільші елементи";
-"Last checked" = "Остання перевірка";
 "Leftovers" = "Залишки";
-"Live resources" = "Ресурси в реальному часі";
-"Local and private" = "Локально й приватно";
-"Local files" = "Локальні файли";
 "Local snapshot" = "Локальний знімок";
 "Local snapshots" = "Локальні знімки";
 "Location" = "Розташування";
@@ -566,7 +444,6 @@
 "Managed cleanup action" = "Керована дія очищення";
 "Matching files" = "Збіжні файли";
 "Measuring allocated space" = "Вимірювання зайнятого місця";
-"Memory pressure use" = "Використання тиску на пам’ять";
 "Microphone" = "Мікрофон";
 "Modified" = "Змінено";
 "Move selected duplicates to Trash?" = "Перемістити вибрані дублікати в Смітник?";
@@ -620,18 +497,13 @@
 "Refused to delete %lld protected item(s) (home credential directory or similar)." = "Відмовлено у видаленні захищених елементів: %lld (каталог облікових даних або подібне).";
 "Remove %lld files" = "Видалити файли: %lld";
 "Remove %lld items" = "Видалити елементи: %lld";
-"Remove apps and their related files" = "Видалити програми та пов’язані файли";
 "Remove selected app files?" = "Видалити вибрані файли програми?";
-"Remove selected files?" = "Видалити вибрані файли?";
 "Remove selected leftovers?" = "Видалити вибрані залишки?";
 "Removing the items you selected." = "Видалення вибраних елементів.";
 "Reveal %@ in Finder" = "Показати %@ у Finder";
 "Reveal plist in Finder" = "Показати plist у Finder";
 "Reveal skipped item in Finder" = "Показати пропущений елемент у Finder";
 "Review and update apps installed as Homebrew casks." = "Перегляньте й оновіть програми, встановлені як cask Homebrew.";
-"Review built-in privacy and safety checks" = "Переглянути вбудовані перевірки конфіденційності й безпеки";
-"Review matching files side by side" = "Переглянути збіжні файли поруч";
-"Review only" = "Лише перегляд";
 "Review removal" = "Переглянути видалення";
 "Review the groups before acting" = "Перегляньте групи перед дією";
 "Review the macOS safeguards that protect apps, disks, network access, and system files." = "Перегляньте засоби захисту macOS, які оберігають програми, диски, мережевий доступ і системні файли.";
@@ -661,7 +533,6 @@
 "Select copies" = "Вибрати копії";
 "Select the apps Homebrew should upgrade." = "Виберіть програми, які Homebrew має оновити.";
 "Select the extra copies you want to review" = "Виберіть додаткові копії для перевірки";
-"Selected cleanup items are permanently removed." = "Вибрані елементи очищення видаляються остаточно.";
 "Share of scanned space" = "Частка просканованого місця";
 "Shares storage with %@" = "Ділить сховище з %@";
 "Show %@ in Finder" = "Показати %@ у Finder";
@@ -688,7 +559,6 @@
 "Symbolic link" = "Символічне посилання";
 "Symbolic links and cloud-only items are excluded." = "Символічні посилання й елементи лише в хмарі виключено.";
 "Symbolic links cannot be scanned: %@" = "Символічні посилання не можна сканувати: %@";
-"Symbolic links, app packages, hidden files and cloud-only placeholders are skipped. Photos are never uploaded or deleted." = "Символічні посилання, пакети програм, приховані файли та заповнювачі лише в хмарі пропускаються. Фото ніколи не завантажуються й не видаляються.";
 "System Integrity Protection" = "Захист цілісності системи";
 "System Integrity Protection is turned off." = "Захист цілісності системи вимкнено.";
 "System daemon" = "Системний демон";
@@ -734,7 +604,6 @@
 "allocated in this folder" = "зайнято в цій теці";
 "definitions %@" = "визначення %@";
 "engine %@" = "рушій %@";
-"reclaimed" = "повернуто";
 "similar group" = "схожа група";
 "similar groups" = "схожі групи";
 "tmutil is not available on this Mac." = "tmutil недоступний на цьому Mac.";
@@ -748,12 +617,8 @@
 "CPU uses the Mac’s total capacity. App helpers are grouped with their app." = "CPU використовує загальну ємність Mac. Допоміжні процеси програми групуються з нею.";
 "CPU values appear after the next sample." = "Значення CPU з’являться після наступного вимірювання.";
 "Check access" = "Перевірити доступ";
-"Checking for updates…" = "Перевірка оновлень…";
 "Collapsed" = "Згорнуто";
-"Copy command" = "Скопіювати команду";
-"Download (DMG / ZIP)" = "Завантажити (DMG / ZIP)";
 "Expanded" = "Розгорнуто";
-"GitHub is receiving too many requests. Please try again later." = "GitHub отримує забагато запитів. Спробуйте пізніше.";
 "Homebrew" = "Homebrew";
 "Live updates paused" = "Живі оновлення призупинено";
 
@@ -761,37 +626,22 @@
 "Memory estimate includes active, wired and compressed memory." = "Оцінка пам’яті включає активну, закріплену та стиснуту пам’ять.";
 "Memory in use" = "Використовувана пам’ять";
 "No matching apps or processes" = "Немає відповідних програм або процесів";
-"Open release page" = "Відкрити сторінку випусків";
 "Process information is unavailable. Try Activity Monitor for more detail." = "Інформація про процеси недоступна. Використайте Монітор активності для подробиць.";
-"Restart to apply your language" = "Перезапустіть, щоб застосувати мову";
-"Review Full Disk Access" = "Перевірити повний доступ до диска";
-"Review launch at login" = "Перевірити запуск під час входу";
 "Search apps and processes" = "Пошук програм і процесів";
 "Settings" = "Налаштування";
-"Settings need attention" = "Налаштування потребують уваги";
-"Settings to review" = "Налаштування для перевірки";
 "Show all apps and processes" = "Показати всі програми та процеси";
 "Show top 8" = "Показати 8 головних";
 "Some of this app's processes have no CPU reading yet, so this total is partial." = "Деякі процеси цієї програми ще не мають показників CPU, тому підсумок частковий.";
 "Some processes started or stopped since the last sample. Their values appear in the next one." = "Деякі процеси запустилися або зупинилися після останнього вимірювання. Їхні значення з’являться в наступному.";
 "Sort by" = "Сортувати за";
 "System processes are not listed. Use Activity Monitor for those." = "Системні процеси не відображаються. Використайте Монітор активності.";
-"The release service is unavailable. Please try again later." = "Служба випусків недоступна. Спробуйте пізніше.";
-"This build has no readable version. Open the releases page to check manually." = "Ця збірка не має читабельної версії. Відкрийте сторінку випусків, щоб перевірити вручну.";
-"To update with Homebrew, run this command in Terminal. The cask may follow the GitHub release a little later." = "Щоб оновити через Homebrew, виконайте цю команду в Терміналі. Cask може з’явитися у випуску GitHub трохи пізніше.";
-"Update method" = "Спосіб оновлення";
 
-"View releases" = "Переглянути випуски";
 
 /* Sift redesign */
 "%@ could not be removed because Sift does not have Full Disk Access. Grant Full Disk Access in System Settings, then try again." = "Не вдалося видалити %@, оскільки Sift не має повного доступу до диска. Надайте повний доступ до диска в Налаштуваннях системи й спробуйте знову.";
 "Sift" = "Sift";
 "Sift can now reach the locations macOS protects by default." = "Тепер Sift має доступ до розташувань, які macOS захищає за замовчуванням.";
 "Open Settings & reveal Sift" = "Відкрити Параметри й показати Sift";
-"Keep Sift up to date" = "Тримайте Sift актуальним";
-"Download the new app from the release page, quit Sift, then replace it in Applications." = "Завантажте нову програму зі сторінки випусків, закрийте Sift, а потім замініть її в «Програмах».";
-"Sift %@ is available" = "Доступний Sift %@";
-"You're using the latest available version of Sift." = "Ви використовуєте останню доступну версію Sift.";
 "Launch Sift at login" = "Запускати Sift під час входу";
 "Restart Sift to apply the selected language." = "Перезапустіть Sift, щоб застосувати вибрану мову.";
 "Live CPU, memory, and disk meters in the menu bar. Sift keeps running in the background while this is on." = "Показники процесора, пам’яті й диска в реальному часі у смузі меню. Поки цю функцію ввімкнено, Sift працює у фоновому режимі.";
@@ -813,12 +663,9 @@
 "Homebrew produced more output than Sift could safely retain." = "Homebrew вивів більше даних, ніж Sift міг безпечно зберегти.";
 "Sift could not read this setting." = "Sift не зміг прочитати це налаштування.";
 "Sift could not confirm the local XProtect installation." = "Sift не зміг підтвердити локальне встановлення XProtect.";
-"No stable Sift app release was found. Try again later." = "Стабільний випуск Sift не знайдено. Спробуйте пізніше.";
 "Scheduled cleanup" = "Очищення за розкладом";
 "Smart Scan cleanup" = "Очищення після розумного сканування";
 "Emptied Trash" = "Смітник очищено";
-"Sift isn't allowed to control Finder. Allow it in System Settings > Privacy & Security > Automation, then try again." = "Програма Sift не має дозволу керувати Finder. Надайте його в розділі «Системні параметри» > «Приватність і безпека» > «Автоматизація», а потім повторіть спробу.";
-"Finder couldn't empty the Trash: %@" = "Finder не вдалося очистити Смітник: %@";
 "just now" = "щойно";
 "Files and cleanup actions marked Permanent cannot be undone. Items marked Move to Trash can be recovered until the Trash is emptied." = "Файли та дії очищення з позначкою «Назавжди» неможливо скасувати. Об’єкти з позначкою «Перемістити в Смітник» можна відновити, доки Смітник не очищено.";
 "Permanent · Remove simulator runtime" = "Назавжди · Видалення середовища виконання симулятора";
@@ -842,9 +689,6 @@
 "Old and large" = "Старі й великі";
 "The Trash is empty" = "Смітник порожній";
 "Files you move to the Trash show up here." = "Тут з’являються файли, які ви перемістили в Смітник.";
-"Empty the Trash?" = "Очистити Смітник?";
-"Empty Trash" = "Очистити Смітник";
-"Finder will permanently delete %lld items (%@). This can't be undone." = "Finder назавжди видалить об’єкти (%lld, %@). Цю дію неможливо скасувати.";
 "Cleanup, scanned %@" = "Очищення, проскановано %@";
 "Cleanup, not scanned yet" = "Очищення, ще не скановано";
 "Filter by name or path" = "Фільтр за назвою або шляхом";
@@ -864,7 +708,6 @@
 "Review and remove" = "Переглянути й видалити";
 "%lld items in the Trash" = "Об’єктів у Смітнику: %lld";
 "Finder empties the Trash. This can't be undone." = "Смітник очищує Finder. Цю дію неможливо скасувати.";
-"Emptying the Trash…" = "Очищення Смітника…";
 "%@ total" = "усього %@";
 "%@ removed" = "Видалено %@";
 "%@ is junk" = "%@ сміття";
@@ -922,10 +765,6 @@
 "App updates" = "Оновлення програм";
 "Every %@" = "Щотижня: %@";
 "Version" = "Версія";
-"Version %@ (%@). Checks the official app releases on GitHub." = "Версія %@ (%@). Перевіряє офіційні випуски програми на GitHub.";
-"Installing updates" = "Встановлення оновлень";
-"Release notes" = "Нотатки до випуску";
-"Every version and what changed, on GitHub" = "Усі версії та зміни на GitHub";
 "Permissions" = "Дозволи";
 "Startup, language, the menu bar monitor and sound." = "Запуск, мова, монітор у смузі меню та звук.";
 "What Sift looks for, and what it leaves alone." = "Що шукає програма Sift, а чого не торкається.";
@@ -976,10 +815,6 @@
 "A notification with what was found or cleaned" = "Сповіщення про те, що знайдено чи очищено";
 "Runs" = "Запуски";
 "Next run" = "Наступний запуск";
-"Automation" = "Автоматизація";
-"macOS asks the first time" = "macOS запитає першого разу";
-"Sift asks Finder to reveal files and to empty the Trash. Turn it on or off in Privacy & Security > Automation." = "Програма Sift просить Finder показувати файли й очищати Смітник. Увімкнути чи вимкнути це можна в розділі «Приватність і безпека» > «Автоматизація».";
-"Open Automation settings" = "Відкрити параметри автоматизації";
 "Source code" = "Вихідний код";
 "Found a problem?" = "Знайшли проблему?";
 "Issues are tracked on GitHub" = "Проблеми відстежуються на GitHub";
@@ -1176,12 +1011,6 @@
 "The settings shortcut is unavailable. Open System Settings from the Apple menu." = "Ярлик налаштувань недоступний. Відкрийте «Налаштування системи» в меню Apple.";
 "Could not open %@. Open the app or guide manually." = "Не вдалося відкрити %@. Відкрийте програму або посібник вручну.";
 "This location is no longer available or cannot be accessed. Scan again to refresh the results." = "Це розташування більше недоступне або до нього немає доступу. Проскануйте знову, щоб оновити результати.";
-"Permission denied when accessing '%@'. Grant Full Disk Access in System Settings." = "Доступ до «%@» заборонено. Надайте повний доступ до диска в «Налаштуваннях системи».";
-"Failed to enumerate directory '%@': %@" = "Не вдалося перелічити каталог «%@»: %@";
-"Failed to execute '%@': %@" = "Не вдалося виконати «%@»: %@";
-"Invalid data encountered: %@" = "Виявлено недопустимі дані: %@";
-"The privileged helper tool is not installed or unavailable." = "Привілейований допоміжний інструмент не встановлено або він недоступний.";
-"The operation was cancelled." = "Операцію скасовано.";
 "Not writable by current user: %@" = "Немає прав на запис у поточного користувача: %@";
 "Cannot modify %@: its entitlements require the original developer signature" = "Не вдається змінити %@: його права вимагають оригінального підпису розробника";
 "Cannot thin %@: it is signed and notarized, and stripping a slice would break its signature" = "Не вдається прорідити %@: його підписано й нотаріально засвідчено, а вилучення архітектури порушить підпис";

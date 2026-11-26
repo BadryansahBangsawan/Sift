@@ -52,7 +52,6 @@ final class ScanProgressTicker: ObservableObject {
 final class AppState: ObservableObject {
     let languageAtLaunch = AppLanguage.current
     @Published var settingsNeedLanguageRestart = false
-    @Published var showUpdateSettings = false
     @Published var deviceBackupRemovalInProgress = false
     @Published var deviceBackupRemovalResult: DeviceBackupRemovalResult?
     var canRemoveDeviceBackups: Bool {
@@ -234,12 +233,6 @@ final class AppState: ObservableObject {
             if left.name != right.name { return left.name < right.name }
             return left.path < right.path
         }.prefix(max(0, limit)))
-    }
-
-    /// Merged results for a category group such as
-    /// `CleaningCategory.developerCaches` or `.systemJunkGroup`.
-    func groupResult(for categories: [CleaningCategory]) -> CategoryGroupResult {
-        CategoryGroupResult(categories: categories, results: categoryResults)
     }
 
     /// Cleanups recorded in the current calendar month, newest first.
@@ -906,28 +899,6 @@ final class AppState: ObservableObject {
         }
     }
 
-    func selectAllInCategory(_ category: CleaningCategory) {
-        guard let result = categoryResults[category] else { return }
-        for item in result.items {
-            if item.isSelected {
-                deselectedItems.remove(item.id)
-            } else {
-                selectedCleanupItems.insert(item.id)
-            }
-        }
-    }
-
-    func deselectAllInCategory(_ category: CleaningCategory) {
-        guard let result = categoryResults[category] else { return }
-        for item in result.items {
-            if item.isSelected {
-                deselectedItems.insert(item.id)
-            } else {
-                selectedCleanupItems.remove(item.id)
-            }
-        }
-    }
-
     // MARK: - Helper Methods
 
     func itemBinding(for item: CleanableItem) -> Binding<Bool> {
@@ -1431,8 +1402,9 @@ final class AppState: ObservableObject {
             && !PermissionCoordinator.shared.isRequesting
     }
 
-    func runScheduledScan(isAppActive: Bool = NSApp.isActive) async {
-        guard canRunScheduledScan(isAppActive: isAppActive) else { return }
+    func runScheduledScan(isAppActive: Bool? = nil) async {
+        let appIsActive = isAppActive ?? NSApp.isActive
+        guard canRunScheduledScan(isAppActive: appIsActive) else { return }
         let categories = scheduler.config.categoriesToScan.filter { CleaningCategory.scannable.contains($0) }
         guard !categories.isEmpty else { return }
         let generation = UUID()

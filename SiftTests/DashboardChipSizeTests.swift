@@ -33,8 +33,7 @@ final class DashboardChipSizeTests: XCTestCase {
     }
 
     func testPurgeableCategoryTotalMatchesTheRowsItLists() async {
-        var info = DiskInfo()
-        info.purgeableSpace = 5_000_000_000
+        let info = DiskInfo(purgeableSpace: 5_000_000_000)
         let engine = ScanEngine(
             homeDirectory: FileManager.default.temporaryDirectory,
             diskInfoProvider: { info }
@@ -62,8 +61,7 @@ final class DashboardChipSizeTests: XCTestCase {
     }
 
     func testPurgeableRowNamesNoFilesystemPath() async {
-        var info = DiskInfo()
-        info.purgeableSpace = 12_000_000_000
+        let info = DiskInfo(purgeableSpace: 12_000_000_000)
         let engine = ScanEngine(
             homeDirectory: FileManager.default.temporaryDirectory,
             diskInfoProvider: { info }

@@ -120,28 +120,6 @@ final class AppStateSummaryTests: XCTestCase {
         XCTAssertEqual(CleaningCategory.developerCaches, [.xcodeJunk, .brewCache, .nodeCache, .dockerCache])
         XCTAssertEqual(CleaningCategory.systemJunkGroup, [.systemJunk, .userCache])
         XCTAssertEqual(CleaningCategory.aiToolsGroup, [.aiApps])
-
-        let state = makeState()
-        let derived = item("DerivedData", size: 500, category: .xcodeJunk)
-        let brew = item("Homebrew", size: 200, category: .brewCache)
-        let npm = item("npm", size: 50, category: .nodeCache)
-        let cache = item("cache", size: 300, category: .userCache)
-        state.categoryResults = [
-            .xcodeJunk: result(.xcodeJunk, [derived]),
-            .brewCache: result(.brewCache, [brew, npm].filter { $0.category == .brewCache }),
-            .nodeCache: result(.nodeCache, [npm]),
-            .userCache: result(.userCache, [cache]),
-        ]
-
-        let developer = state.groupResult(for: CleaningCategory.developerCaches)
-        XCTAssertEqual(developer.categories, CleaningCategory.developerCaches)
-        XCTAssertEqual(developer.totalSize, 750)
-        XCTAssertEqual(developer.itemCount, 3)
-        XCTAssertEqual(Set(developer.items.map(\.name)), ["DerivedData", "Homebrew", "npm"])
-
-        let system = state.groupResult(for: CleaningCategory.systemJunkGroup)
-        XCTAssertEqual(system.totalSize, 300)
-        XCTAssertEqual(system.itemCount, 1)
     }
 
     func testCachesChipFollowsTheUserCacheResult() {

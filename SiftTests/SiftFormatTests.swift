@@ -20,9 +20,6 @@ final class SiftFormatTests: XCTestCase {
             let result = CategoryResult(category: .systemJunk, items: [item], totalSize: size)
             XCTAssertEqual(result.formattedSize, expected, "category size \(size)")
 
-            let group = CategoryGroupResult(categories: [.systemJunk], results: [.systemJunk: result])
-            XCTAssertEqual(group.formattedSize, expected, "group size \(size)")
-
             let disk = DiskInfo(totalSpace: size, freeSpace: size, usedSpace: size, purgeableSpace: size)
             XCTAssertEqual(disk.formattedTotal, expected, "disk total \(size)")
             XCTAssertEqual(disk.formattedFree, expected, "disk free \(size)")

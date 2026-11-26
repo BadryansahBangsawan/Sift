@@ -1,5 +1,4 @@
 /* macOS permission prompts */
-"NSAppleEventsUsageDescription" = "Sift використовує Apple Events, щоб попросити Finder показати файли та очистити Смітник.";
 "NSDesktopFolderUsageDescription" = "Sift потрібен доступ до папки «Робочий стіл», щоб знаходити непотрібні й залишкові файли.";
 "NSDocumentsFolderUsageDescription" = "Sift потрібен доступ до папки «Документи», щоб знаходити непотрібні й залишкові файли.";
 "NSDownloadsFolderUsageDescription" = "Sift потрібен доступ до папки «Завантаження», щоб знаходити непотрібні й залишкові файли.";

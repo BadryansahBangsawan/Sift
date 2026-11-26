@@ -4,16 +4,17 @@ import XCTest
 /// Work the app hands to a provider closure must not run on the main actor:
 /// the closure walks the file system or lists installed apps, which takes
 /// seconds and freezes the window if it runs where the UI draws.
+@MainActor
 final class ProviderThreadTests: XCTestCase {
     func testLeftoverScanCallsTheAppListProviderOffTheMainThread() async throws {
-        var probe = ProviderProbe()
+        let probe = ProviderProbe()
         let state = await MainActor.run {
             AppState(performStartupTasks: false, installedAppsProvider: { probe.record() })
         }
 
-        await state.findOrphans()
+        state.findOrphans()
         for _ in 0..<200 {
-            if await state.orphanScanCompleted { break }
+            if state.orphanScanCompleted { break }
             try await Task.sleep(nanoseconds: 20_000_000)
         }
 
@@ -22,7 +23,7 @@ final class ProviderThreadTests: XCTestCase {
     }
 
     func testLeftoverScanBuildsItsSearchPathsOffTheMainThread() async throws {
-        var probe = ProviderProbe()
+        let probe = ProviderProbe()
         let state = await MainActor.run {
             AppState(
                 performStartupTasks: false,
@@ -31,9 +32,9 @@ final class ProviderThreadTests: XCTestCase {
             )
         }
 
-        await state.findOrphans()
+        state.findOrphans()
         for _ in 0..<200 {
-            if await state.orphanScanCompleted { break }
+            if state.orphanScanCompleted { break }
             try await Task.sleep(nanoseconds: 20_000_000)
         }
 

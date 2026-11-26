@@ -577,26 +577,6 @@
 			<string>Pominięto %lld niebezpiecznego lub niedostępnego elementu.</string>
 		</dict>
 	</dict>
-	<key>%lld/%lld protected locations accessible</key>
-	<dict>
-		<key>NSStringLocalizedFormatKey</key>
-		<string>%#@value@</string>
-		<key>value</key>
-		<dict>
-			<key>NSStringFormatSpecTypeKey</key>
-			<string>NSStringPluralRuleType</string>
-			<key>NSStringFormatValueTypeKey</key>
-			<string>lld</string>
-			<key>few</key>
-			<string>%lld/%lld dostępne chronione lokalizacje</string>
-			<key>many</key>
-			<string>%lld/%lld dostępnych chronionych lokalizacji</string>
-			<key>one</key>
-			<string>%lld/%lld dostępna chroniona lokalizacja</string>
-			<key>other</key>
-			<string>%lld/%lld dostępnej chronionej lokalizacji</string>
-		</dict>
-	</dict>
 	<key>Checking %lld locations...</key>
 	<dict>
 		<key>NSStringLocalizedFormatKey</key>
@@ -655,26 +635,6 @@
 			<string>Co %lld sekundę</string>
 			<key>other</key>
 			<string>Co %lld sekundy</string>
-		</dict>
-	</dict>
-	<key>Finder will permanently delete %lld items (%@). This can't be undone.</key>
-	<dict>
-		<key>NSStringLocalizedFormatKey</key>
-		<string>%#@value@</string>
-		<key>value</key>
-		<dict>
-			<key>NSStringFormatSpecTypeKey</key>
-			<string>NSStringPluralRuleType</string>
-			<key>NSStringFormatValueTypeKey</key>
-			<string>lld</string>
-			<key>few</key>
-			<string>Finder trwale usunie %lld elementy (%@). Tej operacji nie można cofnąć.</string>
-			<key>many</key>
-			<string>Finder trwale usunie %lld elementów (%@). Tej operacji nie można cofnąć.</string>
-			<key>one</key>
-			<string>Finder trwale usunie %lld element (%@). Tej operacji nie można cofnąć.</string>
-			<key>other</key>
-			<string>Finder trwale usunie %lld elementu (%@). Tej operacji nie można cofnąć.</string>
 		</dict>
 	</dict>
 	<key>Homebrew finished, but %lld selected apps still report updates.</key>
@@ -835,26 +795,6 @@
 			<string>Zaktualizuj %lld aplikację</string>
 			<key>other</key>
 			<string>Zaktualizuj %lld aplikacji</string>
-		</dict>
-	</dict>
-	<key>across %lld categories</key>
-	<dict>
-		<key>NSStringLocalizedFormatKey</key>
-		<string>%#@value@</string>
-		<key>value</key>
-		<dict>
-			<key>NSStringFormatSpecTypeKey</key>
-			<string>NSStringPluralRuleType</string>
-			<key>NSStringFormatValueTypeKey</key>
-			<string>lld</string>
-			<key>few</key>
-			<string>w %lld kategoriach</string>
-			<key>many</key>
-			<string>w %lld kategoriach</string>
-			<key>one</key>
-			<string>w %lld kategorii</string>
-			<key>other</key>
-			<string>w %lld kategorii</string>
 		</dict>
 	</dict>
 	<key>of %lld cores</key>

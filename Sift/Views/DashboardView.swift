@@ -341,8 +341,6 @@ enum DiskMeterLayout {
     static let labelGap: CGFloat = 6
     /// Gap between capsules, and the meter's own padding on each side.
     static let spacing: CGFloat = 4
-    static let freeFloor: CGFloat = 140
-    static let reclaimableFloor: CGFloat = 170
     /// No segment takes more than this share of the bar.
     static let segmentCap: CGFloat = 0.4
 
@@ -505,7 +503,7 @@ struct DiskMeter: View {
                 )
             )
             HStack(spacing: DiskMeterLayout.spacing) {
-                if let reclaimable, let width = widths.reclaimable {
+                if reclaimable != nil, let width = widths.reclaimable {
                     let style = DiskMeterLayout.style(width: width, label: labelWidth, value: valueWidth)
                     Group {
                         if style == .inline {
@@ -713,7 +711,6 @@ enum WhereRowLayout {
 
         func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {
             let rowWidth = proposal.width ?? 0
-            let widths = columnWidths(rowWidth: rowWidth, subviews: subviews)
             let height = subviews.map { $0.sizeThatFits(.unspecified).height }.max() ?? 0
             return CGSize(width: rowWidth, height: height)
         }

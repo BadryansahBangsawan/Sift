@@ -104,8 +104,6 @@ final class SiftCLITests: XCTestCase {
         try fm.createSymbolicLink(atPath: link, withDestinationPath: victim)
         defer { try? fm.removeItem(atPath: base) }
 
-        XCTAssertTrue(Cleaner.parentHasSymlink(link + "/child"))
-
         let item = ScanItem(path: link + "/child", sizeBytes: 4096, modified: nil)
         let out = Cleaner.remove([item], ignore: IgnoreStore(), dryRun: false)
         XCTAssertEqual(out.removed, 0)

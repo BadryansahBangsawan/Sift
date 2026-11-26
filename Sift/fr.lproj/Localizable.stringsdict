@@ -461,22 +461,6 @@
 			<string>%lld éléments non sûrs ou indisponibles ont été ignorés.</string>
 		</dict>
 	</dict>
-	<key>%lld/%lld protected locations accessible</key>
-	<dict>
-		<key>NSStringLocalizedFormatKey</key>
-		<string>%#@value@</string>
-		<key>value</key>
-		<dict>
-			<key>NSStringFormatSpecTypeKey</key>
-			<string>NSStringPluralRuleType</string>
-			<key>NSStringFormatValueTypeKey</key>
-			<string>lld</string>
-			<key>one</key>
-			<string>%lld/%lld emplacement protégé accessible</string>
-			<key>other</key>
-			<string>%lld/%lld emplacements protégés accessibles</string>
-		</dict>
-	</dict>
 	<key>Checking %lld locations...</key>
 	<dict>
 		<key>NSStringLocalizedFormatKey</key>
@@ -523,22 +507,6 @@
 			<string>Toutes les %lld seconde</string>
 			<key>other</key>
 			<string>Toutes les %lld secondes</string>
-		</dict>
-	</dict>
-	<key>Finder will permanently delete %lld items (%@). This can't be undone.</key>
-	<dict>
-		<key>NSStringLocalizedFormatKey</key>
-		<string>%#@value@</string>
-		<key>value</key>
-		<dict>
-			<key>NSStringFormatSpecTypeKey</key>
-			<string>NSStringPluralRuleType</string>
-			<key>NSStringFormatValueTypeKey</key>
-			<string>lld</string>
-			<key>one</key>
-			<string>Le Finder va supprimer définitivement %lld élément (%@). Cette action est irréversible.</string>
-			<key>other</key>
-			<string>Le Finder va supprimer définitivement %lld éléments (%@). Cette action est irréversible.</string>
 		</dict>
 	</dict>
 	<key>Homebrew finished, but %lld selected apps still report updates.</key>
@@ -667,22 +635,6 @@
 			<string>Mettre à jour %lld app</string>
 			<key>other</key>
 			<string>Mettre à jour %lld apps</string>
-		</dict>
-	</dict>
-	<key>across %lld categories</key>
-	<dict>
-		<key>NSStringLocalizedFormatKey</key>
-		<string>%#@value@</string>
-		<key>value</key>
-		<dict>
-			<key>NSStringFormatSpecTypeKey</key>
-			<string>NSStringPluralRuleType</string>
-			<key>NSStringFormatValueTypeKey</key>
-			<string>lld</string>
-			<key>one</key>
-			<string>sur %lld catégorie</string>
-			<key>other</key>
-			<string>sur %lld catégories</string>
 		</dict>
 	</dict>
 	<key>of %lld cores</key>

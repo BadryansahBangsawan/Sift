@@ -2,70 +2,31 @@
 "Overview" = "概要";
 "Cleanup" = "クリーンアップ";
 "Dashboard" = "ダッシュボード";
-"Installed Apps" = "インストール済みアプリ";
-"Ready to clean" = "クリーンアップ可能";
 "Limited access" = "アクセスが制限されています";
-"Full Disk Access granted" = "フルディスクアクセスが許可されています";
-"Grant FDA in Settings" = "設定でフルディスクアクセスを許可";
-"Select a category from the sidebar to get started." = "サイドバーからカテゴリを選択して始めてください。";
 
 /* FDA toast + clean error alert (MainWindow) */
 "Couldn't clean everything" = "すべてを削除できませんでした";
 "Open System Settings" = "システム設定を開く";
 "OK" = "OK";
-"Full Disk Access required" = "フルディスクアクセスが必要です";
-"Grant Access" = "アクセスを許可";
 
 /* Dashboard */
 "Storage" = "ストレージ";
 "Smart Scan" = "スマートスキャン";
-"free of %@" = "%@中の空き容量";
-"Junk" = "ジャンク";
-"Free Space" = "空き容量";
-"Junk Found" = "見つかったジャンク";
 "Apps" = "アプリ";
-"of %@ · %lld%% used" = "%@中 · %lld%% 使用中";
-"Run a scan" = "スキャンを実行";
-"across %lld categories" = "%lld カテゴリ";
 "installed" = "インストール済み";
-"APFS reclaimable" = "APFSで再利用可能";
-"Suggested for you" = "あなたへのおすすめ";
-"By category" = "カテゴリ別";
-"%@ is using %@" = "%@ は %@ を使用しています";
-"Grant Full Disk Access for full results" = "完全な結果を得るためにフルディスクアクセスを許可してください";
-"Without it, most caches and uninstall flows fail." = "許可しないと、ほとんどのキャッシュ削除やアンインストールに失敗します。";
-"Action" = "アクション";
 "Scanning your Mac" = "Macをスキャン中";
-"Currently in: %@" = "現在: %@";
-"found" = "見つかりました";
-"Your Mac is clean" = "Macはクリーンです";
 "Scan Again" = "再スキャン";
-"Clean %@?" = "%@ をクリーンアップしますか?";
-"Cleaning…" = "クリーンアップ中…";
 "%lld%% complete" = "%lld%% 完了";
-"freed" = "解放";
 "Done" = "完了";
 "%lld items" = "%lld 個";
 
 /* Common destructive dialog */
-"Clean" = "クリーンアップ";
 "Cancel" = "キャンセル";
-"This will permanently delete the selected files. This cannot be undone." = "選択したファイルが完全に削除されます。この操作は取り消せません。";
 
 /* Category Detail */
-"All Clean" = "すべてクリーン";
-"No junk files found in this category." = "このカテゴリにはジャンクファイルが見つかりませんでした。";
-"Not Scanned" = "未スキャン";
-"Run a scan to analyze this category." = "スキャンを実行してこのカテゴリを分析します。";
-"Scan Now" = "今すぐスキャン";
-"Filter files" = "ファイルを絞り込む";
 "Scan" = "スキャン";
 "Select All" = "すべて選択";
 "Deselect All" = "選択解除";
-"Largest First" = "大きい順";
-"Smallest First" = "小さい順";
-"Sorted: Largest First" = "並び順: 大きい順";
-"Sorted: Smallest First" = "並び順: 小さい順";
 "Clean %lld items" = "%lld 項目をクリーンアップ";
 "%lld items · %@" = "%lld 項目 · %@";
 "Rescan" = "再スキャン";
@@ -87,7 +48,6 @@
 /* App Files (AppFilesView) */
 "%lld files" = "%lld ファイル";
 "1 folder" = "1 個のフォルダ";
-"1 file" = "1 個のファイル";
 "Scanning for related files..." = "関連ファイルをスキャン中...";
 "Checking %lld locations..." = "%lld 個の場所を確認中...";
 "No Related Files" = "関連ファイルがありません";
@@ -109,32 +69,13 @@
 /* Onboarding */
 "Back" = "戻る";
 "Next" = "次へ";
-"Get Started" = "始める";
-"Free, open-source macOS app manager and system cleaner." = "無料・オープンソースのmacOSアプリ管理&システムクリーナー。";
-"Find junk files across your system" = "システム全体のジャンクファイルを検出";
-"Remove apps and all their files" = "アプリと関連ファイルをすべて削除";
-"Find leftovers from deleted apps" = "削除済みアプリの残存物を検出";
 "Full Disk Access" = "フルディスクアクセス";
-"We'll guide you through the next steps." = "次のステップへご案内します。";
-"In System Settings, do this:" = "システム設定で次の操作を行ってください:";
 "Privacy & Security → Full Disk Access" = "プライバシーとセキュリティ → フルディスクアクセス";
-"Authenticate with Touch ID or your password" = "Touch IDまたはパスワードで認証";
 "Reopen Settings" = "設定を再度開く";
-"Reset permissions and re-prompt" = "アクセス権をリセットして再度求める";
-"Hide diagnostics" = "診断情報を隠す";
-"Show diagnostics" = "診断情報を表示";
-"Trouble?" = "問題が発生しましたか?";
-"Waiting for permission…" = "許可を待っています…";
-"Permission granted." = "アクセスが許可されました。";
-"You're Ready" = "準備完了";
-"%lld/%lld protected locations accessible" = "%lld/%lld の保護された場所にアクセス可能";
 "Some features will be limited without Full Disk Access. You can grant it later in Settings." = "フルディスクアクセスがない場合、一部の機能が制限されます。後で設定から許可できます。";
 "Trash" = "ゴミ箱";
-"Mail Data" = "メールデータ";
-"Safari Data" = "Safariデータ";
 "Desktop" = "デスクトップ";
 "Documents" = "書類";
-"TCC Database" = "TCCデータベース";
 "Blocked" = "ブロック";
 
 /* FDA demo system apps */
@@ -174,7 +115,6 @@
 "Enable scheduled scanning" = "スケジュールスキャンを有効化";
 "Scan interval" = "スキャン間隔";
 "Auto-clean after scan" = "スキャン後に自動クリーンアップ";
-"Auto-purge purgeable space" = "削除可能領域を自動パージ";
 "Notify on completion" = "完了時に通知";
 "Last run" = "前回実行";
 "Version %@" = "バージョン %@";
@@ -203,10 +143,8 @@
 "Scan everything at once" = "すべてを一度にスキャン";
 "System caches, logs, and temporary files" = "システムキャッシュ、ログ、一時ファイル";
 "Application caches and browser data" = "アプリケーションキャッシュとブラウザデータ";
-"Local AI app logs, caches, and optional history" = "ローカルAIアプリのログ、キャッシュ、任意の履歴";
 "Downloaded mail attachments" = "ダウンロードしたメール添付ファイル";
 "Files over 100 MB or older than 1 year" = "100MB以上または1年以上前のファイル";
-"APFS purgeable disk space" = "APFSの削除可能ディスク領域";
 "Derived data, archives, and simulator runtimes" = "派生データ、アーカイブ、シミュレータ";
 "Homebrew download cache" = "Homebrewのダウンロードキャッシュ";
 "npm, yarn, and pnpm download caches" = "npm、yarn、pnpm のダウンロードキャッシュ";
@@ -263,7 +201,6 @@
 " and %lld more" = " 他 %lld 件";
 "Access granted. Retrying…" = "アクセスが許可されました。再試行中…";
 "1-tap setup. We'll detect the change automatically." = "ワンタップ設定。変更は自動的に検出されます。";
-"We'll open both windows side-by-side." = "両方のウインドウを並べて開きます。";
 "Toggle the row that appears." = "表示された行をオンに切り替えてください。";
 "Authenticate" = "認証";
 "Touch ID or password." = "Touch ID またはパスワード。";
@@ -281,13 +218,7 @@
 "I granted it — retry" = "許可したので再試行";
 
 /* Dashboard polish */
-"Low space" = "空き容量不足";
-"CLEANING" = "クリーニング中";
-"Quick Setup" = "クイックセットアップ";
-"1-tap setup. We'll auto-retry what failed." = "ワンタップ設定。失敗した処理は自動的に再試行します。";
-"Fix permission" = "権限を修正";
 "Dismiss" = "閉じる";
-"Fix" = "修正";
 "Set up" = "設定";
 
 /* Onboarding v2 */
@@ -319,8 +250,6 @@
 "Or drag the icon on the left straight into Settings." = "または左のアイコンをそのまま設定にドラッグしてください。";
 
 /* Dashboard storage composition (v2.7.0) */
-"Storage composition" = "ストレージの内訳";
-"total" = "合計";
 "Free" = "空き";
 
 /* UI polish (v2.8.0): leftover groups + sound toggle */
@@ -362,51 +291,14 @@
 "%lld checks" = "%lld 件のチェック";
 "%lld items found" = "%lld 項目を検出";
 "%lld selected" = "%lld 件選択中";
-"%lld-POINT LOCAL SCAN" = "%lld ポイントのローカルスキャン";
-"%lld/%lld checked" = "%lld/%lld 件チェック済み";
-"ALL CLEAR" = "問題なし";
-"Advanced Tools" = "高度なツール";
-"All clear" = "問題ありません";
-"App leftovers to inspect" = "確認するアプリの残存ファイル";
 "Appearance" = "外観";
-"Caches, mail, trash, and large files" = "キャッシュ、メール、ゴミ箱、大きいファイル";
-"Care areas" = "ケア項目";
-"Checks every cleanup category without deleting files" = "ファイルを削除せずにすべてのクリーンアップカテゴリをチェックします";
-"Choose what to keep, then clean everything in one controlled pass." = "残すものを選んでから、1 回の管理された手順でまとめてクリーンアップします。";
-"Cleaning safely…" = "安全にクリーンアップ中…";
-"Cleanup complete. Your storage summary is refreshing." = "クリーンアップが完了しました。ストレージの概要を更新しています。";
 "Clear" = "選択解除";
 "Developer" = "デベロッパ";
-"Installed apps" = "インストール済みのアプリ";
-"LOW SPACE" = "空き容量不足";
-"Last clean: %@" = "前回のクリーンアップ: %@";
-"Local" = "ローカル";
-"Make room.\nKeep control." = "空き容量を確保。\n管理はそのまま。";
-"No cleanup run yet" = "クリーンアップはまだ実行されていません";
-"No known leftovers" = "既知の残存ファイルはありません";
-"One scan checks every cleanup tool and prepares a plan for your review." = "1 回のスキャンですべてのクリーンアップツールをチェックし、確認用のプランを用意します。";
-"Private" = "プライベート";
-"Ready for review" = "確認できます";
-"Ready to reclaim" = "回収できます";
 "Review" = "確認";
-"Review scan results" = "スキャン結果を確認";
-"Review what was found" = "見つかった項目を確認";
-"Reviewable" = "確認可能";
-"SCAN COMPLETE" = "スキャン完了";
-"Scan My Mac" = "Mac をスキャン";
-"Scan first.\nDecide what goes." = "まずスキャン。\n何を消すか決める。";
-"Scanning" = "スキャン中";
-"Selected items are being removed safely." = "選択した項目を安全に削除しています。";
-"Smart Care" = "Smart Care";
-"Twelve-layer storage inspection model" = "12 層のストレージ検査モデル";
-"Xcode and package tools" = "Xcode とパッケージのツール";
-"Your Mac is in good shape." = "Mac は良好な状態です。";
 
 /* Simulator runtimes */
-"Simulator runtime" = "シミュレータランタイム";
 
 /* Current dashboard, tools, and cleanup review — English fallback until translated */
-"\nAnd %lld more." = "\nほか %lld 件";
 "%@ %@ to %@" = "%@ %@〜%@";
 "%@ available" = "%@ 利用可能";
 "%@ did not finish within the allowed time." = "%@ は制限時間内に終了しませんでした。";
@@ -415,7 +307,6 @@
 "%@ of %@" = "%@ / %@";
 "%@ of %@ candidates · %@ verified" = "%@ / %@ 件の候補 · %@ 件確認済み";
 "%@ reviewable" = "%@ 件確認可能";
-"%@ selected. This permanently removes the selected files or runs the listed cleanup actions. It cannot be undone." = "%@ 件を選択中。選択したファイルを完全に削除するか、一覧のクリーンアップ操作を実行します。この操作は取り消せません。";
 "%@ will move to Trash" = "%@ をゴミ箱に移動します";
 "%lld analyzed" = "%lld 件分析済み";
 "%lld apps selected" = "%lld 個のアプリを選択中";
@@ -441,8 +332,6 @@
 ", and %lld more" = "、ほか %lld 件";
 "1 app selected" = "1 個のアプリを選択中";
 "1 update available" = "1 件のアップデートがあります";
-"500 photo limit" = "写真は 500 枚まで";
-"A clear view of reclaimable storage and the tools that manage it." = "回収できるストレージと、それを管理するツールをひと目で確認できます。";
 "A selected file is missing or changed: %@" = "選択したファイルが見つからないか変更されています: %@";
 "A selected file no longer matches its kept copy: %@" = "選択したファイルが保持するコピーと一致しなくなりました: %@";
 "Access denied" = "アクセスが拒否されました";
@@ -468,7 +357,6 @@
 "Check Again" = "再確認";
 "Check again" = "再確認";
 "Check built-in safeguards" = "組み込みの保護機能を確認";
-"Check installed apps for new versions" = "インストール済みのアプリの新バージョンを確認";
 "Check installed cask apps" = "インストール済みの cask アプリを確認";
 "Checked %@. Unknown means the setting could not be confirmed." = "%@ を確認しました。「不明」は設定を確認できなかったことを意味します。";
 "Checking" = "確認中";
@@ -488,7 +376,6 @@
 "Clear search" = "検索をクリア";
 "Cloud-only file" = "クラウドのみのファイル";
 "Collapse duplicate group" = "重複グループを折りたたむ";
-"Compare visually similar photos" = "見た目が似た写真を比較";
 "Conditional keep alive" = "条件付きで常時起動";
 "Copy path" = "パスをコピー";
 "Could not inspect %@" = "%@ を検査できませんでした";
@@ -511,14 +398,10 @@
 "FileVault" = "FileVault";
 "FileVault Settings" = "FileVault 設定";
 "Files will be moved to the Trash. Items requiring administrator authorization may be permanently deleted. App matching is a best-effort estimate; review files you recognize before removing them." = "ファイルはゴミ箱に移動されます。管理者の承認が必要な項目は完全に削除される場合があります。アプリの照合は推定です。見覚えのあるファイルは削除前に確認してください。";
-"Filter cleanup files" = "クリーンアップファイルを絞り込む";
 "Find copies that are exactly the same" = "完全に同じコピーを検索";
-"Find space to reclaim." = "回収できる容量を見つけましょう。";
 "Find visually related shots in a folder and review them side by side." = "フォルダ内の見た目が似たショットを見つけ、並べて確認します。";
-"Find what uses the most disk space" = "ディスク容量を最も使っているものを確認";
 "Finding local photos" = "ローカルの写真を検索中";
 "Firewall Settings" = "ファイアウォール設定";
-"Focused utilities for storage, apps, and system maintenance" = "ストレージ、アプリ、システムメンテナンスに特化したツール";
 "Folder could not be inspected" = "フォルダを検査できませんでした";
 "Full Disk Access is off" = "フルディスクアクセスがオフです";
 "Full access" = "フルアクセス";
@@ -541,7 +424,6 @@
 "Incoming network connections are filtered." = "着信ネットワーク接続はフィルタされています。";
 "Inspect" = "検査";
 "Inspect a folder by allocated disk space. Your files are never changed." = "割り当て済みのディスク容量でフォルダを検査します。ファイルは変更されません。";
-"Inspect memory and background activity" = "メモリとバックグラウンドアクティビティを検査";
 "Inspect startup items and local snapshots again" = "起動項目とローカルスナップショットを再検査";
 "Inspected %@ files in %@. %@" = "%@ 内の %@ ファイルを検査しました。%@";
 "Inspecting startup items and local snapshots…" = "起動項目とローカルスナップショットを検査中…";
@@ -553,11 +435,7 @@
 "Keep alive" = "常時起動";
 "Largest first" = "大きい順";
 "Largest items" = "大きい項目";
-"Last checked" = "最終確認";
 "Leftovers" = "残存ファイル";
-"Live resources" = "リアルタイムのリソース";
-"Local and private" = "ローカルでプライベート";
-"Local files" = "ローカルファイル";
 "Local snapshot" = "ローカルスナップショット";
 "Local snapshots" = "ローカルスナップショット";
 "Location" = "場所";
@@ -566,7 +444,6 @@
 "Managed cleanup action" = "管理されたクリーンアップ操作";
 "Matching files" = "一致するファイル";
 "Measuring allocated space" = "割り当て済み容量を測定中";
-"Memory pressure use" = "メモリプレッシャーの使用状況";
 "Microphone" = "マイク";
 "Modified" = "変更日";
 "Move selected duplicates to Trash?" = "選択した重複をゴミ箱に移動しますか?";
@@ -620,18 +497,13 @@
 "Refused to delete %lld protected item(s) (home credential directory or similar)." = "保護された %lld 項目の削除を拒否しました (ホームの認証情報ディレクトリなど)。";
 "Remove %lld files" = "%lld ファイルを削除";
 "Remove %lld items" = "%lld 項目を削除";
-"Remove apps and their related files" = "アプリと関連ファイルを削除";
 "Remove selected app files?" = "選択したアプリのファイルを削除しますか?";
-"Remove selected files?" = "選択したファイルを削除しますか?";
 "Remove selected leftovers?" = "選択した残存ファイルを削除しますか?";
 "Removing the items you selected." = "選択した項目を削除しています。";
 "Reveal %@ in Finder" = "Finder で %@ を表示";
 "Reveal plist in Finder" = "Finder で plist を表示";
 "Reveal skipped item in Finder" = "Finder でスキップした項目を表示";
 "Review and update apps installed as Homebrew casks." = "Homebrew cask としてインストールされたアプリを確認してアップデートします。";
-"Review built-in privacy and safety checks" = "組み込みのプライバシーと安全性のチェックを確認";
-"Review matching files side by side" = "一致するファイルを並べて確認";
-"Review only" = "確認のみ";
 "Review removal" = "削除内容を確認";
 "Review the groups before acting" = "実行する前にグループを確認";
 "Review the macOS safeguards that protect apps, disks, network access, and system files." = "アプリ、ディスク、ネットワークアクセス、システムファイルを守る macOS の保護機能を確認します。";
@@ -661,7 +533,6 @@
 "Select copies" = "コピーを選択";
 "Select the apps Homebrew should upgrade." = "Homebrew でアップグレードするアプリを選択してください。";
 "Select the extra copies you want to review" = "確認する追加のコピーを選択";
-"Selected cleanup items are permanently removed." = "選択したクリーンアップ項目は完全に削除されます。";
 "Share of scanned space" = "スキャンした容量の割合";
 "Shares storage with %@" = "%@ とストレージを共有";
 "Show %@ in Finder" = "Finder で %@ を表示";
@@ -688,7 +559,6 @@
 "Symbolic link" = "シンボリックリンク";
 "Symbolic links and cloud-only items are excluded." = "シンボリックリンクとクラウドのみの項目は除外されます。";
 "Symbolic links cannot be scanned: %@" = "シンボリックリンクはスキャンできません: %@";
-"Symbolic links, app packages, hidden files and cloud-only placeholders are skipped. Photos are never uploaded or deleted." = "シンボリックリンク、アプリのパッケージ、隠しファイル、クラウドのみのプレースホルダはスキップされます。写真がアップロードまたは削除されることはありません。";
 "System Integrity Protection" = "システム整合性保護";
 "System Integrity Protection is turned off." = "システム整合性保護がオフになっています。";
 "System daemon" = "システムデーモン";
@@ -734,7 +604,6 @@
 "allocated in this folder" = "このフォルダの割り当て容量";
 "definitions %@" = "定義 %@";
 "engine %@" = "エンジン %@";
-"reclaimed" = "回収済み";
 "similar group" = "類似グループ";
 "similar groups" = "類似グループ";
 "tmutil is not available on this Mac." = "この Mac では tmutil を利用できません。";
@@ -748,12 +617,8 @@
 "CPU uses the Mac’s total capacity. App helpers are grouped with their app." = "CPU は Mac の総容量に対する使用率です。アプリのヘルパーはそのアプリにまとめられます。";
 "CPU values appear after the next sample." = "CPU の値は次のサンプルの後に表示されます。";
 "Check access" = "アクセスを確認";
-"Checking for updates…" = "アップデートを確認中…";
 "Collapsed" = "折りたたみ済み";
-"Copy command" = "コマンドをコピー";
-"Download (DMG / ZIP)" = "ダウンロード (DMG / ZIP)";
 "Expanded" = "展開済み";
-"GitHub is receiving too many requests. Please try again later." = "GitHub へのリクエストが多すぎます。しばらくしてから再試行してください。";
 "Homebrew" = "Homebrew";
 "Live updates paused" = "ライブアップデートを一時停止中";
 
@@ -761,37 +626,22 @@
 "Memory estimate includes active, wired and compressed memory." = "メモリの推定にはアクティブ、ワイヤード、圧縮メモリが含まれます。";
 "Memory in use" = "使用中のメモリ";
 "No matching apps or processes" = "一致するアプリやプロセスはありません";
-"Open release page" = "リリースページを開く";
 "Process information is unavailable. Try Activity Monitor for more detail." = "プロセス情報を利用できません。詳しくはアクティビティモニタを使用してください。";
-"Restart to apply your language" = "言語を適用するには再起動してください";
-"Review Full Disk Access" = "フルディスクアクセスを確認";
-"Review launch at login" = "ログイン時の起動を確認";
 "Search apps and processes" = "アプリとプロセスを検索";
 "Settings" = "設定";
-"Settings need attention" = "対応が必要な設定があります";
-"Settings to review" = "確認する設定";
 "Show all apps and processes" = "すべてのアプリとプロセスを表示";
 "Show top 8" = "上位 8 件を表示";
 "Some of this app's processes have no CPU reading yet, so this total is partial." = "このアプリの一部のプロセスにはまだ CPU の測定値がないため、この合計は一部のみです。";
 "Some processes started or stopped since the last sample. Their values appear in the next one." = "前回のサンプル以降に開始または停止したプロセスがあります。その値は次のサンプルで表示されます。";
 "Sort by" = "並べ替え";
 "System processes are not listed. Use Activity Monitor for those." = "システムプロセスは表示されません。それらにはアクティビティモニタを使用してください。";
-"The release service is unavailable. Please try again later." = "リリースサービスを利用できません。しばらくしてから再試行してください。";
-"This build has no readable version. Open the releases page to check manually." = "このビルドには読み取り可能なバージョンがありません。リリースページを開いて手動で確認してください。";
-"To update with Homebrew, run this command in Terminal. The cask may follow the GitHub release a little later." = "Homebrew でアップデートするには、ターミナルでこのコマンドを実行してください。cask は GitHub のリリースに少し遅れて対応する場合があります。";
-"Update method" = "アップデート方法";
 
-"View releases" = "リリースを表示";
 
 /* Sift redesign */
 "%@ could not be removed because Sift does not have Full Disk Access. Grant Full Disk Access in System Settings, then try again." = "Sift にフルディスクアクセスがないため %@ を削除できませんでした。システム設定でフルディスクアクセスを許可してから再試行してください。";
 "Sift" = "Sift";
 "Sift can now reach the locations macOS protects by default." = "Sift は macOS が標準で保護している場所にアクセスできるようになりました。";
 "Open Settings & reveal Sift" = "設定を開き Sift を表示";
-"Keep Sift up to date" = "Sift を最新の状態に保つ";
-"Download the new app from the release page, quit Sift, then replace it in Applications." = "リリースページから新しいアプリをダウンロードし、Sift を終了してから「アプリケーション」内のものを置き換えてください。";
-"Sift %@ is available" = "Sift %@ が利用可能です";
-"You're using the latest available version of Sift." = "Sift の最新版を使用しています。";
 "Launch Sift at login" = "ログイン時にSiftを起動";
 "Restart Sift to apply the selected language." = "選択した言語を適用するにはSiftを再起動してください。";
 "Live CPU, memory, and disk meters in the menu bar. Sift keeps running in the background while this is on." = "CPU、メモリ、ディスクの使用状況をメニューバーにリアルタイム表示します。オンの間、Siftはバックグラウンドで動作し続けます。";
@@ -813,12 +663,9 @@
 "Homebrew produced more output than Sift could safely retain." = "Homebrew の出力が、Sift が安全に保持できる量を超えました。";
 "Sift could not read this setting." = "Sift はこの設定を読み取れませんでした。";
 "Sift could not confirm the local XProtect installation." = "Sift はローカルの XProtect インストールを確認できませんでした。";
-"No stable Sift app release was found. Try again later." = "Sift の安定版リリースが見つかりませんでした。しばらくしてから再試行してください。";
 "Scheduled cleanup" = "スケジュールクリーンアップ";
 "Smart Scan cleanup" = "スマートスキャンのクリーンアップ";
 "Emptied Trash" = "ゴミ箱を空にしました";
-"Sift isn't allowed to control Finder. Allow it in System Settings > Privacy & Security > Automation, then try again." = "Sift には Finder を制御する許可がありません。システム設定 > プライバシーとセキュリティ > オートメーションで許可してから、もう一度お試しください。";
-"Finder couldn't empty the Trash: %@" = "Finder でゴミ箱を空にできませんでした: %@";
 "just now" = "たった今";
 "Files and cleanup actions marked Permanent cannot be undone. Items marked Move to Trash can be recovered until the Trash is emptied." = "「完全削除」と表示されたファイルやクリーンアップ操作は取り消せません。「ゴミ箱に移動」と表示された項目は、ゴミ箱を空にするまで復元できます。";
 "Permanent · Remove simulator runtime" = "完全削除 · シミュレータランタイムを削除";
@@ -842,9 +689,6 @@
 "Old and large" = "古くて大きい";
 "The Trash is empty" = "ゴミ箱は空です";
 "Files you move to the Trash show up here." = "ゴミ箱に移動したファイルがここに表示されます。";
-"Empty the Trash?" = "ゴミ箱を空にしますか?";
-"Empty Trash" = "ゴミ箱を空にする";
-"Finder will permanently delete %lld items (%@). This can't be undone." = "Finder が %lld 項目 (%@) を完全に削除します。この操作は取り消せません。";
 "Cleanup, scanned %@" = "クリーンアップ、%@にスキャン";
 "Cleanup, not scanned yet" = "クリーンアップ、未スキャン";
 "Filter by name or path" = "名前またはパスで絞り込む";
@@ -864,7 +708,6 @@
 "Review and remove" = "確認して削除";
 "%lld items in the Trash" = "ゴミ箱内の %lld 項目";
 "Finder empties the Trash. This can't be undone." = "Finder がゴミ箱を空にします。この操作は取り消せません。";
-"Emptying the Trash…" = "ゴミ箱を空にしています…";
 "%@ total" = "合計 %@";
 "%@ removed" = "%@ 削除済み";
 "%@ is junk" = "%@ がジャンク";
@@ -922,10 +765,6 @@
 "App updates" = "アプリのアップデート";
 "Every %@" = "毎週%@";
 "Version" = "バージョン";
-"Version %@ (%@). Checks the official app releases on GitHub." = "バージョン %@ (%@)。GitHub で公式リリースを確認します。";
-"Installing updates" = "アップデートのインストール";
-"Release notes" = "リリースノート";
-"Every version and what changed, on GitHub" = "すべてのバージョンと変更内容 (GitHub)";
 "Permissions" = "アクセス権";
 "Startup, language, the menu bar monitor and sound." = "起動、言語、メニューバーモニタ、サウンド。";
 "What Sift looks for, and what it leaves alone." = "Sift が探すものと、そのままにしておくもの。";
@@ -976,10 +815,6 @@
 "A notification with what was found or cleaned" = "見つかった項目やクリーンアップした内容を通知します";
 "Runs" = "実行履歴";
 "Next run" = "次回実行";
-"Automation" = "オートメーション";
-"macOS asks the first time" = "初回に macOS が確認します";
-"Sift asks Finder to reveal files and to empty the Trash. Turn it on or off in Privacy & Security > Automation." = "Sift は Finder にファイルの表示とゴミ箱を空にする操作を依頼します。プライバシーとセキュリティ > オートメーションでオン/オフを切り替えられます。";
-"Open Automation settings" = "オートメーション設定を開く";
 "Source code" = "ソースコード";
 "Found a problem?" = "問題が見つかりましたか?";
 "Issues are tracked on GitHub" = "問題は GitHub で管理されています";
@@ -1176,12 +1011,6 @@
 "The settings shortcut is unavailable. Open System Settings from the Apple menu." = "設定のショートカットは利用できません。Apple メニューからシステム設定を開いてください。";
 "Could not open %@. Open the app or guide manually." = "%@ を開けませんでした。アプリまたはガイドを手動で開いてください。";
 "This location is no longer available or cannot be accessed. Scan again to refresh the results." = "この場所は利用できなくなったか、アクセスできません。再スキャンして結果を更新してください。";
-"Permission denied when accessing '%@'. Grant Full Disk Access in System Settings." = "「%@」へのアクセスが拒否されました。システム設定でフルディスクアクセスを許可してください。";
-"Failed to enumerate directory '%@': %@" = "ディレクトリ「%@」を列挙できませんでした: %@";
-"Failed to execute '%@': %@" = "「%@」を実行できませんでした: %@";
-"Invalid data encountered: %@" = "無効なデータが見つかりました: %@";
-"The privileged helper tool is not installed or unavailable." = "特権ヘルパーツールがインストールされていないか、利用できません。";
-"The operation was cancelled." = "操作はキャンセルされました。";
 "Not writable by current user: %@" = "現在のユーザーに書き込み権限がありません: %@";
 "Cannot modify %@: its entitlements require the original developer signature" = "%@ を変更できません: エンタイトルメントに元のデベロッパ署名が必要です";
 "Cannot thin %@: it is signed and notarized, and stripping a slice would break its signature" = "%@ を軽量化できません: 署名および公証済みで、アーキテクチャを削除すると署名が無効になります";

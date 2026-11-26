@@ -1,5 +1,4 @@
 /* macOS permission prompts */
-"NSAppleEventsUsageDescription" = "Sift utilise les événements Apple pour demander au Finder d'afficher des fichiers et de vider la Corbeille.";
 "NSDesktopFolderUsageDescription" = "Sift a besoin d'accéder à votre Bureau pour trouver les fichiers inutiles et orphelins.";
 "NSDocumentsFolderUsageDescription" = "Sift a besoin d'accéder à vos Documents pour trouver les fichiers inutiles et orphelins.";
 "NSDownloadsFolderUsageDescription" = "Sift a besoin d'accéder à vos Téléchargements pour trouver les fichiers inutiles et orphelins.";

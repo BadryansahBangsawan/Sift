@@ -2,70 +2,31 @@
 "Overview" = "نظرة عامة";
 "Cleanup" = "التنظيف";
 "Dashboard" = "لوحة التحكم";
-"Installed Apps" = "التطبيقات المثبّتة";
-"Ready to clean" = "جاهز للتنظيف";
 "Limited access" = "وصول محدود";
-"Full Disk Access granted" = "تم منح الوصول الكامل للقرص";
-"Grant FDA in Settings" = "امنح الوصول الكامل من الإعدادات";
-"Select a category from the sidebar to get started." = "اختر فئة من الشريط الجانبي للبدء.";
 
 /* FDA toast + clean error alert (MainWindow) */
 "Couldn't clean everything" = "تعذّر تنظيف كل شيء";
 "Open System Settings" = "افتح إعدادات النظام";
 "OK" = "موافق";
-"Full Disk Access required" = "يلزم منح الوصول الكامل إلى القرص";
-"Grant Access" = "منح الوصول";
 
 /* Dashboard */
 "Storage" = "التخزين";
 "Smart Scan" = "الفحص الذكي";
-"free of %@" = "متاح من %@";
-"Junk" = "نفايات";
-"Free Space" = "المساحة المتاحة";
-"Junk Found" = "النفايات المكتشفة";
 "Apps" = "التطبيقات";
-"of %@ · %lld%% used" = "من %@ · %lld%% مستخدمة";
-"Run a scan" = "ابدأ فحصًا";
-"across %lld categories" = "في %lld فئة";
 "installed" = "مثبّتة";
-"APFS reclaimable" = "قابلة للاسترجاع عبر APFS";
-"Suggested for you" = "اقتراحات لك";
-"By category" = "حسب الفئة";
-"%@ is using %@" = "%@ يستخدم %@";
-"Grant Full Disk Access for full results" = "امنح الوصول الكامل للقرص للحصول على نتائج كاملة";
-"Without it, most caches and uninstall flows fail." = "من دونه ستفشل معظم عمليات تنظيف الذاكرة المؤقتة وإزالة التطبيقات.";
-"Action" = "إجراء";
 "Scanning your Mac" = "جارٍ فحص جهاز Mac";
-"Currently in: %@" = "الفئة الحالية: %@";
-"found" = "تم العثور عليه";
-"Your Mac is clean" = "جهاز Mac نظيف";
 "Scan Again" = "إعادة الفحص";
-"Clean %@?" = "تنظيف %@؟";
-"Cleaning…" = "جارٍ التنظيف…";
 "%lld%% complete" = "%lld%% مكتمل";
-"freed" = "محرّر";
 "Done" = "تم";
 "%lld items" = "%lld عنصرًا";
 
 /* Common destructive dialog */
-"Clean" = "تنظيف";
 "Cancel" = "إلغاء";
-"This will permanently delete the selected files. This cannot be undone." = "سيؤدي ذلك إلى حذف الملفات المحددة نهائيًا. لا يمكن التراجع عن هذا الإجراء.";
 
 /* Category Detail */
-"All Clean" = "كل شيء نظيف";
-"No junk files found in this category." = "لا توجد ملفات غير مرغوبة في هذه الفئة.";
-"Not Scanned" = "لم يتم الفحص";
-"Run a scan to analyze this category." = "ابدأ فحصًا لتحليل هذه الفئة.";
-"Scan Now" = "ابدأ الفحص الآن";
-"Filter files" = "تصفية الملفات";
 "Scan" = "فحص";
 "Select All" = "تحديد الكل";
 "Deselect All" = "إلغاء تحديد الكل";
-"Largest First" = "الأكبر أولًا";
-"Smallest First" = "الأصغر أولًا";
-"Sorted: Largest First" = "الترتيب: الأكبر أولًا";
-"Sorted: Smallest First" = "الترتيب: الأصغر أولًا";
 "Clean %lld items" = "تنظيف %lld عنصر";
 "%lld items · %@" = "%lld عنصر · %@";
 "Rescan" = "إعادة الفحص";
@@ -87,7 +48,6 @@
 /* App Files (AppFilesView) */
 "%lld files" = "%lld ملف";
 "1 folder" = "مجلد واحد";
-"1 file" = "ملف واحد";
 "Scanning for related files..." = "جارٍ البحث عن الملفات المرتبطة...";
 "Checking %lld locations..." = "جارٍ فحص %lld موقعًا...";
 "No Related Files" = "لا توجد ملفات مرتبطة";
@@ -109,32 +69,13 @@
 /* Onboarding */
 "Back" = "السابق";
 "Next" = "التالي";
-"Get Started" = "ابدأ";
-"Free, open-source macOS app manager and system cleaner." = "مدير تطبيقات وأداة تنظيف نظام مجانية ومفتوحة المصدر لـ macOS.";
-"Find junk files across your system" = "اعثر على الملفات غير المرغوبة في جميع أنحاء النظام";
-"Remove apps and all their files" = "أزل التطبيقات وجميع ملفاتها";
-"Find leftovers from deleted apps" = "اعثر على بقايا التطبيقات المحذوفة";
 "Full Disk Access" = "الوصول الكامل للقرص";
-"We'll guide you through the next steps." = "سنرشدك إلى الخطوات التالية.";
-"In System Settings, do this:" = "في إعدادات النظام، نفّذ الآتي:";
 "Privacy & Security → Full Disk Access" = "الخصوصية والأمان ← الوصول الكامل للقرص";
-"Authenticate with Touch ID or your password" = "تحقق باستخدام Touch ID أو كلمة المرور";
 "Reopen Settings" = "إعادة فتح الإعدادات";
-"Reset permissions and re-prompt" = "إعادة تعيين الأذونات وإعادة الطلب";
-"Hide diagnostics" = "إخفاء التشخيص";
-"Show diagnostics" = "إظهار التشخيص";
-"Trouble?" = "هل تواجه مشكلة؟";
-"Waiting for permission…" = "بانتظار الإذن…";
-"Permission granted." = "تم منح الإذن.";
-"You're Ready" = "أنت جاهز";
-"%lld/%lld protected locations accessible" = "%lld/%lld من المواقع المحمية متاحة";
 "Some features will be limited without Full Disk Access. You can grant it later in Settings." = "ستكون بعض الميزات محدودة دون الوصول الكامل إلى القرص. يمكنك منحه لاحقًا في الإعدادات.";
 "Trash" = "سلة المهملات";
-"Mail Data" = "بيانات البريد";
-"Safari Data" = "بيانات Safari";
 "Desktop" = "سطح المكتب";
 "Documents" = "المستندات";
-"TCC Database" = "قاعدة بيانات TCC";
 "Blocked" = "محظور";
 
 /* FDA demo system apps */
@@ -174,7 +115,6 @@
 "Enable scheduled scanning" = "تمكين الفحص المجدول";
 "Scan interval" = "فاصل الفحص";
 "Auto-clean after scan" = "تنظيف تلقائي بعد الفحص";
-"Auto-purge purgeable space" = "إفراغ المساحة القابلة للتحرير تلقائيًا";
 "Notify on completion" = "الإشعار عند الاكتمال";
 "Last run" = "آخر تشغيل";
 "Version %@" = "الإصدار %@";
@@ -203,10 +143,8 @@
 "Scan everything at once" = "فحص كل شيء دفعة واحدة";
 "System caches, logs, and temporary files" = "ذاكرات النظام المؤقتة والسجلات والملفات المؤقتة";
 "Application caches and browser data" = "ذاكرات التطبيقات المؤقتة وبيانات المتصفح";
-"Local AI app logs, caches, and optional history" = "سجلات تطبيقات الذكاء الاصطناعي المحلية وذاكراتها المؤقتة والمحفوظات الاختيارية";
 "Downloaded mail attachments" = "مرفقات البريد التي تم تنزيلها";
 "Files over 100 MB or older than 1 year" = "الملفات التي يتجاوز حجمها 100 ميغابايت أو أقدم من سنة";
-"APFS purgeable disk space" = "مساحة القرص القابلة للتحرير في APFS";
 "Derived data, archives, and simulator runtimes" = "البيانات المشتقة والأرشيفات والمحاكيات";
 "Homebrew download cache" = "ذاكرة تنزيلات Homebrew المؤقتة";
 "npm, yarn, and pnpm download caches" = "ذاكرات تنزيلات npm وyarn وpnpm المؤقتة";
@@ -263,7 +201,6 @@
 " and %lld more" = " و%lld أخرى";
 "Access granted. Retrying…" = "تم منح الوصول. جارٍ إعادة المحاولة…";
 "1-tap setup. We'll detect the change automatically." = "إعداد بضغطة واحدة. سنكتشف التغيير تلقائيًا.";
-"We'll open both windows side-by-side." = "سنفتح النافذتين جنبًا إلى جنب.";
 "Toggle the row that appears." = "بدّل الصف الذي يظهر.";
 "Authenticate" = "المصادقة";
 "Touch ID or password." = "Touch ID أو كلمة المرور.";
@@ -281,13 +218,7 @@
 "I granted it — retry" = "لقد منحت الإذن - أعد المحاولة";
 
 /* Dashboard polish */
-"Low space" = "مساحة منخفضة";
-"CLEANING" = "جارٍ التنظيف";
-"Quick Setup" = "إعداد سريع";
-"1-tap setup. We'll auto-retry what failed." = "إعداد بضغطة واحدة. سنعيد المحاولة تلقائيًا.";
-"Fix permission" = "إصلاح الإذن";
 "Dismiss" = "تجاهل";
-"Fix" = "إصلاح";
 "Set up" = "إعداد";
 
 /* Onboarding v2 */
@@ -319,8 +250,6 @@
 "Or drag the icon on the left straight into Settings." = "أو اسحب الأيقونة على اليسار مباشرةً إلى الإعدادات.";
 
 /* Dashboard storage composition (v2.7.0) */
-"Storage composition" = "تكوين مساحة التخزين";
-"total" = "الإجمالي";
 "Free" = "متاح";
 
 /* UI polish (v2.8.0): leftover groups + sound toggle */
@@ -362,51 +291,14 @@
 "%lld checks" = "%lld عمليات تحقق";
 "%lld items found" = "تم العثور على %lld عنصرًا";
 "%lld selected" = "تم تحديد %lld";
-"%lld-POINT LOCAL SCAN" = "فحص محلي من %lld نقاط";
-"%lld/%lld checked" = "تم التحقق من %lld/%lld";
-"ALL CLEAR" = "كل شيء سليم";
-"Advanced Tools" = "أدوات متقدمة";
-"All clear" = "كل شيء سليم";
-"App leftovers to inspect" = "بقايا التطبيقات للمراجعة";
 "Appearance" = "المظهر";
-"Caches, mail, trash, and large files" = "التخزينات المؤقتة والبريد وسلة المهملات والملفات الكبيرة";
-"Care areas" = "مجالات العناية";
-"Checks every cleanup category without deleting files" = "يتحقق من كل فئة تنظيف دون حذف أي ملف";
-"Choose what to keep, then clean everything in one controlled pass." = "اختر ما تريد الاحتفاظ به، ثم نظّف كل شيء في مرور واحد تحت السيطرة.";
-"Cleaning safely…" = "جارٍ التنظيف بأمان…";
-"Cleanup complete. Your storage summary is refreshing." = "اكتمل التنظيف. يجري تحديث ملخص التخزين.";
 "Clear" = "إلغاء التحديد";
 "Developer" = "المطور";
-"Installed apps" = "التطبيقات المثبتة";
-"LOW SPACE" = "مساحة منخفضة";
-"Last clean: %@" = "آخر تنظيف: %@";
-"Local" = "محلي";
-"Make room.\nKeep control." = "وفّر مساحة.\nحافظ على التحكم.";
-"No cleanup run yet" = "لم تُجرَ أي عملية تنظيف بعد";
-"No known leftovers" = "لا توجد بقايا معروفة";
-"One scan checks every cleanup tool and prepares a plan for your review." = "فحص واحد يتحقق من كل أدوات التنظيف ويُعدّ خطة لمراجعتها.";
-"Private" = "خاص";
-"Ready for review" = "جاهز للمراجعة";
-"Ready to reclaim" = "جاهز للاستعادة";
 "Review" = "مراجعة";
-"Review scan results" = "مراجعة نتائج الفحص";
-"Review what was found" = "مراجعة ما تم العثور عليه";
-"Reviewable" = "قابل للمراجعة";
-"SCAN COMPLETE" = "اكتمل الفحص";
-"Scan My Mac" = "فحص جهاز Mac";
-"Scan first.\nDecide what goes." = "افحص أولاً.\nقرّر ما الذي يُحذف.";
-"Scanning" = "جارٍ الفحص";
-"Selected items are being removed safely." = "جارٍ حذف العناصر المحددة بأمان.";
-"Smart Care" = "Smart Care";
-"Twelve-layer storage inspection model" = "نموذج فحص التخزين من اثنتي عشرة طبقة";
-"Xcode and package tools" = "أدوات Xcode والحزم";
-"Your Mac is in good shape." = "جهاز Mac في حالة جيدة.";
 
 /* Simulator runtimes */
-"Simulator runtime" = "وقت تشغيل المحاكي";
 
 /* Current dashboard, tools, and cleanup review — English fallback until translated */
-"\nAnd %lld more." = "\nو%lld أخرى.";
 "%@ %@ to %@" = "%@ %@ إلى %@";
 "%@ available" = "%@ متاحة";
 "%@ did not finish within the allowed time." = "لم ينتهِ %@ في الوقت المسموح.";
@@ -415,7 +307,6 @@
 "%@ of %@" = "%@ من %@";
 "%@ of %@ candidates · %@ verified" = "%@ من %@ مرشحًا · تم التحقق من %@";
 "%@ reviewable" = "%@ قابل للمراجعة";
-"%@ selected. This permanently removes the selected files or runs the listed cleanup actions. It cannot be undone." = "تم تحديد %@. سيؤدي ذلك إلى حذف الملفات المحددة نهائيًا أو تنفيذ إجراءات التنظيف المذكورة. لا يمكن التراجع عن ذلك.";
 "%@ will move to Trash" = "سيُنقل %@ إلى سلة المهملات";
 "%lld analyzed" = "تم تحليل %lld";
 "%lld apps selected" = "تم تحديد %lld تطبيقًا";
@@ -441,8 +332,6 @@
 ", and %lld more" = "، و%lld أخرى";
 "1 app selected" = "تم تحديد تطبيق واحد";
 "1 update available" = "تحديث واحد متاح";
-"500 photo limit" = "حد 500 صورة";
-"A clear view of reclaimable storage and the tools that manage it." = "عرض واضح للمساحة القابلة للاستعادة والأدوات التي تديرها.";
 "A selected file is missing or changed: %@" = "ملف محدد مفقود أو تغيّر: %@";
 "A selected file no longer matches its kept copy: %@" = "ملف محدد لم يعد يطابق نسخته المحتفظ بها: %@";
 "Access denied" = "تم رفض الوصول";
@@ -468,7 +357,6 @@
 "Check Again" = "تحقق مرة أخرى";
 "Check again" = "تحقق مرة أخرى";
 "Check built-in safeguards" = "تحقق من وسائل الحماية المدمجة";
-"Check installed apps for new versions" = "تحقق من إصدارات جديدة للتطبيقات المثبتة";
 "Check installed cask apps" = "تحقق من تطبيقات cask المثبتة";
 "Checked %@. Unknown means the setting could not be confirmed." = "تم التحقق من %@. تعني «غير معروف» أنه تعذّر تأكيد الإعداد.";
 "Checking" = "جارٍ التحقق";
@@ -488,7 +376,6 @@
 "Clear search" = "مسح البحث";
 "Cloud-only file" = "ملف في السحابة فقط";
 "Collapse duplicate group" = "طيّ مجموعة المكررات";
-"Compare visually similar photos" = "مقارنة الصور المتشابهة بصريًا";
 "Conditional keep alive" = "إبقاء مشروط على النشاط";
 "Copy path" = "نسخ المسار";
 "Could not inspect %@" = "تعذّر فحص %@";
@@ -511,14 +398,10 @@
 "FileVault" = "FileVault";
 "FileVault Settings" = "إعدادات FileVault";
 "Files will be moved to the Trash. Items requiring administrator authorization may be permanently deleted. App matching is a best-effort estimate; review files you recognize before removing them." = "ستُنقل الملفات إلى سلة المهملات. قد تُحذف العناصر التي تتطلب تفويض المسؤول نهائيًا. مطابقة التطبيقات تقديرية؛ راجع الملفات التي تتعرّف عليها قبل حذفها.";
-"Filter cleanup files" = "تصفية ملفات التنظيف";
 "Find copies that are exactly the same" = "العثور على نسخ متطابقة تمامًا";
-"Find space to reclaim." = "اعثر على مساحة يمكن استعادتها.";
 "Find visually related shots in a folder and review them side by side." = "اعثر على لقطات مترابطة بصريًا في مجلد وراجعها جنبًا إلى جنب.";
-"Find what uses the most disk space" = "اكتشف ما يستهلك أكبر مساحة من القرص";
 "Finding local photos" = "جارٍ البحث عن صور محلية";
 "Firewall Settings" = "إعدادات جدار الحماية";
-"Focused utilities for storage, apps, and system maintenance" = "أدوات مركزة للتخزين والتطبيقات وصيانة النظام";
 "Folder could not be inspected" = "تعذّر فحص المجلد";
 "Full Disk Access is off" = "الوصول الكامل للقرص معطّل";
 "Full access" = "وصول كامل";
@@ -541,7 +424,6 @@
 "Incoming network connections are filtered." = "اتصالات الشبكة الواردة مفلترة.";
 "Inspect" = "فحص";
 "Inspect a folder by allocated disk space. Your files are never changed." = "افحص مجلدًا حسب المساحة المخصصة. لا تتغير ملفاتك أبدًا.";
-"Inspect memory and background activity" = "فحص الذاكرة والنشاط في الخلفية";
 "Inspect startup items and local snapshots again" = "فحص عناصر بدء التشغيل واللقطات المحلية مرة أخرى";
 "Inspected %@ files in %@. %@" = "تم فحص %@ ملفًا في %@. %@";
 "Inspecting startup items and local snapshots…" = "جارٍ فحص عناصر بدء التشغيل واللقطات المحلية…";
@@ -553,11 +435,7 @@
 "Keep alive" = "إبقاء النشاط";
 "Largest first" = "الأكبر أولاً";
 "Largest items" = "أكبر العناصر";
-"Last checked" = "آخر تحقق";
 "Leftovers" = "البقايا";
-"Live resources" = "الموارد المباشرة";
-"Local and private" = "محلي وخاص";
-"Local files" = "ملفات محلية";
 "Local snapshot" = "لقطة محلية";
 "Local snapshots" = "لقطات محلية";
 "Location" = "الموقع";
@@ -566,7 +444,6 @@
 "Managed cleanup action" = "إجراء تنظيف مُدار";
 "Matching files" = "الملفات المتطابقة";
 "Measuring allocated space" = "جارٍ قياس المساحة المخصصة";
-"Memory pressure use" = "استخدام ضغط الذاكرة";
 "Microphone" = "الميكروفون";
 "Modified" = "معدّل";
 "Move selected duplicates to Trash?" = "نقل المكررات المحددة إلى سلة المهملات؟";
@@ -620,18 +497,13 @@
 "Refused to delete %lld protected item(s) (home credential directory or similar)." = "تم رفض حذف %lld من العناصر المحمية (مجلد بيانات الاعتماد المنزلية أو ما شابه).";
 "Remove %lld files" = "حذف %lld ملفًا";
 "Remove %lld items" = "حذف %lld عنصرًا";
-"Remove apps and their related files" = "حذف التطبيقات وملفاتها المرتبطة";
 "Remove selected app files?" = "حذف ملفات التطبيق المحددة؟";
-"Remove selected files?" = "حذف الملفات المحددة؟";
 "Remove selected leftovers?" = "حذف البقايا المحددة؟";
 "Removing the items you selected." = "جارٍ حذف العناصر التي حددتها.";
 "Reveal %@ in Finder" = "إظهار %@ في Finder";
 "Reveal plist in Finder" = "إظهار plist في Finder";
 "Reveal skipped item in Finder" = "إظهار العنصر المتخطى في Finder";
 "Review and update apps installed as Homebrew casks." = "راجع وحدّث التطبيقات المثبتة كحزم cask في Homebrew.";
-"Review built-in privacy and safety checks" = "مراجعة فحوصات الخصوصية والأمان المدمجة";
-"Review matching files side by side" = "مراجعة الملفات المتطابقة جنبًا إلى جنب";
-"Review only" = "مراجعة فقط";
 "Review removal" = "مراجعة الحذف";
 "Review the groups before acting" = "راجع المجموعات قبل التنفيذ";
 "Review the macOS safeguards that protect apps, disks, network access, and system files." = "راجع وسائل حماية macOS التي تحمي التطبيقات والأقراص والوصول إلى الشبكة وملفات النظام.";
@@ -661,7 +533,6 @@
 "Select copies" = "تحديد النسخ";
 "Select the apps Homebrew should upgrade." = "حدد التطبيقات التي يجب أن يحدّثها Homebrew.";
 "Select the extra copies you want to review" = "حدد النسخ الإضافية التي تريد مراجعتها";
-"Selected cleanup items are permanently removed." = "عناصر التنظيف المحددة تُحذف نهائيًا.";
 "Share of scanned space" = "حصة المساحة المفحوصة";
 "Shares storage with %@" = "يتشارك التخزين مع %@";
 "Show %@ in Finder" = "إظهار %@ في Finder";
@@ -688,7 +559,6 @@
 "Symbolic link" = "رابط رمزي";
 "Symbolic links and cloud-only items are excluded." = "الروابط الرمزية والعناصر الموجودة في السحابة فقط مستبعدة.";
 "Symbolic links cannot be scanned: %@" = "لا يمكن فحص الروابط الرمزية: %@";
-"Symbolic links, app packages, hidden files and cloud-only placeholders are skipped. Photos are never uploaded or deleted." = "تُتخطى الروابط الرمزية وحزم التطبيقات والملفات المخفية والعناصر البديلة في السحابة فقط. لا تُرفع الصور أو تُحذف أبدًا.";
 "System Integrity Protection" = "حماية سلامة النظام";
 "System Integrity Protection is turned off." = "حماية سلامة النظام معطّلة.";
 "System daemon" = "خدمة نظام";
@@ -734,7 +604,6 @@
 "allocated in this folder" = "مخصصة في هذا المجلد";
 "definitions %@" = "التعريفات %@";
 "engine %@" = "المحرك %@";
-"reclaimed" = "مستعادة";
 "similar group" = "مجموعة متشابهة";
 "similar groups" = "مجموعات متشابهة";
 "tmutil is not available on this Mac." = "tmutil غير متاح على هذا الـ Mac.";
@@ -748,12 +617,8 @@
 "CPU uses the Mac’s total capacity. App helpers are grouped with their app." = "يستخدم CPU السعة الكلية للـ Mac. تُجمّع العمليات المساعدة للتطبيق معه.";
 "CPU values appear after the next sample." = "تظهر قيم CPU بعد العينة التالية.";
 "Check access" = "التحقق من الوصول";
-"Checking for updates…" = "جارٍ التحقق من التحديثات…";
 "Collapsed" = "مطوي";
-"Copy command" = "نسخ الأمر";
-"Download (DMG / ZIP)" = "تنزيل (DMG / ZIP)";
 "Expanded" = "موسّع";
-"GitHub is receiving too many requests. Please try again later." = "يتلقى GitHub عددًا كبيرًا جدًا من الطلبات. يُرجى المحاولة لاحقًا.";
 "Homebrew" = "Homebrew";
 "Live updates paused" = "التحديثات المباشرة متوقفة مؤقتًا";
 
@@ -761,37 +626,22 @@
 "Memory estimate includes active, wired and compressed memory." = "يشمل تقدير الذاكرة الذاكرة النشطة والموصولة والمضغوطة.";
 "Memory in use" = "الذاكرة قيد الاستخدام";
 "No matching apps or processes" = "لا توجد تطبيقات أو عمليات مطابقة";
-"Open release page" = "فتح صفحة الإصدارات";
 "Process information is unavailable. Try Activity Monitor for more detail." = "معلومات العمليات غير متاحة. استخدم مراقب النشاط لمزيد من التفاصيل.";
-"Restart to apply your language" = "أعد التشغيل لتطبيق لغتك";
-"Review Full Disk Access" = "مراجعة الوصول الكامل للقرص";
-"Review launch at login" = "مراجعة التشغيل عند تسجيل الدخول";
 "Search apps and processes" = "البحث في التطبيقات والعمليات";
 "Settings" = "الإعدادات";
-"Settings need attention" = "إعدادات تحتاج إلى انتباه";
-"Settings to review" = "إعدادات للمراجعة";
 "Show all apps and processes" = "إظهار كل التطبيقات والعمليات";
 "Show top 8" = "إظهار أعلى 8";
 "Some of this app's processes have no CPU reading yet, so this total is partial." = "بعض عمليات هذا التطبيق ليس لها قراءة CPU بعد، لذا هذا الإجمالي جزئي.";
 "Some processes started or stopped since the last sample. Their values appear in the next one." = "بدأت أو توقفت بعض العمليات منذ آخر عينة. تظهر قيمها في العينة التالية.";
 "Sort by" = "الفرز حسب";
 "System processes are not listed. Use Activity Monitor for those." = "لا تُدرج عمليات النظام. استخدم مراقب النشاط لها.";
-"The release service is unavailable. Please try again later." = "خدمة الإصدارات غير متاحة. يُرجى المحاولة لاحقًا.";
-"This build has no readable version. Open the releases page to check manually." = "هذا البناء ليس له إصدار قابل للقراءة. افتح صفحة الإصدارات للتحقق يدويًا.";
-"To update with Homebrew, run this command in Terminal. The cask may follow the GitHub release a little later." = "للتحديث باستخدام Homebrew، نفّذ هذا الأمر في Terminal. قد تتبع حزمة cask إصدار GitHub بعد قليل.";
-"Update method" = "طريقة التحديث";
 
-"View releases" = "عرض الإصدارات";
 
 /* Sift redesign */
 "%@ could not be removed because Sift does not have Full Disk Access. Grant Full Disk Access in System Settings, then try again." = "تعذّر حذف %@ لأن Sift لا يملك الوصول الكامل للقرص. امنح الوصول الكامل للقرص في إعدادات النظام ثم حاول مرة أخرى.";
 "Sift" = "Sift";
 "Sift can now reach the locations macOS protects by default." = "يستطيع Sift الآن الوصول إلى المواقع التي يحميها macOS افتراضيًا.";
 "Open Settings & reveal Sift" = "فتح الإعدادات وإظهار Sift";
-"Keep Sift up to date" = "إبقاء Sift محدّثًا";
-"Download the new app from the release page, quit Sift, then replace it in Applications." = "نزّل التطبيق الجديد من صفحة الإصدارات، وأغلق Sift، ثم استبدله في «التطبيقات».";
-"Sift %@ is available" = "يتوفر Sift %@";
-"You're using the latest available version of Sift." = "أنت تستخدم أحدث إصدار متاح من Sift.";
 "Launch Sift at login" = "تشغيل Sift عند تسجيل الدخول";
 "Restart Sift to apply the selected language." = "أعد تشغيل Sift لتطبيق اللغة المحددة.";
 "Live CPU, memory, and disk meters in the menu bar. Sift keeps running in the background while this is on." = "مقاييس مباشرة للمعالج والذاكرة والقرص في شريط القوائم. يستمر Sift في العمل في الخلفية أثناء تفعيل هذا الخيار.";
@@ -813,12 +663,9 @@
 "Homebrew produced more output than Sift could safely retain." = "أنتج Homebrew مخرجات أكثر مما يمكن لـ Sift الاحتفاظ به بأمان.";
 "Sift could not read this setting." = "تعذّر على Sift قراءة هذا الإعداد.";
 "Sift could not confirm the local XProtect installation." = "تعذّر على Sift تأكيد تثبيت XProtect المحلي.";
-"No stable Sift app release was found. Try again later." = "لم يُعثر على إصدار مستقر من Sift. حاول لاحقًا.";
 "Scheduled cleanup" = "تنظيف مجدول";
 "Smart Scan cleanup" = "تنظيف الفحص الذكي";
 "Emptied Trash" = "تم إفراغ سلة المهملات";
-"Sift isn't allowed to control Finder. Allow it in System Settings > Privacy & Security > Automation, then try again." = "لا يُسمح لـ Sift بالتحكم في Finder. اسمح له من إعدادات النظام > الخصوصية والأمان > الأتمتة، ثم حاول مرة أخرى.";
-"Finder couldn't empty the Trash: %@" = "تعذّر على Finder إفراغ سلة المهملات: %@";
 "just now" = "الآن";
 "Files and cleanup actions marked Permanent cannot be undone. Items marked Move to Trash can be recovered until the Trash is emptied." = "لا يمكن التراجع عن الملفات وإجراءات التنظيف المميّزة بـ «نهائي». أما العناصر المميّزة بـ «نقل إلى المهملات» فيمكن استعادتها إلى أن يتم إفراغ سلة المهملات.";
 "Permanent · Remove simulator runtime" = "نهائي · إزالة وقت تشغيل المحاكي";
@@ -842,9 +689,6 @@
 "Old and large" = "قديمة وكبيرة";
 "The Trash is empty" = "سلة المهملات فارغة";
 "Files you move to the Trash show up here." = "تظهر هنا الملفات التي تنقلها إلى سلة المهملات.";
-"Empty the Trash?" = "إفراغ سلة المهملات؟";
-"Empty Trash" = "إفراغ سلة المهملات";
-"Finder will permanently delete %lld items (%@). This can't be undone." = "سيحذف Finder %lld عنصر (%@) نهائيًا. لا يمكن التراجع عن هذا الإجراء.";
 "Cleanup, scanned %@" = "التنظيف، تم الفحص %@";
 "Cleanup, not scanned yet" = "التنظيف، لم يتم الفحص بعد";
 "Filter by name or path" = "التصفية حسب الاسم أو المسار";
@@ -864,7 +708,6 @@
 "Review and remove" = "مراجعة وإزالة";
 "%lld items in the Trash" = "%lld عنصر في سلة المهملات";
 "Finder empties the Trash. This can't be undone." = "يُفرغ Finder سلة المهملات. لا يمكن التراجع عن هذا الإجراء.";
-"Emptying the Trash…" = "جارٍ إفراغ سلة المهملات…";
 "%@ total" = "الإجمالي %@";
 "%@ removed" = "تمت إزالة %@";
 "%@ is junk" = "%@ نفايات";
@@ -922,10 +765,6 @@
 "App updates" = "تحديثات التطبيقات";
 "Every %@" = "كل يوم %@";
 "Version" = "الإصدار";
-"Version %@ (%@). Checks the official app releases on GitHub." = "الإصدار %@ (%@). يتحقق من الإصدارات الرسمية للتطبيق على GitHub.";
-"Installing updates" = "تثبيت التحديثات";
-"Release notes" = "ملاحظات الإصدار";
-"Every version and what changed, on GitHub" = "كل إصدار وما تغيّر فيه، على GitHub";
 "Permissions" = "الأذونات";
 "Startup, language, the menu bar monitor and sound." = "بدء التشغيل واللغة ومراقب شريط القوائم والصوت.";
 "What Sift looks for, and what it leaves alone." = "ما يبحث عنه Sift، وما يتركه دون تغيير.";
@@ -976,10 +815,6 @@
 "A notification with what was found or cleaned" = "إشعار بما تم العثور عليه أو تنظيفه";
 "Runs" = "عمليات التشغيل";
 "Next run" = "التشغيل التالي";
-"Automation" = "الأتمتة";
-"macOS asks the first time" = "يسأل macOS في المرة الأولى";
-"Sift asks Finder to reveal files and to empty the Trash. Turn it on or off in Privacy & Security > Automation." = "يطلب Sift من Finder إظهار الملفات وإفراغ سلة المهملات. يمكنك تشغيل ذلك أو إيقافه من الخصوصية والأمان > الأتمتة.";
-"Open Automation settings" = "فتح إعدادات الأتمتة";
 "Source code" = "الشيفرة المصدرية";
 "Found a problem?" = "هل وجدت مشكلة؟";
 "Issues are tracked on GitHub" = "تُتابَع المشكلات على GitHub";
@@ -1176,12 +1011,6 @@
 "The settings shortcut is unavailable. Open System Settings from the Apple menu." = "اختصار الإعدادات غير متاح. افتح إعدادات النظام من قائمة Apple.";
 "Could not open %@. Open the app or guide manually." = "تعذّر فتح %@. افتح التطبيق أو الدليل يدويًا.";
 "This location is no longer available or cannot be accessed. Scan again to refresh the results." = "هذا الموقع لم يعد متاحًا أو تعذّر الوصول إليه. افحص مرة أخرى لتحديث النتائج.";
-"Permission denied when accessing '%@'. Grant Full Disk Access in System Settings." = "تم رفض الوصول إلى «%@». امنح الوصول الكامل للقرص في إعدادات النظام.";
-"Failed to enumerate directory '%@': %@" = "تعذّر تعداد المجلد «%@»: %@";
-"Failed to execute '%@': %@" = "تعذّر تنفيذ «%@»: %@";
-"Invalid data encountered: %@" = "تمت مصادفة بيانات غير صالحة: %@";
-"The privileged helper tool is not installed or unavailable." = "أداة المساعدة ذات الامتيازات غير مثبتة أو غير متاحة.";
-"The operation was cancelled." = "تم إلغاء العملية.";
 "Not writable by current user: %@" = "غير قابل للكتابة بواسطة المستخدم الحالي: %@";
 "Cannot modify %@: its entitlements require the original developer signature" = "لا يمكن تعديل %@: تتطلب صلاحياته توقيع المطور الأصلي";
 "Cannot thin %@: it is signed and notarized, and stripping a slice would break its signature" = "لا يمكن تقليص %@: إنه موقّع وموثّق، وإزالة بنية سيبطل توقيعه";

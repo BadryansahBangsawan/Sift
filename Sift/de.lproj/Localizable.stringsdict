@@ -461,22 +461,6 @@
 			<string>%lld unsichere oder nicht verfügbare Objekte wurden übersprungen.</string>
 		</dict>
 	</dict>
-	<key>%lld/%lld protected locations accessible</key>
-	<dict>
-		<key>NSStringLocalizedFormatKey</key>
-		<string>%#@value@</string>
-		<key>value</key>
-		<dict>
-			<key>NSStringFormatSpecTypeKey</key>
-			<string>NSStringPluralRuleType</string>
-			<key>NSStringFormatValueTypeKey</key>
-			<string>lld</string>
-			<key>one</key>
-			<string>%lld/%lld geschützter Ort zugänglich</string>
-			<key>other</key>
-			<string>%lld/%lld geschützte Orte zugänglich</string>
-		</dict>
-	</dict>
 	<key>Checking %lld locations...</key>
 	<dict>
 		<key>NSStringLocalizedFormatKey</key>
@@ -523,22 +507,6 @@
 			<string>Jede %lld Sekunde</string>
 			<key>other</key>
 			<string>Alle %lld Sekunden</string>
-		</dict>
-	</dict>
-	<key>Finder will permanently delete %lld items (%@). This can't be undone.</key>
-	<dict>
-		<key>NSStringLocalizedFormatKey</key>
-		<string>%#@value@</string>
-		<key>value</key>
-		<dict>
-			<key>NSStringFormatSpecTypeKey</key>
-			<string>NSStringPluralRuleType</string>
-			<key>NSStringFormatValueTypeKey</key>
-			<string>lld</string>
-			<key>one</key>
-			<string>Der Finder löscht %lld Objekt (%@) endgültig. Dies kann nicht rückgängig gemacht werden.</string>
-			<key>other</key>
-			<string>Der Finder löscht %lld Objekte (%@) endgültig. Dies kann nicht rückgängig gemacht werden.</string>
 		</dict>
 	</dict>
 	<key>Homebrew finished, but %lld selected apps still report updates.</key>
@@ -667,22 +635,6 @@
 			<string>%lld App aktualisieren</string>
 			<key>other</key>
 			<string>%lld Apps aktualisieren</string>
-		</dict>
-	</dict>
-	<key>across %lld categories</key>
-	<dict>
-		<key>NSStringLocalizedFormatKey</key>
-		<string>%#@value@</string>
-		<key>value</key>
-		<dict>
-			<key>NSStringFormatSpecTypeKey</key>
-			<string>NSStringPluralRuleType</string>
-			<key>NSStringFormatValueTypeKey</key>
-			<string>lld</string>
-			<key>one</key>
-			<string>in %lld Kategorie</string>
-			<key>other</key>
-			<string>in %lld Kategorien</string>
 		</dict>
 	</dict>
 	<key>of %lld cores</key>

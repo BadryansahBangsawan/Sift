@@ -2,19 +2,12 @@
 "Overview" = "Overview";
 "Cleanup" = "Cleanup";
 "Dashboard" = "Dashboard";
-"Installed Apps" = "Installed Apps";
-"Ready to clean" = "Ready to clean";
 "Limited access" = "Limited access";
-"Full Disk Access granted" = "Full Disk Access granted";
-"Grant FDA in Settings" = "Grant FDA in Settings";
-"Select a category from the sidebar to get started." = "Select a category from the sidebar to get started.";
 
 /* FDA toast + clean error alert (MainWindow) */
 "Couldn't clean everything" = "Couldn't clean everything";
 "Open System Settings" = "Open System Settings";
 "OK" = "OK";
-"Full Disk Access required" = "Full Disk Access required";
-"Grant Access" = "Grant Access";
 
 /* Permission Sheet */
 "Grant Full Disk Access" = "Grant Full Disk Access";
@@ -25,7 +18,6 @@
 " and %lld more" = " and %lld more";
 "Access granted. Retrying…" = "Access granted. Retrying…";
 "1-tap setup. We'll detect the change automatically." = "1-tap setup. We'll detect the change automatically.";
-"We'll open both windows side-by-side." = "We'll open both windows side-by-side.";
 "Toggle the row that appears." = "Toggle the row that appears.";
 "Authenticate" = "Authenticate";
 "Touch ID or password." = "Touch ID or password.";
@@ -43,65 +35,27 @@
 "I granted it — retry" = "I granted it — retry";
 
 /* Dashboard polish */
-"Low space" = "Low space";
-"CLEANING" = "CLEANING";
-"Quick Setup" = "Quick Setup";
-"1-tap setup. We'll auto-retry what failed." = "1-tap setup. We'll auto-retry what failed.";
-"Fix permission" = "Fix permission";
 "Dismiss" = "Dismiss";
-"Fix" = "Fix";
 "Set up" = "Set up";
 
 /* Dashboard */
 "Storage" = "Storage";
 "Smart Scan" = "Smart Scan";
-"free of %@" = "free of %@";
-"Junk" = "Junk";
-"Free Space" = "Free Space";
-"Junk Found" = "Junk Found";
 "Apps" = "Apps";
-"of %@ · %lld%% used" = "of %@ · %lld%% used";
-"Run a scan" = "Run a scan";
-"across %lld categories" = "across %lld categories";
 "installed" = "installed";
-"APFS reclaimable" = "APFS reclaimable";
-"Suggested for you" = "Suggested for you";
-"By category" = "By category";
-"%@ is using %@" = "%@ is using %@";
-"Grant Full Disk Access for full results" = "Grant Full Disk Access for full results";
-"Without it, most caches and uninstall flows fail." = "Without it, most caches and uninstall flows fail.";
-"Action" = "Action";
 "Scanning your Mac" = "Scanning your Mac";
-"Currently in: %@" = "Currently in: %@";
-"found" = "found";
-"Your Mac is clean" = "Your Mac is clean";
 "Scan Again" = "Scan Again";
-"Clean %@?" = "Clean %@?";
-"Cleaning…" = "Cleaning…";
 "%lld%% complete" = "%lld%% complete";
-"freed" = "freed";
 "Done" = "Done";
 "%lld items" = "%lld items";
 
 /* Common destructive dialog */
-"Clean" = "Clean";
 "Cancel" = "Cancel";
-"This will permanently delete the selected files. This cannot be undone." = "This will permanently delete the selected files. This cannot be undone.";
 
 /* Category Detail */
-"All Clean" = "All Clean";
-"No junk files found in this category." = "No junk files found in this category.";
-"Not Scanned" = "Not Scanned";
-"Run a scan to analyze this category." = "Run a scan to analyze this category.";
-"Scan Now" = "Scan Now";
-"Filter files" = "Filter files";
 "Scan" = "Scan";
 "Select All" = "Select All";
 "Deselect All" = "Deselect All";
-"Largest First" = "Largest First";
-"Smallest First" = "Smallest First";
-"Sorted: Largest First" = "Sorted: Largest First";
-"Sorted: Smallest First" = "Sorted: Smallest First";
 "Clean %lld items" = "Clean %lld items";
 "%lld items · %@" = "%lld items · %@";
 "Rescan" = "Rescan";
@@ -123,7 +77,6 @@
 /* App Files (AppFilesView) */
 "%lld files" = "%lld files";
 "1 folder" = "1 folder";
-"1 file" = "1 file";
 "Scanning for related files..." = "Scanning for related files...";
 "Checking %lld locations..." = "Checking %lld locations...";
 "No Related Files" = "No Related Files";
@@ -145,32 +98,13 @@
 /* Onboarding */
 "Back" = "Back";
 "Next" = "Next";
-"Get Started" = "Get Started";
-"Free, open-source macOS app manager and system cleaner." = "Free, open-source macOS app manager and system cleaner.";
-"Find junk files across your system" = "Find junk files across your system";
-"Remove apps and all their files" = "Remove apps and all their files";
-"Find leftovers from deleted apps" = "Find leftovers from deleted apps";
 "Full Disk Access" = "Full Disk Access";
-"We'll guide you through the next steps." = "We'll guide you through the next steps.";
-"In System Settings, do this:" = "In System Settings, do this:";
 "Privacy & Security → Full Disk Access" = "Privacy & Security → Full Disk Access";
-"Authenticate with Touch ID or your password" = "Authenticate with Touch ID or your password";
 "Reopen Settings" = "Reopen Settings";
-"Reset permissions and re-prompt" = "Reset permissions and re-prompt";
-"Hide diagnostics" = "Hide diagnostics";
-"Show diagnostics" = "Show diagnostics";
-"Trouble?" = "Trouble?";
-"Waiting for permission…" = "Waiting for permission…";
-"Permission granted." = "Permission granted.";
-"You're Ready" = "You're Ready";
-"%lld/%lld protected locations accessible" = "%lld/%lld protected locations accessible";
 "Some features will be limited without Full Disk Access. You can grant it later in Settings." = "Some features will be limited without Full Disk Access. You can grant it later in Settings.";
 "Trash" = "Trash";
-"Mail Data" = "Mail Data";
-"Safari Data" = "Safari Data";
 "Desktop" = "Desktop";
 "Documents" = "Documents";
-"TCC Database" = "TCC Database";
 "Blocked" = "Blocked";
 
 /* FDA demo system apps */
@@ -210,7 +144,6 @@
 "Enable scheduled scanning" = "Enable scheduled scanning";
 "Scan interval" = "Scan interval";
 "Auto-clean after scan" = "Auto-clean after scan";
-"Auto-purge purgeable space" = "Auto-purge purgeable space";
 "Notify on completion" = "Notify on completion";
 "Last run" = "Last run";
 "Version %@" = "Version %@";
@@ -239,10 +172,8 @@
 "Scan everything at once" = "Scan everything at once";
 "System caches, logs, and temporary files" = "System caches, logs, and temporary files";
 "Application caches and browser data" = "Application caches and browser data";
-"Local AI app logs, caches, and optional history" = "Local AI app logs, caches, and optional history";
 "Downloaded mail attachments" = "Downloaded mail attachments";
 "Files over 100 MB or older than 1 year" = "Files over 100 MB or older than 1 year";
-"APFS purgeable disk space" = "APFS purgeable disk space";
 "Derived data, archives, and simulator runtimes" = "Derived data, archives, and simulator runtimes";
 "Homebrew download cache" = "Homebrew download cache";
 "npm, yarn, and pnpm download caches" = "npm, yarn, and pnpm download caches";
@@ -319,8 +250,6 @@
 "Or drag the icon on the left straight into Settings." = "Or drag the icon on the left straight into Settings.";
 
 /* Dashboard storage composition (v2.7.0) */
-"Storage composition" = "Storage composition";
-"total" = "total";
 "Free" = "Free";
 
 /* UI polish (v2.8.0): leftover groups + sound toggle */
@@ -362,51 +291,14 @@
 "%lld checks" = "%lld checks";
 "%lld items found" = "%lld items found";
 "%lld selected" = "%lld selected";
-"%lld-POINT LOCAL SCAN" = "%lld-POINT LOCAL SCAN";
-"%lld/%lld checked" = "%lld/%lld checked";
-"ALL CLEAR" = "ALL CLEAR";
-"Advanced Tools" = "Advanced Tools";
-"All clear" = "All clear";
-"App leftovers to inspect" = "App leftovers to inspect";
 "Appearance" = "Appearance";
-"Caches, mail, trash, and large files" = "Caches, mail, trash, and large files";
-"Care areas" = "Care areas";
-"Checks every cleanup category without deleting files" = "Checks every cleanup category without deleting files";
-"Choose what to keep, then clean everything in one controlled pass." = "Choose what to keep, then clean everything in one controlled pass.";
-"Cleaning safely…" = "Cleaning safely…";
-"Cleanup complete. Your storage summary is refreshing." = "Cleanup complete. Your storage summary is refreshing.";
 "Clear" = "Clear";
 "Developer" = "Developer";
-"Installed apps" = "Installed apps";
-"LOW SPACE" = "LOW SPACE";
-"Last clean: %@" = "Last clean: %@";
-"Local" = "Local";
-"Make room.\nKeep control." = "Make room.\nKeep control.";
-"No cleanup run yet" = "No cleanup run yet";
-"No known leftovers" = "No known leftovers";
-"One scan checks every cleanup tool and prepares a plan for your review." = "One scan checks every cleanup tool and prepares a plan for your review.";
-"Private" = "Private";
-"Ready for review" = "Ready for review";
-"Ready to reclaim" = "Ready to reclaim";
 "Review" = "Review";
-"Review scan results" = "Review scan results";
-"Review what was found" = "Review what was found";
-"Reviewable" = "Reviewable";
-"SCAN COMPLETE" = "SCAN COMPLETE";
-"Scan My Mac" = "Scan My Mac";
-"Scan first.\nDecide what goes." = "Scan first.\nDecide what goes.";
-"Scanning" = "Scanning";
-"Selected items are being removed safely." = "Selected items are being removed safely.";
-"Smart Care" = "Smart Care";
-"Twelve-layer storage inspection model" = "Twelve-layer storage inspection model";
-"Xcode and package tools" = "Xcode and package tools";
-"Your Mac is in good shape." = "Your Mac is in good shape.";
 
 /* Simulator runtimes */
-"Simulator runtime" = "Simulator runtime";
 
 /* Current dashboard, tools, and cleanup review */
-"\nAnd %lld more." = "\nAnd %lld more.";
 "%@ %@ to %@" = "%@ %@ to %@";
 "%@ available" = "%@ available";
 "%@ did not finish within the allowed time." = "%@ did not finish within the allowed time.";
@@ -415,7 +307,6 @@
 "%@ of %@" = "%@ of %@";
 "%@ of %@ candidates · %@ verified" = "%@ of %@ candidates · %@ verified";
 "%@ reviewable" = "%@ reviewable";
-"%@ selected. This permanently removes the selected files or runs the listed cleanup actions. It cannot be undone." = "%@ selected. This permanently removes the selected files or runs the listed cleanup actions. It cannot be undone.";
 "%@ will move to Trash" = "%@ will move to Trash";
 "%lld analyzed" = "%lld analyzed";
 "%lld apps selected" = "%lld apps selected";
@@ -441,8 +332,6 @@
 ", and %lld more" = ", and %lld more";
 "1 app selected" = "1 app selected";
 "1 update available" = "1 update available";
-"500 photo limit" = "500 photo limit";
-"A clear view of reclaimable storage and the tools that manage it." = "A clear view of reclaimable storage and the tools that manage it.";
 "A selected file is missing or changed: %@" = "A selected file is missing or changed: %@";
 "A selected file no longer matches its kept copy: %@" = "A selected file no longer matches its kept copy: %@";
 "Access denied" = "Access denied";
@@ -468,7 +357,6 @@
 "Check Again" = "Check Again";
 "Check again" = "Check again";
 "Check built-in safeguards" = "Check built-in safeguards";
-"Check installed apps for new versions" = "Check installed apps for new versions";
 "Check installed cask apps" = "Check installed cask apps";
 "Checked %@. Unknown means the setting could not be confirmed." = "Checked %@. Unknown means the setting could not be confirmed.";
 "Checking" = "Checking";
@@ -488,7 +376,6 @@
 "Clear search" = "Clear search";
 "Cloud-only file" = "Cloud-only file";
 "Collapse duplicate group" = "Collapse duplicate group";
-"Compare visually similar photos" = "Compare visually similar photos";
 "Conditional keep alive" = "Conditional keep alive";
 "Copy path" = "Copy path";
 "Could not inspect %@" = "Could not inspect %@";
@@ -511,14 +398,10 @@
 "FileVault" = "FileVault";
 "FileVault Settings" = "FileVault Settings";
 "Files will be moved to the Trash. Items requiring administrator authorization may be permanently deleted. App matching is a best-effort estimate; review files you recognize before removing them." = "Files will be moved to the Trash. Items requiring administrator authorization may be permanently deleted. App matching is a best-effort estimate; review files you recognize before removing them.";
-"Filter cleanup files" = "Filter cleanup files";
 "Find copies that are exactly the same" = "Find copies that are exactly the same";
-"Find space to reclaim." = "Find space to reclaim.";
 "Find visually related shots in a folder and review them side by side." = "Find visually related shots in a folder and review them side by side.";
-"Find what uses the most disk space" = "Find what uses the most disk space";
 "Finding local photos" = "Finding local photos";
 "Firewall Settings" = "Firewall Settings";
-"Focused utilities for storage, apps, and system maintenance" = "Focused utilities for storage, apps, and system maintenance";
 "Folder could not be inspected" = "Folder could not be inspected";
 "Full Disk Access is off" = "Full Disk Access is off";
 "Full access" = "Full access";
@@ -541,7 +424,6 @@
 "Incoming network connections are filtered." = "Incoming network connections are filtered.";
 "Inspect" = "Inspect";
 "Inspect a folder by allocated disk space. Your files are never changed." = "Inspect a folder by allocated disk space. Your files are never changed.";
-"Inspect memory and background activity" = "Inspect memory and background activity";
 "Inspect startup items and local snapshots again" = "Inspect startup items and local snapshots again";
 "Inspected %@ files in %@. %@" = "Inspected %@ files in %@. %@";
 "Inspecting startup items and local snapshots…" = "Inspecting startup items and local snapshots…";
@@ -553,11 +435,7 @@
 "Keep alive" = "Keep alive";
 "Largest first" = "Largest first";
 "Largest items" = "Largest items";
-"Last checked" = "Last checked";
 "Leftovers" = "Leftovers";
-"Live resources" = "Live resources";
-"Local and private" = "Local and private";
-"Local files" = "Local files";
 "Local snapshot" = "Local snapshot";
 "Local snapshots" = "Local snapshots";
 "Location" = "Location";
@@ -566,7 +444,6 @@
 "Managed cleanup action" = "Managed cleanup action";
 "Matching files" = "Matching files";
 "Measuring allocated space" = "Measuring allocated space";
-"Memory pressure use" = "Memory pressure use";
 "Microphone" = "Microphone";
 "Modified" = "Modified";
 "Move selected duplicates to Trash?" = "Move selected duplicates to Trash?";
@@ -620,18 +497,13 @@
 "Refused to delete %lld protected item(s) (home credential directory or similar)." = "Refused to delete %lld protected item(s) (home credential directory or similar).";
 "Remove %lld files" = "Remove %lld files";
 "Remove %lld items" = "Remove %lld items";
-"Remove apps and their related files" = "Remove apps and their related files";
 "Remove selected app files?" = "Remove selected app files?";
-"Remove selected files?" = "Remove selected files?";
 "Remove selected leftovers?" = "Remove selected leftovers?";
 "Removing the items you selected." = "Removing the items you selected.";
 "Reveal %@ in Finder" = "Reveal %@ in Finder";
 "Reveal plist in Finder" = "Reveal plist in Finder";
 "Reveal skipped item in Finder" = "Reveal skipped item in Finder";
 "Review and update apps installed as Homebrew casks." = "Review and update apps installed as Homebrew casks.";
-"Review built-in privacy and safety checks" = "Review built-in privacy and safety checks";
-"Review matching files side by side" = "Review matching files side by side";
-"Review only" = "Review only";
 "Review removal" = "Review removal";
 "Review the groups before acting" = "Review the groups before acting";
 "Review the macOS safeguards that protect apps, disks, network access, and system files." = "Review the macOS safeguards that protect apps, disks, network access, and system files.";
@@ -661,7 +533,6 @@
 "Select copies" = "Select copies";
 "Select the apps Homebrew should upgrade." = "Select the apps Homebrew should upgrade.";
 "Select the extra copies you want to review" = "Select the extra copies you want to review";
-"Selected cleanup items are permanently removed." = "Selected cleanup items are permanently removed.";
 "Share of scanned space" = "Share of scanned space";
 "Shares storage with %@" = "Shares storage with %@";
 "Show %@ in Finder" = "Show %@ in Finder";
@@ -688,7 +559,6 @@
 "Symbolic link" = "Symbolic link";
 "Symbolic links and cloud-only items are excluded." = "Symbolic links and cloud-only items are excluded.";
 "Symbolic links cannot be scanned: %@" = "Symbolic links cannot be scanned: %@";
-"Symbolic links, app packages, hidden files and cloud-only placeholders are skipped. Photos are never uploaded or deleted." = "Symbolic links, app packages, hidden files and cloud-only placeholders are skipped. Photos are never uploaded or deleted.";
 "System Integrity Protection" = "System Integrity Protection";
 "System Integrity Protection is turned off." = "System Integrity Protection is turned off.";
 "System daemon" = "System daemon";
@@ -734,7 +604,6 @@
 "allocated in this folder" = "allocated in this folder";
 "definitions %@" = "definitions %@";
 "engine %@" = "engine %@";
-"reclaimed" = "reclaimed";
 "similar group" = "similar group";
 "similar groups" = "similar groups";
 "tmutil is not available on this Mac." = "tmutil is not available on this Mac.";
@@ -748,12 +617,8 @@
 "CPU uses the Mac’s total capacity. App helpers are grouped with their app." = "CPU uses the Mac’s total capacity. App helpers are grouped with their app.";
 "CPU values appear after the next sample." = "CPU values appear after the next sample.";
 "Check access" = "Check access";
-"Checking for updates…" = "Checking for updates…";
 "Collapsed" = "Collapsed";
-"Copy command" = "Copy command";
-"Download (DMG / ZIP)" = "Download (DMG / ZIP)";
 "Expanded" = "Expanded";
-"GitHub is receiving too many requests. Please try again later." = "GitHub is receiving too many requests. Please try again later.";
 "Homebrew" = "Homebrew";
 "Live updates paused" = "Live updates paused";
 
@@ -761,37 +626,22 @@
 "Memory estimate includes active, wired and compressed memory." = "Memory estimate includes active, wired and compressed memory.";
 "Memory in use" = "Memory in use";
 "No matching apps or processes" = "No matching apps or processes";
-"Open release page" = "Open release page";
 "Process information is unavailable. Try Activity Monitor for more detail." = "Process information is unavailable. Try Activity Monitor for more detail.";
-"Restart to apply your language" = "Restart to apply your language";
-"Review Full Disk Access" = "Review Full Disk Access";
-"Review launch at login" = "Review launch at login";
 "Search apps and processes" = "Search apps and processes";
 "Settings" = "Settings";
-"Settings need attention" = "Settings need attention";
-"Settings to review" = "Settings to review";
 "Show all apps and processes" = "Show all apps and processes";
 "Show top 8" = "Show top 8";
 "Some of this app's processes have no CPU reading yet, so this total is partial." = "Some of this app's processes have no CPU reading yet, so this total is partial.";
 "Some processes started or stopped since the last sample. Their values appear in the next one." = "Some processes started or stopped since the last sample. Their values appear in the next one.";
 "Sort by" = "Sort by";
 "System processes are not listed. Use Activity Monitor for those." = "System processes are not listed. Use Activity Monitor for those.";
-"The release service is unavailable. Please try again later." = "The release service is unavailable. Please try again later.";
-"This build has no readable version. Open the releases page to check manually." = "This build has no readable version. Open the releases page to check manually.";
-"To update with Homebrew, run this command in Terminal. The cask may follow the GitHub release a little later." = "To update with Homebrew, run this command in Terminal. The cask may follow the GitHub release a little later.";
-"Update method" = "Update method";
 
-"View releases" = "View releases";
 
 /* Sift redesign */
 "%@ could not be removed because Sift does not have Full Disk Access. Grant Full Disk Access in System Settings, then try again." = "%@ could not be removed because Sift does not have Full Disk Access. Grant Full Disk Access in System Settings, then try again.";
 "Sift" = "Sift";
 "Sift can now reach the locations macOS protects by default." = "Sift can now reach the locations macOS protects by default.";
 "Open Settings & reveal Sift" = "Open Settings & reveal Sift";
-"Keep Sift up to date" = "Keep Sift up to date";
-"Download the new app from the release page, quit Sift, then replace it in Applications." = "Download the new app from the release page, quit Sift, then replace it in Applications.";
-"Sift %@ is available" = "Sift %@ is available";
-"You're using the latest available version of Sift." = "You're using the latest available version of Sift.";
 "Launch Sift at login" = "Launch Sift at login";
 "Restart Sift to apply the selected language." = "Restart Sift to apply the selected language.";
 "Live CPU, memory, and disk meters in the menu bar. Sift keeps running in the background while this is on." = "Live CPU, memory, and disk meters in the menu bar. Sift keeps running in the background while this is on.";
@@ -813,12 +663,9 @@
 "Homebrew produced more output than Sift could safely retain." = "Homebrew produced more output than Sift could safely retain.";
 "Sift could not read this setting." = "Sift could not read this setting.";
 "Sift could not confirm the local XProtect installation." = "Sift could not confirm the local XProtect installation.";
-"No stable Sift app release was found. Try again later." = "No stable Sift app release was found. Try again later.";
 "Scheduled cleanup" = "Scheduled cleanup";
 "Smart Scan cleanup" = "Smart Scan cleanup";
 "Emptied Trash" = "Emptied Trash";
-"Sift isn't allowed to control Finder. Allow it in System Settings > Privacy & Security > Automation, then try again." = "Sift isn't allowed to control Finder. Allow it in System Settings > Privacy & Security > Automation, then try again.";
-"Finder couldn't empty the Trash: %@" = "Finder couldn't empty the Trash: %@";
 "just now" = "just now";
 "Files and cleanup actions marked Permanent cannot be undone. Items marked Move to Trash can be recovered until the Trash is emptied." = "Files and cleanup actions marked Permanent cannot be undone. Items marked Move to Trash can be recovered until the Trash is emptied.";
 "Permanent · Remove simulator runtime" = "Permanent · Remove simulator runtime";
@@ -842,9 +689,6 @@
 "Old and large" = "Old and large";
 "The Trash is empty" = "The Trash is empty";
 "Files you move to the Trash show up here." = "Files you move to the Trash show up here.";
-"Empty the Trash?" = "Empty the Trash?";
-"Empty Trash" = "Empty Trash";
-"Finder will permanently delete %lld items (%@). This can't be undone." = "Finder will permanently delete %lld items (%@). This can't be undone.";
 "Cleanup, scanned %@" = "Cleanup, scanned %@";
 "Cleanup, not scanned yet" = "Cleanup, not scanned yet";
 "Filter by name or path" = "Filter by name or path";
@@ -864,7 +708,6 @@
 "Review and remove" = "Review and remove";
 "%lld items in the Trash" = "%lld items in the Trash";
 "Finder empties the Trash. This can't be undone." = "Finder empties the Trash. This can't be undone.";
-"Emptying the Trash…" = "Emptying the Trash…";
 "%@ total" = "%@ total";
 "%@ removed" = "%@ removed";
 "%@ is junk" = "%@ is junk";
@@ -922,10 +765,6 @@
 "App updates" = "App updates";
 "Every %@" = "Every %@";
 "Version" = "Version";
-"Version %@ (%@). Checks the official app releases on GitHub." = "Version %@ (%@). Checks the official app releases on GitHub.";
-"Installing updates" = "Installing updates";
-"Release notes" = "Release notes";
-"Every version and what changed, on GitHub" = "Every version and what changed, on GitHub";
 "Permissions" = "Permissions";
 "Startup, language, the menu bar monitor and sound." = "Startup, language, the menu bar monitor and sound.";
 "What Sift looks for, and what it leaves alone." = "What Sift looks for, and what it leaves alone.";
@@ -976,10 +815,6 @@
 "A notification with what was found or cleaned" = "A notification with what was found or cleaned";
 "Runs" = "Runs";
 "Next run" = "Next run";
-"Automation" = "Automation";
-"macOS asks the first time" = "macOS asks the first time";
-"Sift asks Finder to reveal files and to empty the Trash. Turn it on or off in Privacy & Security > Automation." = "Sift asks Finder to reveal files and to empty the Trash. Turn it on or off in Privacy & Security > Automation.";
-"Open Automation settings" = "Open Automation settings";
 "Source code" = "Source code";
 "Found a problem?" = "Found a problem?";
 "Issues are tracked on GitHub" = "Issues are tracked on GitHub";
@@ -1176,12 +1011,6 @@
 "The settings shortcut is unavailable. Open System Settings from the Apple menu." = "The settings shortcut is unavailable. Open System Settings from the Apple menu.";
 "Could not open %@. Open the app or guide manually." = "Could not open %@. Open the app or guide manually.";
 "This location is no longer available or cannot be accessed. Scan again to refresh the results." = "This location is no longer available or cannot be accessed. Scan again to refresh the results.";
-"Permission denied when accessing '%@'. Grant Full Disk Access in System Settings." = "Permission denied when accessing '%@'. Grant Full Disk Access in System Settings.";
-"Failed to enumerate directory '%@': %@" = "Failed to enumerate directory '%@': %@";
-"Failed to execute '%@': %@" = "Failed to execute '%@': %@";
-"Invalid data encountered: %@" = "Invalid data encountered: %@";
-"The privileged helper tool is not installed or unavailable." = "The privileged helper tool is not installed or unavailable.";
-"The operation was cancelled." = "The operation was cancelled.";
 "Not writable by current user: %@" = "Not writable by current user: %@";
 "Cannot modify %@: its entitlements require the original developer signature" = "Cannot modify %@: its entitlements require the original developer signature";
 "Cannot thin %@: it is signed and notarized, and stripping a slice would break its signature" = "Cannot thin %@: it is signed and notarized, and stripping a slice would break its signature";

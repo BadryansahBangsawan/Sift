@@ -1,5 +1,4 @@
 /* macOS permission prompts */
-"NSAppleEventsUsageDescription" = "Sift 使用 Apple 事件请求访达显示文件和倒空废纸篓。";
 "NSDesktopFolderUsageDescription" = "Sift 需要访问桌面，以查找可清理文件和应用残留。";
 "NSDocumentsFolderUsageDescription" = "Sift 需要访问文稿文件夹，以查找可清理文件和应用残留。";
 "NSDownloadsFolderUsageDescription" = "Sift 需要访问下载文件夹，以查找可清理文件和应用残留。";

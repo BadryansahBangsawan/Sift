@@ -577,26 +577,6 @@
 			<string>Пропущено %lld небезопасных или недоступных элемента.</string>
 		</dict>
 	</dict>
-	<key>%lld/%lld protected locations accessible</key>
-	<dict>
-		<key>NSStringLocalizedFormatKey</key>
-		<string>%#@value@</string>
-		<key>value</key>
-		<dict>
-			<key>NSStringFormatSpecTypeKey</key>
-			<string>NSStringPluralRuleType</string>
-			<key>NSStringFormatValueTypeKey</key>
-			<string>lld</string>
-			<key>few</key>
-			<string>Доступно защищённых расположения: %lld/%lld</string>
-			<key>many</key>
-			<string>Доступно защищённых расположений: %lld/%lld</string>
-			<key>one</key>
-			<string>Доступно защищённое расположение: %lld/%lld</string>
-			<key>other</key>
-			<string>Доступно защищённых расположения: %lld/%lld</string>
-		</dict>
-	</dict>
 	<key>Checking %lld locations...</key>
 	<dict>
 		<key>NSStringLocalizedFormatKey</key>
@@ -655,26 +635,6 @@
 			<string>Каждую %lld секунду</string>
 			<key>other</key>
 			<string>Каждые %lld секунды</string>
-		</dict>
-	</dict>
-	<key>Finder will permanently delete %lld items (%@). This can't be undone.</key>
-	<dict>
-		<key>NSStringLocalizedFormatKey</key>
-		<string>%#@value@</string>
-		<key>value</key>
-		<dict>
-			<key>NSStringFormatSpecTypeKey</key>
-			<string>NSStringPluralRuleType</string>
-			<key>NSStringFormatValueTypeKey</key>
-			<string>lld</string>
-			<key>few</key>
-			<string>Finder безвозвратно удалит %lld объекта (%@). Это действие нельзя отменить.</string>
-			<key>many</key>
-			<string>Finder безвозвратно удалит %lld объектов (%@). Это действие нельзя отменить.</string>
-			<key>one</key>
-			<string>Finder безвозвратно удалит %lld объект (%@). Это действие нельзя отменить.</string>
-			<key>other</key>
-			<string>Finder безвозвратно удалит %lld объекта (%@). Это действие нельзя отменить.</string>
 		</dict>
 	</dict>
 	<key>Homebrew finished, but %lld selected apps still report updates.</key>
@@ -835,26 +795,6 @@
 			<string>Обновить приложение: %lld</string>
 			<key>other</key>
 			<string>Обновить приложения: %lld</string>
-		</dict>
-	</dict>
-	<key>across %lld categories</key>
-	<dict>
-		<key>NSStringLocalizedFormatKey</key>
-		<string>%#@value@</string>
-		<key>value</key>
-		<dict>
-			<key>NSStringFormatSpecTypeKey</key>
-			<string>NSStringPluralRuleType</string>
-			<key>NSStringFormatValueTypeKey</key>
-			<string>lld</string>
-			<key>few</key>
-			<string>Категории: %lld</string>
-			<key>many</key>
-			<string>Категорий: %lld</string>
-			<key>one</key>
-			<string>Категория: %lld</string>
-			<key>other</key>
-			<string>Категории: %lld</string>
 		</dict>
 	</dict>
 	<key>of %lld cores</key>

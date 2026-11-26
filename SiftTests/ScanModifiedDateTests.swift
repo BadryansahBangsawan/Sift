@@ -44,7 +44,7 @@ final class ScanModifiedDateTests: XCTestCase {
     }
 
     func testVirtualActionRowsKeepNoModifiedDate() async throws {
-        try makeFolder("Library/Developer/Xcode/DerivedData/App-hash", modified: Date())
+        _ = try makeFolder("Library/Developer/Xcode/DerivedData/App-hash", modified: Date())
         let engine = ScanEngine(homeDirectory: homeDirectory, tmpRoots: [], isAppRunning: { _ in false })
 
         let purgeable = await engine.scanCategory(.purgeableSpace)
