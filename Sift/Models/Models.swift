@@ -314,7 +314,7 @@ extension ScheduleConfig {
 
 // MARK: - Disk Info
 
-struct DiskInfo {
+struct DiskInfo: Sendable {
     var totalSpace: Int64 = 0
     var freeSpace: Int64 = 0
     var usedSpace: Int64 = 0

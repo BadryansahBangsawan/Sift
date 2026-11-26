@@ -22,7 +22,7 @@ actor ScanEngine {
         isAppRunning: @escaping (String) -> Bool = { bundleID in
             RunningAppGuard.systemIsRunning(bundleIdentifier: bundleID, appURL: nil)
         },
-        diskInfoProvider: @escaping @Sendable () -> DiskInfo = ScanEngine.readDiskInfo
+        diskInfoProvider: @escaping @Sendable () -> DiskInfo = { ScanEngine.readDiskInfo() }
     ) {
         home = XcodeBuildMCPDerivedDataSupport.canonicalHomeDirectory(homeDirectory).path
         self.tmpRoots = tmpRoots
