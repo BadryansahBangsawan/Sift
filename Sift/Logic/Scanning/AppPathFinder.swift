@@ -34,6 +34,9 @@ class AppPathFinder {
     private let appInfo: AppInfo
     private let locations: Locations
     private let sensitivity: Sensitivity
+    /// The user home the Library-root heuristic compares against. Injectable so
+    /// tests can use a fixture home without touching the real one.
+    private let homeDirectory: URL
     private var collectionSet: Set<URL> = []
     private let collectionQueue = DispatchQueue(label: "com.sift.pathfinder.collection")
 
@@ -51,10 +54,16 @@ class AppPathFinder {
 
     // MARK: - Initialization
 
-    init(appInfo: AppInfo, locations: Locations, sensitivity: Sensitivity = .enhanced) {
+    init(
+        appInfo: AppInfo,
+        locations: Locations,
+        sensitivity: Sensitivity = .enhanced,
+        homeDirectory: URL = FileManager.default.homeDirectoryForCurrentUser
+    ) {
         self.appInfo = appInfo
         self.locations = locations
         self.sensitivity = sensitivity
+        self.homeDirectory = homeDirectory
 
         self.normalizedBundleID = appInfo.bundleIdentifier.normalizedForMatching()
         self.bundleLastTwo = appInfo.bundleIdentifier.bundleLastTwoComponents
@@ -351,7 +360,7 @@ class AppPathFinder {
     // MARK: - Helpers
 
     private func isLibraryDirectory(_ location: String) -> Bool {
-        location == "\(home)/Library" || location == "/Library"
+        location == "\(homeDirectory.path)/Library" || location == "/Library"
     }
 
     /// Removes child paths when a parent is already in the set, and discards
