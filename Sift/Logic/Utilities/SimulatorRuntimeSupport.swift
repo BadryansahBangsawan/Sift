@@ -118,6 +118,7 @@ enum SimulatorRuntimeSupport {
     static func runXcrun(
         _ arguments: [String],
         executablePath: String = xcrunPath,
+        timeout: TimeInterval = 15,
         availabilityCheck: () -> Bool = { isXcrunAvailable() }
     ) -> (status: Int32, stdout: String, stderr: String) {
         guard availabilityCheck() else {
@@ -141,13 +142,41 @@ enum SimulatorRuntimeSupport {
             )
             return (-1, "", error.localizedDescription)
         }
-        let outData = stdoutPipe.fileHandleForReading.readDataToEndOfFile()
-        let errData = stderrPipe.fileHandleForReading.readDataToEndOfFile()
+        // Drain both pipes at once. Reading stdout to EOF first deadlocks a
+        // child that fills the 64 KB stderr buffer before writing stdout.
+        let outBox = LockedData()
+        let errBox = LockedData()
+        let readers = DispatchGroup()
+        let pipeQueue = DispatchQueue(label: "com.sift.xcrun.pipes", attributes: .concurrent)
+        for (pipe, box) in [(stdoutPipe, outBox), (stderrPipe, errBox)] {
+            readers.enter()
+            pipeQueue.async {
+                box.set(pipe.fileHandleForReading.readDataToEndOfFile())
+                readers.leave()
+            }
+        }
+
+        let drained = readers.wait(timeout: .now() + timeout) == .success
+        if !drained {
+            task.terminate()
+            if readers.wait(timeout: .now() + 2) != .success {
+                kill(task.processIdentifier, SIGKILL)
+                _ = readers.wait(timeout: .now() + 2)
+            }
+        }
         task.waitUntilExit()
+
+        guard drained else {
+            Logger.shared.log(
+                "xcrun \(arguments.joined(separator: " ")) timed out after \(Int(timeout))s",
+                level: .warning
+            )
+            return (-1, "", "xcrun timed out after \(Int(timeout))s")
+        }
         return (
             task.terminationStatus,
-            String(data: outData, encoding: .utf8) ?? "",
-            String(data: errData, encoding: .utf8) ?? ""
+            String(data: outBox.value, encoding: .utf8) ?? "",
+            String(data: errBox.value, encoding: .utf8) ?? ""
         )
     }
 
@@ -164,5 +193,24 @@ enum SimulatorRuntimeSupport {
         } catch {
             return -1
         }
+    }
+}
+
+/// Mutex-protected pipe payload: the two drain blocks write from concurrent
+/// queue threads and the caller reads after the group completes.
+private final class LockedData: @unchecked Sendable {
+    private let lock = NSLock()
+    private var storage = Data()
+
+    func set(_ data: Data) {
+        lock.lock()
+        storage = data
+        lock.unlock()
+    }
+
+    var value: Data {
+        lock.lock()
+        defer { lock.unlock() }
+        return storage
     }
 }
