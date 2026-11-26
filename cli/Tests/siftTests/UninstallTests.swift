@@ -267,6 +267,23 @@ final class UninstallTests: XCTestCase {
         XCTAssertNil(try Uninstall.runningProcessID(forAppAt: app.path))
     }
 
+    func testZZDiagRepeatLookup() throws {
+        var failures: [String] = []
+        for i in 0..<20 {
+            let directory = try temporaryDirectory()
+            defer { try? FileManager.default.removeItem(at: directory) }
+            let app = directory.appendingPathComponent("Diag\(i).app", isDirectory: true)
+            let process = try launchSleep(in: app)
+            let launched = waitUntilExecuting(process, inside: app)
+            let found = try Uninstall.runningProcessID(forAppAt: app.path)
+            if found != Int(process.processIdentifier) {
+                failures.append("#\(i) found=\(String(describing: found)) \(launched) DIAG \(diagnose(process, app: app))")
+            }
+            process.terminate(); process.waitUntilExit()
+        }
+        XCTAssertTrue(failures.isEmpty, "\(failures.count)/20 lookups failed:\n" + failures.joined(separator: "\n"))
+    }
+
     func testRunningAppIsNoLongerReportedAfterItQuits() throws {
         let directory = try temporaryDirectory()
         defer { try? FileManager.default.removeItem(at: directory) }
