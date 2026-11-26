@@ -368,8 +368,7 @@ struct AppFilesView: View {
     }
 
     private func removeSingleFile(_ url: URL) {
-        appState.selectedFiles = [url]
-        appState.removeSelectedFiles()
+        appState.removeSingleFile(url)
     }
 }
 

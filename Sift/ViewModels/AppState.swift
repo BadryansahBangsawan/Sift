@@ -173,6 +173,7 @@ final class AppState: ObservableObject {
     /// Home directory app-file removal is scoped to. Injectable so tests can
     /// build symlink fixtures outside the real home directory.
     private let homeDirectory: URL
+    private let isAppRunning: RunningAppGuard.RunningCheck
     private let trashEmptier: TrashEmptier
     /// The installed-app list the orphan scan checks against.
     private let installedAppsProvider: () -> [InstalledApp]
@@ -264,12 +265,14 @@ final class AppState: ObservableObject {
         historyStore: CleanupHistoryStore = CleanupHistoryStore(),
         trashEmptier: @escaping TrashEmptier = AppState.finderEmptyTrash,
         installedAppsProvider: @escaping () -> [InstalledApp] = { AppInfoFetcher.shared.fetchInstalledApps() },
-        homeDirectory: URL = FileManager.default.homeDirectoryForCurrentUser
+        homeDirectory: URL = FileManager.default.homeDirectoryForCurrentUser,
+        isAppRunning: @escaping RunningAppGuard.RunningCheck = RunningAppGuard.systemIsRunning
     ) {
         self.locationsProvider = locationsProvider
         self.appFileScanner = appFileScanner
         self.appFileTrasher = appFileTrasher
         self.homeDirectory = homeDirectory
+        self.isAppRunning = isAppRunning
         self.scanEngine = scanEngine
         self.cleaningEngine = cleaningEngine
         self.historyStore = historyStore
@@ -459,6 +462,13 @@ final class AppState: ObservableObject {
                 )
             }
         }
+    }
+
+    /// Removes one discovered file from the row context menu, leaving the rest
+    /// of the selection for later.
+    func removeSingleFile(_ url: URL) {
+        selectedFiles = [url]
+        removeSelectedFiles()
     }
 
     /// True when a directory between `url` and the injected home is a symlink.
