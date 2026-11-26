@@ -199,4 +199,104 @@ final class SimulatorRuntimeSupportTests: XCTestCase {
         XCTAssertEqual(result.status, -1)
         XCTAssertEqual(result.stderr, SimulatorRuntimeSupport.missingXcrunMessage)
     }
+
+    // MARK: - Pipe draining
+    func testRunXcrunTimesOutAndKillsAStuckChild() async throws {
+        let script = try makeScript(body: "#!/bin/sh\nsleep 30\n")
+        let finished = expectation(description: "xcrun timed out")
+        let box = RunResultBox()
+
+        Task.detached {
+            box.value = SimulatorRuntimeSupport.runXcrun(
+                [],
+                executablePath: script.path,
+                timeout: 0.5
+            )
+            finished.fulfill()
+        }
+
+        await fulfillment(of: [finished], timeout: 5)
+        let result = try XCTUnwrap(box.value, "runXcrun ignored its timeout")
+        XCTAssertEqual(result.status, -1)
+        XCTAssertTrue(result.stderr.contains("timed out"), result.stderr)
+    }
+
+    func testRunXcrunDrainsLargeStdoutAndStderrTogether() async throws {
+        let script = try makeScript(body: """
+        #!/usr/bin/perl
+        alarm 10;
+        print STDOUT "o" x 200000;
+        print STDERR "e" x 200000;
+        """)
+        let finished = expectation(description: "xcrun call returned")
+        let box = RunResultBox()
+
+        Task.detached {
+            box.value = SimulatorRuntimeSupport.runXcrun([], executablePath: script.path)
+            finished.fulfill()
+        }
+
+        await fulfillment(of: [finished], timeout: 5)
+        let result = try XCTUnwrap(box.value)
+        XCTAssertEqual(result.status, 0)
+        XCTAssertEqual(result.stdout.count, 200_000)
+        XCTAssertEqual(result.stderr.count, 200_000)
+    }
+
+    private func makeScript(body: String) throws -> URL {
+        let directory = FileManager.default.temporaryDirectory
+            .appendingPathComponent("xcrun-fixture-\(UUID().uuidString)", isDirectory: true)
+        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+        let script = directory.appendingPathComponent("xcrun")
+        try body.write(to: script, atomically: true, encoding: .utf8)
+        try FileManager.default.setAttributes([.posixPermissions: 0o755], ofItemAtPath: script.path)
+        addTeardownBlock { try? FileManager.default.removeItem(at: directory) }
+        return script
+    }
+
+
+    func testRunXcrunDrainsBothPipesWhenStderrFillsFirst() async throws {
+        let script = try makeStderrFirstScript()
+        let finished = expectation(description: "xcrun call returned")
+        let box = RunResultBox()
+
+        Task.detached {
+            box.value = SimulatorRuntimeSupport.runXcrun([], executablePath: script.path)
+            finished.fulfill()
+        }
+
+        await fulfillment(of: [finished], timeout: 2)
+        let result = try XCTUnwrap(box.value, "runXcrun never returned: stderr filled the pipe first")
+        XCTAssertEqual(result.status, 0)
+        XCTAssertEqual(result.stdout, "done")
+        XCTAssertEqual(result.stderr.count, 200_000)
+    }
+
+    private func makeStderrFirstScript() throws -> URL {
+        let directory = FileManager.default.temporaryDirectory
+            .appendingPathComponent("xcrun-fixture-\(UUID().uuidString)", isDirectory: true)
+        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+        let script = directory.appendingPathComponent("xcrun")
+        let body = """
+        #!/usr/bin/perl
+        alarm 5;
+        print STDERR "x" x 200000;
+        print STDOUT "done";
+        """
+        try body.write(to: script, atomically: true, encoding: .utf8)
+        try FileManager.default.setAttributes([.posixPermissions: 0o755], ofItemAtPath: script.path)
+        addTeardownBlock { try? FileManager.default.removeItem(at: directory) }
+        return script
+    }
+
+}
+
+private final class RunResultBox: @unchecked Sendable {
+    private let lock = NSLock()
+    private var stored: (status: Int32, stdout: String, stderr: String)?
+
+    var value: (status: Int32, stdout: String, stderr: String)? {
+        get { lock.lock(); defer { lock.unlock() }; return stored }
+        set { lock.lock(); stored = newValue; lock.unlock() }
+    }
 }

@@ -62,8 +62,7 @@ struct MainWindow: View {
         .onChange(of: appState.cleanErrorIsFDAFixable) { isFDAFixable in
             guard isFDAFixable else { return }
             let pending = appState.pendingPermissionRetryItems
-            appState.cleanError = nil
-            appState.cleanErrorIsFDAFixable = false
+            appState.presentFullDiskAccessPromptForCleanError()
             appState.requestFullDiskAccessAndRetry(
                 items: pending,
                 context: .cleanup(failedCount: pending.count)
@@ -79,7 +78,10 @@ struct MainWindow: View {
         }
         .sheet(isPresented: Binding(
             get: { permission.isRequesting && permission.presentation == .mainWindow },
-            set: { if !$0 && permission.presentation == .mainWindow { permission.dismiss(callRetry: false) } }
+            set: { if !$0 && permission.presentation == .mainWindow {
+                permission.dismiss(callRetry: false)
+                appState.dismissFullDiskAccessPromptForCleanError()
+            } }
         )) {
             PermissionSheet()
                 .siftPresentedLayout()

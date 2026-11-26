@@ -83,6 +83,21 @@ final class AppState: ObservableObject {
             .reduce(0) { $0 + $1.totalSize }
     }
     @Published var totalFreedSpace: Int64 = 0
+    /// Bytes the last cleanup moved to the Trash. Not freed, but the headline
+    /// must report them when nothing was unlinked.
+    @Published private(set) var lastCleanupTrashedSpace: Int64 = 0
+    /// The dashboard headline after a cleanup finishes. A Trash move frees
+    /// nothing yet, so the headline has to say where the bytes went instead of
+    /// claiming "0 bytes removed".
+    var lastCleanupHeadline: String {
+        if totalFreedSpace == 0, lastCleanupTrashedSpace > 0 {
+            return String(
+                format: String(localized: "Moved to Trash: %@"),
+                SiftFormat.bytes(lastCleanupTrashedSpace)
+            )
+        }
+        return String(localized: "\(SiftFormat.bytes(totalFreedSpace)) removed")
+    }
     /// Completed cleanups, newest first. Persisted by `CleanupHistoryStore`
     /// outside the app bundle so the dashboard survives relaunches.
     @Published var cleanupHistory: [CleanupRecord] = []
@@ -114,6 +129,9 @@ final class AppState: ObservableObject {
     @Published var hasFullDiskAccess: Bool = true
     @Published var fdaBannerDismissed: Bool = false
     @Published var cleanError: String?
+    /// Kept while the Full Disk Access sheet explains a failed clean, so
+    /// dismissing that sheet can bring the reason back.
+    private var cleanErrorBeforeFullDiskAccessPrompt: String?
     @Published private(set) var lastCleanupHadFailures = false
     /// True when the most recent clean error is rooted in a TCC/FDA refusal
     /// (i.e. items survived even the admin pass). MainWindow uses this to
@@ -942,10 +960,32 @@ final class AppState: ObservableObject {
         }
     }
 
+    /// Bookkeeping when a clean error opens the Full Disk Access sheet. The
+    /// view calls this instead of clearing `cleanError` inline.
+    func presentFullDiskAccessPromptForCleanError() {
+        cleanErrorBeforeFullDiskAccessPrompt = cleanError
+        cleanError = nil
+        // Keep cleanErrorIsFDAFixable true while the sheet is up: the alert is
+        // gated on it, so it cannot try to present over the sheet. Dismissal
+        // restores the error and clears the flag.
+    }
+
+    /// Bookkeeping when the Full Disk Access sheet closes without a retry.
+    func dismissFullDiskAccessPromptForCleanError() {
+        // A successful retry already produced a new (usually nil) error; only
+        // restore the old one when nothing newer explains the state.
+        if cleanError == nil {
+            cleanError = cleanErrorBeforeFullDiskAccessPrompt
+        }
+        cleanErrorBeforeFullDiskAccessPrompt = nil
+        cleanErrorIsFDAFixable = false
+    }
+
     func retryAfterFullDiskAccess(items: [CleanableItem], context: PermissionCoordinator.PromptContext) async {
         pendingPermissionRetryItems = []
         cleanError = nil
         cleanErrorIsFDAFixable = false
+        cleanErrorBeforeFullDiskAccessPrompt = nil
         guard !items.isEmpty else { return }
         if case .uninstall = context {
             removeSelectedFiles(confirmedURLs: Set(items.map { URL(fileURLWithPath: $0.path) }))
@@ -979,6 +1019,7 @@ final class AppState: ObservableObject {
         }
 
         totalFreedSpace = result.freedSpace
+        lastCleanupTrashedSpace = result.trashedSpace
         if result.freedSpace > 0 || result.trashedSpace > 0 {
             recordCleanup(of: items, result: result, source: .manual)
         }
@@ -1048,6 +1089,7 @@ final class AppState: ObservableObject {
         scanGeneration = generation
         scanWasCancelled = false
         totalFreedSpace = 0
+        lastCleanupTrashedSpace = 0
         scanProgress = 0
         scanState = .scanning(progress: 0, currentCategory: "Preparing...")
         if replacingResults {
@@ -1145,6 +1187,7 @@ final class AppState: ObservableObject {
             }
 
             totalFreedSpace = result.freedSpace
+            lastCleanupTrashedSpace = result.trashedSpace
             if result.freedSpace > 0 || result.trashedSpace > 0 {
                 recordCleanup(of: itemsToClean, result: result, source: scheduled ? .scheduled : .manual)
             }
@@ -1207,6 +1250,7 @@ final class AppState: ObservableObject {
             }
 
             totalFreedSpace = cleanResult.freedSpace
+            lastCleanupTrashedSpace = cleanResult.trashedSpace
             if cleanResult.freedSpace > 0 || cleanResult.trashedSpace > 0 {
                 recordCleanup(of: selectedItems, result: cleanResult, source: .manual)
             }

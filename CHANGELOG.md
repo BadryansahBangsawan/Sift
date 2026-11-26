@@ -11,6 +11,18 @@ All notable user-facing changes to Sift. Sift was called PureMac before 4.0.0.
 
 ### Fixed
 
+- Deleting a Large & old file or Installer now checks it is still a regular
+  file, so a folder or symlink that replaced it since the scan is left alone.
+- Simulator runtime checks no longer hang when a tool fills its error output
+  first; the helper drains both streams and gives up after a timeout.
+- If importing PureMac’s old settings and data fails, Sift retries on the next
+  launch instead of leaving the migration half-done forever.
+- Dismissing the Full Disk Access sheet after a failed clean leaves the error
+  message on screen, so you can still see why the clean did not finish.
+- After a cleanup that only moved files to the Trash, the dashboard says
+  “Moved to Trash: …” with the amount instead of “0 bytes removed”.
+- A failed Docker prune keeps its row in Developer caches with the error message,
+  so you can try again without rescanning.
 - Cleaning Large & old files, Installers, Xcode Archives or opt-in AI rows from
   their own page — or retrying them after granting Full Disk Access — now adds
   the cleanup-history row it was missing. These rows move to the Trash, so the

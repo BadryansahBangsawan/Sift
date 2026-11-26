@@ -151,7 +151,7 @@ private struct DashboardHero: View {
             return Text("Cleaning selected items")
         case .cleaned:
             if appState.lastCleanupHadFailures { return Text("Some items need attention") }
-            return Text("\(SiftFormat.bytes(appState.totalFreedSpace)) removed")
+            return Text(verbatim: appState.lastCleanupHeadline)
         case .idle, .completed:
             guard hasResults else {
                 return Text("\(SiftFormat.bytes(appState.diskInfo.freeSpace)) free")
