@@ -38,17 +38,23 @@ enum HomeMenu {
     /// instead of ending the whole session.
     @discardableResult
     static func runUninstall(_ answer: String) -> Bool {
-        var command = Uninstall()
-        command.appPath = answer
         do {
-            try command.validate()
-            try command.run()
+            try uninstallCommand(for: answer).run()
             return true
         } catch {
             let message = (error as? ValidationError)?.message ?? String(describing: error)
             Term.err(Term.yellow(message))
             return false
         }
+    }
+
+    /// The command the menu runs for an answer. Its flags are read by `run()`,
+    /// so the command must be one the parser created.
+    static func uninstallCommand(for answer: String) throws -> Uninstall {
+        var command = Uninstall()
+        command.appPath = answer
+        try command.validate()
+        return command
     }
 
     static func run() throws {
