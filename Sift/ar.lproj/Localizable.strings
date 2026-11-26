@@ -1378,3 +1378,6 @@
 "Moved to Trash: %@" = "تم النقل إلى سلة المهملات: %@";
 "Left for a manual clean: it can only be removed by hand." = "تُرك للتنظيف اليدوي: لا يمكن حذفه إلا يدويًا.";
 "Left for a manual clean: it needs administrator privileges." = "تُرك للتنظيف اليدوي: يتطلب امتيازات المسؤول.";
+"Check for Updates…" = "التحقق من التحديثات…";
+"Check for updates automatically" = "التحقق من التحديثات تلقائيًا";
+"Download and install updates automatically" = "تنزيل التحديثات وتثبيتها تلقائيًا";

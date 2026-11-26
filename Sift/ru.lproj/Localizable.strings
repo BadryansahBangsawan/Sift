@@ -1378,3 +1378,6 @@
 "Moved to Trash: %@" = "Перемещено в Корзину: %@";
 "Left for a manual clean: it can only be removed by hand." = "Оставлено для ручной очистки: удалить можно только вручную.";
 "Left for a manual clean: it needs administrator privileges." = "Оставлено для ручной очистки: нужны права администратора.";
+"Check for Updates…" = "Проверить обновления…";
+"Check for updates automatically" = "Автоматически проверять обновления";
+"Download and install updates automatically" = "Автоматически загружать и устанавливать обновления";

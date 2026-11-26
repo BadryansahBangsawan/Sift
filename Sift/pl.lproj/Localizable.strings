@@ -1378,3 +1378,6 @@
 "Moved to Trash: %@" = "Przeniesiono do Kosza: %@";
 "Left for a manual clean: it can only be removed by hand." = "Pozostawiono do ręcznego czyszczenia: można to usunąć tylko ręcznie.";
 "Left for a manual clean: it needs administrator privileges." = "Pozostawiono do ręcznego czyszczenia: wymaga uprawnień administratora.";
+"Check for Updates…" = "Sprawdź aktualizacje…";
+"Check for updates automatically" = "Automatycznie sprawdzaj aktualizacje";
+"Download and install updates automatically" = "Automatycznie pobieraj i instaluj aktualizacje";

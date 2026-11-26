@@ -1378,3 +1378,6 @@
 "Moved to Trash: %@" = "Moved to Trash: %@";
 "Left for a manual clean: it can only be removed by hand." = "Left for a manual clean: it can only be removed by hand.";
 "Left for a manual clean: it needs administrator privileges." = "Left for a manual clean: it needs administrator privileges.";
+"Check for Updates…" = "Check for Updates…";
+"Check for updates automatically" = "Check for updates automatically";
+"Download and install updates automatically" = "Download and install updates automatically";

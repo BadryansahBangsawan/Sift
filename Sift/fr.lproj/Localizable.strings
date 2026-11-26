@@ -1372,3 +1372,6 @@
 "Moved to Trash: %@" = "Déplacé dans la corbeille : %@";
 "Left for a manual clean: it can only be removed by hand." = "Laissé pour un nettoyage manuel : ne peut être supprimé qu’à la main.";
 "Left for a manual clean: it needs administrator privileges." = "Laissé pour un nettoyage manuel : nécessite des privilèges d’administrateur.";
+"Check for Updates…" = "Rechercher les mises à jour…";
+"Check for updates automatically" = "Rechercher automatiquement les mises à jour";
+"Download and install updates automatically" = "Télécharger et installer automatiquement les mises à jour";

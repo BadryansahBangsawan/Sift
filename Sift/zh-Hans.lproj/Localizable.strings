@@ -1377,3 +1377,6 @@
 "Moved to Trash: %@" = "已移到废纸篓：%@";
 "Left for a manual clean: it can only be removed by hand." = "已留待手动清理：只能手动删除。";
 "Left for a manual clean: it needs administrator privileges." = "已留待手动清理：需要管理员权限。";
+"Check for Updates…" = "检查更新…";
+"Check for updates automatically" = "自动检查更新";
+"Download and install updates automatically" = "自动下载并安装更新";

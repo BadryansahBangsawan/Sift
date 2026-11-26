@@ -1378,3 +1378,6 @@
 "Moved to Trash: %@" = "%@ をゴミ箱に移動しました";
 "Left for a manual clean: it can only be removed by hand." = "手動クリーンアップ用に残しました: 手作業でのみ削除できます。";
 "Left for a manual clean: it needs administrator privileges." = "手動クリーンアップ用に残しました: 管理者権限が必要です。";
+"Check for Updates…" = "アップデートを確認…";
+"Check for updates automatically" = "自動的にアップデートを確認";
+"Download and install updates automatically" = "アップデートを自動的にダウンロードしてインストール";
