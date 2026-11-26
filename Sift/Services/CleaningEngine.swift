@@ -365,6 +365,17 @@ actor CleaningEngine {
                     var removalError: String?
                     var removedCompanions: [String] = []
                     for companion in item.companionPaths {
+                        if CleanupExclusions.excludes(companion, paths: exclusions) {
+                            result.skippedPaths[companion] = String(localized: "Excluded from cleanup.")
+                            recordCleanupLog(
+                                item,
+                                action: .skipped,
+                                source: logSource,
+                                reason: "Excluded from cleanup.",
+                                path: companion
+                            )
+                            continue
+                        }
                         guard !AIToolCleanupCatalog.isNeverTouch(companion),
                               fileManager.fileExists(atPath: companion),
                               !hasUnexpectedSymlink(in: companion) else {
