@@ -25,6 +25,8 @@ final class CoreSafetyTests: XCTestCase {
         let keep = artifact.appendingPathComponent("keep.bin")
         try fileManager.createDirectory(at: artifact, withIntermediateDirectories: true)
         try fileManager.createDirectory(at: removable, withIntermediateDirectories: true)
+        try Data("{}".utf8).write(to: project.appendingPathComponent("package.json"))
+        try Data("".utf8).write(to: project.appendingPathComponent("Cargo.toml"))
         try Data(repeating: 1, count: 4096).write(to: keep)
         try Data(repeating: 2, count: 4096).write(to: removable.appendingPathComponent("cache.bin"))
         var ignore = try makeIgnoreStore()
