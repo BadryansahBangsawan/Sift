@@ -107,7 +107,7 @@ enum HomeMenu {
                 try Dupes.parse([folder]).run()
             case 8:
                 let app = promptPath("App to uninstall", fallback: "/Applications")
-                _ = try runUninstall(app)
+                _ = runUninstall(app)
             default: return
             }
             print(Term.dim("\nPress Return to return to Sift."), terminator: " ")
