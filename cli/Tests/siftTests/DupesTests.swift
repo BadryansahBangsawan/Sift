@@ -62,6 +62,14 @@ final class DupesTests: XCTestCase {
         XCTAssertNoThrow(try Dupes.parse([home]).validate())
     }
 
+    func testDupesStillRejectsRelativeAndMissingPaths() {
+        XCTAssertThrowsError(try Dupes.parse(["relative/folder"]).validate(), "relative paths stay rejected")
+        XCTAssertThrowsError(
+            try Dupes.parse(["~/definitely-missing-\(UUID().uuidString)"]).validate(),
+            "expansion must not make a missing folder pass"
+        )
+    }
+
     /// A file that fails part-way through must not be hashed from its prefix:
     /// two files with the same size and a shared prefix would otherwise be
     /// reported as duplicates and one of them offered for removal.
