@@ -9,7 +9,7 @@ import Foundation
 enum ShellQuoting {
     /// Wraps a value as a single shell word.
     static func singleQuoted(_ value: String) -> String {
-        "'" + value.replacingOccurrences(of: "'", with: "'\\\"'\\\"'") + "'"
+        "'" + value.replacingOccurrences(of: "'", with: "'\\''") + "'"
     }
 
     /// The shell command line running `executable` with `arguments` and `paths`.

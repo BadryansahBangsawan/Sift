@@ -567,10 +567,9 @@ actor CleaningEngine {
         }
         defer { try? FileManager.default.removeItem(at: tempFile) }
 
-        let quotedTempPath = shellSingleQuoted(tempFile.path)
-        let script = """
-        do shell script "/usr/bin/xargs -0 /bin/rm -rf -- < \(quotedTempPath)" with administrator privileges
-        """
+        let script = ShellQuoting.appleScript(
+            running: "/usr/bin/xargs -0 /bin/rm -rf -- < \(ShellQuoting.singleQuoted(tempFile.path))"
+        ) + " with administrator privileges"
 
         let runError: String? = await withCheckedContinuation { continuation in
             DispatchQueue.global(qos: .userInitiated).async {
@@ -1067,10 +1066,6 @@ actor CleaningEngine {
             url = parent
         }
         return false
-    }
-
-    private func shellSingleQuoted(_ value: String) -> String {
-        "'" + value.replacingOccurrences(of: "'", with: "'\\''") + "'"
     }
 
     /// Allow a single-file delete under Downloads/Documents/Desktop when it
