@@ -1,3 +1,4 @@
+import Darwin
 import Foundation
 
 enum Purger {
@@ -125,12 +126,16 @@ enum Purger {
     static func isOfferedByGit(_ artifact: URL, project: URL) -> Bool {
         guard let repository = repositoryRoot(containing: project) else { return true }
         guard let git = gitExecutable() else { return false }
-        let relative = String(artifact.path.dropFirst(repository.path.count + 1))
+        let artifactPath = canonicalPath(artifact.path)
+        let repositoryPath = canonicalPath(repository.path)
+        guard artifactPath.hasPrefix(repositoryPath + "/") else { return false }
+        let relative = String(artifactPath.dropFirst(repositoryPath.count + 1))
         guard !relative.isEmpty else { return false }
 
         let tracked = Shell.run(
             git,
             [safeGitOption, "-C", repository.path, "ls-files", "-z", "--", relative],
+            safeGitOptions + ["-C", repositoryPath, "ls-files", "-z", "--", relative],
             timeout: 10
         )
         guard tracked.status == 0 else { return false }
@@ -139,9 +144,18 @@ enum Purger {
         let ignored = Shell.run(
             git,
             [safeGitOption, "-C", repository.path, "check-ignore", "-q", "--", relative],
+            safeGitOptions + ["-C", repositoryPath, "check-ignore", "-q", "--", relative],
             timeout: 10
         )
         return ignored.status == 0
+    }
+
+    /// `realpath` because Foundation keeps `/var` and `/private/var` apart,
+    /// while the enumerator and git report different halves of the pair.
+    static func canonicalPath(_ path: String) -> String {
+        var buffer = [CChar](repeating: 0, count: 4 * Int(MAXPATHLEN))
+        if realpath(path, &buffer) != nil { return String(cString: buffer) }
+        return (path as NSString).standardizingPath
     }
 
     /// `-c core.fsmonitor=false` stops a repository's own config from running a
@@ -150,7 +164,7 @@ enum Purger {
 
     /// The nearest ancestor holding `.git`, directory or worktree pointer file.
     static func repositoryRoot(containing folder: URL) -> URL? {
-        var path = folder.standardizedFileURL.path
+        var path = canonicalPath(folder.path)
         while path.hasPrefix("/") {
             let current = URL(fileURLWithPath: path, isDirectory: true)
             if FileManager.default.fileExists(atPath: current.appendingPathComponent(".git").path) {
