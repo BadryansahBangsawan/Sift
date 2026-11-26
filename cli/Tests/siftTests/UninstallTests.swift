@@ -231,7 +231,7 @@ final class UninstallTests: XCTestCase {
         let process = try launchSleep(in: app)
 
         let launched = waitUntilExecuting(process, inside: app)
-        XCTAssertEqual(try Uninstall.runningProcessID(forAppAt: app.path), Int(process.processIdentifier), launched)
+        XCTAssertEqual(try Uninstall.runningProcessID(forAppAt: app.path), Int(process.processIdentifier), launched + " | DIAG " + diagnose(process, app: app))
     }
 
     func testRunningAppLookupTreatsThePathLiterally() throws {
@@ -274,7 +274,7 @@ final class UninstallTests: XCTestCase {
         let app = directory.appendingPathComponent("Quiet.app", isDirectory: true)
         let process = try launchSleep(in: app)
         let launched = waitUntilExecuting(process, inside: app)
-        XCTAssertEqual(try Uninstall.runningProcessID(forAppAt: app.path), Int(process.processIdentifier), launched)
+        XCTAssertEqual(try Uninstall.runningProcessID(forAppAt: app.path), Int(process.processIdentifier), launched + " | DIAG " + diagnose(process, app: app))
 
         process.terminate()
         process.waitUntilExit()
@@ -304,6 +304,22 @@ final class UninstallTests: XCTestCase {
             ? "still running"
             : "exited, status \(process.terminationStatus), reason \(process.terminationReason.rawValue)"
         return "process \(process.processIdentifier) \(state); kernel path \(observed); bundle \(bundle)"
+    }
+
+    private func diagnose(_ process: Process, app: URL) -> String {
+        var canonical = [CChar](repeating: 0, count: 4 * Int(MAXPATHLEN))
+        let rp = realpath(app.path, &canonical) != nil ? String(cString: canonical) : "realpath-failed errno \(errno)"
+        let est = proc_listallpids(nil, 0)
+        var pids = [pid_t](repeating: 0, count: Int(est) + 32)
+        let n = pids.withUnsafeMutableBufferPointer { proc_listallpids($0.baseAddress, Int32($0.count) * Int32(MemoryLayout<pid_t>.size)) }
+        let listed = Array(pids.prefix(Int(max(n, 0))))
+        let target = process.processIdentifier
+        var buf = [CChar](repeating: 0, count: 4 * Int(MAXPATHLEN))
+        let len = proc_pidpath(target, &buf, UInt32(buf.count))
+        let kp = len > 0 ? String(cString: buf) : "pidpath-failed errno \(errno)"
+        var again: [String] = []
+        for _ in 0..<3 { again.append(String(describing: try? Uninstall.runningProcessID(forAppAt: app.path))); usleep(200_000) }
+        return "app.path=\(app.path) std=\(URL(fileURLWithPath: app.path).standardizedFileURL.path) resolved=\(URL(fileURLWithPath: app.path).resolvingSymlinksInPath().path) realpath=\(rp) est=\(est) n=\(n) listedHasPid=\(listed.contains(target)) first=\(listed.prefix(4)) kernelPath=\(kp) running=\(process.isRunning) retries=\(again) ownPID=\(getpid())"
     }
 
     /// Copies the system's sleep into the bundle and starts it, so the test
