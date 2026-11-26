@@ -11,6 +11,8 @@ All notable user-facing changes to Sift. Sift was called PureMac before 4.0.0.
 
 ### Fixed
 
+- If importing PureMac’s old settings and data fails, Sift retries on the next
+  launch instead of leaving the migration half-done forever.
 - Dismissing the Full Disk Access sheet after a failed clean leaves the error
   message on screen, so you can still see why the clean did not finish.
 - After a cleanup that only moved files to the Trash, the dashboard says
