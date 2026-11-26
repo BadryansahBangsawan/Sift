@@ -370,26 +370,10 @@ actor BinaryThinner {
     }
 
     private func runProcess(_ executable: String, _ args: [String]) -> (status: Int32, stdout: String, stderr: String) {
-        let task = Process()
-        task.executableURL = URL(fileURLWithPath: executable)
-        task.arguments = args
-        let outPipe = Pipe()
-        task.standardOutput = outPipe
-        let errPipe = Pipe()
-        task.standardError = errPipe
-        do {
-            try task.run()
-        } catch {
-            return (-1, "", error.localizedDescription)
-        }
-        // Drain both pipes before waiting so a chatty child can't dead-lock
-        // on a full pipe buffer.
-        let outData = outPipe.fileHandleForReading.readDataToEndOfFile()
-        let errData = errPipe.fileHandleForReading.readDataToEndOfFile()
-        task.waitUntilExit()
-        let stdout = String(data: outData, encoding: .utf8) ?? ""
-        let stderr = String(data: errData, encoding: .utf8)?
-            .trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
-        return (task.terminationStatus, stdout, stderr)
-    }
-}
+        let result = ProcessRunner.run(
+            executable: URL(fileURLWithPath: executable),
+            arguments: args,
+            timeout: 30
+        )
+        return (result.status, result.stdout, result.stderr.trimmingCharacters(in: .whitespacesAndNewlines))
+    }}
