@@ -48,13 +48,20 @@ enum HomeMenu {
         }
     }
 
-    /// The command the menu runs for an answer. Its flags are read by `run()`,
-    /// so the command must be one the parser created.
+    /// The command the menu runs for an answer. `run()` reads @Flag values, so the
+    /// instance must come from the parser; a hand-built one traps on the first
+    /// flag read.
     static func uninstallCommand(for answer: String) throws -> Uninstall {
-        var command = Uninstall()
-        command.appPath = answer
-        try command.validate()
-        return command
+        do {
+            return try Uninstall.parse([answer])
+        } catch {
+            // Re-run the command's own validation so the menu prints its clear
+            // message instead of ArgumentParser's wrapped parser error.
+            var manual = Uninstall()
+            manual.appPath = answer
+            try manual.validate()
+            throw error
+        }
     }
 
     static func run() throws {
