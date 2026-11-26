@@ -113,9 +113,11 @@ enum SimulatorRuntimeSupport {
 
     /// Run `/usr/bin/xcrun` after an availability check. Returns status -1 and
     /// `missingXcrunMessage` when the binary is absent so callers can skip
-    /// scan rows / surface a clean delete error.
+    /// scan rows / surface a clean delete error. `executablePath` is
+    /// injectable so tests can exercise the pipe handling with a fixture.
     static func runXcrun(
         _ arguments: [String],
+        executablePath: String = xcrunPath,
         availabilityCheck: () -> Bool = { isXcrunAvailable() }
     ) -> (status: Int32, stdout: String, stderr: String) {
         guard availabilityCheck() else {
@@ -124,7 +126,7 @@ enum SimulatorRuntimeSupport {
         }
 
         let task = Process()
-        task.executableURL = URL(fileURLWithPath: xcrunPath)
+        task.executableURL = URL(fileURLWithPath: executablePath)
         task.arguments = arguments
         let stdoutPipe = Pipe()
         let stderrPipe = Pipe()
