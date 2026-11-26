@@ -49,6 +49,7 @@
 		351FFF68DED718FD4E1DD57C /* Conditions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15B04C5C31625109B28EEEAF /* Conditions.swift */; };
 		36B5914AE61091EE23F7EB53 /* RunningAppGuard.swift in Sources */ = {isa = PBXBuildFile; fileRef = BAE99293E647CE958284CD65 /* RunningAppGuard.swift */; };
 		37B3EF61D1BBC74BB10AA649 /* PluralizationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8EC689449633EF59F9979E6D /* PluralizationTests.swift */; };
+		395CD2C1C703F42F998F8447 /* UpdateConfigurationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D535E12B6D44F2652A4971F9 /* UpdateConfigurationTests.swift */; };
 		3C5AD693D741EC634B3E70DA /* MenuBarController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D1EB1349B160773135134BA /* MenuBarController.swift */; };
 		3E064C6A116BFD612FDB9328 /* RailFadeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A5C21ED7CE2A84BF5F37315 /* RailFadeTests.swift */; };
 		3E49204432BA993C2DB1A0CE /* StringNormalization.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1A51E327791927B0A2FB831 /* StringNormalization.swift */; };
@@ -436,6 +437,7 @@
 		D21F711185A5FC41AE2D21EB /* ar */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = ar; path = ar.lproj/Localizable.stringsdict; sourceTree = "<group>"; };
 		D318A3BA074EF2F1730CE5F8 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/ServicesMenu.strings; sourceTree = "<group>"; };
 		D40D2B8DD5A248F4F4A04466 /* OFL-ArchivoNarrow.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = "OFL-ArchivoNarrow.txt"; sourceTree = "<group>"; };
+		D535E12B6D44F2652A4971F9 /* UpdateConfigurationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateConfigurationTests.swift; sourceTree = "<group>"; };
 		D6190190D777E63A3663D6A4 /* ru */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ru; path = ru.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		D71E7B1E4EE1DB7753FFD367 /* ScanModifiedDateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScanModifiedDateTests.swift; sourceTree = "<group>"; };
 		D73FA6F47865DF2D943BE234 /* es */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = es; path = es.lproj/Localizable.stringsdict; sourceTree = "<group>"; };
@@ -790,6 +792,7 @@
 				70F285E2DE2D127B09D67C9F /* TrashReadOnlyTests.swift */,
 				1C033AEFA3379BAC854D1BB2 /* UninstallerActionBarTests.swift */,
 				CE16881E206373900CB3FA32 /* UninstallPlanTests.swift */,
+				D535E12B6D44F2652A4971F9 /* UpdateConfigurationTests.swift */,
 				014C7009BBF12A2B4627822A /* UpdateServiceTests.swift */,
 				0EF8718DE568CF8E9FCFA78F /* UpdatesEyebrowTests.swift */,
 				B3DBB6D85E94ECE4FF5A6095 /* VisibleItemsCacheTests.swift */,
@@ -1162,6 +1165,7 @@
 				D660797C4A6BA8A645897CC8 /* TrashReadOnlyTests.swift in Sources */,
 				CA19AE9A9C479C0711FED30B /* UninstallPlanTests.swift in Sources */,
 				0ED4AD1B3EC831A1A437EA1A /* UninstallerActionBarTests.swift in Sources */,
+				395CD2C1C703F42F998F8447 /* UpdateConfigurationTests.swift in Sources */,
 				44FCB1F61F07EA3C06E7A7F8 /* UpdateServiceTests.swift in Sources */,
 				74A7DFDFDBC0E39081E34EA7 /* UpdatesEyebrowTests.swift in Sources */,
 				55F571BD24963039BDDA825A /* VisibleItemsCacheTests.swift in Sources */,
