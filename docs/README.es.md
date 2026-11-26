@@ -27,13 +27,15 @@ Sift empezó como un fork de PureMac, el limpiador de código abierto de Moamen 
 
 ## Instalación
 
-Descarga `Sift-4.1.2.dmg` desde la [última versión](https://github.com/BadryansahBangsawan/Sift/releases/latest) y arrastra Sift a Aplicaciones.
+Descarga `Sift-4.2.0.dmg` desde la [última versión](https://github.com/BadryansahBangsawan/Sift/releases/latest) y arrastra Sift a Aplicaciones.
 
 Esta versión aún no está notarizada por Apple, así que macOS la detiene la primera vez:
 
 1. Abre Sift. macOS dice que no puede verificar la app; pulsa **Listo**.
 2. Abre **Ajustes del Sistema > Privacidad y seguridad**, desplázate y pulsa **Abrir igualmente** junto a Sift.
 3. Concede el **acceso total al disco** cuando Sift lo pida.
+
+Desde la versión 4.2.0, Sift se actualiza solo: usa **Sift → Buscar actualizaciones…** o **Ajustes → Actualizaciones**. Cada actualización se verifica con una firma EdDSA. La versión 4.1.2 y anteriores necesitan una descarga manual.
 
 ### Compilar desde el código fuente
 

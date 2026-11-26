@@ -27,13 +27,15 @@ Sift 最初是 Moamen Basel 的开源清理工具 PureMac 的分支，现已独�
 
 ## 安装
 
-从[最新版本](https://github.com/BadryansahBangsawan/Sift/releases/latest)下载 `Sift-4.1.2.dmg`，将 Sift 拖到“应用程序”。
+从[最新版本](https://github.com/BadryansahBangsawan/Sift/releases/latest)下载 `Sift-4.2.0.dmg`，将 Sift 拖到“应用程序”。
 
 此版本尚未经过 Apple 公证，因此第一次打开时 macOS 会阻止它：
 
 1. 打开 Sift。macOS 提示无法验证该应用时，点击**完成**。
 2. 打开**系统设置 > 隐私与安全性**，向下滚动，点击 Sift 旁边的**仍要打开**。
 3. 在 Sift 请求时授予**完全磁盘访问权限**。
+
+从 4.2.0 起，Sift 可自行更新：使用 **Sift → 检查更新…** 或 **设置 → 更新**。每次更新都会用 EdDSA 签名验证。4.1.2 及更早版本需要手动下载一次。
 
 ### 从源代码构建
 

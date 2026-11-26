@@ -3,7 +3,7 @@
 > Sift is a free, native, open-source Mac utility for cleanup, app management, storage exploration, duplicate detection, and system checks.
 
 ## Product
-- Current release: 4.1.2 (26 November 2026). Sift was renamed from PureMac; settings and history migrate on first launch.
+- Current release: 4.2.0. Sift was renamed from PureMac; settings and history migrate on first launch.
 - macOS 13 Ventura or later. Universal Apple silicon and Intel binary.
 - Ad-hoc signed, not notarized by Apple: on first launch use System Settings > Privacy & Security > Open Anyway. MIT license, no paid feature tier.
 - Overview and cleanup categories scan with progress, cancellation, filters, exclusions, and manual confirmation.
@@ -17,17 +17,18 @@
 - Similar Photos reviews likely matches and reveals them in Finder. It does not delete photos.
 - Protection checks Gatekeeper, FileVault, firewall, SIP, and XProtect metadata. It is not an antivirus scan.
 - Performance shows process CPU and memory usage, battery health, startup items, and local snapshots.
+- From 4.2.0, Sift updates itself through a signed appcast (**Settings → Updates** or **Sift → Check for Updates…**); every update is verified with an EdDSA signature. 4.1.2 and older need one manual download.
 - App Updates checks and upgrades Homebrew-managed casks. It does not cover all installed apps.
-- Settings includes appearance and accent colour, 13 languages, Full Disk Access, the schedule, and user-requested GitHub release checks.
+- Settings includes appearance and accent colour, 13 languages, Full Disk Access, the schedule, and signed Sift update checks.
 
 ## Removal behavior
 User-level app uninstalling, orphan removal, exact-duplicate removal, Project Junk, AI chat history, Large & Old Files, Installers and scheduled auto-clean use Trash. Recovery is possible only until Trash is emptied. Dashboard/category cleanup of caches and logs, Docker/Xcode runtime cleanup, administrator-authorized removal, local snapshot deletion, and CLI cleanup can permanently delete data. Sift never empties the Trash; the user does it in Finder. Manual removal requires confirmation. Scheduled auto-clean runs unattended once enabled and never includes opt-in items or Project Junk. Keep backups and review selections. Purgeable space is managed by macOS and is not promised as recoverable cleanup.
 
 ## Privacy
-No telemetry, analytics, or crash reporting. Local scans and cleanup work offline. Scanned paths and file contents are not uploaded. GitHub release checks and Homebrew update operations use the network. Homebrew operations run with analytics disabled.
+No telemetry, analytics, or crash reporting. Local scans and cleanup work offline. Scanned paths and file contents are not uploaded. Sift update checks and Homebrew update operations use the network. Homebrew operations run with analytics disabled.
 
 ## Install
-- GUI: download Sift-4.1.2.dmg from https://github.com/BadryansahBangsawan/Sift/releases/latest, drag Sift to Applications, then allow it once with Open Anyway.
+- GUI: download Sift-4.2.0.dmg from https://github.com/BadryansahBangsawan/Sift/releases/latest, drag Sift to Applications, then allow it once with Open Anyway. From 4.2.0 on, Sift updates itself.
 - CLI: build from source with `cd cli && swift build -c release`, then run `.build/release/sift-cli`.
 - CLI cleanup is permanent; preview with `sift-cli clean dev --dry-run`.
 

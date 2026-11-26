@@ -136,6 +136,49 @@ jobs:
           hdiutil verify "build/Sift-${VERSION}.dmg"
           ditto -c -k --keepParent --sequesterRsrc build/export/Sift.app "build/Sift-${VERSION}.zip"
 
+      - name: Install Sparkle tools
+        run: |
+          set -euo pipefail
+          SPARKLE_VERSION=2.10.1
+          SPARKLE_SHA256=1a856d2a9edb8e628de88121d7be04cf0e2167f8641650b78fca00b14244cf27
+          TARBALL="${RUNNER_TEMP}/Sparkle-${SPARKLE_VERSION}.tar.xz"
+          curl -fsSL --retry 3 --retry-delay 2 -o "${TARBALL}" \
+            "https://github.com/sparkle-project/Sparkle/releases/download/${SPARKLE_VERSION}/Sparkle-${SPARKLE_VERSION}.tar.xz"
+          echo "${SPARKLE_SHA256}  ${TARBALL}" | shasum -a 256 -c -
+          mkdir -p "${RUNNER_TEMP}/sparkle"
+          tar -xJf "${TARBALL}" -C "${RUNNER_TEMP}/sparkle"
+          test -x "${RUNNER_TEMP}/sparkle/bin/sign_update"
+
+      - name: Build signed appcast
+        env:
+          VERSION: ${{ steps.ver.outputs.version }}
+          SPARKLE_ED_PRIVATE_KEY: ${{ secrets.SPARKLE_ED_PRIVATE_KEY }}
+        run: |
+          set -euo pipefail
+          APP=build/export/Sift.app
+          if [[ -z "${SPARKLE_ED_PRIVATE_KEY:-}" ]]; then
+            echo "::error::SPARKLE_ED_PRIVATE_KEY is empty. Add the Ed25519 update-signing secret described in RELEASING.md."
+            exit 1
+          fi
+          PLIST="${APP}/Contents/Info.plist"
+          PUBLIC_KEY=$(/usr/libexec/PlistBuddy -c 'Print :SUPublicEDKey' "${PLIST}" 2>/dev/null || true)
+          if [[ -z "${PUBLIC_KEY}" || "${PUBLIC_KEY}" == "SPARKLE_PUBLIC_ED_KEY_PLACEHOLDER" ]]; then
+            echo "::error::The app has no SUPublicEDKey (found '${PUBLIC_KEY:-missing}'). Generate the Sparkle key and replace the placeholder before releasing."
+            exit 1
+          fi
+          test -d "${APP}/Contents/Frameworks/Sparkle.framework" || { echo "::error::Sparkle.framework is not embedded in ${APP}"; exit 1; }
+          codesign --verify --deep --strict --verbose=2 "${APP}"
+          BUILD=$(/usr/libexec/PlistBuddy -c 'Print :CFBundleVersion' "${PLIST}")
+          scripts/make-appcast.sh \
+            "build/Sift-${VERSION}.zip" \
+            "${VERSION}" \
+            "${BUILD}" \
+            "https://github.com/${GITHUB_REPOSITORY}/releases/tag/v${VERSION}" \
+            "https://github.com/${GITHUB_REPOSITORY}/releases/download/v${VERSION}/Sift-${VERSION}.zip" \
+            "${RUNNER_TEMP}/sparkle/bin/sign_update" \
+            --output build/appcast.xml \
+            --verify-public-key "${PUBLIC_KEY}"
+
       - name: Write release notes
         env:
           VERSION: ${{ steps.ver.outputs.version }}
@@ -175,6 +218,7 @@ jobs:
           path: |
             build/Sift-${{ steps.ver.outputs.version }}.dmg
             build/Sift-${{ steps.ver.outputs.version }}.zip
+            build/appcast.xml
             build/RELEASE_NOTES.md
 
       - name: Publish GitHub release
@@ -187,6 +231,7 @@ jobs:
           gh release create "v${VERSION}" \
             "build/Sift-${VERSION}.dmg" \
             "build/Sift-${VERSION}.zip" \
+            "build/appcast.xml" \
             --target "${GITHUB_SHA}" \
             --title "Sift ${VERSION}" \
             --notes-file build/RELEASE_NOTES.md

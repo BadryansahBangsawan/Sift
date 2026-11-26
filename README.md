@@ -53,7 +53,7 @@ Sift started as a fork of PureMac, the open-source Mac cleaner by [Moamen Basel]
 
 ## Install
 
-Download `Sift-4.1.2.dmg` from the [latest release](https://github.com/BadryansahBangsawan/Sift/releases/latest) and drag Sift to Applications.
+Download `Sift-4.2.0.dmg` from the [latest release](https://github.com/BadryansahBangsawan/Sift/releases/latest) and drag Sift to Applications. From 4.2.0 on, Sift updates itself; 4.1.2 and older need this one manual download.
 
 This release is not notarized by Apple yet, so macOS stops it the first time you open it:
 
@@ -190,6 +190,8 @@ Cleanup results support name/path search, size and age filters, sorting, and sel
 
 ### App updates
 
+From 4.2.0 on, Sift updates itself: **Sift → Check for Updates…** or **Settings → Updates** checks the signed appcast, verifies the download's EdDSA signature and offers **Install and Relaunch**. Automatic checks are on by default and can be turned off there. Sift 4.1.2 and older have no updater and need one manual download of 4.2.0.
+
 Check for updates to Homebrew-managed cask apps and choose which ones to upgrade. Sift runs Homebrew with analytics disabled and shows command failures. These actions use the network and Homebrew's package sources. Apps installed outside Homebrew are not covered; an App Store shortcut is provided for those managed by Apple.
 
 ### Scheduled Cleaning
@@ -199,7 +201,7 @@ Optional. Choose an interval (weekly runs pick a day and an hour) and an auto-cl
 
 Open **Settings** from the bottom of the sidebar or with ⌘,. It is split into General, Cleaning, Schedule, Appearance, Permissions and Updates: language (13 languages), System/Light/Dark appearance and an accent colour, Full Disk Access status and recheck, startup, the menu-bar monitor, the large-file threshold, exclusions, and the schedule.
 
-The **Updates** tab shows the installed version and build and checks this repository's GitHub releases on request. CLI releases, drafts and prereleases are excluded. The check reports availability and links to the release; it does not install anything.
+The **Updates** tab shows the installed version and build and checks for a newer Sift through the signed appcast. **Install and Relaunch** verifies the EdDSA signature before replacing the app; automatic checks are on by default and can be turned off there. CLI releases, drafts and prereleases are ignored.
 
 ## Permissions
 
@@ -209,7 +211,7 @@ The first-launch onboarding walks you through granting it with an animated previ
 
 What Sift does *not* do:
 - It does not collect telemetry, crash reports, or usage analytics.
-- Local scans and cleanup work offline. Checking for or installing Homebrew app updates requires a network connection.
+- Local scans and cleanup work offline. Checking for or installing a Sift update (4.2.0 and later), or checking for and installing Homebrew app updates, requires a network connection.
 - It does not upload or transmit scanned paths or deleted data.
 
 ## Troubleshooting
