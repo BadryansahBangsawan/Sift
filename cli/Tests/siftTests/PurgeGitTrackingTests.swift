@@ -108,6 +108,39 @@ final class PurgeGitTrackingTests: XCTestCase {
         XCTAssertTrue(offeredPaths(in: worktree).isEmpty, "a tracked file blocks it in a worktree too")
     }
 
+    func testGitExecutableLookupIsMemoized() {
+        var calls = 0
+        let resolver = Purger.makeGitExecutableResolver {
+            calls += 1
+            return "/tmp/git"
+        }
+
+        XCTAssertEqual(resolver(), "/tmp/git")
+        XCTAssertEqual(resolver(), "/tmp/git")
+
+        XCTAssertEqual(calls, 1, "the process must resolve git once, not once per candidate")
+    }
+
+    func testGitExecutableLookupIsSafeUnderConcurrency() {
+        let lock = NSLock()
+        var calls = 0
+        let resolver = Purger.makeGitExecutableResolver {
+            lock.lock()
+            calls += 1
+            lock.unlock()
+            return "/tmp/git"
+        }
+
+        DispatchQueue.concurrentPerform(iterations: 32) { _ in
+            XCTAssertEqual(resolver(), "/tmp/git")
+        }
+
+        lock.lock()
+        let observed = calls
+        lock.unlock()
+        XCTAssertEqual(observed, 1)
+    }
+
     // MARK: - Fixtures
 
     private func makeProject(_ name: String) throws -> URL {
