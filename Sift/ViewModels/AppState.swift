@@ -83,11 +83,20 @@ final class AppState: ObservableObject {
             .reduce(0) { $0 + $1.totalSize }
     }
     @Published var totalFreedSpace: Int64 = 0
+    /// Bytes the last cleanup moved to the Trash. Not freed, but the headline
+    /// must report them when nothing was unlinked.
+    @Published private(set) var lastCleanupTrashedSpace: Int64 = 0
     /// The dashboard headline after a cleanup finishes. A Trash move frees
     /// nothing yet, so the headline has to say where the bytes went instead of
     /// claiming "0 bytes removed".
     var lastCleanupHeadline: String {
-        String(localized: "\(SiftFormat.bytes(totalFreedSpace)) removed")
+        if totalFreedSpace == 0, lastCleanupTrashedSpace > 0 {
+            return String(
+                format: String(localized: "Moved to Trash: %@"),
+                SiftFormat.bytes(lastCleanupTrashedSpace)
+            )
+        }
+        return String(localized: "\(SiftFormat.bytes(totalFreedSpace)) removed")
     }
     /// Completed cleanups, newest first. Persisted by `CleanupHistoryStore`
     /// outside the app bundle so the dashboard survives relaunches.
@@ -985,6 +994,7 @@ final class AppState: ObservableObject {
         }
 
         totalFreedSpace = result.freedSpace
+        lastCleanupTrashedSpace = result.trashedSpace
         if result.freedSpace > 0 || result.trashedSpace > 0 {
             recordCleanup(of: items, result: result, source: .manual)
         }
@@ -1054,6 +1064,7 @@ final class AppState: ObservableObject {
         scanGeneration = generation
         scanWasCancelled = false
         totalFreedSpace = 0
+        lastCleanupTrashedSpace = 0
         scanProgress = 0
         scanState = .scanning(progress: 0, currentCategory: "Preparing...")
         if replacingResults {
@@ -1151,6 +1162,7 @@ final class AppState: ObservableObject {
             }
 
             totalFreedSpace = result.freedSpace
+            lastCleanupTrashedSpace = result.trashedSpace
             if result.freedSpace > 0 || result.trashedSpace > 0 {
                 recordCleanup(of: itemsToClean, result: result, source: scheduled ? .scheduled : .manual)
             }
@@ -1213,6 +1225,7 @@ final class AppState: ObservableObject {
             }
 
             totalFreedSpace = cleanResult.freedSpace
+            lastCleanupTrashedSpace = cleanResult.trashedSpace
             if cleanResult.freedSpace > 0 || cleanResult.trashedSpace > 0 {
                 recordCleanup(of: selectedItems, result: cleanResult, source: .manual)
             }
