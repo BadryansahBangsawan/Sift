@@ -9,6 +9,9 @@ All notable user-facing changes to Sift. Sift was called PureMac before 4.0.0.
 - Sift no longer asks for permission to control Finder. It reveals files through
   macOS directly, the Trash is emptied in Finder, and Sift no longer appears in
   Privacy & Security → Automation.
+- `sift-cli analyze --json` now reports `inaccessibleCount`, `skippedCount` and
+  `errors` for each row, so a partly unreadable folder no longer looks fully
+  measured. Existing `path` and `bytes` fields are unchanged.
 
 ### Fixed
 
@@ -29,6 +32,13 @@ All notable user-facing changes to Sift. Sift was called PureMac before 4.0.0.
   administrator batch runs.
 - A scheduled clean skipped by the minimum-size threshold now says so in its
   notification instead of reading as if junk was found and handled.
+- Starting a new Leftovers scan cancels the previous one, so an older scan can
+  no longer replace the newer result or leave the page saying it could not read
+  the installed-app list.
+- The Project Junk scan and universal-binary thinning can no longer hang on a
+  stuck `git`, `codesign` or `lipo`: each command has a deadline and is stopped
+  if it runs past it.
+- Resetting Full Disk Access no longer freezes the window while macOS answers.
 
 ## 4.2.0
 
@@ -42,10 +52,6 @@ All notable user-facing changes to Sift. Sift was called PureMac before 4.0.0.
   stays on the Mac and records paths, not file contents.
 
 ### Fixed
-
-- Starting a new Leftovers scan cancels the previous one, so an older scan can
-  no longer replace the newer result or leave the page saying it could not read
-  the installed-app list.
 
 - The `/tmp` cleanup no longer offers a folder that holds a git worktree nested
   deeper than three levels: any `.git` entry anywhere inside is live work.
