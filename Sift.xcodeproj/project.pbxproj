@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		00DB83CC6977CBF531A63614 /* Localizable.stringsdict in Resources */ = {isa = PBXBuildFile; fileRef = 852BD6382309A5F1D390B4E8 /* Localizable.stringsdict */; };
 		02B55675A291435F85043CF2 /* DeviceBackupServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5F01D47E6FD2ECEBE7678E2 /* DeviceBackupServiceTests.swift */; };
+		F6B9C2D4E7A0831F5B8D4E11 /* DockerPruneRowTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5A8B1C3D6F9720E4A7C3D00 /* DockerPruneRowTests.swift */; };
 		5C1D83A7E2B94F60A8D31755 /* ShellQuoting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B7F21C9D4A8E65017C2A9F1 /* ShellQuoting.swift */; };
 		9F6B13D8A2C74E50B1D8F226 /* ShellQuotingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7E4A92C1B6D35F80C2E9A713 /* ShellQuotingTests.swift */; };
 		04A54B7BEE1D4E51D779BF19 /* LegacyMigrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4DD53E74995AFBB639D4EA28 /* LegacyMigrationTests.swift */; };
@@ -320,6 +321,7 @@
 		C46D9331DC17BC1687026176 /* AppStateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppStateTests.swift; sourceTree = "<group>"; };
 		C500888A6085BCD2AF0E9972 /* SiftApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SiftApp.swift; sourceTree = "<group>"; };
 		C5F01D47E6FD2ECEBE7678E2 /* DeviceBackupServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceBackupServiceTests.swift; sourceTree = "<group>"; };
+		E5A8B1C3D6F9720E4A7C3D00 /* DockerPruneRowTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DockerPruneRowTests.swift; sourceTree = "<group>"; };
 		C7909431822990BB260111F2 /* AIToolCleanupTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIToolCleanupTests.swift; sourceTree = "<group>"; };
 		C3E6A9F1B4D7508C2E5A1B88 /* AppFileSingleRemovalTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppFileSingleRemovalTests.swift; sourceTree = "<group>"; };
 		A1C4E7B9D2F6408A5C3E1B77 /* AppFileSymlinkSafetyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppFileSymlinkSafetyTests.swift; sourceTree = "<group>"; };
@@ -607,6 +609,7 @@
 				92F7A3919BDC69F0AF0B9ACC /* DashboardLayoutTests.swift */,
 				7D193FE2C99D20B8F2F0C9F6 /* DeviceBackupCoordinationTests.swift */,
 				C5F01D47E6FD2ECEBE7678E2 /* DeviceBackupServiceTests.swift */,
+				E5A8B1C3D6F9720E4A7C3D00 /* DockerPruneRowTests.swift */,
 				2B8ED1D4EECC942E632C4F55 /* DuplicateFinderTests.swift */,
 				5D10E2A7DFB3D4251902CB82 /* EntitlementsTests.swift */,
 				D8FA404F58577C7167BDF2F7 /* ICloudPlaceholderScanTests.swift */,
@@ -931,6 +934,7 @@
 				57BB490B538111C7FF12CD2A /* DashboardLayoutTests.swift in Sources */,
 				F5271726073F952CBD929207 /* DeviceBackupCoordinationTests.swift in Sources */,
 				02B55675A291435F85043CF2 /* DeviceBackupServiceTests.swift in Sources */,
+				F6B9C2D4E7A0831F5B8D4E11 /* DockerPruneRowTests.swift in Sources */,
 				5F0EED9227CD4FBE14EAFF56 /* DuplicateFinderTests.swift in Sources */,
 				9597C12290925AA0B28EABFB /* EntitlementsTests.swift in Sources */,
 				60F752A59B7FEEEF222C8AC3 /* ICloudPlaceholderScanTests.swift in Sources */,

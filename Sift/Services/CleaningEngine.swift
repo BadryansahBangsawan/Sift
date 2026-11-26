@@ -22,17 +22,22 @@ actor CleaningEngine {
     /// test can point the Trash at a temporary directory instead of the real
     /// one in the user's home.
     private let trashOperation: (URL) throws -> String?
+    /// Docker CLI locations, in search order. Injectable so a test can run a
+    /// fixture CLI instead of the user's Docker installation.
+    private let dockerBinaryPaths: [String]
 
     init(
         homeDirectory: URL = FileManager.default.homeDirectoryForCurrentUser,
         isAppRunning: @escaping (String) -> Bool = { bundleID in
             RunningAppGuard.systemIsRunning(bundleIdentifier: bundleID, appURL: nil)
         },
-        trashOperation: @escaping (URL) throws -> String? = systemTrashItem
+        trashOperation: @escaping (URL) throws -> String? = systemTrashItem,
+        dockerBinaryPaths: [String] = ["/usr/local/bin/docker", "/opt/homebrew/bin/docker"]
     ) {
         self.homeDirectory = XcodeBuildMCPDerivedDataSupport.canonicalHomeDirectory(homeDirectory)
         self.isAppRunning = isAppRunning
         self.trashOperation = trashOperation
+        self.dockerBinaryPaths = dockerBinaryPaths
     }
 
     struct CleaningResult {
@@ -632,8 +637,7 @@ actor CleaningEngine {
     /// Returns a friendly error when no CLI is installed or the daemon is
     /// not running — common with OrbStack, which only runs on demand.
     func pruneDockerSystem() async -> (freed: Int64, error: String?) {
-        let dockerBinPaths = ["/usr/local/bin/docker", "/opt/homebrew/bin/docker"]
-        guard let dockerBin = dockerBinPaths.first(where: { fileManager.isExecutableFile(atPath: $0) }) else {
+        guard let dockerBin = dockerBinaryPaths.first(where: { fileManager.isExecutableFile(atPath: $0) }) else {
             return (0, "Docker CLI not found — install Docker Desktop or OrbStack")
         }
 
