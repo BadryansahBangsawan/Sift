@@ -3,7 +3,7 @@
 > Sift is a free, native, open-source Mac utility for cleanup, app management, storage exploration, duplicate detection, and system checks.
 
 ## Product
-- Current release: 4.1.1 (26 November 2026). Sift was renamed from PureMac; settings and history migrate on first launch.
+- Current release: 4.1.2 (26 November 2026). Sift was renamed from PureMac; settings and history migrate on first launch.
 - macOS 13 Ventura or later. Universal Apple silicon and Intel binary.
 - Ad-hoc signed, not notarized by Apple: on first launch use System Settings > Privacy & Security > Open Anyway. MIT license, no paid feature tier.
 - Overview and cleanup categories scan with progress, cancellation, filters, exclusions, and manual confirmation.
@@ -27,7 +27,7 @@ User-level app uninstalling, orphan removal, exact-duplicate removal, Project Ju
 No telemetry, analytics, or crash reporting. Local scans and cleanup work offline. Scanned paths and file contents are not uploaded. GitHub release checks and Homebrew update operations use the network. Homebrew operations run with analytics disabled.
 
 ## Install
-- GUI: download Sift-4.1.1.dmg from https://github.com/BadryansahBangsawan/Sift/releases/latest, drag Sift to Applications, then allow it once with Open Anyway.
+- GUI: download Sift-4.1.2.dmg from https://github.com/BadryansahBangsawan/Sift/releases/latest, drag Sift to Applications, then allow it once with Open Anyway.
 - CLI: build from source with `cd cli && swift build -c release`, then run `.build/release/sift-cli`.
 - CLI cleanup is permanent; preview with `sift-cli clean dev --dry-run`.
 
