@@ -5,6 +5,7 @@ import XCTest
 /// Settings > Schedule describes what an unattended clean does. It moves the
 /// selection to the Trash, so the copy must say so and must not promise a
 /// permanent delete.
+@MainActor
 final class ScheduleCopyTests: XCTestCase {
     private let key = "Moves the junk the scan selected to the Trash, without asking"
 
