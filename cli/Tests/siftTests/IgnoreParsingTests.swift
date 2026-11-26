@@ -47,6 +47,43 @@ final class IgnoreParsingTests: XCTestCase {
         XCTAssertTrue(Safety.isPathIgnored(second.appendingPathComponent("b.bin").path, ignore: store))
     }
 
+    func testSurroundingWhitespaceKeepsInternalSpaces() throws {
+        let protected = try makeProtectedFolder(name: "kept folder")
+        try Data("\t \(protected.path) \t\n".utf8).write(to: ignoreFile)
+
+        let store = try makeStore()
+
+        XCTAssertEqual(store.roots, [protected.path])
+    }
+
+    func testBlankLinesAndDuplicatesAreIgnored() throws {
+        let protected = try makeProtectedFolder(name: "kept")
+        try Data("\n   \n\t\n\(protected.path)\n  \(protected.path)  \n".utf8).write(to: ignoreFile)
+
+        let store = try makeStore()
+
+        XCTAssertEqual(store.roots, [protected.path])
+    }
+
+    func testClassicMacLineEndingsStillWork() throws {
+        let first = try makeProtectedFolder(name: "first")
+        let second = try makeProtectedFolder(name: "second")
+        try Data("\(first.path)\r\(second.path)\r".utf8).write(to: ignoreFile)
+
+        let store = try makeStore()
+
+        XCTAssertEqual(store.roots.sorted(), [first.path, second.path].sorted())
+    }
+
+    func testInvalidEntriesAreStillRejected() throws {
+        let protected = try makeProtectedFolder(name: "kept")
+        try Data("relative/path\n/\n\(protected.path)\n".utf8).write(to: ignoreFile)
+
+        let store = try makeStore()
+
+        XCTAssertEqual(store.roots, [protected.path], "a bad line is skipped, not the whole file")
+    }
+
     // MARK: - Fixtures
 
     private func makeProtectedFolder(name: String) throws -> URL {
