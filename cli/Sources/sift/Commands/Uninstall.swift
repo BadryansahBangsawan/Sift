@@ -1,4 +1,5 @@
 import ArgumentParser
+import Darwin
 import Foundation
 
 struct Uninstall: ParsableCommand {
@@ -72,7 +73,7 @@ struct Uninstall: ParsableCommand {
         if bundleID.hasPrefix("com.apple.") || appPath.hasPrefix("/System") || appPath.hasPrefix("/Library/Apple") {
             throw ValidationError("System apps cannot be uninstalled.")
         }
-        if let pid = Self.runningProcessID(forAppAt: appPath) {
+        if let pid = try Self.runningProcessID(forAppAt: appPath) {
             throw ValidationError(
                 "Quit \(((appPath as NSString).lastPathComponent)) first — it is running as PID \(pid)."
             )
@@ -175,15 +176,46 @@ struct Uninstall: ParsableCommand {
     /// PID of a process whose executable lives inside this bundle. Deleting a
     /// running app leaves macOS pointing at a vanished bundle and can corrupt
     /// the app's own saved state, so this refuses instead of racing.
-    static func runningProcessID(forAppAt path: String) -> Int? {
-        let prefix = path.hasSuffix("/") ? path : path + "/"
-        let result = Shell.run("/usr/bin/pgrep", ["-f", prefix], timeout: 5)
-        guard result.status == 0 else { return nil }
-        let pids = result.out
-            .split(whereSeparator: { $0.isWhitespace })
-            .compactMap { Int($0) }
-            .filter { $0 > 0 && $0 != Int(getpid()) }
-        return pids.first
+    ///
+    /// Compares the executable's path literally. A pattern tool such as
+    /// `pgrep -f` reads the bundle path as a regular expression, so an app at
+    /// "Foo (Beta).app" or "Foo.Bar.app" could be missed or mistaken for
+    /// another process and then deleted while it was running.
+    ///
+    /// Throws when the process table cannot be read: "could not check" must
+    /// never be treated as "not running" by a command that deletes.
+    static func runningProcessID(forAppAt path: String) throws -> Int? {
+        var candidates = [
+            URL(fileURLWithPath: path).standardizedFileURL.path,
+            URL(fileURLWithPath: path).resolvingSymlinksInPath().path,
+        ]
+        // The kernel reports /private/var/… even when the caller names /var/…,
+        // and Foundation keeps that alias, so ask the filesystem too.
+        var canonical = [CChar](repeating: 0, count: 4 * Int(MAXPATHLEN))
+        if realpath(path, &canonical) != nil { candidates.append(String(cString: canonical)) }
+        let prefixes = Set(candidates).map { $0.hasSuffix("/") ? $0 : $0 + "/" }
+
+        let estimated = proc_listallpids(nil, 0)
+        guard estimated > 0 else {
+            throw ValidationError("Could not read the process list, so Sift cannot tell whether the app is running. Nothing was removed.")
+        }
+        var pids = [pid_t](repeating: 0, count: Int(estimated) + 32)
+        let count = pids.withUnsafeMutableBufferPointer { buffer in
+            proc_listallpids(buffer.baseAddress, Int32(buffer.count) * Int32(MemoryLayout<pid_t>.size))
+        }
+        guard count > 0 else {
+            throw ValidationError("Could not read the process list, so Sift cannot tell whether the app is running. Nothing was removed.")
+        }
+
+        let ownPID = getpid()
+        var executablePath = [CChar](repeating: 0, count: 4 * Int(MAXPATHLEN))
+        for pid in pids.prefix(Int(count)) where pid > 0 && pid != ownPID {
+            let length = proc_pidpath(pid, &executablePath, UInt32(executablePath.count))
+            guard length > 0 else { continue }
+            let executable = String(cString: executablePath)
+            if prefixes.contains(where: { executable.hasPrefix($0) }) { return Int(pid) }
+        }
+        return nil
     }
 
     // MARK: - Matching
