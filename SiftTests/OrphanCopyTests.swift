@@ -4,6 +4,7 @@ import XCTest
 /// The Leftovers page must say whether it never looked, could not compare, or
 /// found nothing. Before the first scan it claimed "No Orphaned Files", which
 /// reads as "your Mac is clean" when nothing had been checked.
+@MainActor
 final class OrphanCopyTests: XCTestCase {
     private static let keys = [
         "Not scanned yet",
@@ -31,17 +32,17 @@ final class OrphanCopyTests: XCTestCase {
         let state = await MainActor.run {
             AppState(performStartupTasks: false, installedAppsProvider: { [] })
         }
-        let freshCompleted = await state.orphanScanCompleted
+        let freshCompleted = state.orphanScanCompleted
         XCTAssertFalse(freshCompleted, "A page that has not scanned must not show the clean-Mac state")
 
-        await state.findOrphans()
+        state.findOrphans()
         for _ in 0..<200 {
-            if await state.orphanScanCompleted { break }
+            if state.orphanScanCompleted { break }
             try await Task.sleep(nanoseconds: 20_000_000)
         }
 
-        let completed = await state.orphanScanCompleted
-        let needsList = await state.orphanScanNeedsAppList
+        let completed = state.orphanScanCompleted
+        let needsList = state.orphanScanNeedsAppList
         XCTAssertTrue(completed, "A refused scan still counts as finished, so the page stops saying \"not scanned\"")
         XCTAssertTrue(needsList, "The page must blame the missing app list, not claim a clean Mac")
     }

@@ -303,9 +303,9 @@ private final class MainThreadProbe: @unchecked Sendable {
                 let gap = started.duration(to: .now)
                 let milliseconds = Double(gap.components.seconds) * 1000
                     + Double(gap.components.attoseconds) / 1_000_000_000_000_000
-                lock.lock()
-                if milliseconds > maxGap { maxGap = milliseconds }
-                lock.unlock()
+                lock.withLock {
+                    if milliseconds > maxGap { maxGap = milliseconds }
+                }
                 try? await Task.sleep(for: .milliseconds(1))
             }
         }
