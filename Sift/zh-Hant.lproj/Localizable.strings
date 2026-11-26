@@ -1381,3 +1381,4 @@
 "Check for Updates…" = "檢查更新…";
 "Check for updates automatically" = "自動檢查更新";
 "Download and install updates automatically" = "自動下載並安裝更新";
+"Found %@ of junk files, below the cleanup threshold. Nothing was removed." = "發現 %@ 的垃圾檔案，低於清理閾值，未刪除任何內容。";

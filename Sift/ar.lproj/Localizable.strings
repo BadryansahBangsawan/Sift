@@ -1381,3 +1381,4 @@
 "Check for Updates…" = "التحقق من التحديثات…";
 "Check for updates automatically" = "التحقق من التحديثات تلقائيًا";
 "Download and install updates automatically" = "تنزيل التحديثات وتثبيتها تلقائيًا";
+"Found %@ of junk files, below the cleanup threshold. Nothing was removed." = "تم العثور على %@ من الملفات غير المرغوبة، أقل من حد التنظيف. لم تتم إزالة أي شيء.";

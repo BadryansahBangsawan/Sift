@@ -1381,3 +1381,4 @@
 "Check for Updates…" = "アップデートを確認…";
 "Check for updates automatically" = "自動的にアップデートを確認";
 "Download and install updates automatically" = "アップデートを自動的にダウンロードしてインストール";
+"Found %@ of junk files, below the cleanup threshold. Nothing was removed." = "%@ のジャンクファイルが見つかりましたが、クリーンアップのしきい値を下回るため、何も削除されませんでした。";

@@ -1473,6 +1473,15 @@ final class AppState: ObservableObject {
         minimumCleanSize: Int64
     ) -> String {
         let sizeStr = SiftFormat.bytes(found)
+        if autoClean, selectedSize < minimumCleanSize {
+            return String(
+                format: NSLocalizedString(
+                    "Found %@ of junk files, below the cleanup threshold. Nothing was removed.",
+                    comment: ""
+                ),
+                sizeStr
+            )
+        }
         return String(format: NSLocalizedString("Found %@ of junk files.", comment: ""), sizeStr)
     }
 
