@@ -10,6 +10,9 @@ All notable user-facing changes to Sift. Sift was called PureMac before 4.0.0.
   git tracks, or that sit in a repository but are not ignored, are not offered.
   A worktree `.git` file counts, and if git cannot answer the folder is left
   alone.
+- `sift-cli purge` now requires a generated folder's contents to prove they
+  are build output, as the app does. A source folder that happens to be named
+  `target` or `.venv` next to the project marker is left alone.
 - Duplicate Finder no longer moves files excluded from cleanup to the Trash;
   they are reported and logged as skipped.
 - Cleaning an AI session no longer trashes a companion folder that is excluded
