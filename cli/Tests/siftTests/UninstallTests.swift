@@ -1,3 +1,4 @@
+import Darwin
 import Foundation
 import XCTest
 @testable import sift
@@ -229,7 +230,8 @@ final class UninstallTests: XCTestCase {
         let app = directory.appendingPathComponent("Foo (Beta).app", isDirectory: true)
         let process = try launchSleep(in: app)
 
-        XCTAssertEqual(try Uninstall.runningProcessID(forAppAt: app.path), Int(process.processIdentifier))
+        let launched = waitUntilExecuting(process, inside: app)
+        XCTAssertEqual(try Uninstall.runningProcessID(forAppAt: app.path), Int(process.processIdentifier), launched)
     }
 
     func testRunningAppLookupTreatsThePathLiterally() throws {
@@ -271,12 +273,37 @@ final class UninstallTests: XCTestCase {
 
         let app = directory.appendingPathComponent("Quiet.app", isDirectory: true)
         let process = try launchSleep(in: app)
-        XCTAssertEqual(try Uninstall.runningProcessID(forAppAt: app.path), Int(process.processIdentifier))
+        let launched = waitUntilExecuting(process, inside: app)
+        XCTAssertEqual(try Uninstall.runningProcessID(forAppAt: app.path), Int(process.processIdentifier), launched)
 
         process.terminate()
         process.waitUntilExit()
 
         XCTAssertNil(try Uninstall.runningProcessID(forAppAt: app.path))
+    }
+
+    /// Waits until the kernel reports the launched process's executable inside
+    /// the bundle. Process.run() can return before a freshly copied, ad-hoc
+    /// signed binary is executing (slow on CI runners), and the lookup reads the
+    /// kernel's view. Returns a description for the assertion message.
+    private func waitUntilExecuting(_ process: Process, inside app: URL, timeout: TimeInterval = 10) -> String {
+        var canonical = [CChar](repeating: 0, count: 4 * Int(MAXPATHLEN))
+        let bundle = (realpath(app.path, &canonical) != nil ? String(cString: canonical) : app.path) + "/"
+        let deadline = Date().addingTimeInterval(timeout)
+        var observed = "nothing"
+        repeat {
+            var buffer = [CChar](repeating: 0, count: 4 * Int(MAXPATHLEN))
+            if proc_pidpath(process.processIdentifier, &buffer, UInt32(buffer.count)) > 0 {
+                observed = String(cString: buffer)
+                if observed.hasPrefix(bundle) { return "executing \(observed)" }
+            }
+            if !process.isRunning { break }
+            usleep(50_000)
+        } while Date() < deadline
+        let state = process.isRunning
+            ? "still running"
+            : "exited, status \(process.terminationStatus), reason \(process.terminationReason.rawValue)"
+        return "process \(process.processIdentifier) \(state); kernel path \(observed); bundle \(bundle)"
     }
 
     /// Copies the system's sleep into the bundle and starts it, so the test
