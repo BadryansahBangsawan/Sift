@@ -87,4 +87,33 @@ final class LegacyMigrationTests: XCTestCase {
         try migrate()
         XCTAssertFalse(FileManager.default.fileExists(atPath: root.appendingPathComponent("Sift").path))
     }
+
+    func testDoesNotMarkDoneWhenTheCopyFails() throws {
+        let oldFolder = root.appendingPathComponent("PureMac")
+        try FileManager.default.createDirectory(at: oldFolder, withIntermediateDirectories: true)
+        try Data("history".utf8).write(to: oldFolder.appendingPathComponent("cleanup-history.json"))
+
+        // A regular file where the destination's parent should be makes the
+        // copy fail without touching any real Application Support folder.
+        let blocker = root.appendingPathComponent("blocker")
+        try Data("not a directory".utf8).write(to: blocker)
+        let badNewSupport = blocker.appendingPathComponent("Sift")
+
+        let old = try XCTUnwrap(UserDefaults(suiteName: oldSuite))
+        let new = try XCTUnwrap(UserDefaults(suiteName: newSuite))
+        old.set("dark", forKey: "PureMac.Appearance")
+
+        LegacyMigration.run(
+            oldDefaults: old,
+            newDefaults: new,
+            oldSupport: oldFolder,
+            newSupport: badNewSupport
+        )
+
+        XCTAssertFalse(
+            new.bool(forKey: LegacyMigration.doneKey),
+            "A failed copy must be retried on the next launch"
+        )
+    }
+
 }
