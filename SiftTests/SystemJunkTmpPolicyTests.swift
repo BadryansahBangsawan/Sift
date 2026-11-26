@@ -188,6 +188,38 @@ final class SystemJunkTmpPolicyTests: XCTestCase {
         )
     }
 
+    func testTmpWorktreeTenLevelsDownIsNotOffered() async throws {
+        let entry = fixtureRoot.appendingPathComponent("very-deep-worktree", isDirectory: true)
+        var worktree = entry
+        for component in ["a", "b", "c", "d", "e", "f", "g", "h", "i", "work"] {
+            worktree.appendPathComponent(component, isDirectory: true)
+        }
+        try fileManager.createDirectory(at: worktree, withIntermediateDirectories: true)
+        try Data("gitdir: /private/tmp/main/.git/worktrees/very-deep\n".utf8)
+            .write(to: worktree.appendingPathComponent(".git"))
+        try Data(repeating: 13, count: 8_192).write(to: worktree.appendingPathComponent("work.bin"))
+        try ageTree(entry, by: days(5))
+
+        let items = await scanTmpItems()
+
+        XCTAssertFalse(items.contains { $0.path == entry.path })
+    }
+
+    func testTmpEntryWithOnlyAGitignoreIsStillOffered() async throws {
+        let entry = fixtureRoot.appendingPathComponent("gitignore-only", isDirectory: true)
+        try fileManager.createDirectory(at: entry, withIntermediateDirectories: true)
+        try Data("build/\n".utf8).write(to: entry.appendingPathComponent(".gitignore"))
+        try Data(repeating: 14, count: 8_192).write(to: entry.appendingPathComponent("scratch.bin"))
+        try ageTree(entry, by: days(5))
+
+        let items = await scanTmpItems()
+
+        XCTAssertTrue(
+            items.contains { $0.path == entry.path },
+            "a plain .gitignore is not a repository"
+        )
+    }
+
     // MARK: - Helpers
 
     private func scanTmpItems() async -> [CleanableItem] {
