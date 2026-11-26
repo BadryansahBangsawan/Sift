@@ -80,8 +80,6 @@ struct SettingsView: View {
         // standalone Settings window has to do it itself.
         .id(standalone ? accentStore.accent.rawValue : "main")
         .navigationTitle("Settings")
-        .onAppear { showRequestedUpdates() }
-        .onChange(of: appState.showUpdateSettings) { _ in showRequestedUpdates() }
         .sheet(isPresented: Binding(
             get: { standalone && permission.isRequesting && permission.presentation == .settingsWindow },
             set: { if !$0 && standalone && permission.presentation == .settingsWindow { permission.dismiss(callRetry: false) } }
@@ -106,13 +104,6 @@ struct SettingsView: View {
         .overlay(Capsule(style: .continuous).strokeBorder(SiftColor.stroke, lineWidth: 1))
         .help(folder.path)
         .textSelection(.enabled)
-    }
-
-    private func showRequestedUpdates() {
-        if !standalone && appState.showUpdateSettings {
-            pageRaw = SettingsPage.updates.rawValue
-            appState.showUpdateSettings = false
-        }
     }
 }
 

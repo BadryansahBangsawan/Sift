@@ -341,8 +341,6 @@ enum DiskMeterLayout {
     static let labelGap: CGFloat = 6
     /// Gap between capsules, and the meter's own padding on each side.
     static let spacing: CGFloat = 4
-    static let freeFloor: CGFloat = 140
-    static let reclaimableFloor: CGFloat = 170
     /// No segment takes more than this share of the bar.
     static let segmentCap: CGFloat = 0.4
 

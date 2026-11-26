@@ -52,7 +52,6 @@ final class ScanProgressTicker: ObservableObject {
 final class AppState: ObservableObject {
     let languageAtLaunch = AppLanguage.current
     @Published var settingsNeedLanguageRestart = false
-    @Published var showUpdateSettings = false
     @Published var deviceBackupRemovalInProgress = false
     @Published var deviceBackupRemovalResult: DeviceBackupRemovalResult?
     var canRemoveDeviceBackups: Bool {
@@ -902,28 +901,6 @@ final class AppState: ObservableObject {
                 deselectedItems.remove(item.id)
             } else {
                 selectedCleanupItems.insert(item.id)
-            }
-        }
-    }
-
-    func selectAllInCategory(_ category: CleaningCategory) {
-        guard let result = categoryResults[category] else { return }
-        for item in result.items {
-            if item.isSelected {
-                deselectedItems.remove(item.id)
-            } else {
-                selectedCleanupItems.insert(item.id)
-            }
-        }
-    }
-
-    func deselectAllInCategory(_ category: CleaningCategory) {
-        guard let result = categoryResults[category] else { return }
-        for item in result.items {
-            if item.isSelected {
-                deselectedItems.insert(item.id)
-            } else {
-                selectedCleanupItems.remove(item.id)
             }
         }
     }
