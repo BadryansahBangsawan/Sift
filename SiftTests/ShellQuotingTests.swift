@@ -20,23 +20,83 @@ final class ShellQuotingTests: XCTestCase {
 
     func testRemovalScriptPassesPathsVerbatimAndRunsNoPayload() throws {
         let marker = fixture.appendingPathComponent("INJECTED")
-        let captured = fixture.appendingPathComponent("arguments.bin")
-        let paths = [
-            "\(fixture.path)/a'; /usr/bin/touch \(marker.path) #",
-            "\(fixture.path)/it's",
-        ]
-
-        let result = try runRemovalScript(paths: paths, capturingArgumentsTo: captured)
-
-        XCTAssertEqual(result.status, 0, "osascript failed: \(result.stderr)")
-        XCTAssertFalse(
-            FileManager.default.fileExists(atPath: marker.path),
-            "a crafted folder name ran a command"
+        try assertRoundTrip(
+            [
+                "\(fixture.path)/a'; /usr/bin/touch \(marker.path) #",
+                "\(fixture.path)/it's",
+            ],
+            markers: [marker]
         )
-        XCTAssertEqual(try Data(contentsOf: captured), nulSeparated(paths))
+    }
+
+    /// Everything a shell treats specially, in one name: an injection attempt,
+    /// command substitution, backticks, both quote characters, a backslash,
+    /// spaces and non-ASCII text.
+    func testShellMetacharactersInOnePathSurvive() throws {
+        let marker = fixture.appendingPathComponent("METACHARS")
+        let path = "\(fixture.path)/it's $(/usr/bin/touch \(marker.path)) `echo nope` \"quote\" back\\slash; # hash 漢字 cafe\u{0301}"
+        try assertRoundTrip([path], markers: [marker])
+    }
+
+    func testSeveralAwkwardPathsAtOnce() throws {
+        let firstMarker = fixture.appendingPathComponent("MULTI-1")
+        let secondMarker = fixture.appendingPathComponent("MULTI-2")
+        let paths = [
+            "\(fixture.path)/one; /usr/bin/touch \(firstMarker.path)",
+            "\(fixture.path)/two's",
+            "\(fixture.path)/three $(/usr/bin/touch \(secondMarker.path))",
+            "\(fixture.path)/four\\backslash",
+            "\(fixture.path)/five with spaces",
+            "\(fixture.path)/six 漢字 cafe\u{0301}",
+        ]
+        try assertRoundTrip(paths, markers: [firstMarker, secondMarker])
+    }
+
+    func testPathMadeOnlyOfQuotesSurvives() throws {
+        let paths = [
+            "\(fixture.path)/'",
+            "\(fixture.path)/'''",
+            "\(fixture.path)/'\"'",
+        ]
+        try assertRoundTrip(paths, markers: [])
+    }
+
+    func testPathWithNewlineAndTabSurvives() throws {
+        let marker = fixture.appendingPathComponent("NEWLINE")
+        let paths = [
+            "\(fixture.path)/line\nbreak'; /usr/bin/touch \(marker.path) #",
+            "\(fixture.path)/tab\tseparated",
+        ]
+        try assertRoundTrip(paths, markers: [marker])
     }
 
     // MARK: - Helpers
+
+    private func assertRoundTrip(
+        _ paths: [String],
+        markers: [URL],
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) throws {
+        let captured = fixture.appendingPathComponent("arguments-\(UUID().uuidString).bin")
+        let result = try runRemovalScript(paths: paths, capturingArgumentsTo: captured)
+
+        XCTAssertEqual(result.status, 0, "osascript failed: \(result.stderr)", file: file, line: line)
+        for marker in markers {
+            XCTAssertFalse(
+                FileManager.default.fileExists(atPath: marker.path),
+                "a crafted folder name ran a command",
+                file: file,
+                line: line
+            )
+        }
+        XCTAssertEqual(
+            try Data(contentsOf: captured),
+            nulSeparated(paths),
+            file: file,
+            line: line
+        )
+    }
 
     /// Builds the production AppleScript shape with `sh` in place of `rm`: the
     /// script writes its NUL-separated arguments to `captured`, so the bytes
