@@ -2,6 +2,14 @@
 
 All notable user-facing changes to Sift. Sift was called PureMac before 4.0.0.
 
+## Unreleased
+
+### Fixed
+
+- Removing orphaned files with administrator approval no longer breaks on names
+  with an apostrophe, and a crafted folder name can no longer run commands as
+  root.
+
 ## 4.1.0
 
 ### Changed
