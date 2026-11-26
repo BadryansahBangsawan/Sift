@@ -111,7 +111,10 @@ struct Uninstall: ParsableCommand {
         Render.selectionLine([scan])
 
         if dryRun {
-            let selected = scan.selectedItems
+            // A real uninstall removes the whole matched set (that is what
+            // --force selects), so the dry run must count the same set instead
+            // of the unselected review state.
+            let selected = Self.selectAll(in: scan).selectedItems
             let out = Cleaner.remove(selected, ignore: ignore, dryRun: true, allowingAppBundles: true)
             Render.cleanupSummary(out, dryRun: true)
             return

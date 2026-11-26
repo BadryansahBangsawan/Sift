@@ -33,6 +33,37 @@ enum HomeMenu {
         return line.isEmpty ? fallback : line
     }
 
+    /// Runs the Uninstall command for a prompt answer. A bad answer (including
+    /// the default "/Applications") reports a message and returns to the menu
+    /// instead of ending the whole session.
+    @discardableResult
+    static func runUninstall(_ answer: String) -> Bool {
+        do {
+            try uninstallCommand(for: answer).run()
+            return true
+        } catch {
+            let message = (error as? ValidationError)?.message ?? String(describing: error)
+            Term.err(Term.yellow(message))
+            return false
+        }
+    }
+
+    /// The command the menu runs for an answer. `run()` reads @Flag values, so the
+    /// instance must come from the parser; a hand-built one traps on the first
+    /// flag read.
+    static func uninstallCommand(for answer: String) throws -> Uninstall {
+        do {
+            return try Uninstall.parse([answer])
+        } catch {
+            // Re-run the command's own validation so the menu prints its clear
+            // message instead of ArgumentParser's wrapped parser error.
+            var manual = Uninstall()
+            manual.appPath = answer
+            try manual.validate()
+            throw error
+        }
+    }
+
     static func run() throws {
         let options: [(title: String, detail: String)] = [
             ("Clean caches", "Choose tools and individual paths to remove"),
@@ -76,7 +107,7 @@ enum HomeMenu {
                 try Dupes.parse([folder]).run()
             case 8:
                 let app = promptPath("App to uninstall", fallback: "/Applications")
-                try Uninstall.parse([app]).run()
+                _ = try runUninstall(app)
             default: return
             }
             print(Term.dim("\nPress Return to return to Sift."), terminator: " ")

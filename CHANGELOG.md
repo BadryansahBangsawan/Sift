@@ -23,6 +23,16 @@ All notable user-facing changes to Sift. Sift was called PureMac before 4.0.0.
   “Moved to Trash: …” with the amount instead of “0 bytes removed”.
 - A failed Docker prune keeps its row in Developer caches with the error message,
   so you can try again without rescanning.
+- The interactive menu no longer exits when Uninstall is chosen and Return is
+  pressed on the default `/Applications` answer; it prints why the path is not
+  an app and returns to the menu.
+- `sift-cli dupes ~/Downloads` now expands `~` the way the other commands do,
+  instead of failing with "Path must be absolute".
+- `sift-cli` now trims spaces around protected-path entries and accepts CRLF
+  or CR line endings, so an editor's trailing whitespace can no longer disarm
+  the ignore list.
+- `sift-cli uninstall --dry-run` now counts the app and leftover files it would
+  remove instead of reporting zero items.
 - Cleaning Large & old files, Installers, Xcode Archives or opt-in AI rows from
   their own page — or retrying them after granting Full Disk Access — now adds
   the cleanup-history row it was missing. These rows move to the Trash, so the

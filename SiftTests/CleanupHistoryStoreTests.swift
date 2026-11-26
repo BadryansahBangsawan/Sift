@@ -42,6 +42,27 @@ final class CleanupHistoryStoreTests: XCTestCase {
         XCTAssertEqual(records.map(\.category), [nil, nil])
     }
 
+    func testAggregatesCountFreedBytesOnly() {
+        let now = Date()
+        let lastMonth = Calendar.current.date(byAdding: .month, value: -1, to: now) ?? now
+        let records = [
+            CleanupRecord(date: now, freedBytes: 1_000, source: .manual, trashedBytes: 50_000),
+            CleanupRecord(date: now, freedBytes: 0, source: .scheduled, trashedBytes: 9_000),
+            CleanupRecord(date: lastMonth, freedBytes: 7_000, source: .manual),
+        ]
+
+        XCTAssertEqual(
+            CleanupRecord.totalFreed(records),
+            8_000,
+            "trashed bytes stay in the Trash and are not freed space"
+        )
+        XCTAssertEqual(
+            CleanupRecord.totalFreed(CleanupRecord.thisMonth(records, now: now)),
+            1_000,
+            "this month counts only freed bytes from this month"
+        )
+    }
+
     func testTitleAndCategoryRoundTripThroughDisk() {
         let file = directory.appendingPathComponent("history.json")
         CleanupHistoryStore(fileURL: file).record(
