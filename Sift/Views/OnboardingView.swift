@@ -338,8 +338,10 @@ private struct PermissionScene: View {
                             HStack(spacing: 4) {
                                 Button("Reveal app again") { revealAppInFinder() }
                                 Button("Reset permissions") {
-                                    _ = FullDiskAccessManager.shared.resetFullDiskAccess()
-                                    FullDiskAccessManager.shared.triggerRegistration()
+                                    Task {
+                                        _ = await FullDiskAccessManager.shared.resetFullDiskAccess()
+                                        FullDiskAccessManager.shared.triggerRegistration()
+                                    }
                                 }
                             }
                             .buttonStyle(.siftQuiet)
