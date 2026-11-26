@@ -82,10 +82,21 @@ extension Notification.Name {
 struct SiftApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
     @StateObject private var appState = AppState(performStartupTasks: NSClassFromString("XCTestCase") == nil)
+    @StateObject private var updates: AppUpdateController
     @StateObject private var theme = ThemeManager.shared
     @AppStorage("PureMac.OnboardingComplete") private var onboardingComplete = false
 
     init() {
+        // One Sparkle updater for the app lifetime. The XCTest host never
+        // starts it, so tests cannot reach the network or the user's feed.
+        let bridge: UpdaterBridge
+        if NSClassFromString("XCTestCase") == nil {
+            bridge = SparkleUpdaterBridge(startingUpdater: true)
+        } else {
+            bridge = InertUpdaterBridge()
+        }
+        _updates = StateObject(wrappedValue: AppUpdateController(bridge: bridge))
+
         // Enter CLI mode only when the first arg is a known command. Xcode and
         // LaunchServices inject args like -NSDocumentRevisionsDebugMode and
         // -psn_<pid> that must not be interpreted as CLI commands.
@@ -106,6 +117,7 @@ struct SiftApp: App {
                 if onboardingComplete {
                     MainWindow()
                         .environmentObject(appState)
+                        .environmentObject(updates)
                         .frame(minWidth: 1080, minHeight: 700)
                 } else {
                     OnboardingView(isComplete: $onboardingComplete)
@@ -125,20 +137,18 @@ struct SiftApp: App {
         .defaultSize(width: 1360, height: 880)
         .commands {
             CommandGroup(replacing: .newItem) {}
-            CommandMenu("Updates") {
-                Button("Check for Updates") {
-                    appState.showUpdateSettings = true
-                    WindowOpener.shared.showMainWindow()
-                    NSApp.activate(ignoringOtherApps: true)
-                    UpdateService.shared.checkForUpdates()
+            CommandGroup(after: .appInfo) {
+                Button("Check for Updates…") {
+                    updates.checkForUpdates()
                 }
-                .keyboardShortcut("u", modifiers: [.command, .shift])
+                .disabled(!updates.canCheckForUpdates)
             }
         }
 
         Settings {
             SettingsView(standalone: true)
                 .environmentObject(appState)
+                .environmentObject(updates)
                 .environmentObject(theme)
                 .siftLayoutDirection(AppLayoutDirection.current)
                 .frame(minWidth: 680, idealWidth: 760, minHeight: 580, idealHeight: 700)

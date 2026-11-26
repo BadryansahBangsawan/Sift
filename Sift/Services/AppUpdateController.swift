@@ -13,6 +13,17 @@ protocol UpdaterBridge: AnyObject {
     func checkForUpdates()
 }
 
+/// Version shown in Settings. Read from the bundle so it follows the build.
+enum AppVersion {
+    static var marketing: String {
+        Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "—"
+    }
+
+    static var build: String {
+        Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? "—"
+    }
+}
+
 /// Observable facade over an `UpdaterBridge`.
 @MainActor
 final class AppUpdateController: ObservableObject {
@@ -20,22 +31,48 @@ final class AppUpdateController: ObservableObject {
 
     init(bridge: UpdaterBridge) {
         self.bridge = bridge
+        bridge.onChange = { [weak self] in
+            self?.objectWillChange.send()
+        }
     }
 
-    var canCheckForUpdates: Bool { false }
+    var canCheckForUpdates: Bool { bridge.canCheckForUpdates }
 
     var automaticallyChecksForUpdates: Bool {
-        get { false }
-        set { _ = newValue }
+        get { bridge.automaticallyChecksForUpdates }
+        set {
+            bridge.automaticallyChecksForUpdates = newValue
+            objectWillChange.send()
+        }
     }
 
     var automaticallyDownloadsUpdates: Bool {
-        get { false }
-        set { _ = newValue }
+        get { bridge.automaticallyDownloadsUpdates }
+        set {
+            // Sparkle disallows automatic downloads without automatic checks;
+            // the UI disables the toggle, and this keeps programmatic writes
+            // from fighting it.
+            guard bridge.automaticallyChecksForUpdates else { return }
+            bridge.automaticallyDownloadsUpdates = newValue
+            objectWillChange.send()
+        }
     }
 
     /// The download toggle is only meaningful while automatic checks are on.
-    var canAutomaticallyDownloadUpdates: Bool { false }
+    var canAutomaticallyDownloadUpdates: Bool { bridge.automaticallyChecksForUpdates }
+
+    func checkForUpdates() {
+        bridge.checkForUpdates()
+    }
+}
+
+/// Used when the app must not start a real updater (the XCTest host).
+@MainActor
+final class InertUpdaterBridge: UpdaterBridge {
+    var canCheckForUpdates = false
+    var automaticallyChecksForUpdates = false
+    var automaticallyDownloadsUpdates = false
+    var onChange: (() -> Void)?
 
     func checkForUpdates() {}
 }
