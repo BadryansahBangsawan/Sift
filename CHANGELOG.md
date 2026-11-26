@@ -10,6 +10,10 @@ All notable user-facing changes to Sift. Sift was called PureMac before 4.0.0.
   executable path literally, so a bundle whose name has parentheses or dots is
   no longer deleted while it is open. If the process list cannot be read, the
   uninstall stops instead of assuming the app is not running.
+- `sift-cli purge` now offers a build folder (`target`, `node_modules`, `.venv`,
+  …) only when the project file that generates it — `Cargo.toml`,
+  `package.json`, `Package.swift` and the like — sits next to it, so a source
+  folder that happens to share the name is left alone.
 
 ## 4.1.0
 
