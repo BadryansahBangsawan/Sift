@@ -936,7 +936,7 @@ final class AppState: ObservableObject {
         }
 
         totalFreedSpace = result.freedSpace
-        if result.freedSpace > 0 {
+        if result.freedSpace > 0 || result.trashedSpace > 0 {
             recordCleanup(of: items, result: result, source: .manual)
         }
         if result.itemsCleaned > 0 { lastCleanedDate = Date() }
@@ -1164,7 +1164,7 @@ final class AppState: ObservableObject {
             }
 
             totalFreedSpace = cleanResult.freedSpace
-            if cleanResult.freedSpace > 0 {
+            if cleanResult.freedSpace > 0 || cleanResult.trashedSpace > 0 {
                 recordCleanup(of: selectedItems, result: cleanResult, source: .manual)
             }
             if cleanResult.itemsCleaned > 0 { lastCleanedDate = Date() }
