@@ -52,7 +52,7 @@ final class HomeMenuTests: XCTestCase {
     }
 
     func testDefaultUninstallAnswerKeepsTheMenuAlive() throws {
-        let accepted = try HomeMenu.runUninstall("/Applications")
+        let accepted = HomeMenu.runUninstall("/Applications")
 
         XCTAssertFalse(accepted, "a non-bundle answer is not an uninstall")
     }
