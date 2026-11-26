@@ -20,6 +20,9 @@ All notable user-facing changes to Sift. Sift was called PureMac before 4.0.0.
 - The app-files scan and removal no longer follow a symlinked folder, so a link
   planted in Application Support cannot put files from another directory in the
   app's removal list or move them to the Trash.
+- Removing a single row from the app files list no longer moves a running app's
+  bundle to the Trash or clears the other selected rows; every removal path now
+  checks whether the app is running, and the remaining selection stays intact.
 
 ## 4.1.0
 
