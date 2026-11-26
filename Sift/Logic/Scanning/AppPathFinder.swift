@@ -147,21 +147,11 @@ class AppPathFinder {
             if shouldSkipItem(normalizedName, at: itemURL) { continue }
 
             if matchesApp(normalizedName: normalizedName, itemURL: itemURL) {
-                let itemToAdd: URL
-
-                // For depth-2 matches in Library root, add the parent directory when
-                // it is a vendor folder (not a standard Library subdirectory).
-                if isLibraryRootSearch && currentDepth == 2 {
-                    let parent = itemURL.deletingLastPathComponent()
-                    let parentName = parent.lastPathComponent
-                    if !Locations.standardLibrarySubdirectories.contains(parentName) {
-                        itemToAdd = parent
-                    } else {
-                        itemToAdd = itemURL
-                    }
-                } else {
-                    itemToAdd = itemURL
-                }
+                // Add the matched item itself. Do not promote a depth-2 match to
+                // its parent: that parent is often a vendor folder shared by
+                // other installed apps from the same vendor, so removing it
+                // would take another app's data with it.
+                let itemToAdd = itemURL
 
                 localResults.append(itemToAdd)
             }
