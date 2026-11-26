@@ -34,6 +34,7 @@ actor DeviceBackupService {
 
     private let root: URL
     private let trashHandler: (URL) throws -> Void
+    private let cleanupLog: CleanupLog
     private let exclusions: () -> [String]
     private let maxEntries: Int
 
@@ -41,7 +42,8 @@ actor DeviceBackupService {
         homeDirectory: URL = FileManager.default.homeDirectoryForCurrentUser,
         trashHandler: ((URL) throws -> Void)? = nil,
         exclusions: @escaping () -> [String] = { CleanupExclusions.paths() },
-        maxEntries: Int = 500_000
+        maxEntries: Int = 500_000,
+        cleanupLog: CleanupLog = .shared
     ) {
         root = homeDirectory.appendingPathComponent("Library/Application Support/MobileSync/Backup", isDirectory: true)
         self.trashHandler = trashHandler ?? { url in
@@ -50,6 +52,7 @@ actor DeviceBackupService {
         }
         self.exclusions = exclusions
         self.maxEntries = max(1, min(maxEntries, 500_000))
+        self.cleanupLog = cleanupLog
     }
 
     func scan() throws -> DeviceBackupScanResult {
@@ -133,11 +136,26 @@ actor DeviceBackupService {
                 }
                 try trashHandler(backup.url)
                 removed.append(backup.url.path)
+                cleanupLog.record(
+                    source: "deviceBackups",
+                    category: "Device backups",
+                    action: .trashed,
+                    path: backup.url.path,
+                    bytes: backup.allocatedSize
+                )
             } catch is CancellationError {
                 errors.append(String(localized: "Backup removal was cancelled. Remaining backups were left in place."))
                 break
             } catch {
                 errors.append("\(backup.name): \(error.localizedDescription)")
+                cleanupLog.record(
+                    source: "deviceBackups",
+                    category: "Device backups",
+                    action: .failed,
+                    path: backup.url.path,
+                    bytes: backup.allocatedSize,
+                    reason: error.localizedDescription
+                )
             }
         }
         return DeviceBackupRemovalResult(removedPaths: removed, errors: errors)

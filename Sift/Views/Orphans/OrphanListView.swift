@@ -272,14 +272,24 @@ struct OrphanListView: View {
         var failedPaths: [String] = []
         var removedURLs: Set<URL> = []
         var needsAdminURLs: [URL] = []
+        let cleanupLog = appState.cleanupLog
 
         for url in urlsToRemove {
             guard OrphanSafetyPolicy.isSafeCandidate(url) else {
                 failedPaths.append("\(url.path) (\(String(localized: "blocked by safety policy")))")
+                cleanupLog.record(
+                    source: "orphans",
+                    category: "Orphans",
+                    action: .skipped,
+                    path: url.path,
+                    reason: "Blocked by the orphan safety policy."
+                )
                 continue
             }
 
-            let outcome = await Task.detached(priority: .userInitiated) { Self.removeOrphan(url) }.value
+            let outcome = await Task.detached(priority: .userInitiated) {
+                OrphanRemover.remove(url, log: cleanupLog)
+            }.value
             switch outcome {
             case .removed:
                 removedURLs.insert(url)
@@ -304,6 +314,11 @@ struct OrphanListView: View {
             } else {
                 failedPaths.append(contentsOf: needsAdminURLs.map(\.path))
             }
+            OrphanRemover.recordAdminOutcome(
+                urls: needsAdminURLs,
+                succeeded: adminSucceeded,
+                log: cleanupLog
+            )
         }
 
         // Sweep removed rows out (per-row transitions are attached in the
@@ -325,35 +340,6 @@ struct OrphanListView: View {
                 Int64(failedPaths.count),
                 preview + suffix
             )
-        }
-    }
-
-    private enum OrphanRemoveOutcome: Sendable {
-        case removed
-        case needsAdmin
-        case failed
-    }
-
-    private nonisolated static func removeOrphan(_ url: URL) -> OrphanRemoveOutcome {
-        guard OrphanSafetyPolicy.isSafeCandidate(url) else { return .failed }
-        do {
-            try FileManager.default.trashItem(at: url, resultingItemURL: nil)
-            return .removed
-        } catch {
-            let nsError = error as NSError
-            let permissionDeniedCodes = [
-                NSFileReadNoPermissionError,
-                NSFileWriteNoPermissionError,
-                NSFileWriteUnknownError,
-                257,
-                513,
-            ]
-
-            guard permissionDeniedCodes.contains(nsError.code) else {
-                return .failed
-            }
-
-            return .needsAdmin
         }
     }
 

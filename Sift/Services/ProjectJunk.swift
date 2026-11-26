@@ -357,12 +357,18 @@ private enum ArtifactRules {
 struct ProjectJunkFinder: Sendable {
     let git: ProjectGitInspecting
     let excludedPaths: [String]
+    let cleanupLog: CleanupLog
     /// Deepest folder level below a project folder that is searched.
     var maxDepth = 8
 
-    init(git: ProjectGitInspecting = GitCommandLine(), excludedPaths: [String] = CleanupExclusions.paths()) {
+    init(
+        git: ProjectGitInspecting = GitCommandLine(),
+        excludedPaths: [String] = CleanupExclusions.paths(),
+        cleanupLog: CleanupLog = .shared
+    ) {
         self.git = git
         self.excludedPaths = excludedPaths
+        self.cleanupLog = cleanupLog
     }
 
     /// The single decision point, used by the scan and again before moving.
@@ -528,11 +534,34 @@ struct ProjectJunkFinder: Sendable {
                 do {
                     try trash(artifact.url)
                     report.moved.append(artifact)
+                    cleanupLog.record(
+                        source: "projectJunk",
+                        category: artifact.kind,
+                        action: .trashed,
+                        path: artifact.url.path,
+                        bytes: artifact.size
+                    )
                 } catch {
                     report.failures.append(.init(url: artifact.url, reason: nil, message: error.localizedDescription))
+                    cleanupLog.record(
+                        source: "projectJunk",
+                        category: artifact.kind,
+                        action: .failed,
+                        path: artifact.url.path,
+                        bytes: artifact.size,
+                        reason: error.localizedDescription
+                    )
                 }
             case .rejected(let reason):
                 report.failures.append(.init(url: artifact.url, reason: reason, message: reason.message))
+                cleanupLog.record(
+                    source: "projectJunk",
+                    category: artifact.kind,
+                    action: .skipped,
+                    path: artifact.url.path,
+                    bytes: artifact.size,
+                    reason: reason.message
+                )
             }
         }
         return report
