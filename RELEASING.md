@@ -13,6 +13,69 @@ reference lives in [`scripts/SECRETS.md`](scripts/SECRETS.md).
 
 Until the signing secrets below exist, publish with **Actions > Release (unsigned) > Run workflow** (`.github/workflows/release-unsigned.yml`) and enter the version from `project.yml`. It runs the tests, builds a universal app, ad-hoc signs it, packages `Sift-<version>.dmg` and `.zip`, and creates the `v<version>` release with first-launch instructions. It does not notarize and does not touch Homebrew. Users must click **Open Anyway** in System Settings > Privacy & Security once. Switch to the signed workflow below as soon as you can.
 
+## Sparkle update signing (4.2.0 and later)
+
+Sift 4.2.0 is the first release that updates itself with
+[Sparkle](https://sparkle-project.org). Every update archive is signed with an
+Ed25519 key; the app verifies it against `SUPublicEDKey` in `Info.plist`
+(`project.yml`). The release workflow refuses to publish without a real key.
+
+### One-time owner setup
+
+1. Generate the key pair with the Sparkle 2.10.1 tools. `generate_keys` stores
+   the private key in your **login keychain** and prints the public key:
+
+   ```bash
+   Sparkle-2.10.1/bin/generate_keys
+   ```
+
+2. Put the printed public key in `project.yml` as `SUPublicEDKey` (W7's app
+   change already carries the placeholder `SPARKLE_PUBLIC_ED_KEY_PLACEHOLDER`).
+   The workflow fails while the placeholder is still there.
+
+3. Export the private key once and store it offline (password manager or an
+   encrypted backup):
+
+   ```bash
+   Sparkle-2.10.1/bin/generate_keys -x sparkle-private-key.txt
+   chmod 600 sparkle-private-key.txt
+   ```
+
+   The file is the base64 private seed. **Back it up.** Losing it means no
+   future release can be delivered as an update; every user has to download
+   the next version by hand and reinstall once.
+
+4. Upload it as the repository secret, then delete the local copy:
+
+   ```bash
+   gh secret set SPARKLE_ED_PRIVATE_KEY -R BadryansahBangsawan/Sift < sparkle-private-key.txt
+   rm -P sparkle-private-key.txt
+   ```
+
+   Never commit the key, paste it into an issue, or echo it in a workflow.
+
+5. Keep the public key in every future release. Sparkle only supports key
+   rotation when the old key signs the transition; removing the key is
+   rejected by Sparkle.
+
+### What the release workflow now does
+
+`release-unsigned.yml` downloads Sparkle 2.10.1 (SHA-256 pinned), refuses to
+continue when `SPARKLE_ED_PRIVATE_KEY` is empty or `SUPublicEDKey` is missing or
+the placeholder, and then:
+
+- signs `Sift-<version>.zip` with the secret through
+  `scripts/make-appcast.sh`;
+- verifies that the signature matches the built app's `SUPublicEDKey`;
+- checks that `Contents/Frameworks/Sparkle.framework` is embedded and that
+  `codesign --verify --deep --strict` still passes;
+- publishes `appcast.xml` next to the DMG and ZIP, and includes it in the
+  dry-run artifact.
+
+The app reads updates from
+`https://github.com/BadryansahBangsawan/Sift/releases/latest/download/appcast.xml`.
+Sift 4.1.2 and older have no updater: their users install 4.2.0 manually once.
+
 ## 0. What the release needs
 
 | Item | Where it is used |
