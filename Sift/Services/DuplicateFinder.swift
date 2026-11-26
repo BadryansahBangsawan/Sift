@@ -158,14 +158,17 @@ actor DuplicateFinder {
     private let fileManager: FileManager
     private let trashHandler: TrashHandler
     private let preTrashHandler: PreTrashHandler?
+    private let cleanupLog: CleanupLog
 
     init(
         fileManager: FileManager = .default,
         trashHandler: TrashHandler? = nil,
-        preTrashHandler: PreTrashHandler? = nil
+        preTrashHandler: PreTrashHandler? = nil,
+        cleanupLog: CleanupLog = .shared
     ) {
         self.fileManager = fileManager
         self.preTrashHandler = preTrashHandler
+        self.cleanupLog = cleanupLog
         self.trashHandler = trashHandler ?? { url in
             var resultingURL: NSURL?
             try FileManager.default.trashItem(at: url, resultingItemURL: &resultingURL)
@@ -382,12 +385,33 @@ actor DuplicateFinder {
                 try Self.validateSelectedFile(file, expectedDigest: group.digest)
                 try trashHandler(file.url)
                 trashed.append(file)
+                cleanupLog.record(
+                    source: "duplicates",
+                    category: "Duplicates",
+                    action: .trashed,
+                    path: file.url.path,
+                    bytes: file.size
+                )
             } catch is CancellationError {
                 throw CancellationError()
             } catch let error as DuplicateFinderError {
                 failures.append(DuplicateTrashFailure(url: file.url, message: error.localizedDescription))
+                cleanupLog.record(
+                    source: "duplicates",
+                    category: "Duplicates",
+                    action: .failed,
+                    path: file.url.path,
+                    reason: error.localizedDescription
+                )
             } catch {
                 failures.append(DuplicateTrashFailure(url: file.url, message: error.localizedDescription))
+                cleanupLog.record(
+                    source: "duplicates",
+                    category: "Duplicates",
+                    action: .failed,
+                    path: file.url.path,
+                    reason: error.localizedDescription
+                )
             }
         }
         try Self.validateKeeper(group.keeper, expectedDigest: group.digest)

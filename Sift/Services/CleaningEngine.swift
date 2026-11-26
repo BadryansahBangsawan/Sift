@@ -25,6 +25,7 @@ actor CleaningEngine {
     /// Docker CLI locations, in search order. Injectable so a test can run a
     /// fixture CLI instead of the user's Docker installation.
     private let dockerBinaryPaths: [String]
+    private let cleanupLog: CleanupLog
 
     init(
         homeDirectory: URL = FileManager.default.homeDirectoryForCurrentUser,
@@ -32,12 +33,14 @@ actor CleaningEngine {
             RunningAppGuard.systemIsRunning(bundleIdentifier: bundleID, appURL: nil)
         },
         trashOperation: @escaping (URL) throws -> String? = systemTrashItem,
-        dockerBinaryPaths: [String] = ["/usr/local/bin/docker", "/opt/homebrew/bin/docker"]
+        dockerBinaryPaths: [String] = ["/usr/local/bin/docker", "/opt/homebrew/bin/docker"],
+        cleanupLog: CleanupLog = .shared
     ) {
         self.homeDirectory = XcodeBuildMCPDerivedDataSupport.canonicalHomeDirectory(homeDirectory)
         self.isAppRunning = isAppRunning
         self.trashOperation = trashOperation
         self.dockerBinaryPaths = dockerBinaryPaths
+        self.cleanupLog = cleanupLog
     }
 
     struct CleaningResult {
@@ -79,6 +82,7 @@ actor CleaningEngine {
     func cleanItems(
         _ items: [CleanableItem],
         unattended: Bool = false,
+        logSource: String = "manual",
         progressHandler: @Sendable (Double) -> Void
     ) async -> CleaningResult {
         var result = CleaningResult()
@@ -103,28 +107,36 @@ actor CleaningEngine {
             if unattended && item.isActionItem {
                 // Docker prune, the purgeable-space entry, a simulator
                 // runtime: nothing on disk to move to the Trash.
-                result.skippedPaths[item.path] = String(
+                let reason = String(
                     localized: "Left for a manual clean: it can only be removed by hand."
                 )
+                result.skippedPaths[item.path] = reason
+                recordCleanupLog(item, action: .skipped, source: logSource, reason: reason)
                 continue
             }
             if CleanupExclusions.excludes(item.path, paths: exclusions) {
-                result.skippedPaths[item.path] = String(
+                let reason = String(
                     format: String(localized: "Excluded from cleanup: %@"),
                     item.name
                 )
+                result.skippedPaths[item.path] = reason
+                recordCleanupLog(item, action: .skipped, source: logSource, reason: reason)
                 continue
             }
 
             // The user empties the Trash in Finder. Unlinking its contents here
             // would make them unrecoverable with no Finder confirmation at all.
             if item.category == .trash {
-                result.skippedPaths[item.path] = String(localized: "The Trash is emptied through Finder.")
+                let reason = String(localized: "The Trash is emptied through Finder.")
+                result.skippedPaths[item.path] = reason
+                recordCleanupLog(item, action: .skipped, source: logSource, reason: reason)
                 continue
             }
 
             if item.category == .aiApps, !AIToolCleanupCatalog.accepts(item: item, home: homeDirectory.path) {
-                result.skippedPaths[item.path] = String(localized: "Not a supported AI tool path.")
+                let reason = String(localized: "Not a supported AI tool path.")
+                result.skippedPaths[item.path] = reason
+                recordCleanupLog(item, action: .skipped, source: logSource, reason: reason)
                 continue
             }
 
@@ -140,6 +152,7 @@ actor CleaningEngine {
                     )
                     result.skippedPaths[item.path] = detail
                     Logger.shared.log("Skipped AI tool item: \(item.path) — \(detail)", level: .info)
+                    recordCleanupLog(item, action: .skipped, source: logSource, reason: detail)
                     continue
                 }
                 // A session the user resumed after the scan is live work. The
@@ -155,6 +168,7 @@ actor CleaningEngine {
                     )
                     result.skippedPaths[item.path] = detail
                     Logger.shared.log("Skipped open AI session: \(item.path)", level: .info)
+                    recordCleanupLog(item, action: .skipped, source: logSource, reason: detail)
                     continue
                 }
             }
@@ -185,6 +199,11 @@ actor CleaningEngine {
                 if let error = thinOutcome.error {
                     result.errors.append(error)
                 }
+                if thinOutcome.cleaned {
+                    recordCleanupLog(item, action: .removed, source: logSource, bytes: thinOutcome.freed)
+                } else if let error = thinOutcome.error {
+                    recordCleanupLog(item, action: .failed, source: logSource, reason: error)
+                }
                 continue
             }
 
@@ -201,6 +220,11 @@ actor CleaningEngine {
                 }
                 if let error = lprojOutcome.error {
                     result.errors.append(error)
+                }
+                if lprojOutcome.cleaned {
+                    recordCleanupLog(item, action: .removed, source: logSource, bytes: lprojOutcome.freed)
+                } else if let error = lprojOutcome.error {
+                    recordCleanupLog(item, action: .failed, source: logSource, reason: error)
                 }
                 continue
             }
@@ -237,6 +261,11 @@ actor CleaningEngine {
                 if let error = deleteOutcome.error {
                     result.errors.append(error)
                 }
+                if deleteOutcome.cleaned {
+                    recordCleanupLog(item, action: .removed, source: logSource, bytes: deleteOutcome.freed)
+                } else if let error = deleteOutcome.error {
+                    recordCleanupLog(item, action: .failed, source: logSource, reason: error)
+                }
                 continue
             }
 
@@ -254,10 +283,12 @@ actor CleaningEngine {
                     let remainder = inspection.rejectionReason ?? "could not be verified"
                     let msg = "Skipped temporary entry \(item.name) at \(item.path): it \(remainder)"
                     Logger.shared.log(msg, level: .warning)
-                    result.skippedPaths[item.path] = String(
+                    let reason = String(
                         format: String(localized: "Temporary entry is in use: it %@"),
                         remainder
                     )
+                    result.skippedPaths[item.path] = reason
+                    recordCleanupLog(item, action: .skipped, source: logSource, reason: reason)
                     continue
                 }
             }
@@ -266,11 +297,19 @@ actor CleaningEngine {
                 let itemURL = URL(fileURLWithPath: item.path)
                 guard !hasUnexpectedSymlink(in: item.path) else {
                     Logger.shared.log("Skipped symlink or unsafe path: \(item.path)", level: .warning)
-                    result.skippedPaths[item.path] = String(localized: "Unsafe path: a symlink points elsewhere.")
+                    let reason = String(localized: "Unsafe path: a symlink points elsewhere.")
+                    result.skippedPaths[item.path] = reason
+                    recordCleanupLog(item, action: .skipped, source: logSource, reason: reason)
                     continue
                 }
                 guard fileManager.fileExists(atPath: item.path) else {
                     result.cleanedPaths.insert(item.path)
+                    recordCleanupLog(
+                        item,
+                        action: .skipped,
+                        source: logSource,
+                        reason: "File no longer exists"
+                    )
                     continue
                 }
                 let resolvedURL = itemURL.resolvingSymlinksInPath()
@@ -284,7 +323,9 @@ actor CleaningEngine {
                 let pathAccepted = isSafeToDelete(item: item, resolvedPath: resolved)
                 guard pathAccepted else {
                     Logger.shared.log("Skipped symlink or unsafe path: \(item.path) -> \(resolved)", level: .warning)
-                    result.skippedPaths[item.path] = String(localized: "Outside the folders Sift cleans.")
+                    let reason = String(localized: "Outside the folders Sift cleans.")
+                    result.skippedPaths[item.path] = reason
+                    recordCleanupLog(item, action: .skipped, source: logSource, reason: reason)
                     continue
                 }
 
@@ -296,6 +337,7 @@ actor CleaningEngine {
                     let msg = "Aborting delete: path resolution changed between check and unlink for \(item.path)"
                     Logger.shared.log(msg, level: .warning)
                     result.errors.append(msg)
+                    recordCleanupLog(item, action: .failed, source: logSource, reason: msg)
                     continue
                 }
 
@@ -321,6 +363,7 @@ actor CleaningEngine {
                         result.trashedPaths.insert(trashed)
                     }
                     var removalError: String?
+                    var removedCompanions: [String] = []
                     for companion in item.companionPaths {
                         guard !AIToolCleanupCatalog.isNeverTouch(companion),
                               fileManager.fileExists(atPath: companion),
@@ -337,12 +380,25 @@ actor CleaningEngine {
                         if let trashed = try removeAIPath(at: companionURL, useTrash: useTrash) {
                             result.trashedPaths.insert(trashed)
                         }
+                        removedCompanions.append(companion)
+                    }
+                    let logAction: CleanupLog.Action = useTrash ? .trashed : .removed
+                    recordCleanupLog(item, action: logAction, source: logSource, bytes: item.size)
+                    for companion in removedCompanions {
+                        cleanupLog.record(
+                            source: logSource,
+                            category: item.category.rawValue,
+                            action: logAction,
+                            path: companion,
+                            bytes: nil
+                        )
                     }
                     if let removalError {
                         // The primary path is already gone; report the leftover
                         // instead of claiming a complete cleanup.
                         result.errors.append(removalError)
                         Logger.shared.log("Clean failed: \(removalError)", level: .error)
+                        recordCleanupLog(item, action: .failed, source: logSource, reason: removalError)
                     } else {
                         // A Trash move reclaims nothing until the user empties the
                         // Trash, so only unlinked caches and logs count as freed here.
@@ -357,6 +413,7 @@ actor CleaningEngine {
                     continue
                 }
 
+                let logAction: CleanupLog.Action
                 if isManagedDerivedData {
                     // The legacy shared root predates XcodeBuildMCP's
                     // per-workspace lock, so only workspace DerivedData waits
@@ -398,6 +455,7 @@ actor CleaningEngine {
                     // the Trash is emptied (which records them itself), so this
                     // item must not add to freedSpace here.
                     result.trashedSpace += item.size
+                    logAction = .trashed
                 } else if item.movesToTrash || unattended {
                     // Rows the user opted into that hold work rather than junk
                     // (Xcode Archives) leave through the Trash so they stay
@@ -407,12 +465,15 @@ actor CleaningEngine {
                         result.trashedPaths.insert(trashedPath)
                     }
                     result.trashedSpace += item.size
+                    logAction = .trashed
                 } else {
                     try fileManager.removeItem(at: itemURL)
                     result.freedSpace += item.size
+                    logAction = .removed
                 }
                 result.itemsCleaned += 1
                 result.cleanedPaths.insert(item.path)
+                recordCleanupLog(item, action: logAction, source: logSource, bytes: item.size)
             } catch {
                 let nsError = error as NSError
                 let isPermissionDenied =
@@ -428,6 +489,7 @@ actor CleaningEngine {
                     let detail = "\(item.name) at \(item.path): \(error.localizedDescription)"
                     result.errors.append(detail)
                     Logger.shared.log("Clean failed: \(detail)", level: .error)
+                    recordCleanupLog(item, action: .failed, source: logSource, reason: detail)
                     continue
                 }
                 if isPermissionDenied {
@@ -439,12 +501,19 @@ actor CleaningEngine {
                             localized: "Left for a manual clean: it needs administrator privileges."
                         )
                         Logger.shared.log("Scheduled clean left a root-owned path: \(item.path)", level: .info)
+                        recordCleanupLog(
+                            item,
+                            action: .skipped,
+                            source: logSource,
+                            reason: "Needs administrator privileges; left for a manual clean."
+                        )
                         continue
                     }
                     if item.category == .aiApps {
                         let detail = "AI app cleanup requires access as the current user: \(item.path)"
                         result.errors.append(detail)
                         Logger.shared.log(detail, level: .warning)
+                        recordCleanupLog(item, action: .failed, source: logSource, reason: detail)
                         continue
                     }
                     if XcodeBuildMCPDerivedDataSupport.isManagedDerivedDataPath(
@@ -454,6 +523,7 @@ actor CleaningEngine {
                         let detail = "Refusing administrator escalation for XcodeBuildMCP DerivedData: \(item.path)"
                         result.errors.append(detail)
                         Logger.shared.log(detail, level: .warning)
+                        recordCleanupLog(item, action: .failed, source: logSource, reason: detail)
                         continue
                     }
                     // SIP-protected/immutable entries fail even as root, so
@@ -462,6 +532,12 @@ actor CleaningEngine {
                     if FileProtection.isProtectedFromDeletion(path: item.path) {
                         result.protectedPaths.insert(item.path)
                         Logger.shared.log("Skipping SIP-protected path: \(item.path)", level: .info)
+                        recordCleanupLog(
+                            item,
+                            action: .skipped,
+                            source: logSource,
+                            reason: "Protected by macOS (SIP)."
+                        )
                         continue
                     }
                     // Defer to the admin pass — these are typically root-owned
@@ -472,6 +548,7 @@ actor CleaningEngine {
                     let detail = "\(item.name) at \(item.path): \(error.localizedDescription)"
                     result.errors.append(detail)
                     Logger.shared.log("Clean failed: \(detail)", level: .error)
+                    recordCleanupLog(item, action: .failed, source: logSource, reason: detail)
                 }
             }
         }
@@ -484,6 +561,24 @@ actor CleaningEngine {
         return await cleanItems(selectedItems, progressHandler: progressHandler)
     }
 
+    private func recordCleanupLog(
+        _ item: CleanableItem,
+        action: CleanupLog.Action,
+        source: String,
+        bytes: Int64? = nil,
+        reason: String? = nil,
+        path: String? = nil
+    ) {
+        cleanupLog.record(
+            source: source,
+            category: item.category.rawValue,
+            action: action,
+            path: path ?? item.path,
+            bytes: bytes,
+            reason: reason
+        )
+    }
+
     /// Re-runs the deletion of the supplied items as root via NSAppleScript's
     /// "with administrator privileges" clause. Triggers exactly one auth
     /// prompt for the whole batch (macOS caches the credential for ~5 min).
@@ -492,7 +587,7 @@ actor CleaningEngine {
     /// level pass (isSafeToDelete / isExplicitSingleFileDeletable) before it
     /// gets handed off to /bin/rm. Paths are passed via a NUL-separated
     /// temp file consumed by xargs -0, so no shell-quoting pitfalls.
-    func cleanWithAdminPrivileges(items: [CleanableItem]) async -> CleaningResult {
+    func cleanWithAdminPrivileges(items: [CleanableItem], logSource: String = "manual") async -> CleaningResult {
         var result = CleaningResult()
 
         Logger.shared.log("Admin pass starting with \(items.count) item(s)", level: .info)
@@ -502,16 +597,24 @@ actor CleaningEngine {
         let exclusions = CleanupExclusions.paths()
         let validated: [(item: CleanableItem, resolved: String)] = items.compactMap { item in
             guard item.category != .trash else {
-                result.errors.append("Trash items are emptied through Finder, not deleted: \(item.name)")
+                let reason = "Trash items are emptied through Finder, not deleted: \(item.name)"
+                result.errors.append(reason)
+                recordCleanupLog(item, action: .skipped, source: logSource, reason: reason)
                 return nil
             }
             guard item.category != .aiApps else {
-                result.errors.append("Administrator cleanup is unavailable for AI app data: \(item.name)")
+                let reason = "Administrator cleanup is unavailable for AI app data: \(item.name)"
+                result.errors.append(reason)
+                recordCleanupLog(item, action: .skipped, source: logSource, reason: reason)
                 return nil
             }
-            guard !CleanupExclusions.excludes(item.path, paths: exclusions) else { return nil }
+            guard !CleanupExclusions.excludes(item.path, paths: exclusions) else {
+                recordCleanupLog(item, action: .skipped, source: logSource, reason: "Excluded from cleanup.")
+                return nil
+            }
             guard !hasUnexpectedSymlink(in: item.path) else {
                 Logger.shared.log("Refusing admin escalation for symlinked path: \(item.path)", level: .warning)
+                recordCleanupLog(item, action: .skipped, source: logSource, reason: "Unsafe path: a symlink points elsewhere.")
                 return nil
             }
             let resolved = URL(fileURLWithPath: item.path).resolvingSymlinksInPath().path
@@ -527,6 +630,12 @@ actor CleaningEngine {
                     "Refusing administrator escalation for XcodeBuildMCP DerivedData: \(item.path)",
                     level: .warning
                 )
+                recordCleanupLog(
+                    item,
+                    action: .skipped,
+                    source: logSource,
+                    reason: "Refusing administrator escalation for XcodeBuildMCP DerivedData."
+                )
                 return nil
             }
             // languageFiles is deliberately absent: an admin rm -rf of an
@@ -539,6 +648,7 @@ actor CleaningEngine {
             )
             if !accepted {
                 Logger.shared.log("Refusing admin escalation for unsafe path: \(item.path)", level: .warning)
+                recordCleanupLog(item, action: .skipped, source: logSource, reason: "Outside the folders Sift cleans.")
             }
             return accepted ? (item, resolved) : nil
         }
@@ -593,6 +703,14 @@ actor CleaningEngine {
         }
 
         if let runError, runError.contains("-128") {
+            for (item, _) in validated {
+                recordCleanupLog(
+                    item,
+                    action: .skipped,
+                    source: logSource,
+                    reason: "Administrator authorization was cancelled."
+                )
+            }
             return result
         }
         if let runError {
@@ -607,11 +725,18 @@ actor CleaningEngine {
                 result.cleanedPaths.insert(item.path)
                 result.itemsCleaned += 1
                 result.freedSpace += item.size
+                recordCleanupLog(item, action: .removedWithAdmin, source: logSource, bytes: item.size)
             } else if FileProtection.isProtectedFromDeletion(path: resolved) {
                 // SIP-protected survivors are expected — root rm can't touch
                 // them either. Record quietly instead of raising an error.
                 result.protectedPaths.insert(item.path)
                 Logger.shared.log("Admin pass skipped SIP-protected path: \(item.path)", level: .info)
+                recordCleanupLog(
+                    item,
+                    action: .skipped,
+                    source: logSource,
+                    reason: "Protected by macOS (SIP)."
+                )
             } else if let preInode = preDeleteInodes[resolved],
                       let nowInode = ((try? fileManager.attributesOfItem(atPath: resolved))?[.systemFileNumber] as? NSNumber)?.uint64Value,
                       nowInode != preInode {
@@ -622,10 +747,12 @@ actor CleaningEngine {
                 result.itemsCleaned += 1
                 result.freedSpace += item.size
                 Logger.shared.log("Deleted and recreated by its daemon (live log): \(item.path)", level: .info)
+                recordCleanupLog(item, action: .removedWithAdmin, source: logSource, bytes: item.size)
             } else {
                 let detail = "\(item.name) at \(item.path) survived admin removal"
                 result.errors.append(detail)
                 Logger.shared.log("Admin pass survivor: \(detail)", level: .error)
+                recordCleanupLog(item, action: .failed, source: logSource, reason: detail)
             }
         }
         Logger.shared.log("Admin pass complete: \(result.itemsCleaned) deleted, \(result.errors.count) survived, \(result.skippedProtected) protected", level: .info)

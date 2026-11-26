@@ -18,10 +18,6 @@ enum TmpJunkPolicy {
     /// unverifiable entry is never offered.
     static let maxWalkEntries = 20_000
 
-    /// A repository or worktree at the root, or nested up to this depth, makes
-    /// the entry live work.
-    static let gitInspectionDepth = 3
-
     struct Inspection {
         let size: Int64
         let newestModification: Date?
@@ -101,7 +97,6 @@ enum TmpJunkPolicy {
         // Directory: one bounded walk collects size, the newest modification
         // anywhere inside, repositories, and sockets, so the scan pays for the
         // subtree once.
-        let baseDepth = entryURL.pathComponents.count
         var size: Int64 = 0
         var newest = attributes[.modificationDate] as? Date
         var containsGit = false
@@ -128,8 +123,10 @@ enum TmpJunkPolicy {
                     hitWalkCap = true
                     break
                 }
-                let depth = childURL.pathComponents.count - baseDepth
-                if childURL.lastPathComponent == ".git", depth <= gitInspectionDepth {
+                // Any `.git` entry at any depth is live work: a directory for a
+                // repository, a file for a linked worktree. The bounded walk
+                // already limits what this costs.
+                if childURL.lastPathComponent == ".git" {
                     containsGit = true
                 }
                 guard let values = try? childURL.resourceValues(forKeys: Set(keys)) else { continue }

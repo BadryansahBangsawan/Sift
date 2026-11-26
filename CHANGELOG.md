@@ -9,6 +9,14 @@ All notable user-facing changes to Sift. Sift was called PureMac before 4.0.0.
 - Sift can now update itself: choose Sift → Check for Updates… or open
   Settings → Updates. Updates are verified with a signature before installing.
   Versions up to 4.1.2 need one manual download of 4.2.0 to get this.
+- Sift now keeps a local log of every file it moves to the Trash or deletes, at
+  `~/Library/Logs/Sift/cleanup.log`, so a cleanup can be audited later. The log
+  stays on the Mac and records paths, not file contents.
+
+### Fixed
+
+- The `/tmp` cleanup no longer offers a folder that holds a git worktree nested
+  deeper than three levels: any `.git` entry anywhere inside is live work.
 
 ## 4.1.2
 

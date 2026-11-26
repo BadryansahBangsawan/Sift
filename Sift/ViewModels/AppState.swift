@@ -184,6 +184,7 @@ final class AppState: ObservableObject {
     private let locationsProvider: () -> Locations
     private let appFileScanner: AppFileScanner
     private let appFileTrasher: AppFileTrasher
+    let cleanupLog: CleanupLog
     /// Home directory app-file removal is scoped to. Injectable so tests can
     /// build symlink fixtures outside the real home directory.
     private let homeDirectory: URL
@@ -276,6 +277,7 @@ final class AppState: ObservableObject {
         scanEngine: ScanEngine = ScanEngine(),
         cleaningEngine: CleaningEngine = CleaningEngine(),
         historyStore: CleanupHistoryStore = CleanupHistoryStore(),
+        cleanupLog: CleanupLog = .shared,
         installedAppsProvider: @escaping () -> [InstalledApp] = { AppInfoFetcher.shared.fetchInstalledApps() },
         homeDirectory: URL = FileManager.default.homeDirectoryForCurrentUser,
         isAppRunning: @escaping RunningAppGuard.RunningCheck = RunningAppGuard.systemIsRunning
@@ -288,6 +290,7 @@ final class AppState: ObservableObject {
         self.scanEngine = scanEngine
         self.cleaningEngine = cleaningEngine
         self.historyStore = historyStore
+        self.cleanupLog = cleanupLog
         self.installedAppsProvider = installedAppsProvider
         cleanupHistory = historyStore.load()
         lastScanDate = UserDefaults.standard.object(forKey: Self.lastScanDateKey) as? Date
@@ -437,6 +440,15 @@ final class AppState: ObservableObject {
         if !blocked.isEmpty {
             let blockedList = blocked.map(\.path).joined(separator: ", ")
             Logger.shared.log("Refused to delete \(blocked.count) protected app file(s): \(blockedList)", level: .warning)
+            for url in blocked {
+                cleanupLog.record(
+                    source: "uninstall",
+                    category: "App files",
+                    action: .skipped,
+                    path: url.path,
+                    reason: "Refused: a protected home directory or a symlinked parent."
+                )
+            }
             selectedFiles.subtract(blocked)
         }
         guard !urls.isEmpty else {
@@ -451,6 +463,25 @@ final class AppState: ObservableObject {
                 guard let self else { return }
 
                 self.applyRemovedAppFiles(removed)
+                for url in removed {
+                    self.cleanupLog.record(
+                        source: "uninstall",
+                        category: "App files",
+                        action: .trashed,
+                        path: url.path
+                    )
+                }
+                for url in failed {
+                    self.cleanupLog.record(
+                        source: "uninstall",
+                        category: "App files",
+                        action: needsFullDiskAccess ? .skipped : .failed,
+                        path: url.path,
+                        reason: needsFullDiskAccess
+                            ? "Full Disk Access is required."
+                            : "Could not be moved to the Trash."
+                    )
+                }
 
                 guard !needsAdmin.isEmpty else {
                     self.finishRemoval(
@@ -464,7 +495,7 @@ final class AppState: ObservableObject {
                 }
 
                 let items = needsAdmin.map { self.cleanableUninstallItem(for: $0) }
-                let adminResult = await self.cleaningEngine.cleanWithAdminPrivileges(items: items)
+                let adminResult = await self.cleaningEngine.cleanWithAdminPrivileges(items: items, logSource: "uninstall")
                 let adminRemoved = needsAdmin.filter { adminResult.cleanedPaths.contains($0.path) }
                 let adminFailed = needsAdmin.filter { !adminResult.cleanedPaths.contains($0.path) }
 
@@ -1001,7 +1032,7 @@ final class AppState: ObservableObject {
         scanState = .cleaning(progress: 0)
         cleanProgress = 0
 
-        var result = await cleaningEngine.cleanItems(items) { [weak self] progress in
+        var result = await cleaningEngine.cleanItems(items, logSource: "retry") { [weak self] progress in
             Task { @MainActor [weak self] in
                 guard let self, self.cleanupGeneration == generation, case .cleaning = self.scanState else { return }
                 self.cleanProgress = progress
@@ -1009,7 +1040,7 @@ final class AppState: ObservableObject {
             }
         }
         if !result.requiresAdmin.isEmpty {
-            let admin = await cleaningEngine.cleanWithAdminPrivileges(items: result.requiresAdmin)
+            let admin = await cleaningEngine.cleanWithAdminPrivileges(items: result.requiresAdmin, logSource: "retry")
             result.cleanedPaths.formUnion(admin.cleanedPaths)
             result.itemsCleaned += admin.itemsCleaned
             result.freedSpace += admin.freedSpace
@@ -1164,7 +1195,11 @@ final class AppState: ObservableObject {
         cleanProgress = 0
 
         Task {
-            var result = await cleaningEngine.cleanItems(itemsToClean, unattended: scheduled) { [weak self] progress in
+            var result = await cleaningEngine.cleanItems(
+                itemsToClean,
+                unattended: scheduled,
+                logSource: scheduled ? "scheduled" : "manual"
+            ) { [weak self] progress in
                 Task { @MainActor [weak self] in
                     guard let self, self.cleanupGeneration == generation, case .cleaning = self.scanState else { return }
                     self.cleanProgress = progress
@@ -1177,7 +1212,10 @@ final class AppState: ObservableObject {
             // never escalates: it cannot stop to ask, so those rows are left
             // for the next manual review instead.
             if !scheduled, !result.requiresAdmin.isEmpty {
-                let admin = await cleaningEngine.cleanWithAdminPrivileges(items: result.requiresAdmin)
+                let admin = await cleaningEngine.cleanWithAdminPrivileges(
+                    items: result.requiresAdmin,
+                    logSource: scheduled ? "scheduled" : "manual"
+                )
                 result.cleanedPaths.formUnion(admin.cleanedPaths)
                 result.itemsCleaned += admin.itemsCleaned
                 result.freedSpace += admin.freedSpace
@@ -1241,7 +1279,7 @@ final class AppState: ObservableObject {
             }
 
             if !cleanResult.requiresAdmin.isEmpty {
-                let admin = await cleaningEngine.cleanWithAdminPrivileges(items: cleanResult.requiresAdmin)
+                let admin = await cleaningEngine.cleanWithAdminPrivileges(items: cleanResult.requiresAdmin, logSource: "manual")
                 cleanResult.cleanedPaths.formUnion(admin.cleanedPaths)
                 cleanResult.itemsCleaned += admin.itemsCleaned
                 cleanResult.freedSpace += admin.freedSpace

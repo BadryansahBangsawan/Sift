@@ -89,3 +89,74 @@ enum OrphanSafetyPolicy {
         return standardized.resolvingSymlinksInPath().path
     }
 }
+
+/// Moves an orphan to the Trash (or hands it to the admin pass) while writing
+/// the audit row. The trash closure is injectable so tests never touch the
+/// real Trash.
+enum OrphanRemover {
+    enum Outcome: Sendable, Equatable {
+        case removed
+        case needsAdmin
+        case failed
+    }
+
+    static func remove(
+        _ url: URL,
+        log: CleanupLog,
+        isSafe: (URL) -> Bool = OrphanSafetyPolicy.isSafeCandidate,
+        trash: (URL) throws -> Void = { try FileManager.default.trashItem(at: $0, resultingItemURL: nil) }
+    ) -> Outcome {
+        guard isSafe(url) else {
+            log.record(
+                source: "orphans",
+                category: "Orphans",
+                action: .skipped,
+                path: url.path,
+                reason: "Unsafe orphan path."
+            )
+            return .failed
+        }
+        do {
+            try trash(url)
+            log.record(source: "orphans", category: "Orphans", action: .trashed, path: url.path)
+            return .removed
+        } catch {
+            let nsError = error as NSError
+            let permissionDeniedCodes = [
+                NSFileReadNoPermissionError,
+                NSFileWriteNoPermissionError,
+                NSFileWriteUnknownError,
+                257,
+                513,
+            ]
+            if permissionDeniedCodes.contains(nsError.code) {
+                return .needsAdmin
+            }
+            log.record(
+                source: "orphans",
+                category: "Orphans",
+                action: .failed,
+                path: url.path,
+                reason: error.localizedDescription
+            )
+            return .failed
+        }
+    }
+
+    /// Writes the outcome of the administrator batch after it returns.
+    static func recordAdminOutcome(urls: [URL], succeeded: Bool, log: CleanupLog) {
+        for url in urls {
+            if succeeded, !FileManager.default.fileExists(atPath: url.path) {
+                log.record(source: "orphans", category: "Orphans", action: .removedWithAdmin, path: url.path)
+            } else {
+                log.record(
+                    source: "orphans",
+                    category: "Orphans",
+                    action: .failed,
+                    path: url.path,
+                    reason: succeeded ? "Survived administrator removal." : "Administrator removal failed."
+                )
+            }
+        }
+    }
+}
