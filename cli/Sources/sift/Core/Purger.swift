@@ -134,7 +134,6 @@ enum Purger {
 
         let tracked = Shell.run(
             git,
-            [safeGitOption, "-C", repository.path, "ls-files", "-z", "--", relative],
             safeGitOptions + ["-C", repositoryPath, "ls-files", "-z", "--", relative],
             timeout: 10
         )
@@ -143,7 +142,6 @@ enum Purger {
 
         let ignored = Shell.run(
             git,
-            [safeGitOption, "-C", repository.path, "check-ignore", "-q", "--", relative],
             safeGitOptions + ["-C", repositoryPath, "check-ignore", "-q", "--", relative],
             timeout: 10
         )
@@ -160,7 +158,7 @@ enum Purger {
 
     /// `-c core.fsmonitor=false` stops a repository's own config from running a
     /// program while git reads the index.
-    static let safeGitOption = "-ccore.fsmonitor=false"
+    static let safeGitOptions = ["-c", "core.fsmonitor=false"]
 
     /// The nearest ancestor holding `.git`, directory or worktree pointer file.
     static func repositoryRoot(containing folder: URL) -> URL? {
