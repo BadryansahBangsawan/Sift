@@ -1210,3 +1210,5 @@
 "Check for Updates…" = "Verificar atualizações…";
 "Check for updates automatically" = "Verificar atualizações automaticamente";
 "Download and install updates automatically" = "Baixar e instalar atualizações automaticamente";
+"Found %@ of junk files, below the cleanup threshold. Nothing was removed." = "Encontrados %@ de arquivos inúteis, abaixo do limite de limpeza. Nada foi removido.";
+"Excluded from cleanup." = "Excluído da limpeza.";

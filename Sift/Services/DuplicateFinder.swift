@@ -113,6 +113,7 @@ struct DuplicateTrashFailure: Identifiable, Hashable, Sendable {
 
 struct DuplicateTrashReport: Hashable, Sendable {
     let trashedFiles: [DuplicateFile]
+    let skippedFiles: [URL]
     let failures: [DuplicateTrashFailure]
 }
 
@@ -322,7 +323,12 @@ actor DuplicateFinder {
             ))
         }
 
+        let exclusions = CleanupExclusions.paths()
         let groups = filesByDigest.values
+            .filter { $0.count > 1 }
+            .map { files in
+                files.filter { !CleanupExclusions.excludes($0.url.path, paths: exclusions) }
+            }
             .filter { $0.count > 1 }
             .map { files -> DuplicateGroup in
                 let sortedFiles = files.sorted {
@@ -362,12 +368,31 @@ actor DuplicateFinder {
             throw DuplicateFinderError.invalidSelection(unknownPath)
         }
         guard !selectedFiles.isEmpty else {
-            return DuplicateTrashReport(trashedFiles: [], failures: [])
+            return DuplicateTrashReport(trashedFiles: [], skippedFiles: [], failures: [])
+        }
+
+        // Exclusions can be added after the scan, so re-check at removal time.
+        let exclusions = CleanupExclusions.paths()
+        let skippedFiles = selectedFiles
+            .filter { CleanupExclusions.excludes($0.url.path, paths: exclusions) }
+            .map(\.url)
+        let filesToTrash = selectedFiles.filter { !skippedFiles.contains($0.url) }
+        for url in skippedFiles {
+            cleanupLog.record(
+                source: "duplicates",
+                category: "Duplicates",
+                action: .skipped,
+                path: url.path,
+                reason: "Excluded from cleanup."
+            )
+        }
+        guard !filesToTrash.isEmpty else {
+            return DuplicateTrashReport(trashedFiles: [], skippedFiles: skippedFiles, failures: [])
         }
 
         try Self.validateKeeper(group.keeper, expectedDigest: group.digest)
         var selectedPhysicalIDs: Set<DuplicatePhysicalFileID> = [group.keeper.identity.physicalID]
-        for file in selectedFiles {
+        for file in filesToTrash {
             try Self.validateSelectedFile(file, expectedDigest: group.digest)
             guard selectedPhysicalIDs.insert(file.identity.physicalID).inserted else {
                 throw DuplicateFinderError.fileChanged(file.url.path)
@@ -376,7 +401,7 @@ actor DuplicateFinder {
 
         var trashed: [DuplicateFile] = []
         var failures: [DuplicateTrashFailure] = []
-        for file in selectedFiles {
+        for file in filesToTrash {
             do {
                 try Self.validateKeeper(group.keeper, expectedDigest: group.digest)
                 try Self.validateSelectedFile(file, expectedDigest: group.digest)
@@ -415,7 +440,7 @@ actor DuplicateFinder {
             }
         }
         try Self.validateKeeper(group.keeper, expectedDigest: group.digest)
-        return DuplicateTrashReport(trashedFiles: trashed, failures: failures)
+        return DuplicateTrashReport(trashedFiles: trashed, skippedFiles: skippedFiles, failures: failures)
     }
 
     private static func validateKeeper(_ file: DuplicateFile, expectedDigest: String) throws {

@@ -10,6 +10,23 @@ All notable user-facing changes to Sift. Sift was called PureMac before 4.0.0.
   macOS directly, the Trash is emptied in Finder, and Sift no longer appears in
   Privacy & Security → Automation.
 
+### Fixed
+
+- `sift-cli purge` now follows the app's git rule: build folders whose files
+  git tracks, or that sit in a repository but are not ignored, are not offered.
+  A worktree `.git` file counts, and if git cannot answer the folder is left
+  alone.
+- Duplicate Finder no longer moves files excluded from cleanup to the Trash;
+  they are reported and logged as skipped.
+- Cleaning an AI session no longer trashes a companion folder that is excluded
+  from cleanup.
+- Uninstalling an app no longer lists a shared `Application Support/<Vendor>`
+  folder used by another installed app; only the app's own paths are listed.
+- Removing orphans now honours cleanup exclusions, including before the
+  administrator batch runs.
+- A scheduled clean skipped by the minimum-size threshold now says so in its
+  notification instead of reading as if junk was found and handled.
+
 ## 4.2.0
 
 ### Added

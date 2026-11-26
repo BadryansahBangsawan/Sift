@@ -20,6 +20,91 @@ final class AppFileSymlinkSafetyTests: XCTestCase {
         if let fixtureHome { try? fileManager.removeItem(at: fixtureHome) }
     }
 
+    func testOwnPathsInASharedVendorAreListedIndividually() async throws {
+        let library = fixtureHome.appendingPathComponent("Library", isDirectory: true)
+        let vendor = library.appendingPathComponent("Application Support/Vendor", isDirectory: true)
+        let byName = vendor.appendingPathComponent("AStuff", isDirectory: true)
+        let byBundle = vendor.appendingPathComponent("com.vendor.AStuff", isDirectory: true)
+        try fileManager.createDirectory(at: byName, withIntermediateDirectories: true)
+        try fileManager.createDirectory(at: byBundle, withIntermediateDirectories: true)
+
+        let finder = AppPathFinder(
+            appInfo: AppPathFinder.AppInfo(
+                appName: "AStuff",
+                bundleIdentifier: "com.vendor.AStuff",
+                path: fixtureHome.appendingPathComponent("Applications/AStuff.app"),
+                entitlements: nil,
+                teamIdentifier: nil
+            ),
+            locations: StubLocations(paths: [library.path]),
+            homeDirectory: fixtureHome
+        )
+
+        let found = await scan(finder)
+
+        XCTAssertFalse(found.contains { $0.standardizedFileURL.path == vendor.standardizedFileURL.path })
+        XCTAssertTrue(found.contains { $0.standardizedFileURL.path == byName.standardizedFileURL.path })
+        XCTAssertTrue(found.contains { $0.standardizedFileURL.path == byBundle.standardizedFileURL.path })
+    }
+
+    func testStandardLibrarySubfolderIsNeverReplacedByItsParent() async throws {
+        let library = fixtureHome.appendingPathComponent("Library", isDirectory: true)
+        let caches = library.appendingPathComponent("Caches", isDirectory: true)
+        let ownCache = caches.appendingPathComponent("com.vendor.AStuff", isDirectory: true)
+        try fileManager.createDirectory(at: ownCache, withIntermediateDirectories: true)
+
+        let finder = AppPathFinder(
+            appInfo: AppPathFinder.AppInfo(
+                appName: "AStuff",
+                bundleIdentifier: "com.vendor.AStuff",
+                path: fixtureHome.appendingPathComponent("Applications/AStuff.app"),
+                entitlements: nil,
+                teamIdentifier: nil
+            ),
+            locations: StubLocations(paths: [library.path]),
+            homeDirectory: fixtureHome
+        )
+
+        let found = await scan(finder)
+
+        XCTAssertTrue(found.contains { $0.standardizedFileURL.path == ownCache.standardizedFileURL.path })
+        XCTAssertFalse(found.contains { $0.standardizedFileURL.path == caches.standardizedFileURL.path })
+    }
+
+    func testSharedVendorFolderIsNotPromoted() async throws {
+        let library = fixtureHome.appendingPathComponent("Library", isDirectory: true)
+        let vendor = library.appendingPathComponent("Application Support/Vendor", isDirectory: true)
+        let ownApp = vendor.appendingPathComponent("AStuff", isDirectory: true)
+        let otherApp = vendor.appendingPathComponent("BStuff", isDirectory: true)
+        try fileManager.createDirectory(at: ownApp, withIntermediateDirectories: true)
+        try fileManager.createDirectory(at: otherApp, withIntermediateDirectories: true)
+        try Data("a".utf8).write(to: ownApp.appendingPathComponent("data.txt"))
+        try Data("b".utf8).write(to: otherApp.appendingPathComponent("data.txt"))
+
+        let finder = AppPathFinder(
+            appInfo: AppPathFinder.AppInfo(
+                appName: "AStuff",
+                bundleIdentifier: "com.vendor.AStuff",
+                path: fixtureHome.appendingPathComponent("Applications/AStuff.app"),
+                entitlements: nil,
+                teamIdentifier: nil
+            ),
+            locations: StubLocations(paths: [library.path]),
+            homeDirectory: fixtureHome
+        )
+
+        let found = await scan(finder)
+
+        XCTAssertFalse(
+            found.contains { $0.standardizedFileURL.path == vendor.standardizedFileURL.path },
+            "the shared vendor folder holds another installed app's data"
+        )
+        XCTAssertFalse(
+            found.contains { $0.standardizedFileURL.path == otherApp.standardizedFileURL.path },
+            "another app's folder is not this app's leftover"
+        )
+    }
+
     func testAppFileScanDoesNotDescendIntoSymlinkedFolder() async throws {
         let fixture = try makeSymlinkFixture()
         let finder = AppPathFinder(

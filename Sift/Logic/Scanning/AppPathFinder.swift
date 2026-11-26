@@ -34,6 +34,9 @@ class AppPathFinder {
     private let appInfo: AppInfo
     private let locations: Locations
     private let sensitivity: Sensitivity
+    /// The user home the Library-root heuristic compares against. Injectable so
+    /// tests can use a fixture home without touching the real one.
+    private let homeDirectory: URL
     private var collectionSet: Set<URL> = []
     private let collectionQueue = DispatchQueue(label: "com.sift.pathfinder.collection")
 
@@ -51,10 +54,16 @@ class AppPathFinder {
 
     // MARK: - Initialization
 
-    init(appInfo: AppInfo, locations: Locations, sensitivity: Sensitivity = .enhanced) {
+    init(
+        appInfo: AppInfo,
+        locations: Locations,
+        sensitivity: Sensitivity = .enhanced,
+        homeDirectory: URL = FileManager.default.homeDirectoryForCurrentUser
+    ) {
         self.appInfo = appInfo
         self.locations = locations
         self.sensitivity = sensitivity
+        self.homeDirectory = homeDirectory
 
         self.normalizedBundleID = appInfo.bundleIdentifier.normalizedForMatching()
         self.bundleLastTwo = appInfo.bundleIdentifier.bundleLastTwoComponents
@@ -138,21 +147,11 @@ class AppPathFinder {
             if shouldSkipItem(normalizedName, at: itemURL) { continue }
 
             if matchesApp(normalizedName: normalizedName, itemURL: itemURL) {
-                let itemToAdd: URL
-
-                // For depth-2 matches in Library root, add the parent directory when
-                // it is a vendor folder (not a standard Library subdirectory).
-                if isLibraryRootSearch && currentDepth == 2 {
-                    let parent = itemURL.deletingLastPathComponent()
-                    let parentName = parent.lastPathComponent
-                    if !Locations.standardLibrarySubdirectories.contains(parentName) {
-                        itemToAdd = parent
-                    } else {
-                        itemToAdd = itemURL
-                    }
-                } else {
-                    itemToAdd = itemURL
-                }
+                // Add the matched item itself. Do not promote a depth-2 match to
+                // its parent: that parent is often a vendor folder shared by
+                // other installed apps from the same vendor, so removing it
+                // would take another app's data with it.
+                let itemToAdd = itemURL
 
                 localResults.append(itemToAdd)
             }
@@ -351,7 +350,7 @@ class AppPathFinder {
     // MARK: - Helpers
 
     private func isLibraryDirectory(_ location: String) -> Bool {
-        location == "\(home)/Library" || location == "/Library"
+        location == "\(homeDirectory.path)/Library" || location == "/Library"
     }
 
     /// Removes child paths when a parent is already in the set, and discards

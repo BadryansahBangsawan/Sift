@@ -1209,3 +1209,5 @@
 "Check for Updates…" = "检查更新…";
 "Check for updates automatically" = "自动检查更新";
 "Download and install updates automatically" = "自动下载并安装更新";
+"Found %@ of junk files, below the cleanup threshold. Nothing was removed." = "发现 %@ 的垃圾文件，低于清理阈值，未删除任何内容。";
+"Excluded from cleanup." = "已从清理中排除。";

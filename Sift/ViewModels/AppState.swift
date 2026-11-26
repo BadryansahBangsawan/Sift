@@ -1427,19 +1427,45 @@ final class AppState: ObservableObject {
         lastScanDate = Date()
         scanState = .completed
         let found = totalJunkSize
-        if scheduler.config.autoClean && totalSelectedSize >= scheduler.config.minimumCleanSize {
+        let selectedBeforeClean = totalSelectedSize
+        if scheduler.config.autoClean && selectedBeforeClean >= scheduler.config.minimumCleanSize {
             cleanAll(scheduled: true)
         }
         if scheduler.config.notifyOnCompletion {
-            sendNotification(freed: found)
+            sendNotification(found: found, selectedSize: selectedBeforeClean)
         }
     }
 
-    private func sendNotification(freed: Int64) {
+    /// The body of the scheduled-run notification. It must not read as if junk
+    /// was cleaned when the minimum-size threshold suppressed the clean.
+    static func scheduledNotificationBody(
+        found: Int64,
+        selectedSize: Int64,
+        autoClean: Bool,
+        minimumCleanSize: Int64
+    ) -> String {
+        let sizeStr = SiftFormat.bytes(found)
+        if autoClean, selectedSize < minimumCleanSize {
+            return String(
+                format: NSLocalizedString(
+                    "Found %@ of junk files, below the cleanup threshold. Nothing was removed.",
+                    comment: ""
+                ),
+                sizeStr
+            )
+        }
+        return String(format: NSLocalizedString("Found %@ of junk files.", comment: ""), sizeStr)
+    }
+
+    private func sendNotification(found: Int64, selectedSize: Int64) {
         let content = UNMutableNotificationContent()
         content.title = "Sift"
-        let sizeStr = SiftFormat.bytes(freed)
-        content.body = String(format: NSLocalizedString("Found %@ of junk files.", comment: ""), sizeStr)
+        content.body = Self.scheduledNotificationBody(
+            found: found,
+            selectedSize: selectedSize,
+            autoClean: scheduler.config.autoClean,
+            minimumCleanSize: scheduler.config.minimumCleanSize
+        )
         content.sound = .default
 
         let request = UNNotificationRequest(

@@ -1210,3 +1210,5 @@
 "Check for Updates…" = "Проверить обновления…";
 "Check for updates automatically" = "Автоматически проверять обновления";
 "Download and install updates automatically" = "Автоматически загружать и устанавливать обновления";
+"Found %@ of junk files, below the cleanup threshold. Nothing was removed." = "Найдено %@ мусорных файлов, ниже порога очистки. Ничего не удалено.";
+"Excluded from cleanup." = "Исключено из очистки.";
