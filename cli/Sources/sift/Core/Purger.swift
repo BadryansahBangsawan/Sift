@@ -42,6 +42,113 @@ enum Purger {
         "pyproject.toml", "requirements.txt", "setup.py", "setup.cfg", "Pipfile",
     ]
 
+    /// The contents must look generated. Mirrors the app's ArtifactRule
+    /// signatures; without this, a source folder that happens to share an
+    /// artifact name and sits next to the marker would be deleted.
+    static func hasContentSignature(for name: String, in folder: URL) -> Bool {
+        let fm = FileManager.default
+        if name.hasPrefix("cmake-build") {
+            return anyOf(["CMakeCache.txt"])(folder, fm)
+        }
+        switch name {
+        case "node_modules":
+            return nodeModulesSignature(folder, fm)
+        case ".next":
+            return anyOf(["BUILD_ID", "cache"])(folder, fm)
+        case ".nuxt", ".turbo", ".svelte-kit", ".angular", ".parcel-cache":
+            return nonEmpty(folder, fm)
+        case "target":
+            return anyOf(["CACHEDIR.TAG", ".rustc_info.json", "classes", "maven-status", "maven-archiver", "streams"])(folder, fm)
+        case ".build":
+            return anyOf(["workspace-state.json", "debug.yaml", "release.yaml", ".lock"])(folder, fm)
+        case "DerivedData":
+            return derivedDataSignature(folder, fm)
+        case "Pods":
+            return anyOf(["Manifest.lock"])(folder, fm)
+        case ".gradle":
+            return gradleSignature(folder, fm)
+        case ".venv", "venv":
+            return anyOf(["pyvenv.cfg"])(folder, fm)
+        case "__pycache__":
+            return bytecodeOnly(folder, fm)
+        case ".pytest_cache", ".mypy_cache", ".ruff_cache":
+            return anyOf(["CACHEDIR.TAG"])(folder, fm)
+        case ".tox":
+            return toxSignature(folder, fm)
+        default:
+            return false
+        }
+    }
+
+    private static func anyOf(_ entries: [String]) -> (URL, FileManager) -> Bool {
+        { folder, _ in entries.contains { lexists(folder.appendingPathComponent($0)) } }
+    }
+
+    private static func nonEmpty(_ folder: URL, _ fm: FileManager) -> Bool {
+        !((try? fm.contentsOfDirectory(atPath: folder.path)) ?? []).isEmpty
+    }
+
+    private static func nodeModulesSignature(_ folder: URL, _ fm: FileManager) -> Bool {
+        for state in [".package-lock.json", ".modules.yaml", ".yarn-state.yml", ".yarn-integrity"]
+        where lexists(folder.appendingPathComponent(state)) {
+            return true
+        }
+        let children = ((try? fm.contentsOfDirectory(atPath: folder.path)) ?? []).sorted().prefix(500)
+        for child in children where !child.hasPrefix(".") {
+            let childURL = folder.appendingPathComponent(child)
+            if child.hasPrefix("@") {
+                let scoped = ((try? fm.contentsOfDirectory(atPath: childURL.path)) ?? []).sorted().prefix(50)
+                if scoped.contains(where: { isRegularFile(childURL.appendingPathComponent($0).appendingPathComponent("package.json")) }) {
+                    return true
+                }
+            } else if isRegularFile(childURL.appendingPathComponent("package.json")) {
+                return true
+            }
+        }
+        return false
+    }
+
+    private static func derivedDataSignature(_ folder: URL, _ fm: FileManager) -> Bool {
+        if anyOf(["Build", "Index.noindex", "ModuleCache.noindex", "info.plist"])(folder, fm) { return true }
+        let children = ((try? fm.contentsOfDirectory(atPath: folder.path)) ?? []).sorted().prefix(200)
+        return children.contains { lexists(folder.appendingPathComponent($0).appendingPathComponent("info.plist")) }
+    }
+
+    private static func gradleSignature(_ folder: URL, _ fm: FileManager) -> Bool {
+        if lexists(folder.appendingPathComponent("buildOutputCleanup")) { return true }
+        let children = (try? fm.contentsOfDirectory(atPath: folder.path)) ?? []
+        return children.contains { name in
+            let parts = name.split(separator: ".", omittingEmptySubsequences: false)
+            return parts.count >= 2 && parts.allSatisfy { !$0.isEmpty && $0.allSatisfy(\.isNumber) }
+        }
+    }
+
+    private static func bytecodeOnly(_ folder: URL, _ fm: FileManager) -> Bool {
+        guard let entries = try? fm.contentsOfDirectory(atPath: folder.path), !entries.isEmpty else { return false }
+        return entries.allSatisfy { entry in
+            isRegularFile(folder.appendingPathComponent(entry))
+                && (entry.hasSuffix(".pyc") || entry.hasSuffix(".pyo"))
+        }
+    }
+
+    private static func toxSignature(_ folder: URL, _ fm: FileManager) -> Bool {
+        let children = (try? fm.contentsOfDirectory(atPath: folder.path)) ?? []
+        return children.contains { child in
+            lexists(folder.appendingPathComponent(child).appendingPathComponent("pyvenv.cfg"))
+                || lexists(folder.appendingPathComponent(child).appendingPathComponent(".tox-info.json"))
+        }
+    }
+
+    static func lexists(_ url: URL) -> Bool {
+        var info = stat()
+        return lstat(url.path, &info) == 0
+    }
+
+    static func isRegularFile(_ url: URL) -> Bool {
+        var info = stat()
+        return lstat(url.path, &info) == 0 && (info.st_mode & S_IFMT) == S_IFREG
+    }
+
     static let defaultRoots = ["Projects", "Code", "dev", "GitHub", "Workspace"]
         .map { "\(Safety.home)/\($0)" }
 
@@ -99,6 +206,7 @@ enum Purger {
                     guard hasProjectMarker(for: name, in: url.deletingLastPathComponent()) else { continue }
                     en.skipDescendants()
                     guard isOfferedByGit(url, project: url.deletingLastPathComponent()) else { continue }
+                    guard hasContentSignature(for: name, in: url) else { continue }
                     if Safety.ignoredPathProtectsCandidate(url.path, ignore: ignore) { continue }
                     let measurement = DirSizer.measure(of: url.path)
                     guard measurement.status == .complete,
