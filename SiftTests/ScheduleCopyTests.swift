@@ -8,6 +8,21 @@ import XCTest
 final class ScheduleCopyTests: XCTestCase {
     private let key = "Moves the junk the scan selected to the Trash, without asking"
 
+    func testSuppressedScheduledCleanNotificationSaysNothingWasRemoved() {
+        let body = AppState.scheduledNotificationBody(
+            found: 10_000,
+            selectedSize: 100,
+            autoClean: true,
+            minimumCleanSize: 5_000
+        )
+
+        XCTAssertTrue(
+            body.localizedCaseInsensitiveContains("nothing was removed"),
+            "a clean suppressed by the minimum size must say so, got: \(body)"
+        )
+        XCTAssertFalse(body.localizedCaseInsensitiveContains("cleaned"), body)
+    }
+
     func testAutoCleanCopyPromisesATrashMove() throws {
         let english = try localizedStrings(for: "en")
         let copy = try XCTUnwrap(english[key])
