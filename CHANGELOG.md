@@ -2,6 +2,14 @@
 
 All notable user-facing changes to Sift. Sift was called PureMac before 4.0.0.
 
+## Unreleased
+
+### Changed
+
+- Sift no longer asks for permission to control Finder. It reveals files through
+  macOS directly, the Trash is emptied in Finder, and Sift no longer appears in
+  Privacy & Security → Automation.
+
 ## 4.2.0
 
 ### Added

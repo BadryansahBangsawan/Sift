@@ -1,5 +1,4 @@
 /* Richieste di permesso di macOS */
-"NSAppleEventsUsageDescription" = "Sift usa gli eventi Apple per chiedere al Finder di mostrare i file e di svuotare il Cestino.";
 "NSDesktopFolderUsageDescription" = "Sift richiede l'accesso alla Scrivania per trovare file inutili e residui.";
 "NSDocumentsFolderUsageDescription" = "Sift richiede l'accesso ai Documenti per trovare file inutili e residui.";
 "NSDownloadsFolderUsageDescription" = "Sift richiede l'accesso ai Download per trovare file inutili e residui.";

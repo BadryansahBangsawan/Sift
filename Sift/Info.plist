@@ -40,8 +40,6 @@
 	<string>Sift needs access to removable volumes to scan for junk files.</string>
 	<key>NSSystemAdministrationUsageDescription</key>
 	<string>Sift needs system administration access to clean caches and uninstall apps completely.</string>
-	<key>NSAppleEventsUsageDescription</key>
-	<string>Sift uses Apple Events to ask Finder to reveal files and to empty the Trash.</string>
 	<key>NSServices</key>
 	<array>
 		<dict>
