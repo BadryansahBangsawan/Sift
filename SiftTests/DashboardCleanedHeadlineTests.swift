@@ -57,6 +57,65 @@ final class DashboardCleanedHeadlineTests: XCTestCase {
         )
     }
 
+
+    func testTrashOnlyHeadlineReportsTheTrashedBytes() async throws {
+        let item = try makeJunkItem()
+        let state = makeState()
+        state.categoryResults[.systemJunk] = CategoryResult(
+            category: .systemJunk,
+            items: [item],
+            totalSize: item.size
+        )
+
+        state.cleanAll(scheduled: true)
+        try await waitUntil(timeout: 5) { !state.scanState.isActive }
+
+        XCTAssertEqual(state.lastCleanupTrashedSpace, item.size)
+        XCTAssertTrue(
+            state.lastCleanupHeadline.contains(SiftFormat.bytes(item.size)),
+            "Headline lost the amount: \(state.lastCleanupHeadline)"
+        )
+    }
+
+    func testMixedCleanupHeadlineKeepsFreedSpace() async throws {
+        let junk = try makeJunkItem()
+        let documents = home.appendingPathComponent("Documents", isDirectory: true)
+        try fileManager.createDirectory(at: documents, withIntermediateDirectories: true)
+        let bigFile = documents.appendingPathComponent("big.bin")
+        try Data(repeating: 2, count: 8_192).write(to: bigFile)
+        let largeFile = CleanableItem(
+            name: bigFile.lastPathComponent,
+            path: bigFile.path,
+            size: 8_192,
+            category: .largeFiles,
+            isSelected: true,
+            lastModified: nil,
+            movesToTrash: true
+        )
+
+        let state = makeState()
+        state.categoryResults[.systemJunk] = CategoryResult(
+            category: .systemJunk,
+            items: [junk],
+            totalSize: junk.size
+        )
+        state.categoryResults[.largeFiles] = CategoryResult(
+            category: .largeFiles,
+            items: [largeFile],
+            totalSize: largeFile.size
+        )
+
+        state.cleanAll()
+        try await waitUntil(timeout: 5) { !state.scanState.isActive }
+
+        XCTAssertGreaterThan(state.totalFreedSpace, 0)
+        XCTAssertTrue(state.lastCleanupHeadline.contains("removed"))
+        XCTAssertFalse(
+            state.lastCleanupHeadline.contains("Moved to Trash"),
+            "Freed bytes still headline a mixed cleanup: \(state.lastCleanupHeadline)"
+        )
+    }
+
     // MARK: - Helpers
 
     private func makeJunkItem() throws -> CleanableItem {
