@@ -83,8 +83,8 @@ enum CleaningCategory: String, CaseIterable, Identifiable, Codable {
     //
     // `trash` is excluded as well. Its items are never unlinked by the
     // generic clean path (see CleaningEngine) and never belong to a scheduled
-    // auto-clean; the Trash is emptied only by asking Finder, after the user
-    // confirms. Smart Scan still measures it via `smartScanCategories`.
+    // auto-clean; the Trash is only shown, and the user empties it in Finder.
+    // Smart Scan still measures it via `smartScanCategories`.
     static var scannable: [CleaningCategory] {
         allCases.filter {
             $0 != .smartScan && $0 != .purgeableSpace && $0 != .trash && !appModifying.contains($0)
@@ -92,8 +92,8 @@ enum CleaningCategory: String, CaseIterable, Identifiable, Codable {
     }
 
     /// What Smart Scan measures: every scannable category plus the Trash, which
-    /// is shown for its size but whose items start unselected and can only be
-    /// removed by `AppState.emptyTrash()`.
+    /// is shown for its size but whose items start unselected and are never
+    /// removed by Sift; the user empties it in Finder.
     static var smartScanCategories: [CleaningCategory] {
         scannable + [.trash]
     }

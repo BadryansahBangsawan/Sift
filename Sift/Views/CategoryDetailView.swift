@@ -25,7 +25,6 @@ struct CategoryDetailView: View {
     @State private var visibleCache = VisibleItemsCache()
     @State private var pendingReview: CleanupSelection?
     @State private var openMenu: ToolbarMenu?
-    @State private var confirmEmptyTrash = false
     @State private var rescanTask: Task<Void, Never>?
     /// Bumped when a preset is saved or cleared so the menu re-reads defaults.
     @State private var presetRevision = 0
@@ -108,18 +107,6 @@ struct CategoryDetailView: View {
             )
             .siftPresentedLayout()
         }
-        .confirmationDialog(
-            Text("Empty the Trash?"),
-            isPresented: $confirmEmptyTrash,
-            titleVisibility: .visible
-        ) {
-            Button("Empty Trash", role: .destructive) {
-                Task { await appState.emptyTrash() }
-            }
-            Button("Cancel", role: .cancel) {}
-        } message: {
-            Text("Finder will permanently delete \(allItems.count) items (\(SiftFormat.bytes(allItems.reduce(0) { $0 + $1.size }))). This can't be undone.")
-        }
         .onChange(of: category) { _ in
             filter = CleanupReviewFilter()
             pendingReview = nil
@@ -162,7 +149,7 @@ struct CategoryDetailView: View {
                 }
             }
             .buttonStyle(.siftSecondary)
-            .disabled(appState.scanState.isActive || appState.isEmptyingTrash)
+            .disabled(appState.scanState.isActive)
         }
         .padding(.top, 14)
         .padding(.horizontal, 12)
@@ -541,21 +528,6 @@ struct CategoryDetailView: View {
                 .foregroundStyle(SiftColor.textTertiary)
                 .lineLimit(1)
                 .frame(maxWidth: .infinity, alignment: .leading)
-            if appState.isEmptyingTrash {
-                ProgressView().controlSize(.small)
-                Text("Emptying the Trash…").siftStyle(.label)
-            }
-            Button {
-                confirmEmptyTrash = true
-            } label: {
-                HStack(spacing: 10) {
-                    SiftIcon.trash.image(15)
-                    Text("Empty Trash").font(.sift(13))
-                }
-            }
-            .buttonStyle(.siftPrimary)
-            .disabled(allItems.isEmpty || appState.isEmptyingTrash || appState.scanState.isActive)
-            .accessibilityIdentifier("category.emptyTrash")
         }
         .padding(.leading, 22)
         .padding(.trailing, 12)

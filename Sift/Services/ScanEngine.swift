@@ -615,9 +615,9 @@ actor ScanEngine {
 
     /// Measures ~/.Trash only: one row per top-level entry, none selected.
     ///
-    /// These rows are for display. Nothing here is ever unlinked — the Trash
-    /// is emptied by asking Finder (`AppState.emptyTrash()`), and
-    /// CleaningEngine refuses `.trash` items outright. Reading ~/.Trash needs
+    /// These rows are for display. Nothing here is ever unlinked — the user
+    /// empties the Trash in Finder, and CleaningEngine refuses `.trash` items
+    /// outright. Reading ~/.Trash needs
     /// Full Disk Access; without it the listing fails and the category reads
     /// as empty, like any other unreadable location.
     private func scanTrash() -> CategoryResult {

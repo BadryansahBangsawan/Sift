@@ -64,19 +64,26 @@ final class CategoryStateAfterCleanTests: XCTestCase {
         XCTAssertNotNil(state.categoryResults[.userCache])
     }
 
-    func testTrashKeepsItsScannedStateAfterBeingEmptied() async throws {
+    func testTrashKeepsItsScannedStateWhenAnotherCategoryIsCleaned() async throws {
+        let item = try makeCacheItem()
         let state = makeState()
         state.categoryResults[.trash] = CategoryResult(
             category: .trash,
             items: [],
             totalSize: 0
         )
+        state.categoryResults[.userCache] = CategoryResult(
+            category: .userCache,
+            items: [item],
+            totalSize: item.size
+        )
 
-        await state.emptyTrash()
+        state.cleanCategory(.userCache)
+        await waitForClean(state)
 
         XCTAssertNotNil(
             state.categoryResults[.trash],
-            "The Trash page was scanned and emptied; its header must not say 'not scanned yet'"
+            "The Trash page was scanned; its header must not say 'not scanned yet'"
         )
         XCTAssertEqual(state.categoryResults[.trash]?.items.count, 0)
     }
@@ -100,8 +107,7 @@ final class CategoryStateAfterCleanTests: XCTestCase {
             performStartupTasks: false,
             scanEngine: ScanEngine(homeDirectory: home, tmpRoots: [], isAppRunning: { _ in false }),
             cleaningEngine: CleaningEngine(homeDirectory: home, isAppRunning: { _ in false }),
-            historyStore: CleanupHistoryStore(fileURL: home.appendingPathComponent("history.json")),
-            trashEmptier: { nil }
+            historyStore: CleanupHistoryStore(fileURL: home.appendingPathComponent("history.json"))
         )
     }
 
