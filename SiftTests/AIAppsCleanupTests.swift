@@ -161,6 +161,64 @@ final class AIAppsCleanupTests: XCTestCase {
         XCTAssertTrue(fileManager.fileExists(atPath: logs.appendingPathComponent("data.bin").path))
     }
 
+    func testExcludedCompanionFolderIsNotTrashedWithTheSession() async throws {
+        let project = fixtureHome.appendingPathComponent(".claude/projects/-Users-demo", isDirectory: true)
+        try fileManager.createDirectory(at: project, withIntermediateDirectories: true)
+        let identifier = "11111111-1111-1111-1111-111111111111"
+        let transcript = project.appendingPathComponent("\(identifier).jsonl")
+        try Data(repeating: 6, count: 8_192).write(to: transcript)
+        let listedAt = Date().addingTimeInterval(-3_600)
+        try fileManager.setAttributes([.modificationDate: listedAt], ofItemAtPath: transcript.path)
+        let companion = project.appendingPathComponent(identifier, isDirectory: true)
+        try fileManager.createDirectory(at: companion, withIntermediateDirectories: true)
+        let work = companion.appendingPathComponent("notes.md")
+        try Data("unfinished work".utf8).write(to: work)
+
+        let saved = UserDefaults.standard.stringArray(forKey: CleanupExclusions.defaultsKey)
+        defer {
+            if let saved {
+                UserDefaults.standard.set(saved, forKey: CleanupExclusions.defaultsKey)
+            } else {
+                UserDefaults.standard.removeObject(forKey: CleanupExclusions.defaultsKey)
+            }
+        }
+        CleanupExclusions.add(companion.path)
+
+        let trash = fileManager.temporaryDirectory
+            .appendingPathComponent("AIExclusionTrash-\(UUID().uuidString)", isDirectory: true)
+        try fileManager.createDirectory(at: trash, withIntermediateDirectories: true)
+        defer { try? fileManager.removeItem(at: trash) }
+
+        let sessionItem = CleanableItem(
+            name: "demo session",
+            path: transcript.path,
+            size: 8_192,
+            category: .aiApps,
+            isSelected: true,
+            lastModified: listedAt,
+            companionPaths: AIToolCleanupCatalog.sessionCompanions(for: transcript.path),
+            note: nil,
+            movesToTrash: true
+        )
+        let engine = CleaningEngine(
+            homeDirectory: fixtureHome,
+            isAppRunning: { _ in false },
+            trashOperation: { [trash, fileManager] url in
+                let destination = try XCTUnwrap(trash).appendingPathComponent(url.lastPathComponent)
+                try fileManager.moveItem(at: url, to: destination)
+                return destination.path
+            }
+        )
+
+        _ = await engine.cleanItems([sessionItem]) { _ in }
+
+        XCTAssertTrue(
+            fileManager.fileExists(atPath: work.path),
+            "an excluded companion folder must keep its files"
+        )
+        XCTAssertTrue(fileManager.fileExists(atPath: companion.path))
+    }
+
     private func createData(at relativePath: String, directory: Bool = true) throws {
         let url = fixtureHome.appendingPathComponent(relativePath)
         let file = directory ? url.appendingPathComponent("data.bin") : url
