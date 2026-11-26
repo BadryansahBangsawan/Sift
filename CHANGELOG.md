@@ -6,6 +6,10 @@ All notable user-facing changes to Sift. Sift was called PureMac before 4.0.0.
 
 ### Fixed
 
+- Cleaning Large & old files, Installers, Xcode Archives or opt-in AI rows from
+  their own page — or retrying them after granting Full Disk Access — now adds
+  the cleanup-history row it was missing. These rows move to the Trash, so the
+  row records the trashed bytes instead of being skipped.
 - Removing orphaned files with administrator approval no longer breaks on names
   with an apostrophe, and a crafted folder name can no longer run commands as
   root.
