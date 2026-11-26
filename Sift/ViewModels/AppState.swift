@@ -83,6 +83,12 @@ final class AppState: ObservableObject {
             .reduce(0) { $0 + $1.totalSize }
     }
     @Published var totalFreedSpace: Int64 = 0
+    /// The dashboard headline after a cleanup finishes. A Trash move frees
+    /// nothing yet, so the headline has to say where the bytes went instead of
+    /// claiming "0 bytes removed".
+    var lastCleanupHeadline: String {
+        String(localized: "\(SiftFormat.bytes(totalFreedSpace)) removed")
+    }
     /// Completed cleanups, newest first. Persisted by `CleanupHistoryStore`
     /// outside the app bundle so the dashboard survives relaunches.
     @Published var cleanupHistory: [CleanupRecord] = []
