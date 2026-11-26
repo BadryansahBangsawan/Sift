@@ -2,6 +2,15 @@
 
 All notable user-facing changes to Sift. Sift was called PureMac before 4.0.0.
 
+## Unreleased
+
+### Fixed
+
+- `sift-cli uninstall` now checks whether an app is running by comparing its
+  executable path literally, so a bundle whose name has parentheses or dots is
+  no longer deleted while it is open. If the process list cannot be read, the
+  uninstall stops instead of assuming the app is not running.
+
 ## 4.1.0
 
 ### Changed
